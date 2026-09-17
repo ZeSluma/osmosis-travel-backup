@@ -1,5 +1,11 @@
 # Saved-entry reconnect failure — separate runtime observation
 
+## Repeated occurrence after reconciliation APK installation
+
+2026-09-17: user again reports saved-camera direct reconnect unreliable/unsuccessful, followed by successful fresh Rescan rediscovery and connection; media grid visible. No download or deletion. The latest message contains `[Anzahl]`, which is an unfilled count placeholder, not a measured count; the preceding explicit grid observation reported2. This is a repeated user-observed SAVED_ENTRY_RECONNECT_FAILURE with rescan recovery, carried to GATE-7 independently of automatic reconnect, camera sleep and Android background behavior. Exact timing/radio/session state and root cause remain UNCONFIRMED. Current verified reconciliation APK installation is recorded in the local-reconciliation report. The read-only audit deliberately replaces the app process; do not count this controlled disconnect itself as a spontaneous failure.
+
+## Original occurrence
+
 2026-09-17, user-observed during GATE-2 target validation on S25 Ultra/Pocket 4P with the verified G2 debug APK. Exact event time not captured.
 
 - Action: direct connection through the existing saved Pocket 4 Pro entry.

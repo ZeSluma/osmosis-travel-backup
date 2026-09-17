@@ -4,7 +4,7 @@ current_gate: GATE-2
 gate_status: BLOCKED
 gate_0_status: PASS
 gate_0_completed_date: "2026-09-17"
-hardware_session_status: AWAITING_USB_RECONNECT
+hardware_session_status: AWAITING_SAFE_RESCAN_AFTER_UNTRUSTED_EMPTY_ENUMERATION
 hardware_resume_requires_explicit_return: true
 intent_rebase_status: ACCEPTED_IN_PRINCIPLE_RECONCILED
 intent_rebase_evidence: docs/evidence/GATE-1/2026-09-17_intent-rebase/INTENT_AUDIT.md
@@ -170,7 +170,7 @@ gate_1_status: PASS
 gate_2_status: BLOCKED
 gate_2_software_status: PASS
 gate_2_hardware_status: NOT_TESTED
-gate_2_hardware_progress: Pre-fix two-asset persisted stability PASS; same snapshot observed twice, no new generation independently proven; post-fix legacy-candidate HIL pending
+gate_2_hardware_progress: Schema3 and new enumeration generation PASS; two stable assets each LOCAL_PRESENT_UNVERIFIED with one local candidate and VERIFY_EXISTING; protected sizes unchanged; repeat-generation and local-reference restart comparison pending
 gate_2_hardware_evidence: docs/evidence/GATE-2/2026-09-17_hardware/REPORT.md
 gate_2_evidence: docs/evidence/GATE-2/2026-09-17_ledger/REPORT.md
 gate_2_decision: docs/decisions/0009-gate2-foundation-and-continuous-execution.md
@@ -183,15 +183,18 @@ gate_2_branch_publication: PUBLISHED_VERIFIED
 gate_2_verified_remote_code_tip: 54aee87ce32eaee59ce9e65ca4d231f230658794
 gate_2_final_functional_commit: 54aee87ce32eaee59ce9e65ca4d231f230658794
 gate_2_reconciliation_publication: PUBLISHED_VERIFIED
-gate_2_reconciliation_target_install: BLOCKED_NO_ADB_DEVICE
+gate_2_reconciliation_target_install: PASS
 gate_2_unit_tests: 335 passed, zero failures/errors in authoritative LF source snapshot; includes22 local-candidate policy tests
 gate_2_lint: FAIL - five unchanged baseline errors; zero new errors
-gate_2_security: scoped B1, ledger/Keystore, migration1/2-to-3, local-provider/association restart and audit privacy/corruption emulator checks PASS; physical local-candidate adoption not yet verified
+gate_2_security: scoped B1, ledger/Keystore, migration1/2-to-3, local-provider/association restart and audit privacy/corruption emulator checks PASS; target candidates and preservation across incomplete empty enumeration verified, source integrity not proven
+gate_2_empty_enumeration: CONNECTED_BUT_MEDIA_ENUMERATION_EMPTY; snapshot3 INCOMPLETE with zero members; two historical assets and local candidate references intact; root cause UNCONFIRMED
 build_tool_dependency_debt: 44 OSV advisory IDs on 11 unchanged G1 build-classpath coordinates; no returned new/runtime advisory; reviewed build/CI remediation before release
 next_action: >-
   G2 reconciliation checkpoint54aee87 is published and independently verified; main unchanged.
-  Reconnect/unlock S25 via USB debugging; install the exact tested debug APK without data clear (not yet installed).
-  Then perform normal Pocket rescan/reconnection with no download. Verify schema3,
-  new enumeration generation, stable two assets/groups/day/path, persistent local candidates and unverified planning;
-  verify restart and unchanged protected media. No G2 PASS until mandatory evidence is satisfied.
+  Exact tested debug and read-only audit APKs installed with -r on S25; launch succeeded and both protected file sizes unchanged.
+  First post-update audit confirms schema3, new generation, stable two assets/groups/day/path and local unverified candidates.
+  Connected-but-empty observation retained as untrusted INCOMPLETE; historical assets and candidates preserved.
+  Playback-held response and zero parsed records observed, authoritative empty response versus protocol failure not established.
+  After audit process restart, perform one normal Pocket rescan/reconnection with no download;
+  compare another generation and persistent local references, plans and protected sizes. No G2 PASS until mandatory evidence is satisfied.
   Keep saved-entry failure/rescan recovery and future G7 AP/keepalive work separate. No main mutation, merge or release.

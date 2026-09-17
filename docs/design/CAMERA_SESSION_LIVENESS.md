@@ -15,6 +15,8 @@ Current `CameraSession.kt` already has a datalink-keepalive loop with acknowledg
 
 Saved-entry failure followed by successful fresh rescan, awake FOREGROUND_SESSION_DROP, Android background loss and provisional camera sleep remain independent observations. "Playback running on DJI Mimo" is camera UI terminology; it does not prove the Mimo app is running or owns the session. Auto Media Transfer/Mimo competition is a hypothesis requiring evidence.
 
+Saved-entry failure/rescan recovery was reported again after installation of the G2 reconciliation APK; see [repeated hardware finding](../evidence/GATE-2/2026-09-17_hardware/SAVED_ENTRY_RECONNECT.md). G7 must test saved-entry reconnection separately from fresh discovery and preserve uncertainty in failure messages. Repetition establishes a recurring symptom, not its radio/session/root cause.
+
 ## Owner and recovery contract
 
 CameraConnectionManager (the CameraConnectionController architecture role) owns the active camera-specific Android Network and protocol session under the lifecycle-safe connectedDevice execution host. MainActivity is an observer, never the keepalive lifetime owner. During ACTIVE_SYNCHRONIZATION_SESSION:
@@ -44,3 +46,5 @@ Before each run record build/firmware, exact start/stop monotonic times, origina
 | KA07 | Auto Media Transfer/Mimo inactive/active, one variable at a time | Establish whether competing app/feature actually changes AP ownership, BLE, playback, Wi-Fi or Osmosis session; UI wording alone is not proof. Record/restore settings, avoid unintended automatic transfers; stop before an ambiguous operation. |
 
 All KA01–KA07 NOT_TESTED. If a control cannot be safely isolated, classify BLOCKED/NOT_TESTED rather than invent a cause or baseline. Keep G2 local-copy reconciliation progressing; this requirement does not authorize premature G7 changes.
+
+Additional target observation: [CONNECTED_BUT_MEDIA_ENUMERATION_EMPTY](../evidence/GATE-2/2026-09-17_hardware/CONNECTED_BUT_MEDIA_ENUMERATION_EMPTY.md). After apparent wake/rescan the app reported connected and playback-held, yet parsed zero media; actual media-session readiness/root cause remain unconfirmed. The ledger retained two historical assets/candidates and marked the empty snapshot INCOMPLETE. G7 must distinguish connectivity, reported playback mode and trustworthy enumeration, and must never infer an empty source or backup completion from this transitional result.
