@@ -1,3 +1,8 @@
 <resources>
     <string name="strict_transfer_result">File integrity confirmed: %1$d. Existing copies preserved: %2$d. Review required: %3$d. Source equivalence unconfirmed — overall UNVERIFIED.</string>
+    <string name="backup_new">Not downloaded</string>
+    <string name="backup_partial">Partial (%1$d%%) · review needed</string>
+    <string name="backup_transferred">Transferred · unverified</string>
+    <string name="backup_existing">Local copy · unverified</string>
+    <string name="backup_review">Identity needs review</string>
 </resources>

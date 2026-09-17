@@ -1,0 +1,14 @@
+HTTP status=200 length=103945077 offset=0 range_present=false identity_encoding=true etag_present=true
+DURABLE checkpoint_bytes=8389816
+DURABLE checkpoint_bytes=16778424
+DURABLE checkpoint_bytes=25167032
+DURABLE checkpoint_bytes=33555640
+DURABLE checkpoint_bytes=41944248
+DURABLE checkpoint_bytes=50332856
+DURABLE checkpoint_bytes=58721464
+DURABLE checkpoint_bytes=67110072
+DURABLE checkpoint_bytes=75498680
+DURABLE checkpoint_bytes=83887288
+DURABLE checkpoint_bytes=92275896
+DURABLE checkpoint_bytes=100664504
+TRANSFER result=TRANSFERRED_UNVERIFIED

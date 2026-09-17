@@ -1,10 +1,10 @@
 project: osmosis-travel-backup
-current_phase: gate_3_strict_transfer_checkpoint_pending_bundled_target_validation
+current_phase: gate_3_session_evidenced_ui_correction_pending_target
 current_gate: GATE-3
 gate_status: NOT_TESTED
 gate_0_status: PASS
 gate_0_completed_date: "2026-09-17"
-hardware_session_status: GATE3_BUNDLED_SESSION_ACTIVE_SCOPED_NEW_TEST_DOWNLOADS_AUTHORIZED
+hardware_session_status: BUNDLED_TRANSFER_TESTS_COMPLETE_TARGET_DISCONNECTED_UI_RECHECK_PENDING
 hardware_resume_requires_explicit_return: true
 intent_rebase_status: ACCEPTED_IN_PRINCIPLE_RECONCILED
 intent_rebase_evidence: docs/evidence/GATE-1/2026-09-17_intent-rebase/INTENT_AUDIT.md
@@ -165,7 +165,7 @@ product_identity_distribution: Future R-043 phase after proven G2/G3/G7/G4 workf
 execution_policy: CONTINUOUS_DEFINED_NONDESTRUCTIVE_GATES
 cost_policy: AGENTS.md cost-aware execution; targeted iterations, batched evidence, full verification at meaningful checkpoints
 execution_policy_source: AGENTS.md
-current_implementation_scope: GATE-3 strict overall verification, orthogonal evidence, safe transfer/journal/recovery and synthetic tests; no real media transfer or GATE-7 implementation
+current_implementation_scope: GATE-3 strict verification, safe transfer/journal/recovery and persisted UI evidence; two authorized target transfers completed or interrupted; no further transfer or GATE-7 implementation
 ledger_branch_parent: a58d858ecfd404579960d9a32960e151071f9fd3
 gate_1_status: PASS
 gate_2_status: PASS
@@ -194,7 +194,7 @@ gate_2_empty_enumeration: CONNECTED_BUT_MEDIA_ENUMERATION_EMPTY; snapshot3 INCOM
 gate_2_camera_recovery: CAMERA_UNREACHABLE_UNTIL_POWER_CYCLE; user power cycle and fresh rescan restored two videos; snapshot4 contains same two asset identities; root cause UNCONFIRMED; separate G7 wake/recovery investigation
 build_tool_dependency_debt: 44 OSV advisory IDs on 11 unchanged G1 build-classpath coordinates; no returned new/runtime advisory; reviewed build/CI remediation before release
 next_action: >-
-  User ready and scoped NEW test downloads authorized. Conduct the consolidated G3 hardware queue, preserving existing local references and all camera originals; collect all independent results before further software iteration. No identical rescan loops or unsupported successful-resume claim.
+  Human stop - ADB reports no devices found. Reconnect/unlock S25 to install tested UI correction and check distinct A/B labels without any download/retry. Resume remains blocked by missing trustworthy source-continuity proof; do not infer it from ETag presence.
 
 gate_2_identity_decision: docs/decisions/0012-incomplete-identity-observations.md
 gate_2_identity_evidence: docs/evidence/GATE-2/2026-09-17_identity-observations/REPORT.md
@@ -216,7 +216,7 @@ gate_3_parent: 136b02b3951b18def39ace3062ca164584d1f2cd
 gate_3_integrity_decision: docs/decisions/0013-orthogonal-integrity-evidence.md
 
 execution_focus: VERTICAL_SLICE_FIRST_A_SAFETY_B_CURRENT_PATH_C_DEFERRED_HARDENING
-gate_3_current_software_checkpoint: SOFTWARE_PROVEN 376 unit tests PASS and debug/test/release compile PASS; EMULATOR_PROVEN schema6 evidence/journal/storage/fault matrix and separate-process restoration PASS; target UNPROVEN, no target install
+gate_3_current_software_checkpoint: SOFTWARE_PROVEN 382 unit tests PASS, debug/test build and release compile PASS; emulator ledger/storage/UI rendering and launcher security PASS; hardware results in TARGET_SESSION.md
 gate_3_remaining_software: Successful production resume requires actual trustworthy source-continuity evidence; current unknown-prefix/source path safely blocks append and preserves partials. Continue evidence-driven implementation after bundled target facts.
 autonomous_execution_policy: docs/EXECUTION_POLICY.md
 hardware_validation_policy: Queue scoped facts, complete useful software preparation, then one consolidated session with independent PASS/FAIL/INCONCLUSIVE criteria
@@ -224,8 +224,18 @@ gate_3_evidence: docs/evidence/GATE-3/2026-09-17_integrity/REPORT.md
 gate_3_hardware_queue: docs/evidence/GATE-3/2026-09-17_integrity/HARDWARE_QUEUE.md
 gate_3_lint: FAIL - five unchanged baseline errors,79 warnings,2 hints; one new cursor-analysis warning has explicit use closure, retained as nonblocking review
 gate_3_overall_verification: Strict UNVERIFIED while source identity is UNCONFIRMED; independent positive transfer evidence retained; no completion or cleanup eligibility
-gate_3_target_install: PASS - verified d2b2c97 APK installed preserving app data; bounded normal launch and subsequently observed schema6 migration PASS
+gate_3_target_install: PASS for8144ded; newer UI correction NOT_TESTED on target - adb install failed before device access with no devices found
 gate_3_target_resume: NOT_TESTED
 gate_3_target_migration: PASS - live stable schema6 projection retains4 historical assets and both protected references, zero fabricated integrity evidence
-gate_3_target_enumeration: INCONCLUSIVE - user sees1 video; snapshot10 INCOMPLETE with0 materialized assets and1 new null-size unresolved observation; no deletion inferred or rescan repeated
+gate_3_target_enumeration: Scoped regression PASS on8144ded - user sees4 videos, snapshot11 retains4 current members and5 historical assets; no new unresolved observation; overall snapshot INCOMPLETE, source equivalence unconfirmed
 gate_3_hardware_authorization: Explicit user approval for only the hardware-queue NEW non-critical transfer/integrity tests; existing reference files and camera originals protected; no cleanup, destructive tests, merge, release or main modification
+
+gate_3_target_test_a: PASS scoped new full transfer103945077 bytes, integrity CONFIRMED and MediaStore pending0; source identity UNCONFIRMED and overall UNVERIFIED; reference metadata unchanged
+
+gate_3_target_interruption: PASS - B retained330769591 bytes, journal PARTIAL, MediaStore pending1, no integrity/source promotion
+gate_3_target_restart: PASS scoped shared controlled restart retains A CONFIRMED file evidence and B partial/destination; both references unchanged; source UNCONFIRMED and overall UNVERIFIED
+
+gate_3_target_ui_state: FAIL - after restart/reconnect all4 videos appear without distinguishing completed-unverified A and partial B; persistent evidence remains intact; software UI work required
+
+gate_3_target_retry_refusal: PASS - zero new transfer attempts, B330769591 bytes pending1 preserved; no successful-resume claim
+gate_3_ui_correction: SOFTWARE_PROVEN and EMULATOR_PROVEN; original hardware FAIL retained, target correction NOT_TESTED

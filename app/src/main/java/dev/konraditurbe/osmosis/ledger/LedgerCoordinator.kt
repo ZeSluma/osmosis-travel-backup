@@ -70,6 +70,28 @@ class LedgerCoordinator private constructor(context: Context) {
     }
     enum class TransferResult { TRANSFERRED_UNVERIFIED, EXISTING_UNVERIFIED, REVIEW_REQUIRED }
 
+    /** Refresh from durable exact-identity rows after observation/transfer; never read media. */
+    fun displayStates(session:String,files:List<CameraFile>,result:(Map<String,BackupDisplay>)->Unit) {
+        writer.execute {
+            val values=runCatching {
+                val lease=checkNotNull(latestLease)
+                check(session==activeSession && session==leaseSession)
+                val members=database.ledger().assets(lease.snapshotId).associateBy{it.id}
+                files.associate { file ->
+                    val remote=CameraLedgerAdapter.asset(file)
+                    val asset=members[remote.identity(lease.sourceId)]
+                    val replica=asset?.let{database.ledger().replica(it.id)}
+                    val published=asset!=null && replica!=null && database.attempts().forAsset(asset.id).any {
+                        it.state=="PUBLISHED" && it.locator==replica.localLocator && it.checkpoint==asset.size
+                    }
+                    displayKey(file) to if(replica==null) BackupDisplay(BackupDisplayState.REVIEW_REQUIRED)
+                    else BackupDisplayPolicy.resolve(replica.state,replica.localPresence,replica.localLocator!=null,replica.committedLength,asset?.size,published)
+                }
+            }.getOrDefault(emptyMap())
+            result(values)
+        }
+    }
+
     /** Worker-thread caller only. Observation and transfer mutations share one serialized writer. */
     fun transferOriginal(session:String, file:CameraFile, network:android.net.Network,
         cancelled:()->Boolean, progress:(Long)->Unit):TransferResult = writer.submit<TransferResult> {
@@ -99,6 +121,7 @@ class LedgerCoordinator private constructor(context: Context) {
     }.get()
 
     companion object {
+        fun displayKey(file:CameraFile):String=CameraLedgerAdapter.asset(file).identity("DISPLAY_ONLY")
         @Volatile private var instance: LedgerCoordinator? = null
         fun get(context: Context): LedgerCoordinator = instance ?: synchronized(this) {
             instance ?: LedgerCoordinator(context).also { instance = it }

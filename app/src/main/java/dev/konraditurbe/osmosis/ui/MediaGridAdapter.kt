@@ -46,6 +46,12 @@ class MediaGridAdapter(
 
     // Backing list grows as older pages load on scroll (append only).
     private val all: MutableList<CameraFile> = initial.toMutableList()
+    private var backupStates:Map<String,dev.konraditurbe.osmosis.ledger.BackupDisplay>?=null
+    fun filesForBackupDisplay():List<CameraFile> = all.toList()
+    fun setBackupStates(states:Map<String,dev.konraditurbe.osmosis.ledger.BackupDisplay>) {
+        backupStates=states
+        notifyItemRangeChanged(0,itemCount)
+    }
 
     var typeFilter: TypeFilter = TypeFilter.ALL; private set
     var favedOnly: Boolean = false; private set
@@ -169,6 +175,7 @@ class MediaGridAdapter(
         private val check: CheckBox = v.findViewById(R.id.check)
         private val name: TextView = v.findViewById(R.id.name)
         private val star: ImageView = v.findViewById(R.id.star)
+        private val backupState:TextView=v.findViewById(R.id.backupState)
         private var file: CameraFile? = null
         private var downX = 0f
         private var downY = 0f
@@ -191,6 +198,11 @@ class MediaGridAdapter(
 
         fun bind(f: CameraFile) {
             file = f
+            backupState.visibility=if(backupStates==null) View.GONE else View.VISIBLE
+            backupStates?.let { states ->
+                BackupBadge.render(backupState,states[dev.konraditurbe.osmosis.ledger.LedgerCoordinator.displayKey(f)]
+                    ?: dev.konraditurbe.osmosis.ledger.BackupDisplay(dev.konraditurbe.osmosis.ledger.BackupDisplayState.REVIEW_REQUIRED))
+            }
             val queued = selected.containsKey(f.path)
             check.visibility = if (selectMode || queued) View.VISIBLE else View.GONE
             check.isChecked = queued

@@ -1,3 +1,8 @@
 <resources>
     <string name="strict_transfer_result">Integridad del archivo confirmada: %1$d. Copias existentes conservadas: %2$d. Revisión necesaria: %3$d. Equivalencia con el origen sin confirmar — estado general SIN VERIFICAR.</string>
+    <string name="backup_new">Sin descargar</string>
+    <string name="backup_partial">Parcial (%1$d%%) · revisar</string>
+    <string name="backup_transferred">Transferido · sin verificar</string>
+    <string name="backup_existing">Copia local · sin verificar</string>
+    <string name="backup_review">Revisar identidad</string>
 </resources>

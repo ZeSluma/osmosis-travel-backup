@@ -1,3 +1,8 @@
 <resources>
     <string name="strict_transfer_result">文件完整性已确认：%1$d。已保留现有副本：%2$d。需要检查：%3$d。与源文件的一致性尚未确认 — 总体状态：未验证。</string>
+    <string name="backup_new">尚未下载</string>
+    <string name="backup_partial">部分下载 (%1$d%%) · 需要检查</string>
+    <string name="backup_transferred">已传输 · 未验证</string>
+    <string name="backup_existing">本地副本 · 未验证</string>
+    <string name="backup_review">需要检查身份</string>
 </resources>

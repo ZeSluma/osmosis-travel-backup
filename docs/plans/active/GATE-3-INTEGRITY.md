@@ -1,5 +1,11 @@
 # Active GATE-3 — strict integrity and safe failure handling
 
+## Current checkpoint (supersedes historical preparation below)
+
+Bundled target session completed on8144ded: A normal transfer/file integrity, B interruption, shared restart and safe retry refusal PASS within their scopes. Original references preserved. Four members observed but snapshot INCOMPLETE; source proof absent, overall UNVERIFIED. Successful resume remains NOT_TESTED. Raster A/B distinction failed on target; read-only ledger badges now pass six new unit tests and emulator rendering. Full382 tests/debug/test build/release compile PASS; five baseline lint errors unchanged. See docs/evidence/GATE-3/2026-09-17_integrity/SESSION_DISPOSITION.md.
+
+Target disconnected before UI APK update (`adb: no devices found`); no install occurred. Human stop: reconnect S25, then install and perform one scoped A/B label observation with no transfer/retry. Do not repeat already settled Playback observations. A current ETag alone cannot establish original B source continuity; no append or gate PASS on safe refusal alone. G3 NOT_TESTED, implementation true, release false. No further media transfer is authorized by the completed two-test queue.
+
 G2 PASS at136b02b3951b18def39ace3062ca164584d1f2cd. Branch codex/gate-3-transfer-integrity. Implementation authorized; release false; G3 overall NOT_TESTED. ADR0013 resolves the former entry decision: independently confirmed transfer integrity is retained, but source uncertainty means overall UNVERIFIED. No transfer-only completion or cleanup authority.
 
 ## Current software scope

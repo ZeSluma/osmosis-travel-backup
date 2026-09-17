@@ -1,0 +1,4 @@
+Row: 0 _id=18201, _display_name=DJI_20260916143329_0001_D.MP4, _size=38447651, is_pending=0, relative_path=Movies/Osmosis/
+Row: 1 _id=18202, _display_name=DJI_20260917113913_0002_D.MP4, _size=3071380142, is_pending=0, relative_path=Movies/Osmosis/
+Row: 2 _id=18210, _display_name=DJI_20260917184037_0003_D-c27205149b442d47f537bea3.MP4, _size=103945077, is_pending=0, relative_path=Movies/Osmosis/2026-09-17/
+Row: 3 _id=18211, _display_name=DJI_20260917220022_0004_D-6d3fa4c2056f3f54e8bd5269.MP4, _size=NULL, is_pending=1, relative_path=Movies/Osmosis/2026-09-17/

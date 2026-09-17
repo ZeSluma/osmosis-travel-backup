@@ -6,7 +6,11 @@ Candidate: d2b2c97b8bbb04fa5a8115294389d708f1da310d; recheck APK hash from REPOR
 
 Build limitation: this candidate blocks owned-partial retry; it does not implement successful production append/resume. A safe refusal can PASS interrupted-transfer protection, never successful resume. Header/version observations are inputs to subsequent software work; even newly discovered source evidence cannot authorize unimplemented or untested append behavior during this run.
 
-## Order and criteria
+## Current disposition
+
+The two authorized test transfers and shared restart/retry safety check are complete. See SESSION_DISPOSITION.md and TARGET_SESSION.md. Do not repeat the queue or start another download. UI correction is software/emulator proven, not installed because target disconnected. Remaining immediate check: install after USB returns, then observe distinct A/B labels through one normal connection, without selecting or downloading. Successful resume/source-continuity proof remains open and is not implied by this UI check.
+
+## Original order and criteria (historical session plan)
 
 1. Record target installed version/schema and metadata-only sizes/pending state for protected copies. Install the build from the evidence commit once; run read-only projection after controlled launch/migration. PASS: original ledger identities/history/local references retained, schema6 present, no evidence fabricated, protected files unchanged. FAIL: data/reference loss or promotion. INCONCLUSIVE: unavailable target/provider. Do not begin transfers on failure.
 2. Keep camera awake, connect once using normal flow. Preserve historical snapshots. PASS for observation: expected assets represented without merging ambiguous identities or inferring deletion; capture-day/timezone provenance unchanged. Partial/empty responses remain INCOMPLETE and do not trigger repeated identical rescans. Attribute session observations independently.

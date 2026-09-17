@@ -1,3 +1,8 @@
 <resources>
     <string name="strict_transfer_result">Цілісність файлів підтверджено: %1$d. Наявних копій збережено: %2$d. Потребують перевірки: %3$d. Відповідність джерелу не підтверджено — загалом НЕ ПЕРЕВІРЕНО.</string>
+    <string name="backup_new">Не завантажено</string>
+    <string name="backup_partial">Частково (%1$d%%) · потрібна перевірка</string>
+    <string name="backup_transferred">Передано · не перевірено</string>
+    <string name="backup_existing">Локальна копія · не перевірено</string>
+    <string name="backup_review">Перевірити відповідність</string>
 </resources>

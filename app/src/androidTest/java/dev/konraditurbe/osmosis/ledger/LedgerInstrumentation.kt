@@ -49,6 +49,7 @@ object LedgerInstrumentation {
             stage = "credential-migration"
             CredentialInstrumentation.verify(context)
             stage = "phone-staging"
+            BackupDisplayInstrumentation.verify(instrumentation)
             PhoneStagingInstrumentation.verify(context)
             stage = "single-transfer"
             SingleTransferInstrumentation.verify(context)

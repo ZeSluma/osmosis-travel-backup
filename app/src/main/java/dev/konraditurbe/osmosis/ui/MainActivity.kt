@@ -1233,11 +1233,23 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
         grid.layoutManager = lm
         installGridSpacing()
         grid.adapter = ad
+        refreshBackupLabels()
         applyChipsToAdapter()                          // re-apply any active filter to the fresh adapter
         updateDownloadFab()                            // queue survives rebuilds (path-keyed) → reflect it
         loadingMore = false
         installPullToLoadMore()
         logLine("Grid ready: ${files.size} files. Tap a cell to preview + queue, then Download. Long-press a cell to delete.")
+    }
+
+    /** Read-only persisted status refresh; stale session/adapter results cannot repaint a new grid. */
+    private fun refreshBackupLabels() {
+        if(currentModelId!=0x0022 && currentModel.name!="Osmo Pocket 4 Pro")return
+        val target=adapter ?: return
+        val session=ledgerSession ?: return
+        dev.konraditurbe.osmosis.ledger.LedgerCoordinator.get(applicationContext)
+            .displayStates(session,target.filesForBackupDisplay()){states->main.post {
+                if(!transferActivityClosed && session==ledgerSession && adapter===target)target.setBackupStates(states)
+            }}
     }
 
     /** 3 columns portrait, 6 landscape — matches the old GridView numColumns. */
@@ -1457,6 +1469,7 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
                 if (token != null && address != null) {
                     dev.konraditurbe.osmosis.ledger.LedgerCoordinator.get(applicationContext)
                         .observe(address, token, more, !dl.moreAvailable, fetched.isFailure)
+                    refreshBackupLabels()
                 }
                 findViewById<View>(R.id.loadMoreSpinner)?.animate()?.alpha(0f)?.setDuration(180)
                     ?.withEndAction { findViewById<View>(R.id.loadMoreSpinner)?.visibility = View.GONE }?.start()
@@ -1758,6 +1771,7 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
                     // Everything now on the device leaves the queue (saved + already-present); only
                     // failed/paused items stay so a later Download resumes them.
                     adapter?.dequeuePaths(doneKeys.toList())
+                    refreshBackupLabels()
                     updateDownloadFab()
                     overallBar.progress = if (strictPocket) 0 else 100
                     overallText.text = if (strictPocket) getString(R.string.strict_transfer_result, saved, skipped, failed)

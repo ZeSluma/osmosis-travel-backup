@@ -38,6 +38,19 @@
         android:scaleType="fitCenter"
         android:contentDescription="@string/cd_media_badge" />
 
+    <TextView
+        android:id="@+id/backupState"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:layout_marginBottom="20dp"
+        android:padding="4dp"
+        android:background="#DD000000"
+        android:textColor="#FFFFFF"
+        android:textSize="11sp"
+        android:maxLines="3"
+        android:visibility="gone" />
+
     <CheckBox
         android:id="@+id/check"
         android:layout_width="wrap_content"
