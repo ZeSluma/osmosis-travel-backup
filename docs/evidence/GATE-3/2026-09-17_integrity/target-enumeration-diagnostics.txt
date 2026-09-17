@@ -1,0 +1,8 @@
+datalink: playback mode held
+datalink: 0 files (batch 0)
+datalink: 3 files (batch 3)
+datalink: per-store lists — SD 0, internal 1
+datalink: parsed 1 media files
+datalink: page[SD] hdr=-1 records=0 decoded=0
+datalink: page[internal] hdr=-1073741824 records=1 decoded=1
+MANIFEST: 1 files

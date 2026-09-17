@@ -18,6 +18,31 @@ class ManifestRobustnessTest {
 
     private fun session(port: Int) = CameraSession(log = {}, port = port, tcpPoke = port == 9004)
 
+    @Test
+    fun `partial counter echo must not discard the rest of the observed manifest`() {
+        val input = raw("nano_45.bin").copyOf()
+        var position = 0
+        var chunks = 0
+        while (position + 13 <= input.size) {
+            if (input[position] != 0x55.toByte()) { position++; continue }
+            val length = ((input[position+1].toInt() and 255) or ((input[position+2].toInt() and 255) shl 8)) and 1023
+            if (length < 13 || position + length > input.size) { position++; continue }
+            val p = position + 11
+            if (length > 23 && input[position+9] == 0.toByte() && input[position+10] == 0x27.toByte() &&
+                input[p] == 0x4a.toByte() && input[p+1] == 1.toByte()) {
+                // Keep one attributable fragment; remaining chunks still contain the original records.
+                if (++chunks > 1) input[p+4] = 7
+            }
+            position += length
+        }
+        assertTrue(chunks > 1)
+        val expected = session(9004).decodeManifestBlobForTest(input)
+        assertEquals(45, expected.size)
+        val actual = session(9004).collectStoresForTest(input)
+        assertEquals(expected.map { it.path to it.sizeBytes }, actual.map { it.path to it.sizeBytes })
+        assertTrue("partial counter evidence cannot prove storage mapping", actual.none { it.storageKnown })
+    }
+
     /**
      * The manifest is reassembled from DUML `0x00/0x27` frames only.
      *

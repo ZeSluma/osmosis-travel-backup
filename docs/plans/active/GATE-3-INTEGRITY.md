@@ -20,4 +20,6 @@ Follow docs/EXECUTION_POLICY.md. Continue useful software work before requesting
 
 ## Pending consolidated hardware validation
 
+User has returned and authorized only the queue's new non-critical test downloads. Existing reference files and camera originals remain protected. This supersedes the earlier no-download restriction only for those tests; no broadened authorization. Deliver the ordered session procedure before physical testing, then collect each outcome independently and use the combined evidence for software continuation.
+
 Queue details and independent PASS/FAIL/INCONCLUSIVE criteria: docs/evidence/GATE-3/2026-09-17_integrity/HARDWARE_QUEUE.md. Target installation/migration, preserved old copies, real response metadata, new-owned staging/publication, interrupted partial protection and restart evidence should share one prepared session. Successful source-continuity/resume is not assumed; if the target exposes no trustworthy proof, retain the blocked result and investigate in software. Never request repeated rescans as a substitute for that missing proof.

@@ -24,6 +24,8 @@ Batch all currently useful hardware facts into one session with separate PASS/FA
 
 ## Human stop conditions
 
+Repeated camera display states (including Playback running via DJI Mimo with Back to Live View) are recurrence evidence, not new standalone tests. Request the same observation again only when a new software change/build creates a specific hypothesis, it distinguishes concrete competing explanations, AND the answer changes the next engineering action. Otherwise reuse existing evidence and continue software work.
+
 Stop only when hardware evidence is the actual remaining blocker; a product decision cannot be derived safely; credentials/authentication or Windows/Android/GitHub approval is required; an actual destructive action is required; a source-of-truth conflict remains unresolved; safety/security/data integrity requires human judgment; or a blocker has not converged after approximately three substantively different evidence-based attempts. Continue unaffected useful work first. At a hardware stop, provide one consolidated validation session, not an isolated micro-test unless necessary for safety/evidence isolation.
 
 ## Boundaries and cost

@@ -1458,9 +1458,15 @@ class CameraSession(
         if (sd.isEmpty()) log("datalink: SD slice empty — reply frames by request counter: ${chunkCensus(raw)}")
         val ambiguous = sd.isNotEmpty() && internal.isNotEmpty() &&
             sd.map { it.path }.toSet() == internal.map { it.path }.toSet()
-        if ((sd.isEmpty() && internal.isEmpty()) || ambiguous) {
-            val merged = decodeManifest(manifestBytes(raw))
-            log("datalink: store split unavailable (${if (ambiguous) "both queries same list" else "no counter echo"})" +
+        val mergedBytes = manifestBytes(raw)
+        // A partially echoed counter can yield a nonempty but damaged subset. Nonempty alone
+        // does not establish store attribution: compare against all structurally observed paths.
+        // The fallback carries no proven store mapping or complete-inventory authority.
+        val splitLosesPaths = countMediaPaths(mergedBytes) > (sd + internal).map { it.path }.toSet().size
+        if ((sd.isEmpty() && internal.isEmpty()) || ambiguous || splitLosesPaths) {
+            val merged = decodeManifest(mergedBytes)
+            if (splitLosesPaths) log("datalink: store split loses observed paths — merged decode without store attribution")
+            log("datalink: store split unavailable (${if (splitLosesPaths) "partial counter coverage" else if (ambiguous) "both queries same list" else "no counter echo"})" +
                 " — ${merged.size} files, storage resolved per file")
             return merged
         }

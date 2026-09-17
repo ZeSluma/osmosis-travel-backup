@@ -1,0 +1,35 @@
+# Bundled G3 target session — in progress
+
+User ready; explicit authorization covers only planned NEW non-critical test downloads. Existing local references and camera originals protected. No download has started.
+
+S25 detected via `adb -d get-state`: device; model SM-S938B. No serial persisted. Initial app1.4.4/versionCode29. Metadata-only stat and scoped MediaStore query confirmed protected files38447651 and3071380142 bytes, rows18201/18202, both pending0. Sanitized initial projection in target-before.txt: schema5,1source/9snapshots/4historical assets, two unresolved observations; both protected local locators intact, VERIFY_EXISTING. Third103945077-byte asset ABSENT/DOWNLOAD, not yet freshly observed. Historical incomplete snapshots are not complete-source proof.
+
+Candidate d2b2c97; APK SHA2560435e8d85a461275db358bf9e5585cca41c53474ab6b06319b2f4f6d005563c2 rechecked. `adb -d install -r <debug.apk>` and `adb -d install -r <androidTest.apk>` each Success. No uninstall/data clear. Normal MainActivity start Status:ok,COLD,246ms; pid present. Combined install/start command exit0,6.21s. Protected MediaStore rows unchanged after installation, in target-reference-metadata.txt.
+
+INSTALL: PASS. Bounded LAUNCH: PASS. TARGET_SCHEMA6_MIGRATION: NOT_TESTED, pending first normal ledger initialization/observation. No synthetic fixture runs on target. No real media bytes opened, copied or hashed. No selection, transfer, camera change, delete, merge, release or main modification.
+
+Next physical action: one normal fresh camera search/connect, keep camera awake and app foreground, report grid count; do not select or download. Remaining queue checks stay NOT_TESTED until actual observations.
+
+## First connection / incomplete observation
+
+User reports one visible video. Read-only live audit confirms schema6,4 historical assets,10 snapshots and3 unresolved observations. Latest snapshot has0 materialized members and1 unresolved observation with null size and no strong version. This differs from UI count because insufficient size/identity evidence is retained as an observation, not a new asset or deletion. Both protected local locator hashes remain identical to preinstall and both local states remain LOCAL_PRESENT_UNVERIFIED/PRESENT_UNVERIFIED. No attempts, transfer receipts or source-equivalence rows exist. MIGRATION/PRESERVATION: PASS within the observed projection; complete enumeration: INCONCLUSIVE. Root cause UNCONFIRMED.
+
+The old instrumentation audit restarts the app, so it was deliberately not used on the active connection. tools/read_live_ledger.py reads only ledger DB/WAL through run-as, requires two identical reads, validates WAL header/frame checksums and replays only committed frames into a host RAM image; SQLite integrity_check and query_only then protect interpretation. No raw DB, WAL, media or credentials are written to host files. Only allowlisted metadata leaves the script. Synthetic WAL reconstruction self-test PASS. Live projection PASS twice; output in target-partial-live.json. App pid remained10157 before/after (no restart). No rescan, selection or download was triggered.
+
+Next required physical evidence: read the current camera display/session indication without pressing Back to Live View or changing any state. This distinguishes observed playback/idle conditions without attributing a cause or repeating an identical rescan. New test downloads remain pending because no eligible current identified asset is available.
+
+User confirms Playback running via DJI Mimo and Back to Live View button; no button/rescan. Do not attribute this occurrence to camera sleep or missing playback. Allowlisted current-process logs independently report playback held,3 structural paths at batch3, but per-store decoder SD0/internal1 and final1file. Internal header diagnostic is-1073741824, not a plausible count; this alone is not a proven root cause. Decoder/store-split loss is an evidence-supported candidate. Only fixed-format counts/flags were saved in target-enumeration-diagnostics.txt; raw log lines remained transient and unrelated messages were discarded. No network query or device change was caused by this diagnostic.
+
+Continue software-only reproduction using existing synthetic/fixture data before any new hardware rescan. Current target results: installation/migration/reference preservation PASS; complete inventory and transfer tests INCONCLUSIVE/NOT_TESTED respectively. No test download has started.
+
+User clarification: the Playback display is recurring existing evidence, not a separate new hardware test. Repeating that question did not add a distinct test result. Do not ask it again without the three necessary hypothesis/discrimination/action conditions in EXECUTION_POLICY.md.
+
+## Evidence-driven software continuation
+
+New ManifestRobustnessTest changes only selected request-counter bytes in the existing Nano fixture, leaving all45 media records intact. Before correction:9 tests,1 failure,19s, exit1; per-counter parsing loses records although the merged decode retains45. This reproduces a mechanism consistent with the observed3-to1 loss, not the exact Pocket root cause (raw target manifest was not captured).
+
+Correction compares structurally observed merged paths with per-store decoded paths. When the split loses paths, it uses the existing merged decoder without claiming store attribution; normal complete per-store behavior remains unchanged. Ledger incompleteness/source-equivalence rules remain intact. Targeted ManifestRobustness/ManifestGolden/Pagination tests PASS26s,exit0. No real camera re-enumeration has been requested for this change yet.
+
+Bounded debug-only OsmosisIntegrity diagnostics prepared for the remaining planned transfers: numeric HTTP status/length/request offset, boolean range/identity-encoding/ETag presence, durable checkpoint bytes every8MiB and fixed result enum. No filenames, URLs, header values, credentials, GPS, payloads or IDs. ETag presence is not version trust. Production-release build emits none of these debug evidence lines. Two privacy-format tests accompany this preparation. Actual transfer/response evidence remains NOT_TESTED.
+
+Follow-up checkpoint: full376 unit tests PASS, zero failures/errors/skips; debug/test APK builds and release Kotlin compile PASS. lintDebug remains5 errors79 warnings2 hints, unchanged from d2b2c97; combined command exit1 solely lint,88s. Emulator synthetic ledger/storage/failure suite and launcher security PASS,9.26s combined install/check. An intermediate compile failed23s because this project does not generate BuildConfig; corrected to the existing Android FLAG_DEBUGGABLE without Gradle changes. Follow-up debug APK SHA2561a347779c9173ee5cafe0eeef79a43a8453e01bc8aec45b40b0b14b1b013d0c8. This new build, not a repeated identical rescan, supplies the next target hypothesis: previously visible structural paths must no longer disappear solely due to partial counter attribution. If it succeeds, continue the already authorized new transfers; if not, capture only bounded new diagnostics and return to software rather than looping.

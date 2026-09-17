@@ -1,6 +1,10 @@
-# Consolidated G3 target validation queue — not executed
+# Consolidated G3 target validation queue — session in progress
 
-All rows UNPROVEN / NOT_TESTED. S25 Ultra + Pocket4P. One prepared session; preserve each result independently. Do not repeat identical rescans. Installation/restart is non-destructive, but current no-download/no-media-mutation restriction still applies. Steps involving a new test download require explicit scoped user authorization first. Existing two completed phone files and all camera originals remain protected; never select them for retransfer, read/hash media contents, delete or overwrite them.
+Installation/migration/preservation PASS; current enumeration INCONCLUSIVE and transfers NOT_TESTED. See TARGET_SESSION.md for evolving results. S25 Ultra + Pocket4P. One prepared session; preserve each result independently. Do not repeat identical rescans. The user has explicitly authorized the NEW non-critical test downloads in steps4/5, limited to this non-destructive transfer/integrity session. No additional download authorization is needed within that scope. Existing two completed phone files and all camera originals remain protected; never select them for retransfer, read/hash their contents, delete, move, replace or overwrite them. Integrity readback is limited to newly allocated test destinations.
+
+Candidate: d2b2c97b8bbb04fa5a8115294389d708f1da310d; recheck APK hash from REPORT.md before installation. First collect metadata-only reference baselines, then one install/connect, new transfer A, interrupted transfer B, one shared controlled restart, final metadata comparison. Select A/B only after proving they have no existing local candidate; if B is unavailable, prepare one new non-critical recording without modifying existing originals. Keep the app foreground and camera awake; never change camera power settings. Interrupt Wi-Fi only on the agent's live instruction after a recorded durable non-zero checkpoint (target100MiB if the selected size permits); keep USB connected and camera powered. Restore Wi-Fi only after interruption evidence is captured. No automatic repeated rescans.
+
+Build limitation: this candidate blocks owned-partial retry; it does not implement successful production append/resume. A safe refusal can PASS interrupted-transfer protection, never successful resume. Header/version observations are inputs to subsequent software work; even newly discovered source evidence cannot authorize unimplemented or untested append behavior during this run.
 
 ## Order and criteria
 

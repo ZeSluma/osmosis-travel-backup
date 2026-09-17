@@ -81,11 +81,18 @@ class LedgerCoordinator private constructor(context: Context) {
             ?: return@submit TransferResult.REVIEW_REQUIRED
         if(item.action==PlanAction.VERIFY_EXISTING) return@submit TransferResult.EXISTING_UNVERIFIED
         if(item.action!=PlanAction.DOWNLOAD || !file.isVideo) return@submit TransferResult.REVIEW_REQUIRED
-        val source=dev.konraditurbe.osmosis.integrity.CameraTransferSource(network)
+        val debugEvidence = appContext.applicationInfo.flags and android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE != 0
+        val evidence:(String)->Unit={message->if(debugEvidence) android.util.Log.i("OsmosisIntegrity",message)}
+        val source=dev.konraditurbe.osmosis.integrity.CameraTransferSource(network,evidence)
         val destination=dev.konraditurbe.osmosis.integrity.PhonePendingVideo(appContext)
+        var lastEvidenceCheckpoint=0L
         val result=dev.konraditurbe.osmosis.integrity.SingleAssetTransfer(database).start(lease,assetId,
             {source.open(file.urlPath())},
-            destination::create,{session!=activeSession || cancelled()},progress)
+            destination::create,{session!=activeSession || cancelled()},{bytes->
+                if(bytes-lastEvidenceCheckpoint>=8L*1024*1024){evidence("DURABLE checkpoint_bytes=$bytes");lastEvidenceCheckpoint=bytes}
+                progress(bytes)
+            })
+        evidence("TRANSFER result=${result.name}")
         latestPlan=repository.plan(lease.snapshotId)
         if(result==dev.konraditurbe.osmosis.integrity.SingleAssetTransfer.Result.TRANSFERRED_UNVERIFIED)
             TransferResult.TRANSFERRED_UNVERIFIED else TransferResult.REVIEW_REQUIRED
