@@ -1,0 +1,135 @@
+{
+  "suites": 40,
+  "tests": 265.0,
+  "failures": 14.0,
+  "errors": 0.0,
+  "skipped": 0.0,
+  "failure_details": [
+    {
+      "suite": "dev.konraditurbe.osmosis.camera.ManifestGoldenTest",
+      "test": "pocket 3 twentynine",
+      "type": "java.lang.AssertionError",
+      "expected_equals_actual_after_CR_removal": true,
+      "expected_CR_count": 29,
+      "stack_location": "ManifestGoldenTest.check(ManifestGoldenTest.kt:54)",
+      "message": "Golden assertion mismatch; fixture media metadata omitted"
+    },
+    {
+      "suite": "dev.konraditurbe.osmosis.camera.ManifestGoldenTest",
+      "test": "action 6 internal",
+      "type": "java.lang.AssertionError",
+      "expected_equals_actual_after_CR_removal": true,
+      "expected_CR_count": 2,
+      "stack_location": "ManifestGoldenTest.check(ManifestGoldenTest.kt:54)",
+      "message": "Golden assertion mismatch; fixture media metadata omitted"
+    },
+    {
+      "suite": "dev.konraditurbe.osmosis.camera.ManifestGoldenTest",
+      "test": "pocket 3 nine stars moved",
+      "type": "java.lang.AssertionError",
+      "expected_equals_actual_after_CR_removal": true,
+      "expected_CR_count": 9,
+      "stack_location": "ManifestGoldenTest.check(ManifestGoldenTest.kt:54)",
+      "message": "Golden assertion mismatch; fixture media metadata omitted"
+    },
+    {
+      "suite": "dev.konraditurbe.osmosis.camera.ManifestGoldenTest",
+      "test": "pocket 3 five with a star",
+      "type": "java.lang.AssertionError",
+      "expected_equals_actual_after_CR_removal": true,
+      "expected_CR_count": 5,
+      "stack_location": "ManifestGoldenTest.check(ManifestGoldenTest.kt:54)",
+      "message": "Golden assertion mismatch; fixture media metadata omitted"
+    },
+    {
+      "suite": "dev.konraditurbe.osmosis.camera.ManifestGoldenTest",
+      "test": "xtra full card",
+      "type": "java.lang.AssertionError",
+      "expected_equals_actual_after_CR_removal": true,
+      "expected_CR_count": 45,
+      "stack_location": "ManifestGoldenTest.check(ManifestGoldenTest.kt:54)",
+      "message": "Golden assertion mismatch; fixture media metadata omitted"
+    },
+    {
+      "suite": "dev.konraditurbe.osmosis.camera.ManifestGoldenTest",
+      "test": "pocket 3 fifteen",
+      "type": "java.lang.AssertionError",
+      "expected_equals_actual_after_CR_removal": true,
+      "expected_CR_count": 15,
+      "stack_location": "ManifestGoldenTest.check(ManifestGoldenTest.kt:54)",
+      "message": "Golden assertion mismatch; fixture media metadata omitted"
+    },
+    {
+      "suite": "dev.konraditurbe.osmosis.camera.ManifestGoldenTest",
+      "test": "pocket 4",
+      "type": "java.lang.AssertionError",
+      "expected_equals_actual_after_CR_removal": true,
+      "expected_CR_count": 45,
+      "stack_location": "ManifestGoldenTest.check(ManifestGoldenTest.kt:54)",
+      "message": "Golden assertion mismatch; fixture media metadata omitted"
+    },
+    {
+      "suite": "dev.konraditurbe.osmosis.camera.ManifestGoldenTest",
+      "test": "xtra newest page",
+      "type": "java.lang.AssertionError",
+      "expected_equals_actual_after_CR_removal": true,
+      "expected_CR_count": 13,
+      "stack_location": "ManifestGoldenTest.check(ManifestGoldenTest.kt:54)",
+      "message": "Golden assertion mismatch; fixture media metadata omitted"
+    },
+    {
+      "suite": "dev.konraditurbe.osmosis.camera.ManifestGoldenTest",
+      "test": "action 4 with stars",
+      "type": "java.lang.AssertionError",
+      "expected_equals_actual_after_CR_removal": true,
+      "expected_CR_count": 45,
+      "stack_location": "ManifestGoldenTest.check(ManifestGoldenTest.kt:54)",
+      "message": "Golden assertion mismatch; fixture media metadata omitted"
+    },
+    {
+      "suite": "dev.konraditurbe.osmosis.camera.ManifestGoldenTest",
+      "test": "nano newest page",
+      "type": "java.lang.AssertionError",
+      "expected_equals_actual_after_CR_removal": true,
+      "expected_CR_count": 45,
+      "stack_location": "ManifestGoldenTest.check(ManifestGoldenTest.kt:54)",
+      "message": "Golden assertion mismatch; fixture media metadata omitted"
+    },
+    {
+      "suite": "dev.konraditurbe.osmosis.camera.ManifestGoldenTest",
+      "test": "pocket 3 eleven panos",
+      "type": "java.lang.AssertionError",
+      "expected_equals_actual_after_CR_removal": true,
+      "expected_CR_count": 11,
+      "stack_location": "ManifestGoldenTest.check(ManifestGoldenTest.kt:54)",
+      "message": "Golden assertion mismatch; fixture media metadata omitted"
+    },
+    {
+      "suite": "dev.konraditurbe.osmosis.camera.ManifestGoldenTest",
+      "test": "action 6 sd",
+      "type": "java.lang.AssertionError",
+      "expected_equals_actual_after_CR_removal": true,
+      "expected_CR_count": 3,
+      "stack_location": "ManifestGoldenTest.check(ManifestGoldenTest.kt:54)",
+      "message": "Golden assertion mismatch; fixture media metadata omitted"
+    },
+    {
+      "suite": "dev.konraditurbe.osmosis.camera.ManifestGoldenTest",
+      "test": "pocket 3 nine with a panorama",
+      "type": "java.lang.AssertionError",
+      "expected_equals_actual_after_CR_removal": true,
+      "expected_CR_count": 9,
+      "stack_location": "ManifestGoldenTest.check(ManifestGoldenTest.kt:54)",
+      "message": "Golden assertion mismatch; fixture media metadata omitted"
+    },
+    {
+      "suite": "dev.konraditurbe.osmosis.camera.ManifestGoldenTest",
+      "test": "nano with favourites and bursts",
+      "type": "java.lang.AssertionError",
+      "expected_equals_actual_after_CR_removal": true,
+      "expected_CR_count": 45,
+      "stack_location": "ManifestGoldenTest.check(ManifestGoldenTest.kt:54)",
+      "message": "Golden assertion mismatch; fixture media metadata omitted"
+    }
+  ]
+}

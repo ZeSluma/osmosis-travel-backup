@@ -1,0 +1,8 @@
+{
+  "jdk_version": "21.0.12.1+1-LTS",
+  "jdk_url": "https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.12.1%2B1/OpenJDK21U-jdk_x64_windows_hotspot_21.0.12.1_1.zip",
+  "jdk_sha256": "f9d6e191ab098c0d416e7d588a24420a8621cd2f4720dab2459b8b7b2d2d8b4e",
+  "sdk_tools_url": "https://dl.google.com/android/repository/commandlinetools-win-15859902_latest.zip",
+  "sdk_tools_sha256": "90AE805D20434428BFFCB699C290860F19BB5F66A67E6B330067E3DE801FB04A",
+  "installation": "temporary directory outside repository; no global PATH changes"
+}

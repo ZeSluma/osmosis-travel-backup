@@ -1,0 +1,23 @@
+{
+  "os": "Windows 11 Pro",
+  "display_version": "25H2",
+  "build": "26200.9457",
+  "registry_legacy_product_name": "Windows 10 Pro",
+  "git": "git version 2.53.0.windows.3",
+  "initial_java": "Temurin 11.0.17+8",
+  "initial_java_home_set": false,
+  "initial_sdk_detected": false,
+  "build_java": "Temurin 21.0.12.1+1-LTS",
+  "gradle": "8.14.5",
+  "agp": "8.13.2",
+  "kotlin_plugin": "1.9.24",
+  "sdk_platform": "android-36 revision 2",
+  "build_tools": "35.0.0",
+  "platform_tools": "37.0.1",
+  "tooling_location": "<TEMP>/osmosis-gate0-toolchain",
+  "environment_scope": "process only: JAVA_HOME, ANDROID_HOME, GRADLE_USER_HOME",
+  "source_or_global_config_changes": false,
+  "apk_sha256": "58e5cfde7e8398660db997dd48f69e37eef1611311130480fb98a03762ab1a3b",
+  "apk_kind": "debug test artifact, not released",
+  "apk_bytes": 12682345
+}

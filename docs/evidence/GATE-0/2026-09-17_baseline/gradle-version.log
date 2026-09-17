@@ -1,0 +1,29 @@
+Downloading https://services.gradle.org/distributions/gradle-8.14.5-bin.zip
+.............10%.............20%.............30%.............40%.............50%..............60%.............70%.............80%.............90%.............100%
+
+Welcome to Gradle 8.14.5!
+
+Here are the highlights of this release:
+ - Java 24 support
+ - GraalVM Native Image toolchain selection
+ - Enhancements to test reporting
+ - Build Authoring improvements
+
+For more details see https://docs.gradle.org/8.14.5/release-notes.html
+
+
+------------------------------------------------------------
+Gradle 8.14.5
+------------------------------------------------------------
+
+Build time:    2026-05-07 11:03:29 UTC
+Revision:      62345becae08b13e793521816d585102fea66398
+
+Kotlin:        2.0.21
+Groovy:        3.0.25
+Ant:           Apache Ant(TM) version 1.10.15 compiled on August 25 2024
+Launcher JVM:  21.0.12.1 (Eclipse Adoptium 21.0.12.1+1-LTS)
+Daemon JVM:    <USERPROFILE>\AppData\Local\Temp\osmosis-gate0-toolchain\jdk-21.0.12.1+1 (no JDK specified, using current Java home)
+OS:            Windows 11 10.0 amd64
+
+COMMAND: .\gradlew.bat --version; EXIT: 0; SECONDS: 17.7992244

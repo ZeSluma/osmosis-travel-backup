@@ -1,0 +1,976 @@
+{
+  "counts": [
+    {
+      "Name": "Error",
+      "Count": 5
+    },
+    {
+      "Name": "Hint",
+      "Count": 2
+    },
+    {
+      "Name": "Warning",
+      "Count": 79
+    }
+  ],
+  "issues": [
+    {
+      "id": "CutPasteId",
+      "severity": "Warning",
+      "message": "The id `R.id.topInfo` has already been looked up in this method; possible cut & paste error?",
+      "locations": [
+        {
+          "file": "app\\src\\main\\java\\dev\\konraditurbe\\osmosis\\ui\\MediaPreviewActivity.kt",
+          "line": "158"
+        },
+        {
+          "file": "app\\src\\main\\java\\dev\\konraditurbe\\osmosis\\ui\\MediaPreviewActivity.kt",
+          "line": "129"
+        }
+      ]
+    },
+    {
+      "id": "CutPasteId",
+      "severity": "Warning",
+      "message": "The id `R.id.savedActions` has already been looked up in this method; possible cut & paste error?",
+      "locations": [
+        {
+          "file": "app\\src\\main\\java\\dev\\konraditurbe\\osmosis\\ui\\MediaPreviewActivity.kt",
+          "line": "159"
+        },
+        {
+          "file": "app\\src\\main\\java\\dev\\konraditurbe\\osmosis\\ui\\MediaPreviewActivity.kt",
+          "line": "129"
+        }
+      ]
+    },
+    {
+      "id": "CutPasteId",
+      "severity": "Warning",
+      "message": "The id `R.id.controls` has already been looked up in this method; possible cut & paste error?",
+      "locations": [
+        {
+          "file": "app\\src\\main\\java\\dev\\konraditurbe\\osmosis\\ui\\MediaPreviewActivity.kt",
+          "line": "166"
+        },
+        {
+          "file": "app\\src\\main\\java\\dev\\konraditurbe\\osmosis\\ui\\MediaPreviewActivity.kt",
+          "line": "130"
+        }
+      ]
+    },
+    {
+      "id": "InlinedApi",
+      "severity": "Warning",
+      "message": "Field requires API level 31 (current min is 29): `android.graphics.ImageFormat#YCBCR_P010`",
+      "locations": [
+        {
+          "file": "app\\src\\main\\java\\dev\\konraditurbe\\osmosis\\net\\FrameCapture.kt",
+          "line": "199"
+        }
+      ]
+    },
+    {
+      "id": "CoarseFineLocation",
+      "severity": "Error",
+      "message": "If you need access to FINE location, you must request both `ACCESS_FINE_LOCATION` and `ACCESS_COARSE_LOCATION`",
+      "locations": [
+        {
+          "file": "app\\src\\main\\AndroidManifest.xml",
+          "line": "13"
+        }
+      ]
+    },
+    {
+      "id": "VectorRaster",
+      "severity": "Warning",
+      "message": "Limit vector icons sizes to 200×200 to keep icon drawing fast; see https://developer.android.com/studio/write/vector-asset-studio#when for more",
+      "locations": [
+        {
+          "file": "app\\src\\main\\res\\drawable\\mavic3_power_face.xml",
+          "line": "7"
+        }
+      ]
+    },
+    {
+      "id": "GradleDependency",
+      "severity": "Warning",
+      "message": "A newer version of androidx.core:core-ktx than 1.9.0 is available: 1.19.0",
+      "locations": [
+        {
+          "file": "app\\build.gradle",
+          "line": "70"
+        }
+      ]
+    },
+    {
+      "id": "GradleDependency",
+      "severity": "Warning",
+      "message": "A newer version of androidx.activity:activity than 1.9.3 is available: 1.13.0",
+      "locations": [
+        {
+          "file": "app\\build.gradle",
+          "line": "73"
+        }
+      ]
+    },
+    {
+      "id": "GradleDependency",
+      "severity": "Warning",
+      "message": "A newer version of androidx.appcompat:appcompat than 1.6.1 is available: 1.8.0",
+      "locations": [
+        {
+          "file": "app\\build.gradle",
+          "line": "74"
+        }
+      ]
+    },
+    {
+      "id": "GradleDependency",
+      "severity": "Warning",
+      "message": "A newer version of com.google.android.material:material than 1.10.0 is available: 1.14.0",
+      "locations": [
+        {
+          "file": "app\\build.gradle",
+          "line": "75"
+        }
+      ]
+    },
+    {
+      "id": "GradleDependency",
+      "severity": "Warning",
+      "message": "A newer version of androidx.recyclerview:recyclerview than 1.3.2 is available: 1.4.0",
+      "locations": [
+        {
+          "file": "app\\build.gradle",
+          "line": "76"
+        }
+      ]
+    },
+    {
+      "id": "NewerVersionAvailable",
+      "severity": "Warning",
+      "message": "A newer version of org.jetbrains.kotlinx:kotlinx-coroutines-android than 1.6.4 is available: 1.11.0",
+      "locations": [
+        {
+          "file": "app\\build.gradle",
+          "line": "77"
+        }
+      ]
+    },
+    {
+      "id": "UseAppTint",
+      "severity": "Error",
+      "message": "Must use `app:tint` instead of `android:tint`",
+      "locations": [
+        {
+          "file": "app\\src\\main\\res\\layout\\activity_preview.xml",
+          "line": "210"
+        }
+      ]
+    },
+    {
+      "id": "UseAppTint",
+      "severity": "Error",
+      "message": "Must use `app:tint` instead of `android:tint`",
+      "locations": [
+        {
+          "file": "app\\src\\main\\res\\layout\\activity_preview.xml",
+          "line": "219"
+        }
+      ]
+    },
+    {
+      "id": "UseAppTint",
+      "severity": "Error",
+      "message": "Must use `app:tint` instead of `android:tint`",
+      "locations": [
+        {
+          "file": "app\\src\\main\\res\\layout\\activity_preview.xml",
+          "line": "229"
+        }
+      ]
+    },
+    {
+      "id": "UseAppTint",
+      "severity": "Error",
+      "message": "Must use `app:tint` instead of `android:tint`",
+      "locations": [
+        {
+          "file": "app\\src\\main\\res\\layout\\item_camera.xml",
+          "line": "60"
+        }
+      ]
+    },
+    {
+      "id": "UseCompatLoadingForDrawables",
+      "severity": "Warning",
+      "message": "Use `AppCompatResources.getDrawable()`",
+      "locations": [
+        {
+          "file": "app\\src\\main\\java\\dev\\konraditurbe\\osmosis\\ui\\StatusPillView.kt",
+          "line": "47"
+        }
+      ]
+    },
+    {
+      "id": "UseCompatLoadingForDrawables",
+      "severity": "Warning",
+      "message": "Use `AppCompatResources.getDrawable()`",
+      "locations": [
+        {
+          "file": "app\\src\\main\\java\\dev\\konraditurbe\\osmosis\\ui\\StatusPillView.kt",
+          "line": "47"
+        }
+      ]
+    },
+    {
+      "id": "UseCompatLoadingForDrawables",
+      "severity": "Warning",
+      "message": "Use `AppCompatResources.getDrawable()`",
+      "locations": [
+        {
+          "file": "app\\src\\main\\java\\dev\\konraditurbe\\osmosis\\ui\\StatusPillView.kt",
+          "line": "62"
+        }
+      ]
+    },
+    {
+      "id": "UseCompatLoadingForDrawables",
+      "severity": "Warning",
+      "message": "Use `AppCompatResources.getDrawable()`",
+      "locations": [
+        {
+          "file": "app\\src\\main\\java\\dev\\konraditurbe\\osmosis\\ui\\StatusPillView.kt",
+          "line": "62"
+        }
+      ]
+    },
+    {
+      "id": "UseCompatLoadingForDrawables",
+      "severity": "Warning",
+      "message": "Use `AppCompatResources.getDrawable()`",
+      "locations": [
+        {
+          "file": "app\\src\\main\\java\\dev\\konraditurbe\\osmosis\\ui\\StatusPillView.kt",
+          "line": "159"
+        }
+      ]
+    },
+    {
+      "id": "UseCompatLoadingForDrawables",
+      "severity": "Warning",
+      "message": "Use `AppCompatResources.getDrawable()`",
+      "locations": [
+        {
+          "file": "app\\src\\main\\java\\dev\\konraditurbe\\osmosis\\ui\\StatusPillView.kt",
+          "line": "159"
+        }
+      ]
+    },
+    {
+      "id": "PluralsCandidate",
+      "severity": "Warning",
+      "message": "Formatting %d followed by words (\"saved\"): This should probably be a plural rather than a string",
+      "locations": [
+        {
+          "file": "app\\src\\main\\res\\values\\strings.xml",
+          "line": "21"
+        }
+      ]
+    },
+    {
+      "id": "PluralsCandidate",
+      "severity": "Warning",
+      "message": "Formatting %d followed by words (\"files\"): This should probably be a plural rather than a string",
+      "locations": [
+        {
+          "file": "app\\src\\main\\res\\values\\strings.xml",
+          "line": "124"
+        }
+      ]
+    },
+    {
+      "id": "PluralsCandidate",
+      "severity": "Warning",
+      "message": "Formatting %d followed by words (\"more\"): This should probably be a plural rather than a string",
+      "locations": [
+        {
+          "file": "app\\src\\main\\res\\values\\strings.xml",
+          "line": "126"
+        }
+      ]
+    },
+    {
+      "id": "PluralsCandidate",
+      "severity": "Warning",
+      "message": "Formatting %d followed by words (\"files\"): This should probably be a plural rather than a string",
+      "locations": [
+        {
+          "file": "app\\src\\main\\res\\values\\strings.xml",
+          "line": "128"
+        }
+      ]
+    },
+    {
+      "id": "PluralsCandidate",
+      "severity": "Warning",
+      "message": "Formatting %d followed by words (\"files\"): This should probably be a plural rather than a string",
+      "locations": [
+        {
+          "file": "app\\src\\main\\res\\values\\strings.xml",
+          "line": "129"
+        }
+      ]
+    },
+    {
+      "id": "PluralsCandidate",
+      "severity": "Warning",
+      "message": "Formatting %d followed by words (\"files\"): This should probably be a plural rather than a string",
+      "locations": [
+        {
+          "file": "app\\src\\main\\res\\values\\strings.xml",
+          "line": "135"
+        }
+      ]
+    },
+    {
+      "id": "PluralsCandidate",
+      "severity": "Warning",
+      "message": "Formatting %d followed by words (\"saved\"): This should probably be a plural rather than a string",
+      "locations": [
+        {
+          "file": "app\\src\\main\\res\\values\\strings.xml",
+          "line": "137"
+        }
+      ]
+    },
+    {
+      "id": "InsecureBaseConfiguration",
+      "severity": "Warning",
+      "message": "Insecure Base Configuration",
+      "locations": [
+        {
+          "file": "app\\src\\main\\res\\xml\\network_security_config.xml",
+          "line": "5"
+        }
+      ]
+    },
+    {
+      "id": "DataExtractionRules",
+      "severity": "Warning",
+      "message": "The attribute `android:allowBackup` is deprecated from Android 12 and higher and may be removed in future versions. Consider adding the attribute `android:dataExtractionRules` specifying an `@xml` resource which configures cloud backups and device transfers on Android 12 and higher.",
+      "locations": [
+        {
+          "file": "app\\src\\main\\AndroidManifest.xml",
+          "line": "34"
+        }
+      ]
+    },
+    {
+      "id": "NotifyDataSetChanged",
+      "severity": "Warning",
+      "message": "It will always be more efficient to use more specific change events if you can. Rely on `notifyDataSetChanged` as a last resort.",
+      "locations": [
+        {
+          "file": "app\\src\\main\\java\\dev\\konraditurbe\\osmosis\\ui\\MediaGridAdapter.kt",
+          "line": "250"
+        }
+      ]
+    },
+    {
+      "id": "NotifyDataSetChanged",
+      "severity": "Warning",
+      "message": "It will always be more efficient to use more specific change events if you can. Rely on `notifyDataSetChanged` as a last resort.",
+      "locations": [
+        {
+          "file": "app\\src\\main\\java\\dev\\konraditurbe\\osmosis\\ui\\MediaGridAdapter.kt",
+          "line": "285"
+        }
+      ]
+    },
+    {
+      "id": "NotifyDataSetChanged",
+      "severity": "Warning",
+      "message": "It will always be more efficient to use more specific change events if you can. Rely on `notifyDataSetChanged` as a last resort.",
+      "locations": [
+        {
+          "file": "app\\src\\main\\java\\dev\\konraditurbe\\osmosis\\ui\\MediaGridAdapter.kt",
+          "line": "327"
+        }
+      ]
+    },
+    {
+      "id": "NotifyDataSetChanged",
+      "severity": "Warning",
+      "message": "It will always be more efficient to use more specific change events if you can. Rely on `notifyDataSetChanged` as a last resort.",
+      "locations": [
+        {
+          "file": "app\\src\\main\\java\\dev\\konraditurbe\\osmosis\\ui\\MediaGridAdapter.kt",
+          "line": "337"
+        }
+      ]
+    },
+    {
+      "id": "ObsoleteSdkInt",
+      "severity": "Warning",
+      "message": "Unnecessary; `SDK_INT` is always >= 29",
+      "locations": [
+        {
+          "file": "app\\src\\main\\java\\dev\\konraditurbe\\osmosis\\rsdk\\GpsService.kt",
+          "line": "235"
+        }
+      ]
+    },
+    {
+      "id": "ObsoleteSdkInt",
+      "severity": "Warning",
+      "message": "Unnecessary; `SDK_INT` is always >= 29",
+      "locations": [
+        {
+          "file": "app\\src\\main\\java\\dev\\konraditurbe\\osmosis\\rsdk\\GpsService.kt",
+          "line": "236"
+        }
+      ]
+    },
+    {
+      "id": "ObsoleteSdkInt",
+      "severity": "Warning",
+      "message": "Unnecessary; `SDK_INT` is always >= 29",
+      "locations": [
+        {
+          "file": "app\\src\\main\\java\\dev\\konraditurbe\\osmosis\\ui\\MainActivity.kt",
+          "line": "1006"
+        }
+      ]
+    },
+    {
+      "id": "ObsoleteSdkInt",
+      "severity": "Warning",
+      "message": "This folder configuration (`v26`) is unnecessary; `minSdkVersion` is 29. Merge all the resources in this folder into `mipmap-anydpi`.",
+      "locations": [
+        {
+          "file": "app\\src\\main\\res\\mipmap-anydpi-v26",
+          "line": null
+        }
+      ]
+    },
+    {
+      "id": "ObsoleteSdkInt",
+      "severity": "Warning",
+      "message": "Unnecessary; `SDK_INT` is always >= 23",
+      "locations": [
+        {
+          "file": "app\\src\\main\\res\\values\\themes.xml",
+          "line": "29"
+        }
+      ]
+    },
+    {
+      "id": "ObsoleteSdkInt",
+      "severity": "Warning",
+      "message": "Unnecessary; `SDK_INT` is always >= 27",
+      "locations": [
+        {
+          "file": "app\\src\\main\\res\\values\\themes.xml",
+          "line": "30"
+        }
+      ]
+    },
+    {
+      "id": "NestedWeights",
+      "severity": "Warning",
+      "message": "Nested weights are bad for performance",
+      "locations": [
+        {
+          "file": "app\\src\\main\\res\\layout\\activity_main.xml",
+          "line": "109"
+        }
+      ]
+    },
+    {
+      "id": "Overdraw",
+      "severity": "Warning",
+      "message": "Possible overdraw: Root element paints background `#000000` with a theme that also paints a background (inferred theme is `@style/Theme.Osmosis`)",
+      "locations": [
+        {
+          "file": "app\\src\\main\\res\\layout\\activity_preview.xml",
+          "line": "13"
+        }
+      ]
+    },
+    {
+      "id": "Overdraw",
+      "severity": "Warning",
+      "message": "Possible overdraw: Root element paints background `#22FFFFFF` with a theme that also paints a background (inferred theme is `@style/Theme.Osmosis`)",
+      "locations": [
+        {
+          "file": "app\\src\\main\\res\\layout\\item_media.xml",
+          "line": "6"
+        }
+      ]
+    },
+    {
+      "id": "UselessParent",
+      "severity": "Warning",
+      "message": "This `LinearLayout` layout or its `FrameLayout` parent is unnecessary; transfer the `background` attribute to the other view",
+      "locations": [
+        {
+          "file": "app\\src\\main\\res\\layout\\item_camera.xml",
+          "line": "7"
+        }
+      ]
+    },
+    {
+      "id": "IconLauncherShape",
+      "severity": "Warning",
+      "message": "Launcher icons should not fill every pixel of their square region; see the design guide for details",
+      "locations": [
+        {
+          "file": "app\\src\\main\\res\\mipmap-hdpi\\ic_launcher_adaptive_back.png",
+          "line": null
+        }
+      ]
+    },
+    {
+      "id": "IconLauncherShape",
+      "severity": "Warning",
+      "message": "Launcher icons should not fill every pixel of their square region; see the design guide for details",
+      "locations": [
+        {
+          "file": "app\\src\\main\\res\\mipmap-mdpi\\ic_launcher_adaptive_back.png",
+          "line": null
+        }
+      ]
+    },
+    {
+      "id": "IconLauncherShape",
+      "severity": "Warning",
+      "message": "Launcher icons should not fill every pixel of their square region; see the design guide for details",
+      "locations": [
+        {
+          "file": "app\\src\\main\\res\\mipmap-xhdpi\\ic_launcher_adaptive_back.png",
+          "line": null
+        }
+      ]
+    },
+    {
+      "id": "IconLauncherShape",
+      "severity": "Warning",
+      "message": "Launcher icons should not fill every pixel of their square region; see the design guide for details",
+      "locations": [
+        {
+          "file": "app\\src\\main\\res\\mipmap-xxhdpi\\ic_launcher_adaptive_back.png",
+          "line": null
+        }
+      ]
+    },
+    {
+      "id": "IconLauncherShape",
+      "severity": "Warning",
+      "message": "Launcher icons should not fill every pixel of their square region; see the design guide for details",
+      "locations": [
+        {
+          "file": "app\\src\\main\\res\\mipmap-xxxhdpi\\ic_launcher_adaptive_back.png",
+          "line": null
+        }
+      ]
+    },
+    {
+      "id": "MonochromeLauncherIcon",
+      "severity": "Warning",
+      "message": "The application adaptive icon is missing a monochrome tag",
+      "locations": [
+        {
+          "file": "app\\src\\main\\res\\mipmap-anydpi-v26\\ic_launcher.xml",
+          "line": "2"
+        }
+      ]
+    },
+    {
+      "id": "IconMissingDensityFolder",
+      "severity": "Warning",
+      "message": "Missing density variation folders in `src\\main\\res`: drawable-hdpi, drawable-mdpi, drawable-xhdpi",
+      "locations": [
+        {
+          "file": "app\\src\\main\\res",
+          "line": null
+        }
+      ]
+    },
+    {
+      "id": "SmallSp",
+      "severity": "Warning",
+      "message": "Avoid using sizes smaller than `11sp`: `10sp`",
+      "locations": [
+        {
+          "file": "app\\src\\main\\res\\layout\\item_camera.xml",
+          "line": "51"
+        }
+      ]
+    },
+    {
+      "id": "SmallSp",
+      "severity": "Warning",
+      "message": "Avoid using sizes smaller than `11sp`: `10sp`",
+      "locations": [
+        {
+          "file": "app\\src\\main\\res\\layout\\item_media.xml",
+          "line": "25"
+        }
+      ]
+    },
+    {
+      "id": "ReportShortcutUsage",
+      "severity": "Hint",
+      "message": "Calling this method indicates use of dynamic shortcuts, but there are no calls to methods that track shortcut usage, such as `pushDynamicShortcut` or `reportShortcutUsed`. Calling these methods is recommended, as they track shortcut usage and allow launchers to adjust which shortcuts appear based on activation history. Please see https://developer.android.com/develop/ui/views/launch/shortcuts/managing-shortcuts#track-usage",
+      "locations": [
+        {
+          "file": "app\\src\\main\\java\\dev\\konraditurbe\\osmosis\\ui\\CameraShortcuts.kt",
+          "line": "47"
+        }
+      ]
+    },
+    {
+      "id": "UseKtx",
+      "severity": "Warning",
+      "message": "Use the KTX extension function `SharedPreferences.edit` instead?",
+      "locations": [
+        {
+          "file": "app\\src\\main\\java\\dev\\konraditurbe\\osmosis\\drone\\DronePairing.kt",
+          "line": "37"
+        }
+      ]
+    },
+    {
+      "id": "UseKtx",
+      "severity": "Warning",
+      "message": "Use the KTX extension property `View.isVisible` instead?",
+      "locations": [
+        {
+          "file": "app\\src\\main\\java\\dev\\konraditurbe\\osmosis\\ui\\MainActivity.kt",
+          "line": "295"
+        }
+      ]
+    },
+    {
+      "id": "UseKtx",
+      "severity": "Warning",
+      "message": "Use the KTX extension function `SharedPreferences.edit` instead?",
+      "locations": [
+        {
+          "file": "app\\src\\main\\java\\dev\\konraditurbe\\osmosis\\ui\\MainActivity.kt",
+          "line": "332"
+        }
+      ]
+    },
+    {
+      "id": "UseKtx",
+      "severity": "Warning",
+      "message": "Use the KTX extension function `SharedPreferences.edit` instead?",
+      "locations": [
+        {
+          "file": "app\\src\\main\\java\\dev\\konraditurbe\\osmosis\\ui\\MainActivity.kt",
+          "line": "348"
+        }
+      ]
+    },
+    {
+      "id": "UseKtx",
+      "severity": "Warning",
+      "message": "Use the KTX extension function `SharedPreferences.edit` instead?",
+      "locations": [
+        {
+          "file": "app\\src\\main\\java\\dev\\konraditurbe\\osmosis\\ui\\MainActivity.kt",
+          "line": "691"
+        }
+      ]
+    },
+    {
+      "id": "UseKtx",
+      "severity": "Warning",
+      "message": "Use the KTX extension function `SharedPreferences.edit` instead?",
+      "locations": [
+        {
+          "file": "app\\src\\main\\java\\dev\\konraditurbe\\osmosis\\ui\\MainActivity.kt",
+          "line": "791"
+        }
+      ]
+    },
+    {
+      "id": "UseKtx",
+      "severity": "Warning",
+      "message": "Use the KTX extension property `View.isVisible` instead?",
+      "locations": [
+        {
+          "file": "app\\src\\main\\java\\dev\\konraditurbe\\osmosis\\ui\\MainActivity.kt",
+          "line": "1481"
+        }
+      ]
+    },
+    {
+      "id": "UseKtx",
+      "severity": "Warning",
+      "message": "Use the KTX extension function `SharedPreferences.edit` instead?",
+      "locations": [
+        {
+          "file": "app\\src\\main\\java\\dev\\konraditurbe\\osmosis\\ui\\MainActivity.kt",
+          "line": "1915"
+        }
+      ]
+    },
+    {
+      "id": "UseKtx",
+      "severity": "Warning",
+      "message": "Use the KTX extension property `View.isVisible` instead?",
+      "locations": [
+        {
+          "file": "app\\src\\main\\java\\dev\\konraditurbe\\osmosis\\ui\\MainActivity.kt",
+          "line": "1973"
+        }
+      ]
+    },
+    {
+      "id": "UseKtx",
+      "severity": "Warning",
+      "message": "Use the KTX extension function `String.toUri` instead?",
+      "locations": [
+        {
+          "file": "app\\src\\main\\java\\dev\\konraditurbe\\osmosis\\net\\MediaDownloader.kt",
+          "line": "92"
+        }
+      ]
+    },
+    {
+      "id": "UseKtx",
+      "severity": "Warning",
+      "message": "Use the KTX extension function `SharedPreferences.edit` instead?",
+      "locations": [
+        {
+          "file": "app\\src\\main\\java\\dev\\konraditurbe\\osmosis\\net\\MediaDownloader.kt",
+          "line": "98"
+        }
+      ]
+    },
+    {
+      "id": "UseKtx",
+      "severity": "Warning",
+      "message": "Use the KTX extension function `SharedPreferences.edit` instead?",
+      "locations": [
+        {
+          "file": "app\\src\\main\\java\\dev\\konraditurbe\\osmosis\\net\\MediaDownloader.kt",
+          "line": "103"
+        }
+      ]
+    },
+    {
+      "id": "UseKtx",
+      "severity": "Warning",
+      "message": "Use the KTX extension function `SharedPreferences.edit` instead?",
+      "locations": [
+        {
+          "file": "app\\src\\main\\java\\dev\\konraditurbe\\osmosis\\net\\MediaDownloader.kt",
+          "line": "107"
+        }
+      ]
+    },
+    {
+      "id": "UseKtx",
+      "severity": "Warning",
+      "message": "Use the KTX extension function `SharedPreferences.edit` instead?",
+      "locations": [
+        {
+          "file": "app\\src\\main\\java\\dev\\konraditurbe\\osmosis\\net\\MediaDownloader.kt",
+          "line": "158"
+        }
+      ]
+    },
+    {
+      "id": "UseKtx",
+      "severity": "Warning",
+      "message": "Use the KTX extension function `SharedPreferences.edit` instead?",
+      "locations": [
+        {
+          "file": "app\\src\\main\\java\\dev\\konraditurbe\\osmosis\\net\\MediaDownloader.kt",
+          "line": "161"
+        }
+      ]
+    },
+    {
+      "id": "UseKtx",
+      "severity": "Warning",
+      "message": "Use the KTX extension property `View.isVisible` instead?",
+      "locations": [
+        {
+          "file": "app\\src\\main\\java\\dev\\konraditurbe\\osmosis\\ui\\MediaPreviewActivity.kt",
+          "line": "444"
+        }
+      ]
+    },
+    {
+      "id": "UseKtx",
+      "severity": "Warning",
+      "message": "Use the KTX extension property `View.isVisible` instead?",
+      "locations": [
+        {
+          "file": "app\\src\\main\\java\\dev\\konraditurbe\\osmosis\\ui\\MediaPreviewActivity.kt",
+          "line": "444"
+        }
+      ]
+    },
+    {
+      "id": "UseKtx",
+      "severity": "Warning",
+      "message": "Use the KTX extension function `String.toUri` instead?",
+      "locations": [
+        {
+          "file": "app\\src\\main\\java\\dev\\konraditurbe\\osmosis\\ui\\MediaPreviewActivity.kt",
+          "line": "732"
+        }
+      ]
+    },
+    {
+      "id": "UseKtx",
+      "severity": "Warning",
+      "message": "Use the KTX extension property `SparseArray.size` instead?",
+      "locations": [
+        {
+          "file": "app\\src\\main\\java\\dev\\konraditurbe\\osmosis\\ble\\OsmoScanner.kt",
+          "line": "79"
+        }
+      ]
+    },
+    {
+      "id": "UseKtx",
+      "severity": "Warning",
+      "message": "Use the KTX extension function `SharedPreferences.edit` instead?",
+      "locations": [
+        {
+          "file": "app\\src\\main\\java\\dev\\konraditurbe\\osmosis\\rsdk\\RsdkController.kt",
+          "line": "43"
+        }
+      ]
+    },
+    {
+      "id": "UseKtx",
+      "severity": "Warning",
+      "message": "Use the KTX extension function `SharedPreferences.edit` instead?",
+      "locations": [
+        {
+          "file": "app\\src\\main\\java\\dev\\konraditurbe\\osmosis\\rsdk\\RsdkController.kt",
+          "line": "47"
+        }
+      ]
+    },
+    {
+      "id": "UseKtx",
+      "severity": "Warning",
+      "message": "Use the KTX extension function `SharedPreferences.edit` instead?",
+      "locations": [
+        {
+          "file": "app\\src\\main\\java\\dev\\konraditurbe\\osmosis\\core\\SavedCameras.kt",
+          "line": "29"
+        }
+      ]
+    },
+    {
+      "id": "UseKtx",
+      "severity": "Warning",
+      "message": "Use the KTX extension function `SharedPreferences.edit` instead?",
+      "locations": [
+        {
+          "file": "app\\src\\main\\java\\dev\\konraditurbe\\osmosis\\core\\SavedCameras.kt",
+          "line": "36"
+        }
+      ]
+    },
+    {
+      "id": "KtxExtensionAvailable",
+      "severity": "Hint",
+      "message": "Add suffix `-ktx` to enable the Kotlin extensions for this library",
+      "locations": [
+        {
+          "file": "app\\build.gradle",
+          "line": "73"
+        }
+      ]
+    },
+    {
+      "id": "ClickableViewAccessibility",
+      "severity": "Warning",
+      "message": "Custom view ``VideoView`` has `setOnTouchListener` called on it but does not override `performClick`",
+      "locations": [
+        {
+          "file": "app\\src\\main\\java\\dev\\konraditurbe\\osmosis\\ui\\MediaPreviewActivity.kt",
+          "line": "231"
+        }
+      ]
+    },
+    {
+      "id": "SetTextI18n",
+      "severity": "Warning",
+      "message": "Do not concatenate text displayed with `setText`. Use resource string with placeholders.",
+      "locations": [
+        {
+          "file": "app\\src\\main\\java\\dev\\konraditurbe\\osmosis\\ui\\MediaPreviewActivity.kt",
+          "line": "615"
+        }
+      ]
+    },
+    {
+      "id": "HardcodedText",
+      "severity": "Warning",
+      "message": "Hardcoded string \"0:00\", should use `@string` resource",
+      "locations": [
+        {
+          "file": "app\\src\\main\\res\\layout\\activity_preview.xml",
+          "line": "128"
+        }
+      ]
+    },
+    {
+      "id": "HardcodedText",
+      "severity": "Warning",
+      "message": "Hardcoded string \"0:00\", should use `@string` resource",
+      "locations": [
+        {
+          "file": "app\\src\\main\\res\\layout\\activity_preview.xml",
+          "line": "145"
+        }
+      ]
+    },
+    {
+      "id": "HardcodedText",
+      "severity": "Warning",
+      "message": "Hardcoded string \"[\", should use `@string` resource",
+      "locations": [
+        {
+          "file": "app\\src\\main\\res\\layout\\activity_preview.xml",
+          "line": "197"
+        }
+      ]
+    },
+    {
+      "id": "HardcodedText",
+      "severity": "Warning",
+      "message": "Hardcoded string \"]\", should use `@string` resource",
+      "locations": [
+        {
+          "file": "app\\src\\main\\res\\layout\\activity_preview.xml",
+          "line": "237"
+        }
+      ]
+    },
+    {
+      "id": "HardcodedText",
+      "severity": "Warning",
+      "message": "Hardcoded string \"0:00\", should use `@string` resource",
+      "locations": [
+        {
+          "file": "app\\src\\main\\res\\layout\\activity_preview.xml",
+          "line": "314"
+        }
+      ]
+    }
+  ]
+}

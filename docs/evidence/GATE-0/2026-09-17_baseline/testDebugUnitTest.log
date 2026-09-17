@@ -1,0 +1,101 @@
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.14.5/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build
+Warning: SDK processing. This version only understands SDK XML versions up to 3 but an SDK XML file of version 4 was encountered. This can happen if you use versions of Android Studio and the command-line tools that were released at different times.
+> Task :app:checkKotlinGradlePluginConfigurationErrors
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preDebugBuild UP-TO-DATE
+> Task :app:checkDebugAarMetadata UP-TO-DATE
+> Task :app:processDebugNavigationResources UP-TO-DATE
+> Task :app:compileDebugNavigationResources UP-TO-DATE
+> Task :app:generateDebugResValues UP-TO-DATE
+> Task :app:mapDebugSourceSetPaths UP-TO-DATE
+> Task :app:generateDebugResources UP-TO-DATE
+> Task :app:mergeDebugResources UP-TO-DATE
+> Task :app:packageDebugResources UP-TO-DATE
+> Task :app:parseDebugLocalResources UP-TO-DATE
+> Task :app:createDebugCompatibleScreenManifests UP-TO-DATE
+> Task :app:extractDeepLinksDebug UP-TO-DATE
+> Task :app:processDebugMainManifest UP-TO-DATE
+> Task :app:processDebugManifest UP-TO-DATE
+> Task :app:processDebugManifestForPackage UP-TO-DATE
+> Task :app:processDebugResources UP-TO-DATE
+> Task :app:compileDebugKotlin UP-TO-DATE
+> Task :app:javaPreCompileDebug UP-TO-DATE
+> Task :app:compileDebugJavaWithJavac NO-SOURCE
+> Task :app:preDebugUnitTestBuild UP-TO-DATE
+> Task :app:processDebugJavaRes UP-TO-DATE
+> Task :app:javaPreCompileDebugUnitTest
+> Task :app:bundleDebugClassesToRuntimeJar
+> Task :app:bundleDebugClassesToCompileJar
+> Task :app:compileDebugUnitTestKotlin
+> Task :app:compileDebugUnitTestJavaWithJavac NO-SOURCE
+> Task :app:processDebugUnitTestJavaRes
+
+> Task :app:testDebugUnitTest
+
+ManifestGoldenTest > pocket 3 twentynine FAILED
+    java.lang.AssertionError at ManifestGoldenTest.kt:54
+
+ManifestGoldenTest > action 6 internal FAILED
+    java.lang.AssertionError at ManifestGoldenTest.kt:54
+
+ManifestGoldenTest > pocket 3 nine stars moved FAILED
+    java.lang.AssertionError at ManifestGoldenTest.kt:54
+
+ManifestGoldenTest > pocket 3 five with a star FAILED
+    java.lang.AssertionError at ManifestGoldenTest.kt:54
+
+ManifestGoldenTest > xtra full card FAILED
+    java.lang.AssertionError at ManifestGoldenTest.kt:54
+
+ManifestGoldenTest > pocket 3 fifteen FAILED
+    java.lang.AssertionError at ManifestGoldenTest.kt:54
+
+ManifestGoldenTest > pocket 4 FAILED
+    java.lang.AssertionError at ManifestGoldenTest.kt:54
+
+ManifestGoldenTest > xtra newest page FAILED
+    java.lang.AssertionError at ManifestGoldenTest.kt:54
+
+ManifestGoldenTest > action 4 with stars FAILED
+    java.lang.AssertionError at ManifestGoldenTest.kt:54
+
+ManifestGoldenTest > nano newest page FAILED
+    java.lang.AssertionError at ManifestGoldenTest.kt:54
+
+ManifestGoldenTest > pocket 3 eleven panos FAILED
+    java.lang.AssertionError at ManifestGoldenTest.kt:54
+
+ManifestGoldenTest > action 6 sd FAILED
+    java.lang.AssertionError at ManifestGoldenTest.kt:54
+
+ManifestGoldenTest > pocket 3 nine with a panorama FAILED
+    java.lang.AssertionError at ManifestGoldenTest.kt:54
+
+ManifestGoldenTest > nano with favourites and bursts FAILED
+    java.lang.AssertionError at ManifestGoldenTest.kt:54
+
+265 tests completed, 14 failed
+
+> Task :app:testDebugUnitTest FAILED
+
+[Incubating] Problems report is available at: file:///<USERPROFILE>/CodexWork/osmosis-travel-backup/build/reports/problems/problems-report.html
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':app:testDebugUnitTest'.
+> There were failing tests. See the report at: file:///<USERPROFILE>/CodexWork/osmosis-travel-backup/app/build/reports/tests/testDebugUnitTest/index.html
+
+* Try:
+> Run with --scan to get full insights.
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 9.0.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/8.14.5/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD FAILED in 1m 17s
+25 actionable tasks: 7 executed, 18 up-to-date
+COMMAND: .\gradlew.bat testDebugUnitTest --console=plain --no-daemon; EXIT: 1; SECONDS: 77.8583349

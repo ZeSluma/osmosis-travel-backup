@@ -20,7 +20,7 @@ Observed read-only on 2026-09-16:
 - Existing camera protocol implementation should be preserved where possible.
 - Existing resumable/range download capability exists in the current download path.
 - Roadmap notes that long downloads are started from an Activity-owned bare Thread, so process death can interrupt them.
-- Roadmap notes downloaded-state UI/tick behavior is not persistent across restart.
+- Roadmap describes a stateless grid tick. The 2026-09-17 source review confirms persisted resume URIs and MediaStore completed-copy lookup across restarts; this is not a durable verified backup ledger. See the GATE-0 baseline evidence.
 - Current baseline writes media through existing app behavior; no project-specific persistent backup ledger exists yet.
 - No project-specific OneDrive pipeline exists yet.
 

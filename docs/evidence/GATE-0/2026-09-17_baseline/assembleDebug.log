@@ -1,0 +1,69 @@
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.14.5/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build
+Warning: SDK processing. This version only understands SDK XML versions up to 3 but an SDK XML file of version 4 was encountered. This can happen if you use versions of Android Studio and the command-line tools that were released at different times.
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preDebugBuild UP-TO-DATE
+> Task :app:mergeDebugNativeDebugMetadata NO-SOURCE
+> Task :app:checkKotlinGradlePluginConfigurationErrors
+> Task :app:checkDebugAarMetadata
+> Task :app:processDebugNavigationResources
+> Task :app:generateDebugResValues
+> Task :app:compileDebugNavigationResources
+> Task :app:mapDebugSourceSetPaths
+> Task :app:generateDebugResources
+> Task :app:packageDebugResources
+> Task :app:createDebugCompatibleScreenManifests
+> Task :app:extractDeepLinksDebug
+> Task :app:parseDebugLocalResources
+> Task :app:mergeDebugResources
+> Task :app:processDebugMainManifest
+> Task :app:processDebugManifest
+> Task :app:javaPreCompileDebug
+> Task :app:mergeDebugShaders
+> Task :app:compileDebugShaders NO-SOURCE
+> Task :app:generateDebugAssets UP-TO-DATE
+> Task :app:mergeDebugAssets
+> Task :app:compressDebugAssets
+> Task :app:desugarDebugFileDependencies
+> Task :app:mergeDebugJniLibFolders
+> Task :app:checkDebugDuplicateClasses
+> Task :app:mergeDebugNativeLibs NO-SOURCE
+> Task :app:stripDebugDebugSymbols NO-SOURCE
+> Task :app:mergeLibDexDebug
+> Task :app:validateSigningDebug
+> Task :app:writeDebugAppMetadata
+> Task :app:writeDebugSigningConfigVersions
+> Task :app:processDebugManifestForPackage
+> Task :app:mergeExtDexDebug
+> Task :app:processDebugResources
+> Task :app:compileDebugKotlin
+w: file:///<USERPROFILE>/CodexWork/osmosis-travel-backup/app/src/main/java/dev/konraditurbe/osmosis/ble/GattClient.kt:182:22 This declaration overrides deprecated member but not marked as deprecated itself. Please add @Deprecated annotation or suppress. See https://youtrack.jetbrains.com/issue/KT-47902 for details
+w: file:///<USERPROFILE>/CodexWork/osmosis-travel-backup/app/src/main/java/dev/konraditurbe/osmosis/net/MediaDownloader.kt:100:25 Unnecessary non-null assertion (!!) on a non-null receiver of type Uri
+w: file:///<USERPROFILE>/CodexWork/osmosis-travel-backup/app/src/main/java/dev/konraditurbe/osmosis/rsdk/GpsService.kt:189:27 The corresponding parameter in the supertype 'Listener' is named 'status'. This may cause problems when calling this function with named arguments.
+w: file:///<USERPROFILE>/CodexWork/osmosis-travel-backup/app/src/main/java/dev/konraditurbe/osmosis/rsdk/RsdkController.kt:88:26 The corresponding parameter in the supertype 'Listener' is named 'gatt'. This may cause problems when calling this function with named arguments.
+w: file:///<USERPROFILE>/CodexWork/osmosis-travel-backup/app/src/main/java/dev/konraditurbe/osmosis/ui/HighlightSeekBar.kt:25:51 'scaledDensity: Float' is deprecated. Deprecated in Java
+w: file:///<USERPROFILE>/CodexWork/osmosis-travel-backup/app/src/main/java/dev/konraditurbe/osmosis/ui/MainActivity.kt:1728:51 The corresponding parameter in the supertype 'Progress' is named 'totalBytes'. This may cause problems when calling this function with named arguments.
+w: file:///<USERPROFILE>/CodexWork/osmosis-travel-backup/app/src/main/java/dev/konraditurbe/osmosis/ui/MediaPreviewActivity.kt:330:57 'yes: Int' is deprecated. Deprecated in Java
+w: file:///<USERPROFILE>/CodexWork/osmosis-travel-backup/app/src/main/java/dev/konraditurbe/osmosis/ui/MediaPreviewActivity.kt:335:57 'no: Int' is deprecated. Deprecated in Java
+
+> Task :app:compileDebugJavaWithJavac NO-SOURCE
+> Task :app:dexBuilderDebug
+> Task :app:mergeDebugGlobalSynthetics
+> Task :app:processDebugJavaRes
+> Task :app:mergeProjectDexDebug
+> Task :app:mergeDebugJavaResource
+> Task :app:packageDebug
+> Task :app:createDebugApkListingFileRedirect
+> Task :app:assembleDebug
+
+[Incubating] Problems report is available at: file:///<USERPROFILE>/CodexWork/osmosis-travel-backup/build/reports/problems/problems-report.html
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 9.0.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/8.14.5/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD SUCCESSFUL in 2m 12s
+36 actionable tasks: 36 executed
+COMMAND: .\gradlew.bat assembleDebug --console=plain --no-daemon; EXIT: 0; SECONDS: 132.2318115

@@ -1,7 +1,7 @@
 project: osmosis-travel-backup
 current_phase: baseline
 current_gate: GATE-0
-gate_status: NOT_TESTED
+gate_status: BLOCKED
 
 upstream_repository: KonradIT/osmosis
 fork_repository: ZeSluma/osmosis-travel-backup
@@ -22,10 +22,20 @@ bootstrap_evidence: docs/evidence/GATE-0/2026-09-17_bootstrap/REPORT.md
 active_plan: docs/plans/active/GATE-0-BASELINE.md
 
 open_blockers:
-  - unchanged fork build has not yet been reproduced for this project
-  - unit tests have not yet been reproduced for this project
+  - unchanged Windows unit tests fail in 14 of 265 tests due to golden-resource CRLF sensitivity; original failures recorded, not fixed
+  - unchanged lintDebug fails with 5 errors, 79 warnings and 2 hints; original findings recorded, not fixed
   - Samsung Galaxy S25 Ultra + DJI Osmo Pocket 4P baseline hardware evidence has not yet been captured
-  - security baseline is initial only
+  - security review has open privacy, integrity and supply-chain findings including Kotlin build-plugin advisory GHSA-r937-wjx7-w2jp
+
+baseline_evidence: docs/evidence/GATE-0/2026-09-17_baseline/REPORT.md
+baseline_results:
+  repository: PASS
+  toolchain: PASS
+  wrapper_jar_integrity: PASS
+  assembleDebug: PASS
+  testDebugUnitTest: FAIL
+  lintDebug: FAIL
+  hardware: NOT_TESTED
 
 release_blockers:
   - fork-specific release signing has not yet been established; future release prerequisite, not a GATE-0 blocker
@@ -52,10 +62,14 @@ completed_evidence:
   - successful HTTPS clone from the fork confirmed by the user
   - bootstrap branch pushed to origin; push authentication verified by successful publication
   - GitHub REST API independently confirms bootstrap commit and unchanged main after publication
+  - unchanged debug build succeeds with isolated JDK 21 and Android SDK 36 on Windows
+  - unit-test and lint original failures persisted with sanitized diagnostics
+  - source reconstruction and limited security/dependency/secret review persisted
 
 implementation_authorized: false
 release_allowed: false
 
 next_action: >-
-  Await the next session to reproduce the unchanged GATE 0
-  baseline with wrapper validation, build, unit tests, lint/security checks and target-hardware evidence.
+  Review and agree disposition of the recorded unchanged-baseline test/lint/security findings,
+  then collect actual S25 Ultra + Pocket 4P hardware and resume/integrity evidence.
+  Do not implement functional fixes or close GATE 0 without the required authorization and evidence.

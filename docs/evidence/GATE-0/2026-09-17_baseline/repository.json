@@ -1,0 +1,12 @@
+{
+  "head": "5582f3f71d66ddeb225ee59f96de03f94a19b3e0",
+  "main": "2fcdbc97e6dbefc875d425368be67cf32b50bb06",
+  "origin_main": "2fcdbc97e6dbefc875d425368be67cf32b50bb06",
+  "merge_base": "2fcdbc97e6dbefc875d425368be67cf32b50bb06",
+  "branch": "bootstrap/project-initialization",
+  "origin": "https://github.com/ZeSluma/osmosis-travel-backup.git",
+  "source_delta": [],
+  "functional_worktree_delta": [],
+  "fetch_exit": 0,
+  "fetch_seconds": 0.662
+}
