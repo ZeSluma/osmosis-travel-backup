@@ -6,6 +6,8 @@ Date: 2026-09-18. Scope: safe, non-destructive software preparation for one bund
 
 `CheckedCopy` now rechecks cancellation immediately after a blocking read and before writing that buffer. A cancelled owner therefore cannot expose unjournaled bytes, advance progress, or create a durable checkpoint from a buffer returned after cancellation. The targeted regression test injects cancellation during `InputStream.read` and proves zero bytes written and zero checkpoints.
 
+`SourceContinuity` now makes the resume decision vocabulary explicit. Matching source, asset, remote path and length are contradiction checks only. A changed one is `CONTRADICTED`; missing/untrusted validator evidence is `UNCONFIRMED`, including filename reuse and reconnect; only an equal validator that an adapter independently qualifies as immutable is `CONFIRMED`. `GuardedResume` already requires that same immutable revision plus a measured retained-prefix hash and exact `206` range contract before it opens append output.
+
 The remaining crash boundary after a successful readback and persisted transfer receipt but before `preparePublication` remains deliberately fail-closed. The schema stores a confirmation receipt and local revision, but not a durable complete-file digest that a new process can read back against. Restart recovery therefore refuses to publish that state rather than infer local integrity from length or historic receipt alone. This is recorded as prototype hardening debt, not a completion path.
 
 ## Software evidence
@@ -13,6 +15,7 @@ The remaining crash boundary after a successful readback and persisted transfer 
 * Targeted `CheckedCopyTest`, `GuardedResumeTest`, and `StrictTransferBatchTest`: PASS.
 * Full `testDebugUnitTest`, `assembleDebug`, and `assembleDebugAndroidTest` in the isolated LF checkout: PASS.
 * Emulator `ledgerPhase suite`: PASS. It exercises synthetic complete/incomplete enumeration, identity ambiguity, transfer fault injection, publication recovery, schema migrations through 7, local reconciliation, capture-day grouping, and integrity/source-verification separation.
+* `SourceContinuityTest`: PASS for matching trusted versions, changed source/path/size/version, missing/untrusted validators, filename reuse and reconnect without validator evidence.
 * All emulator fixtures are guarded to the `ranchu` SDK device and use a separate no-backup database. They are not Pocket evidence.
 
 ## Prototype limits retained honestly

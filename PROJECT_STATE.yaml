@@ -87,7 +87,7 @@ bootstrap_evidence: docs/evidence/GATE-0/2026-09-17_bootstrap/REPORT.md
 active_plan: docs/plans/active/GATE-3-INTEGRITY.md
 
 open_blockers: []
-gate_3_prototype_checkpoint: "2026-09-18: full unit/build plus guarded synthetic emulator suite PASS; see docs/evidence/GATE-3/2026-09-17_integrity/PROTOTYPE_SPRINT.md. Hardware proof remains pending."
+gate_3_prototype_checkpoint: "2026-09-18: guarded synthetic source-continuity contract, unit/build and emulator suite PASS; see docs/evidence/GATE-3/2026-09-17_integrity/PROTOTYPE_SPRINT.md. Hardware proof remains pending."
 deferred_runtime_requirements:
   - G2 scoped software and target foundations PASS; G3 target integrity/publication/storage and source-continuity evidence remain NOT_TESTED; synthetic process-death coverage does not establish target behavior.
   - G7 execution/network/privacy/permissions and separate session-loss or sleep observations; SC03-SC07 and X/N/GD tests remain pending independently of resumed G2 hardware work
