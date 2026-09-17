@@ -54,12 +54,20 @@ class LedgerRepository(private val db: LedgerDatabase) {
             // Later uncertain relationship claims cannot relocate an allocated original.
             require(existing == null || existing.recordingId == groupId) { "RELATIONSHIP_REVALIDATION_REQUIRED" }
             var recording = dao.recording(groupId)
+            val capture = CaptureTimeResolver.resolve(groupTimes[groupId] ?: item.capture, now, phoneZone)
             if (recording == null) {
-                val capture = CaptureTimeResolver.resolve(groupTimes[groupId] ?: item.capture, now, phoneZone)
                 recording = RecordingRow(groupId, lease.sourceId,
                     if (item.relationshipProven) "ENUMERATOR_PROVEN" else "UNRESOLVED", !item.membersComplete,
                     capture.timestamp, capture.source, capture.zone, capture.day, capture.fallback, capture.confidence, capture.disagreement)
                 dao.recording(recording)
+            }
+            // Upgrade fallback metadata only when it does not relocate any existing reservation.
+            if (recording.timeSource == "SYNC_FALLBACK" && capture.source != "SYNC_FALLBACK" &&
+                capture.day == recording.captureDay) {
+                recording = recording.copy(timestamp = capture.timestamp, timeSource = capture.source,
+                    zoneEvidence = capture.zone, fallback = capture.fallback, confidence = capture.confidence,
+                    disagreement = capture.disagreement)
+                dao.updateRecording(recording)
             }
             if (recording.relationshipUncertain && item.membersComplete && item.relationshipProven) {
                 recording = recording.copy(relationshipUncertain = false)
@@ -72,6 +80,10 @@ class LedgerRepository(private val db: LedgerDatabase) {
             // Do not silently reclassify an already known required original as disposable.
             require(existing == null || existing.classification == asset.classification) { "CLASSIFICATION_REVIEW_REQUIRED" }
             dao.asset(asset)
+            if (capture.source != "SYNC_FALLBACK" || dao.captureEvidence(id) == null) {
+                dao.captureEvidence(CaptureEvidenceRow(id, capture.timestamp, capture.source, capture.zone,
+                    capture.day, capture.confidence, capture.fallback, capture.day != recording.captureDay))
+            }
             for (member in item.requiredMemberKeys.sorted()) {
                 if (dao.members(groupId).none { it.memberKey == member }) dao.member(MemberRow(groupId, member, null, true))
             }

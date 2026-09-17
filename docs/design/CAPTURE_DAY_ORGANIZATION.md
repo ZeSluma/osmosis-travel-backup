@@ -16,10 +16,15 @@ Phone storage API feasibility is an explicit GATE-1 review item: baseline uses s
 
 Evaluate available sources in this order, retaining provenance and disagreement:
 
-1. Trustworthy camera/media capture timestamp, with verified field semantics (recording start, not encode/export time).
-2. Trustworthy camera-supplied remote-file timestamp whose semantics have been checked; generic HTTP Last-Modified or a filesystem mtime is not automatically capture time.
-3. Filename timestamp only after model/firmware-specific naming behavior, valid calendar values and timezone semantics are verified. A matching regex or plausible name alone is insufficient.
-4. First durable synchronization allocation time, captured once, only when none of the above is usable. Mark `SYNC_TIME_FALLBACK`, never present it as confirmed capture time.
+Current explicit user decision2026-09-17 supersedes the earlier requirement to prove filename timezone before using its local date:
+
+1. Trustworthy explicit camera/media capture timestamp with independently established zone/offset.
+2. Trustworthy explicit camera/media capture timestamp without zone/offset (local time stays local).
+3. Strict supported DJI filename timestamp belonging to the enumerated remote asset: exact `DJI_<14 digits>_<4 digits>_D.<supported extension>`, valid calendar/clock. Source `DJI_FILENAME`; high local-calendar confidence, absolute instant/offset UNKNOWN. User accepts the observed Pocket4P naming evidence as sufficient for local date organization, not UTC precision.
+4. Trustworthy remote-file timestamp with verified semantics; generic mtime/HTTP Last-Modified is not automatically capture time. No stronger remote-file evidence currently justifies overriding the user's priority.
+5. First durable sync allocation time only as last resort, explicitly `SYNC_TIME_FALLBACK`.
+
+The strict implementation initially supports uppercase MP4/MOV/JPG/JPEG/DNG/RAW/HEIC/WAV and `_D` names only; other names/types remain unclassified for time and are not discarded. Never infer offset from the phone zone. For the observed third file the local time is2026-09-17T18:40:37, day2026-09-17, no absolute Instant. Clock correctness/travel/DST semantics remain independently unproven.
 
 Trust includes verified timestamp encoding, sane calendar/range, source role and known clock errors. A plausible but wrong camera clock cannot be detected reliably from syntax alone. Preserve source values and mark known/suspected clock faults; do not apply today's phone-camera offset retroactively. Differences within known source precision are recorded accordingly; material disagreement, especially a different day, raises `CAPTURE_TIME_CONFLICT`. Use the highest-ranked still-trustworthy source deterministically and record alternatives; if its trust is disproven, move to the next usable source. Equal-priority unresolved day conflicts are not arbitrarily tie-broken: retain candidates and use an explicitly uncertain provisional last-resort allocation pending reconciliation. No conflict is silently reported as verified organization.
 
@@ -34,6 +39,8 @@ Trust includes verified timestamp encoding, sane calendar/range, source role and
 UI separates transfer integrity from organization confidence, e.g. a date could not be verified. Uncertainty does not erase a valid backup or block safe byte preservation, but prevents a claim of fully verified capture-day organization. Existing CAMERA SYNC COMPLETE retains its byte/inventory meaning and must display outstanding organization warnings; no R-037 acceptance PASS while relevant cases remain unverified. No GPS collection or location lookup is required for date resolution.
 
 ## Ledger and crash/retry rules
+
+G2 schema4 implementation adds asset-linked `capture_evidence` separate from frozen recording/day/path reservations. Filename local timestamp, DJI_FILENAME source, null zoneEvidence, CAMERA_LOCAL_ZONE_UNKNOWN and HIGH_LOCAL_DATE_UNKNOWN_INSTANT persist without UTC conversion. The latter combines high local-date confidence and unknown absolute instant; timezone confidence is UNKNOWN/LOCAL_CAMERA_TIME. A same-day fallback reservation can gain stronger time provenance without path changes. Different-day evidence is retained with reservationDayConflict=true; old reservation/local URI is unchanged pending explicit later reconciliation. This is not permission to move/re-download existing files. New assets reserve the filename-derived day from first allocation. Historical fallback rows without re-enumeration are not silently invented as verified timestamps.
 
 Persist `CaptureResolution` linked to RecordingGroup and referenced by each member: original candidate values/source types, trust/rejection/conflict reasons, resolved local timestamp and precision, nullable UTC instant/zone/offset, `captureDay`, fallback/confidence, `intendedLocalDayVerified`, resolver-policy version and resolution revision. A date-only source stays date-only; never invent midnight as a measured capture time.
 

@@ -6,7 +6,21 @@ import java.time.*
 enum class AssetClass { KNOWN_REQUIRED, KNOWN_OPTIONAL, KNOWN_REGENERABLE_EXCLUDED, UNKNOWN_POTENTIALLY_REQUIRED, UNKNOWN_NON_RECORDING, UNSUPPORTED }
 enum class TransferState { DISCOVERED, PLANNED, PARTIAL, TRANSFERRED_UNVERIFIED, LOCAL_VERIFIED, FAILED, RETRY_PENDING, NEEDS_REVALIDATION, LOCAL_PRESENT_UNVERIFIED }
 enum class PlanAction { DOWNLOAD, RESUME_REVALIDATE, VERIFY_EXISTING, REVALIDATE_IDENTITY, REVIEW_UNKNOWN }
-enum class TimeSource { CAMERA_CAPTURE, REMOTE_FILE, VERIFIED_FILENAME, SYNC_FALLBACK }
+enum class TimeSource { CAMERA_CAPTURE, REMOTE_FILE, VERIFIED_FILENAME, SYNC_FALLBACK, DJI_FILENAME }
+
+/** Only a supported, exact remote basename supplies local calendar evidence; never a UTC instant. */
+object DjiFilenameTime {
+    private val pattern = Regex("DJI_([0-9]{14})_[0-9]{4}_D\\.(MP4|MOV|JPG|JPEG|DNG|RAW|HEIC|WAV)")
+    private val format = java.time.format.DateTimeFormatter.ofPattern("uuuuMMddHHmmss", java.util.Locale.ROOT)
+        .withResolverStyle(java.time.format.ResolverStyle.STRICT)
+    fun parseFilename(name: String): CaptureCandidate? {
+        val digits = pattern.matchEntire(name)?.groupValues?.get(1) ?: return null
+        val local = runCatching { LocalDateTime.parse(digits, format) }.getOrNull() ?: return null
+        if (local.year !in 1..9999) return null
+        return CaptureCandidate(TimeSource.DJI_FILENAME, local = local, trusted = true)
+    }
+    fun fromRemotePath(path: String): CaptureCandidate? = parseFilename(path.substringAfterLast('/').substringAfterLast('\\'))
+}
 
 /** Operational identity only. Hashing is a key encoding, never source-equivalence proof. */
 internal fun key(vararg parts: Any?): String = MessageDigest.getInstance("SHA-256")
@@ -23,7 +37,12 @@ data class CaptureResolution(val timestamp: String, val source: String, val zone
 object CaptureTimeResolver {
     fun resolve(candidates: List<CaptureCandidate>, allocatedAt: Instant, phoneZone: ZoneId): CaptureResolution {
         val usable = candidates.filter { it.trusted && (it.local != null || it.instant != null) }
-            .sortedBy { it.source.ordinal }
+            .sortedBy { when (it.source) {
+                TimeSource.CAMERA_CAPTURE -> if (it.offset != null || it.zone != null) 0 else 1
+                TimeSource.DJI_FILENAME, TimeSource.VERIFIED_FILENAME -> 2
+                TimeSource.REMOTE_FILE -> 3
+                TimeSource.SYNC_FALLBACK -> 4
+            } }
         fun day(c: CaptureCandidate): LocalDate = c.local?.toLocalDate()
             ?: c.instant!!.atZone(c.offset ?: c.zone ?: ZoneOffset.UTC).toLocalDate()
         val c = usable.firstOrNull() ?: return CaptureResolution(allocatedAt.toString(), "SYNC_FALLBACK",
@@ -41,7 +60,8 @@ object CaptureTimeResolver {
         }
         return CaptureResolution((c.local ?: c.instant).toString(), c.source.name,
             (c.offset ?: c.zone)?.toString(), day(dayEvidence).toString(), fallback,
-            if (conflict) "CONFLICT" else if (fallback == "NONE") "SOURCE_REPORTED" else "UNCERTAIN", conflict)
+            if (conflict) "CONFLICT" else if (c.source == TimeSource.DJI_FILENAME) "HIGH_LOCAL_DATE_UNKNOWN_INSTANT"
+            else if (fallback == "NONE") "SOURCE_REPORTED" else "UNCERTAIN", conflict)
     }
 }
 

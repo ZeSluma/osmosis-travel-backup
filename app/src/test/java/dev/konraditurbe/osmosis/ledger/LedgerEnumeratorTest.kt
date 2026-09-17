@@ -22,5 +22,10 @@ class LedgerEnumeratorTest {
         assertEquals(AssetClass.UNKNOWN_POTENTIALLY_REQUIRED,CameraLedgerAdapter.asset(file("a.XYZ")).classification)
         assertEquals(AssetClass.UNKNOWN_POTENTIALLY_REQUIRED,CameraLedgerAdapter.asset(file("a.LRF")).classification)
     }
-    @Test fun cameraAdapterNeverTrustsFilenameTimeOrInventsCompanions() { val a=CameraLedgerAdapter.asset(file("DJI_20261115010101_0001_D.MP4"));assertTrue(a.capture.isEmpty());assertFalse(a.membersComplete);assertNull(a.recordingKey);assertNull(a.strongVersion) }
+    @Test fun cameraAdapterUsesLocalFilenameWithoutInventingZoneOrCompanions() {
+        val a=CameraLedgerAdapter.asset(file("DJI_20261115010101_0001_D.MP4"))
+        assertEquals(TimeSource.DJI_FILENAME,a.capture.single().source)
+        assertNull(a.capture.single().offset);assertNull(a.capture.single().zone);assertNull(a.capture.single().instant)
+        assertFalse(a.membersComplete);assertNull(a.recordingKey);assertNull(a.strongVersion)
+    }
 }

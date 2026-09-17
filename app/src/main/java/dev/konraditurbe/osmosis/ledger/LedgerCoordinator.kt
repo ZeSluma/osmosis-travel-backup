@@ -16,8 +16,9 @@ object CameraLedgerAdapter {
         }
         return RemoteAsset(file.storage.toString(), file.path, file.sizeBytes.takeIf { it > 0 },
             file.mtimeEpoch.takeIf { it > 0 }?.toString(), file.mediaType.toString(),
-            file.opHandle.takeIf { it != 0L }?.toString(), classification, "MANIFEST_PRIMARY_TYPE_POLICY_V1")
-        // Filename time is retained in the operational path, but never asserted as trusted Pocket capture time.
+            file.opHandle.takeIf { it != 0L }?.toString(), classification, "MANIFEST_PRIMARY_TYPE_POLICY_V1",
+            capture = listOfNotNull(DjiFilenameTime.fromRemotePath(file.path)))
+        // Exact supported DJI names establish local calendar evidence only, not timezone/UTC.
         // Baseline manifest does not prove all sidecars, volume continuity or stable object versions.
     }
 }

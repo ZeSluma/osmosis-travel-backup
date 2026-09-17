@@ -11,7 +11,7 @@ import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory
 import java.io.File
 
 @Database(entities = [SourceRow::class, SnapshotRow::class, RecordingRow::class, AssetRow::class,
-    MemberRow::class, MembershipRow::class, ReplicaRow::class, LocalCandidateRow::class], version = 3, exportSchema = true)
+    MemberRow::class, MembershipRow::class, ReplicaRow::class, LocalCandidateRow::class, CaptureEvidenceRow::class], version = 4, exportSchema = true)
 abstract class LedgerDatabase : RoomDatabase() {
     abstract fun ledger(): LedgerDao
     companion object {
@@ -27,12 +27,17 @@ abstract class LedgerDatabase : RoomDatabase() {
                 db.execSQL("CREATE INDEX IF NOT EXISTS index_local_candidates_locator ON local_candidates (locator)")
             }
         }
+        val MIGRATION_3_4 = object : Migration(3, 4) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("CREATE TABLE IF NOT EXISTS capture_evidence (assetId TEXT NOT NULL, timestamp TEXT NOT NULL, source TEXT NOT NULL, zoneEvidence TEXT, captureDay TEXT NOT NULL, confidence TEXT NOT NULL, fallback TEXT NOT NULL, reservationDayConflict INTEGER NOT NULL, PRIMARY KEY(assetId), FOREIGN KEY(assetId) REFERENCES assets(id) ON UPDATE NO ACTION ON DELETE NO ACTION)")
+            }
+        }
         fun open(context: Context, name: String = "sync-ledger.db"): LedgerDatabase {
             require(name.matches(Regex("[A-Za-z0-9._-]+")))
             return Room.databaseBuilder(context.applicationContext, LedgerDatabase::class.java,
                 File(context.noBackupFilesDir, name).absolutePath)
                 .openHelperFactory(PreserveCorruptDatabaseFactory())
-                .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
+                .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
                 .build()
         }
     }

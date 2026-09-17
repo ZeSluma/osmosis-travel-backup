@@ -1,0 +1,29 @@
+{
+  "DebugApkSha256": "3D24BDD4CC34FD16BC2CB67A455EF7B515A42347912EAEF5482018E644F6B052",
+  "TestApkSha256": "D7D9F2EA5C0E4F60CA44D75B2A6D0BF6A3E6A59E2697260BE9F6618D5D9FB800",
+  "NormalizedSourceMatch": true,
+  "MatchedFiles": [
+    "app/src/androidTest/java/dev/konraditurbe/osmosis/ledger/Gate2ReadOnlyAudit.java",
+    "app/src/androidTest/java/dev/konraditurbe/osmosis/ledger/LedgerInstrumentation.kt",
+    "app/src/androidTest/java/dev/konraditurbe/osmosis/ledger/LocalReconciliationInstrumentation.kt",
+    "app/src/main/java/dev/konraditurbe/osmosis/ledger/LedgerCoordinator.kt",
+    "app/src/main/java/dev/konraditurbe/osmosis/ledger/LedgerDatabase.kt",
+    "app/src/main/java/dev/konraditurbe/osmosis/ledger/LedgerModel.kt",
+    "app/src/main/java/dev/konraditurbe/osmosis/ledger/LedgerRepository.kt",
+    "app/src/main/java/dev/konraditurbe/osmosis/ledger/LedgerRows.kt",
+    "app/src/test/java/dev/konraditurbe/osmosis/ledger/LedgerEnumeratorTest.kt",
+    "app/schemas/dev.konraditurbe.osmosis.ledger.LedgerDatabase/4.json",
+    "app/src/androidTest/java/dev/konraditurbe/osmosis/ledger/FilenameTimeInstrumentation.kt",
+    "app/src/test/java/dev/konraditurbe/osmosis/ledger/DjiFilenameTimeTest.kt"
+  ],
+  "UnitTests": 347,
+  "Failures": 0,
+  "Errors": 0,
+  "FocusedTests": 21,
+  "EmulatorLedger": "PASS including additive3-to-4 and reservation preservation",
+  "B1": "PASS",
+  "Lint": "FAIL: unchanged5 errors78 warnings2 hints",
+  "FullRegressionSeconds": 40,
+  "FirstRun": "FAIL76s: superseded no-filename adapter assertion; all12 new tests passed",
+  "FocusedRerun": "PASS30s"
+}

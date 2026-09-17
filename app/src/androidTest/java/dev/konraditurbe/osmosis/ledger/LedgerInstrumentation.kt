@@ -47,6 +47,7 @@ object LedgerInstrumentation {
             stage = "credential-migration"
             CredentialInstrumentation.verify(context)
             stage = "local-reconciliation"
+            FilenameTimeInstrumentation.verify(instrumentation)
             LocalReconciliationInstrumentation.verify(context)
             val db = LedgerDatabase.open(context, "gate2-${System.nanoTime()}.db")
             var repo = LedgerRepository(db)
@@ -194,7 +195,7 @@ object LedgerInstrumentation {
             sqlite.version=1; sqlite.close()
             val migrated=LedgerDatabase.open(context,name)
             check(migrated.ledger().source("association")?.ownerEpoch==7L)
-            check(migrated.openHelper.writableDatabase.version==3)
+            check(migrated.openHelper.writableDatabase.version==4)
             check(migrated.ledger().replica("asset")?.localPresence=="NOT_SCANNED")
             check(migrated.ledger().replica("asset")?.committedLength==25L)
             check(migrated.ledger().replica("asset")?.relativePath=="2026-01-01/unknown.xyz")
@@ -222,7 +223,7 @@ object LedgerInstrumentation {
             sqlite2.execSQL("INSERT INTO replicas VALUES ('asset2','PHONE_LOCAL','2026-01-01/unknown.xyz','PARTIAL',25,7,'content://synthetic/partial')")
             sqlite2.version=2; sqlite2.close()
             val migrated2=LedgerDatabase.open(context,name2)
-            check(migrated2.openHelper.writableDatabase.version==3)
+            check(migrated2.openHelper.writableDatabase.version==4)
             val replica2=checkNotNull(migrated2.ledger().replica("asset2"))
             check(replica2.localPresence=="NOT_SCANNED" && replica2.state=="PARTIAL" && replica2.committedLength==25L)
             check(replica2.localLocator=="content://synthetic/partial" && replica2.relativePath=="2026-01-01/unknown.xyz")

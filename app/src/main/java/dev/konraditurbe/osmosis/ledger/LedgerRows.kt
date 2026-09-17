@@ -52,6 +52,8 @@ data class LocalCandidateRow(val assetId: String, val locator: String, val displ
 
 @Dao
 interface LedgerDao {
+    @Upsert fun captureEvidence(row: CaptureEvidenceRow)
+    @Query("SELECT * FROM capture_evidence WHERE assetId=:asset") fun captureEvidence(asset: String): CaptureEvidenceRow?
     @Query("SELECT * FROM sources WHERE association=:association") fun source(association: String): SourceRow?
     @Query("SELECT * FROM sources WHERE id=:id") fun sourceById(id: String): SourceRow?
     @Upsert fun source(row: SourceRow)
@@ -76,3 +78,10 @@ interface LedgerDao {
     @Query("SELECT COUNT(*) FROM assets") fun assetCount(): Int
     @Query("SELECT COUNT(*) FROM recordings") fun recordingCount(): Int
 }
+
+/** Latest resolved evidence is separate from frozen destination reservations. No media mutation. */
+@Entity(tableName = "capture_evidence", foreignKeys = [ForeignKey(entity = AssetRow::class,
+    parentColumns = ["id"], childColumns = ["assetId"])])
+data class CaptureEvidenceRow(@PrimaryKey val assetId: String, val timestamp: String, val source: String,
+    val zoneEvidence: String?, val captureDay: String, val confidence: String, val fallback: String,
+    val reservationDayConflict: Boolean)

@@ -1,0 +1,7 @@
+# ADR0011 — DJI filename supplies local calendar evidence, not UTC
+
+2026-09-17 explicit user authorization within G2. Exact observed filename DJI_20260917184037_0003_D.MP4 and user-confirmed plausibility support use of strictly valid supported DJI names above sync/remote-mtime fallback. Priority: trustworthy camera/media with timezone, trustworthy camera/media without timezone, DJI filename, trustworthy remote-file time, sync allocation. No filename-to-UTC conversion using phone timezone. DJI_FILENAME persists a LocalDateTime and local day, null offset/zone, high local-date but unknown-instant confidence. Clock correctness remains independent.
+
+Strict parser and adapter consume only each enumerated asset's basename; invalid/malformed/non-DJI/unsupported patterns yield no candidate. Stronger trusted capture metadata wins. Same-day existing fallback resolution can be enriched; destination paths never silently change. Additive schema3→4 capture_evidence preserves stronger candidate local day separately when an older frozen reservation differs. No migration touches media; no destructive fallback. Existing third asset must be re-evaluated read-only before target ingestion proof; model evaluation is not a persisted upgrade claim.
+
+Supersedes prior filename/remote-time priority and timezone-prerequisite portions of R-037/design only. No download, delete, rename, branding, dependency or G7 change. Broader capture-clock/timezone/sidecar hardware claims remain NOT_TESTED.
