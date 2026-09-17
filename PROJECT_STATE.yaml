@@ -89,6 +89,19 @@ active_plan: docs/plans/active/GATE-3-INTEGRITY.md
 
 open_blockers: []
 gate_3_prototype_checkpoint: "2026-09-18: guarded synthetic source-continuity contract, unit/build and emulator suite PASS; see docs/evidence/GATE-3/2026-09-17_integrity/PROTOTYPE_SPRINT.md. Hardware proof remains pending."
+day_checkpoint:
+  branch: codex/gate-3-transfer-integrity
+  published_checkpoint: "b946b4fef3cd6bd51cbb427202816b07ba7f7bc8"
+  main_verified_unchanged: "2fcdbc97e6dbefc875d425368be67cf32b50bb06"
+  debug_apk: "isolated LF build app-debug.apk; SHA-256 84FA1ACD097E8C51BDF5F6E0A09692BA0E55E187C4C27E789435825952530F15"
+  product_capability: "Safe strict Pocket planning/transfer boundaries, persisted partials, local transfer-integrity evidence, guarded simulated resume, and explicit unverified UI state."
+  software_proven: "Range/body validation, cancellation-after-read safety, source-continuity classification, guarded resume state machine, ledger identity/reconciliation and restart semantics."
+  emulator_proven: "Synthetic ledger/integrity/migration/process-persistence suite at the prior compatible checkpoint; no target-hardware claim."
+  hardware_pending: "One consolidated G3-PROTOTYPE-TOMORROW session in docs/hardware/VALIDATION_QUEUE.json."
+  safety_limitations: "Pocket immutable source-version contract unproven; no production append/resume; overall verification remains UNVERIFIED; incomplete enumeration is untrusted; receipt-publication gap fails closed."
+  deferred_debt: "Receipt-hash crash-recovery design deferred after three non-converging synthetic migration attempts; existing baseline lint debt remains separate."
+  next_outcome: "Use hardware outcomes to qualify or retain guarded resume, verify migration/UI binding and strict-transfer persistence; then implement only the evidence-driven adapter/UI correction."
+  evidence: docs/evidence/GATE-3/2026-09-17_integrity/END_OF_DAY.md
 deferred_runtime_requirements:
   - G2 scoped software and target foundations PASS; G3 target integrity/publication/storage and source-continuity evidence remain NOT_TESTED; synthetic process-death coverage does not establish target behavior.
   - G7 execution/network/privacy/permissions and separate session-loss or sleep observations; SC03-SC07 and X/N/GD tests remain pending independently of resumed G2 hardware work
