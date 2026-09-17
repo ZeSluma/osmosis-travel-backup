@@ -1,10 +1,10 @@
 project: osmosis-travel-backup
-current_phase: gate_2_schema5_migration_pass_target_reselection_pending
+current_phase: gate_2_complete_gate_3_bootstrap
 current_gate: GATE-2
-gate_status: BLOCKED
+gate_status: PASS
 gate_0_status: PASS
 gate_0_completed_date: "2026-09-17"
-hardware_session_status: USER_UNAVAILABLE_NO_DEVICE_RETRIES
+hardware_session_status: GATE2_HARDWARE_COMPLETE_NO_TRANSFER_AUTHORIZED
 hardware_resume_requires_explicit_return: true
 intent_rebase_status: ACCEPTED_IN_PRINCIPLE_RECONCILED
 intent_rebase_evidence: docs/evidence/GATE-1/2026-09-17_intent-rebase/INTENT_AUDIT.md
@@ -66,8 +66,7 @@ bootstrap_evidence: docs/evidence/GATE-0/2026-09-17_bootstrap/REPORT.md
 
 active_plan: docs/plans/active/GATE-2-LEDGER.md
 
-open_blockers:
-  - Schema5 migration/history preservation PASS on S25 despite partial enumeration; actual38MB local-candidate reselection remains NOT_TESTED because latest snapshot has no actionable members. User unavailable; no device retries. Software replay PASS; no media changes.
+open_blockers: []
 deferred_runtime_requirements:
   - G2 software ledger/credential migration/fencing tests pass; target HIL pending. G3 integrity/publication/storage reconciliation remains NOT_TESTED; SC01/SC02/SC08 hardware and broader crash coverage remain explicit.
   - G7 execution/network/privacy/permissions and separate session-loss or sleep observations; SC03-SC07 and X/N/GD tests remain pending independently of resumed G2 hardware work
@@ -169,10 +168,10 @@ execution_policy_source: AGENTS.md
 current_implementation_scope: GATE-2 persistent ledger, legacy local-candidate reconciliation and deterministic planning; no GATE-3 or GATE-7 implementation
 ledger_branch_parent: a58d858ecfd404579960d9a32960e151071f9fd3
 gate_1_status: PASS
-gate_2_status: BLOCKED
+gate_2_status: PASS
 gate_2_software_status: PASS
-gate_2_hardware_status: NOT_TESTED
-gate_2_hardware_progress: Schema5 migration PASS;8 snapshots/4 historical identities retained,2 unresolved observations/latest0 actionable members INCOMPLETE. Both existing candidate relationships and protected file sizes preserved;38MB pointer reselection not exercised. Third local filename time/day/unknown zone preserved.
+gate_2_hardware_status: PASS
+gate_2_hardware_progress: Schema5 migration and actual38MB local-candidate reselection PASS; latest9th snapshot contains original3,4 historical identities/2 unresolved observations retained. Both copies VERIFY_EXISTING; snapshot INCOMPLETE, no integrity/full-source claim.
 gate_2_hardware_evidence: docs/evidence/GATE-2/2026-09-17_hardware/REPORT.md
 gate_2_evidence: docs/evidence/GATE-2/2026-09-17_ledger/REPORT.md
 gate_2_decision: docs/decisions/0009-gate2-foundation-and-continuous-execution.md
@@ -195,8 +194,7 @@ gate_2_empty_enumeration: CONNECTED_BUT_MEDIA_ENUMERATION_EMPTY; snapshot3 INCOM
 gate_2_camera_recovery: CAMERA_UNREACHABLE_UNTIL_POWER_CYCLE; user power cycle and fresh rescan restored two videos; snapshot4 contains same two asset identities; root cause UNCONFIRMED; separate G7 wake/recovery investigation
 build_tool_dependency_debt: 44 OSV advisory IDs on 11 unchanged G1 build-classpath coordinates; no returned new/runtime advisory; reviewed build/CI remediation before release
 next_action: >-
-  Wait for explicit user return; no device polling, rescans or connection attempts while unavailable. Software disposition complete.
-  Remaining G2 assertion is real38MB candidate reselection after sufficient normal metadata, not migration or full source coverage. Latest partial observation cannot exercise it; no download/delete or filename merge.
+  Bootstrap GATE-3 safe single-original transfer/integrity on a dedicated branch under continuous authorization. Preserve existing media; no real download/delete/read/hash without explicit test authorization.
 
 gate_2_identity_decision: docs/decisions/0012-incomplete-identity-observations.md
 gate_2_identity_evidence: docs/evidence/GATE-2/2026-09-17_identity-observations/REPORT.md
@@ -207,4 +205,6 @@ gate_2_identity_target_install: PASS
 gate_2_identity_install_evidence: docs/evidence/GATE-2/2026-09-17_identity-observations/TARGET_INSTALL.md
 
 gate_2_identity_target_partial_evidence: docs/evidence/GATE-2/2026-09-17_identity-observations/TARGET_PARTIAL.md
-gate_2_identity_target_reselection: NOT_TESTED
+gate_2_identity_target_reselection: PASS
+
+gate_2_closure_evidence: docs/evidence/GATE-2/2026-09-17_identity-observations/CLOSURE.md

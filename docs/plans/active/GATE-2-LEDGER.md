@@ -1,3 +1,7 @@
+# GATE-2 PASS — durable foundations
+
+[Closure](../../evidence/GATE-2/2026-09-17_identity-observations/CLOSURE.md) records target schema5 and actual local-candidate reselection PASS. Snapshot remains INCOMPLETE and identities remain uncertain; no integrity/one-tap claim. Prior blockers below are historical. Continue G3 bootstrap; no real media actions authorized.
+
 # Current target checkpoint — migration PASS, user unavailable
 
 [Target partial evidence](../../evidence/GATE-2/2026-09-17_identity-observations/TARGET_PARTIAL.md): schema5 confirmed;4 historical identities, both existing local candidate relationships, file sizes and third capture-time/day/unknown zone retained. Snapshot8 is INCOMPLETE with0 actionable members and2 unresolved observations; one UI tile is not full source coverage. No deletion or filename merge inferred. Software fixture already covers this safe transition; no code correction or repeated test run needed.
