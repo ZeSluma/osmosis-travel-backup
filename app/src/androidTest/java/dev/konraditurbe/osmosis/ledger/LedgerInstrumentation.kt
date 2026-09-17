@@ -111,19 +111,26 @@ object LedgerInstrumentation {
                 db.ledger().member(MemberRow("missing-recording","missing",null,true))
             } }.isFailure)
             check(db.ledger().source("rollback")==null)
-                        stage = "concurrent-duplicate-request"
+            stage = "concurrent-duplicate-request"
             val pool=java.util.concurrent.Executors.newFixedThreadPool(4)
             val futures=(1..8).map { pool.submit<EnumerationLease> { LedgerRepository(db).begin("concurrent","same","fake",now) } }
             val leases=futures.map { it.get() }
             check(leases.distinct().size==1)
             pool.shutdown()
-                        stage = "sqlite-full-rollback"
+            stage = "sqlite-full-rollback"
             val sql=db.openHelper.writableDatabase
             val pageCount=sql.query("PRAGMA page_count").use { it.moveToFirst();it.getLong(0) }
+            var observedFull = false
             check(runCatching { db.runInTransaction {
                 sql.query("PRAGMA max_page_count=$pageCount").use { check(it.moveToFirst() && it.getLong(0) == pageCount) }
-                db.ledger().source(SourceRow("full","full","fake","x".repeat(1_000_000),0))
+                try {
+                    db.ledger().source(SourceRow("full","full","fake","x".repeat(1_000_000),0))
+                } catch (error: android.database.sqlite.SQLiteFullException) {
+                    observedFull = true
+                    throw error
+                }
             } }.isFailure)
+            check(observedFull)
             check(db.ledger().source("full")==null)
             check(db.ledger().assetCount()>=before)
             stage = "activity-recreation"
@@ -154,20 +161,20 @@ object LedgerInstrumentation {
             val queries=schema.getJSONArray("setupQueries")
             for (i in 0 until queries.length()) sqlite.execSQL(queries.getString(i))
             sqlite.execSQL("INSERT INTO sources VALUES ('migration','association','UNCERTAIN','fake',7)")
-                        sqlite.execSQL("INSERT INTO recordings VALUES ('group','migration','fake',1,'2026-01-01T12:00','CAMERA_CAPTURE',NULL,'2026-01-01','CAMERA_LOCAL_ZONE_UNKNOWN','UNCERTAIN',0)")
+            sqlite.execSQL("INSERT INTO recordings VALUES ('group','migration','fake',1,'2026-01-01T12:00','CAMERA_CAPTURE',NULL,'2026-01-01','CAMERA_LOCAL_ZONE_UNKNOWN','UNCERTAIN',0)")
             sqlite.execSQL("INSERT INTO assets VALUES ('asset','migration','group','fp','fake','unknown.xyz',100,NULL,'UNKNOWN',NULL,NULL,'UNKNOWN_POTENTIALLY_REQUIRED','UNCLASSIFIED',1,7)")
             sqlite.execSQL("INSERT INTO members VALUES ('group','member','asset',1)")
             sqlite.execSQL("INSERT INTO replicas VALUES ('asset','PHONE_LOCAL','2026-01-01/unknown.xyz','PARTIAL',25,7)")
             sqlite.version=1; sqlite.close()
             val migrated=LedgerDatabase.open(context,name)
             check(migrated.ledger().source("association")?.ownerEpoch==7L)
-                        check(migrated.openHelper.writableDatabase.version==2)
+            check(migrated.openHelper.writableDatabase.version==2)
             check(migrated.ledger().replica("asset")?.committedLength==25L)
             check(migrated.ledger().replica("asset")?.relativePath=="2026-01-01/unknown.xyz")
             check(migrated.ledger().replica("asset")?.localLocator==null)
             check(migrated.ledger().asset("asset")?.classification=="UNKNOWN_POTENTIALLY_REQUIRED")
             check(migrated.ledger().members("group").single().required)
-                        migrated.close()
+            migrated.close()
             stage = "unsupported-version-preserved"
             val unsupported=SQLiteDatabase.openDatabase(File(context.noBackupFilesDir,name).absolutePath,null,SQLiteDatabase.OPEN_READWRITE)
             unsupported.version=99;unsupported.close()
