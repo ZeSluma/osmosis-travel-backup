@@ -84,9 +84,13 @@ Transient network/timeout/session/busy errors: full jitter delay U(0, min(60 s, 
 
 404/500 must preserve upstream's documented temporary-busy possibility; revalidate same identity/session and retry under budget, not declare deletion immediately. Permission/positive auth rejection/ENOSPC stop active retries and demand concrete action. Potentially recoverable AP/BLE absence uses the same bounded episode, then releases resources and reports action/waiting. No indefinite scans or always-held wake lock. Approved presence/foreground re-entry may initiate a new bounded episode; hidden repeated timer reset is forbidden.
 
+## Cleanup is a separate state machine
+
+[VERIFIED_SNAPSHOT_CLEANUP](VERIFIED_SNAPSHOT_CLEANUP.md) defines DELETE_NOT_ELIGIBLE through DELETE_COMPLETE/UNVERIFIED with persisted confirmation and per-asset intents. Sync COMPLETE, reconnect timers and GPS/verbose settings cannot initiate or resume destructive dispatch. After interruption, only read-only reconciliation may occur automatically; the user explicitly resumes the unchanged remaining scope after fresh preconditions. No partial deletion is COMPLETE.
+
 ## Structured diagnostics and UX
 
-Allowlist events: SESSION_STARTED, BLE_FOUND, AP_WAKE_REQUESTED, WIFI_REQUESTED, WIFI_AVAILABLE, CAMERA_SESSION_READY, NETWORK_LOST, PROTOCOL_TIMEOUT, RECONNECT_SCHEDULED, RECONNECT_SUCCESS, RECONNECT_EXHAUSTED, TRANSFER_STARTED, TRANSFER_PARTIAL, RANGE_RESUME_STARTED, TRANSFER_VERIFIED, PROCESS_RECOVERY, USER_ACTION_REQUIRED, ENUMERATION_INCOMPLETE, SESSION_STOPPED.
+Canonical event vocabulary is in [GPS_AND_DIAGNOSTICS](GPS_AND_DIAGNOSTICS.md), including CAMERA_DISCOVERED, BLE_CONNECTED, SESSION_LOST, RECONNECT_ATTEMPT/FAILED, TRANSFER_INTERRUPTED, RANGE_RESUME and evidence-backed CAMERA_SLEEP_DETECTED. AP_WAKE_REQUESTED, WIFI_REQUESTED, ENUMERATION_INCOMPLETE and SESSION_STOPPED remain additional safe events. GPS OFF and verbose OFF never disable the normal event channel or backup recovery.
 
 Payload: monotonic sequence, UTC/elapsed, pseudonymous session/asset IDs, type, reason/confidence, old/new state, attempt, byte offset/total, HTTP status and validated range boundaries, platform stop reason. No passwords/tokens, GPS, SSID/MAC, raw media paths/content, raw protocol or exception messages. A typed serializer owns redaction and export schema; test injected secrets cannot enter output. Bounded ring retention proposal 7 days/10 MiB, deletion/export under user control. Ledger needs private source locators; diagnostics do not.
 

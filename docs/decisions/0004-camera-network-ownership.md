@@ -1,5 +1,6 @@
 # ADR 0004 — Explicit camera Network ownership
 
+2026-09-17 review: architecture accepted in principle per [ADR0005](0005-gate-safety-and-optional-features.md); technical validation, security acceptance and implementation authorization remain outstanding.
 Date: 2026-09-17. Status: selected design recommendation; hardware validation outstanding. No functional changes.
 
 ## Observed baseline and decision

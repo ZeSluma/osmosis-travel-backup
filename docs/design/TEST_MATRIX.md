@@ -19,7 +19,7 @@ Status: planned, NOT_TESTED unless linked baseline evidence explicitly says othe
 | C01 | R28,36 / G7 | Independently idle playback, AP timeout, display-off, standby, power-off, wake, BLE availability | Time-correlated camera and app states; camera sleep remains distinct from background; no setting changes to hide cause |
 | C02 | R36 / G7 | Safe new active-transfer observation versus matched idle duration | Determine whether transfer inhibits sleep/AP loss; if untested keep UNKNOWN, never infer from display alone |
 | I01 | R19 / G2,G3 | Reconnect/reboot/volume change/filename reuse/rollover/source replacement | Strong identity match or explicit uncertainty; changed asset never appended/skipped by name |
-| I02 | R20-21 / G4 | Every actual Pocket media mode, internal+card, >1 page, RAW/audio/metadata/group members | Independently accounted required inventory; no required companion omitted; unknown types block completeness |
+| I02 | R20-21 / G4 | Every actual Pocket media mode, internal+card, >1 page, RAW/audio/metadata/group members | Independently accounted required inventory; no required companion omitted; potentially required unknowns need disposition or verified preservation; unrelated evidenced unknowns do not alone fail local sync |
 | I03 | R21 / G4 | Empty page, delayed mount, truncated/repeated page, page-N failure | Enumeration incomplete rather than false empty/complete; bounded retries |
 | I04 | R21 / G4 | New source, active recording, mode change, camera deletion during sync | Generation invalidated/extended; finalized-object rule; no local cascading delete |
 | T01 | R22-24 / G3 | Disconnect at 0/1/chunk-boundary/mid/final byte; delayed/stale response | Correct partial checkpoint and exact ranged continuation with no byte duplication/gap |
@@ -66,6 +66,31 @@ adb shell am compat disable RESTRICT_LOCAL_NETWORK dev.konraditurbe.osmosis
 ```
 
 Do not flash the user's phone or run these during the hardware pause. Unsupported compat behavior is BLOCKED/NOT_TESTED with exact build info, not permission to loosen production security. On a future target37 build test ACCESS_LOCAL_NETWORK separately; no current manifest change.
+
+## Accepted policy reconciliation tests — all NOT_TESTED
+
+| ID | Gate / experiment | Acceptance oracle |
+|---|---|---|
+| AS01 | G2/G4; fixture with all six classes, known required missing and unrelated unknown present | Complete inventory independent of classification; missing required blocks recording/local completion, unrelated evidenced non-recording unknown does not fail whole sync; no silent discard |
+| AS02 | G2/G4; potentially required unknown, opaque verified backup, unsupported required asset, late membership reclassification | Unknown safety blocked until disposition/safe preservation; unsupported required or uncertain identity cannot fake preservation; revised policy invalidates affected completion, required group members never detached |
+| AS03 | G5/G6; phone-only, two folders/same device, phone+SSD, phone+cloud, optional vs required third replica | Only distinct verified outside-camera domains meet two-copy default; required extra destination enforced; stale/unavailable evidence revokes safety without erasing valid phone-copy truth |
+| CL01 | Proposed G9; new recording after backup/before confirmation and after confirmation/before command | New object excluded, changed plan revalidated/reconfirmed; never widen approved scope; if race cannot be safely fenced, no command |
+| CL02 | Proposed G9; disconnect after first delete and after 37 of 100; lost/late response | Exact confirmed/unknown/not-attempted journal, no blind retry; read-only reconcile then explicit remainder resume; retained/new data untouched |
+| CL03 | Proposed G9; process death/UI recreation/camera restart before send, after send/before journal, during verify | Durable authorization and UNKNOWN outcome recovery, no duplicate command or automatic destructive restart; full revalidation and explicit continuation |
+| CL04 | Proposed G9; different camera, SD exchange/reformat/generation change, handle reuse/source rename/replacement | Reject stale identity/permit; no deletion by name/handle alone; untouched wrong/new storage |
+| CL05 | Proposed G9; primary with independent/implicit RAW/audio/metadata/derivative delete effects; unknown member found late | Known effect closure only, all required members redundantly verified; ambiguous collateral blocks; no format/bulk workaround |
+| CL06 | Proposed G9; already absent item, duplicate request, partially completed prior cleanup | Complete inventory distinguishes absence from missing pages; no reissue of stale handle, idempotent same-operation projection, no scope expansion |
+| CL07 | Proposed G9; SSD/cloud unavailable or phone/SSD/cloud proof changes before start and between commands | Revoke eligibility/stop dispatch; current sufficient independent set and all configured requirements must pass before renewed explicit continuation |
+| CL08 | Proposed G9; API says success but item remains; API says failure but item absent | Status never substitutes for observed state; retain discrepancy, prove absence with full same-store inventory; no blind resend |
+| CL09 | Proposed G9; post-delete enumeration fails/partial; intended absent but retained item disappears; storage unhealthy | DELETE_UNVERIFIED/ACTION_REQUIRED, never CLEANUP COMPLETE; success only exhaustive intended-absent and retained-present proof with no unintended disappearance |
+| CL10 | Proposed G9; cancel confirmation, hostile/replayed intent, sync callback, background retry, zero-touch trigger | Zero destructive commands without fresh scope-bound user initiation/confirmation; no generic OK authorization; all existing UI/API paths covered |
+| GD01 | G1/G4/G7; GPS disabled/permission denied and Save logs OFF vs ON | Discovery through safe-to-clear independent of both optional features; identical reconnect/resume correctness, no hidden location subscription |
+| GD02 | G1/G4/G7; opt-in/out persistence, process restart, optional GPS/backup resource conflict, telemetry sidecar | No silent GPS restart pending permission/lifecycle review; one BLE owner; explicit switch when needed; embedded telemetry preserved, required sidecar backed up/grouped |
+| GD03 | G1/G7; inject sensitive values into every event/logcat/verbose/export path | No persisted/exported credentials/GPS/content/unnecessary PII; unsafe raw fields omitted; no auto-upload, explicit export only |
+| GD04 | G1/G7; ring size/age limit, verbose expiration/restart, full disk/write failure/event storm | Bounded stores/overhead, verbose OFF after expiry/restart, safe drop counters; backup not dependent on diagnostics, critical ledger/audit still durable or operation safely blocked |
+| GD05 | G7; separately authorized S25/Pocket controlled awake foreground drop with temporary reviewed Save logs if needed | Correlate network/BLE/session/AP/visibility evidence; logging restored OFF after session, no invented cause, separate sleep/background findings; compare OFF/ON behavior |
+
+CL tests first use synthetic cameras/fault injection. Real deletion HIL is separately authorized only after the proposed dedicated gate is adopted and safety prerequisites are proven; use disposable non-critical recordings on S25 Ultra + Pocket 4P and test internal/removable storage independently. Do not delete, format or modify existing baseline originals/copies. Record model/firmware/source identity, exact approved scope, per-item outcomes and sanitized audit. Source code presence is not remote-delete capability PASS. Optional GPS HIL and diagnostic reproduction also wait for explicit hardware return.
 
 ## Existing evidence carried forward, not substitute for these tests
 

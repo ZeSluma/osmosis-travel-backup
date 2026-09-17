@@ -17,7 +17,7 @@ One SyncCoordinator serializes decisions; IO children report events. A database 
 | SyncSession | UUID, camera FK, sourceGeneration, policyVersion, user intent RUN/PAUSE/CANCEL, state, ownerEpoch, retry budget, timestamps; unique active-session key |
 | EnumerationGeneration | UUID, storage scope, cursors/pages, counts, end evidence, exclusion/unknown counts, pre/post inventories, stability status; partial scans never SEALED |
 | RemoteAssetVersion | internal UUID, camera/storageEpoch FK, raw private locator, observed handle/type, size, timestamp with provenance, candidate fingerprint, confidence, immutable source-version evidence; unknown size is null, not zero |
-| AssetMembership | generation + assetVersion unique, classification, required/optional/excluded with policy reason, companion/group relationship |
+| AssetMembership | generation + assetVersion unique, six-class disposition plus requiredness, evidence/reason and preserved-opaque proof, companion/group relationship |
 | RecordingGroup / RecordingMember | recording UUID + source generation, membership-discovery status; each member has role primary/RAW/audio/metadata/group-frame, required flag, provenance and assetVersion FK; required companions cannot be silently detached to obtain completion |
 | TransferAttempt | UUID, assetVersion + phoneReplica, expected identity/version, offset/checkpoint, HTTP validation summary, state/reason, retryAt/count, ownerEpoch, attempt count |
 | Replica | UUID, assetVersion FK, destination FK, URI/object locator, state, committedLength, expectedLength, local fingerprint, verification method/version, pending/publication phase, last revalidated; unique logical replica key |
@@ -26,11 +26,15 @@ One SyncCoordinator serializes decisions; IO children report events. A database 
 
 Replica states are independent: ABSENT, WRITING, PARTIAL, VERIFYING, VERIFIED, UNAVAILABLE, INVALID, USER_ACTION_REQUIRED. Transfer states: DISCOVERED, QUEUED, TRANSFERRING, PARTIAL, VERIFYING, LOCAL_VERIFIED, RETRY_PENDING, FAILED, USER_ACTION_REQUIRED. A verified phone copy is not demoted solely because SSD is removed/cloud offline; its availability may change independently of its historical verification. Source deletion never cascades into replica deletion.
 
-Recording completeness is a derived transactional query over resolved RecordingMember requirements: every required primary/RAW/audio/non-regenerable or processing-relevant metadata member must be verified at the destination. An absent required sidecar or unknown member role blocks recording completeness even if the primary is verified. Policy versions prevent an older primary-only success being reinterpreted as complete under the expanded user-confirmed asset scope.
+Recording completeness is a derived transactional query over resolved RecordingMember requirements: every required primary/RAW/audio/non-regenerable or processing-relevant metadata member must be verified at the destination. An absent required sidecar blocks recording completeness even if the primary is verified. Potentially required unknowns need classification or verified precautionary preservation under ASSET_INCLUSION_POLICY v2; evidenced unrelated unknowns do not automatically block it. Policy versions prevent an older primary-only success being reinterpreted as complete under the expanded user-confirmed asset scope.
 
 ## Capture-time and destination persistence extension — R-037
 
 [Capture-day design](CAPTURE_DAY_ORGANIZATION.md) adds a versioned CaptureResolution for each recording: candidate timestamps and provenance, resolved local timestamp/precision, nullable instant/zone/offset, captureDay, confidence/fallback/conflicts and policy revision. Members inherit the parent resolution. Replica records additionally persist destination root, relative directory, stable leaf name, full relative path and allocation phase; directory identity is journaled. Unique path and logical-replica reservations prevent duplicates. Freeze allocation before IO; resume/retry/restart and SSD/cloud use the same logical mapping. Capture grouping is not remote identity, and unknown time is not fabricated precision. Organization confidence remains separate from byte verification. Historical flat files require safe import, not unnecessary retransfer.
+
+## Safety and cleanup ledger extension
+
+Add versioned ReplicaPolicy with distinct storage-domain references, required set/minimum two and proof freshness/availability; physical independence cannot be inferred from different paths. Derived enumeration/recording/local/redundancy/safety predicates follow ASSET_INCLUSION_POLICY v2. CleanupSnapshot, CleanupOperation and CleanupItem are separate immutable-scope/audited records defined in [cleanup design](VERIFIED_SNAPSHOT_CLEANUP.md), with confirmation, per-asset intent/result/unknown state and retained-set verification. No sync callback creates deletion authorization. Critical cleanup/ledger state is not pruned with rotating diagnostics.
 
 ## Remote identity evidence and limits
 

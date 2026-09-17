@@ -6,15 +6,23 @@ gate_0_status: PASS
 gate_0_completed_date: "2026-09-17"
 hardware_session_status: PAUSED_BY_USER
 hardware_resume_requires_explicit_return: true
-intent_rebase_status: DESIGN_DRAFT_REVIEW_REQUIRED
+intent_rebase_status: ACCEPTED_IN_PRINCIPLE_RECONCILED
 intent_rebase_evidence: docs/evidence/GATE-1/2026-09-17_intent-rebase/INTENT_AUDIT.md
 gate_order_proposal: docs/plans/REVISED_GATE_DEPENDENCIES.md
-gate_order_proposal_status: PROPOSED_NOT_ADOPTED
+gate_order_proposal_status: ACCEPTED
+gate_order_decision: docs/decisions/0005-gate-safety-and-optional-features.md
+gate_1_entry_status: DOCUMENTATION_READY
+reconciliation_evidence: docs/evidence/GATE-1/2026-09-17_review-reconciliation/REPORT.md
+cleanup_gate_proposal: GATE-9 after GATE-4 and policy-required GATE-5/GATE-6; PROPOSED_NOT_ADOPTED
+cleanup_status: NOT_TESTED
+cleanup_design: docs/design/VERIFIED_SNAPSHOT_CLEANUP.md
+gps_diagnostics_design: docs/design/GPS_AND_DIAGNOSTICS.md
 android_execution_recommendation: connectedDevice foreground service hosting a single fenced SyncCoordinator; HIL validation required
 network_ownership_recommendation: camera-specific Network adapters; sequential downstream replication default
 asset_inclusion_policy_status: USER_CONFIRMED
 asset_inclusion_policy: docs/design/ASSET_INCLUSION_POLICY.md
-redundancy_policy_status: USER_DECISION_PENDING
+redundancy_policy_status: USER_CONFIRMED
+redundancy_policy: phone plus at least one verified independent SSD/cloud storage domain; additional required destinations must pass
 capture_day_requirement: R-037
 capture_day_design: docs/design/CAPTURE_DAY_ORGANIZATION.md
 capture_day_status: NOT_TESTED
@@ -41,8 +49,8 @@ active_plan: docs/plans/active/GATE-1-SECURITY-ARCHITECTURE.md
 
 open_blockers:
   - GATE-1 security and architecture criteria are not yet satisfied; functional implementation remains unauthorized
-  - execution/network recommendations and revised gate ordering require review; S25 lifecycle/concurrency and Pocket identity/inventory assumptions remain unverified
-  - required independent-replica policy for SAFE TO CLEAR CAMERA is not yet confirmed; signal must remain unavailable
+  - execution/network architecture accepted in principle; security review and S25 lifecycle/concurrency/Pocket identity/inventory evidence remain outstanding
+  - safe-to-clear policy confirmed but predicate/source/replica verification and cleanup capability are unimplemented and unverified; no destructive use authorized
 
 hardware_evidence: docs/evidence/GATE-0/2026-09-17_hardware/REPORT.md
 gate_1_architecture_tasks:
@@ -127,6 +135,7 @@ implementation_authorized: false
 release_allowed: false
 
 next_action: >-
-  Review the intent rebase, ADR0003/0004, ledger/asset/state-machine design and gate-order proposal;
-  resolve redundancy policy and approve validation scope before any implementation.
+  Begin the separate GATE-1 security/architecture review using accepted ADR0005 policies;
+  validate design assumptions and plan scoped experiments before any implementation.
+  Review proposed GATE-9 placement later; GPS/verbose logging are never backup prerequisites.
   Hardware remains paused until explicit user return. No functional changes or release authorized.

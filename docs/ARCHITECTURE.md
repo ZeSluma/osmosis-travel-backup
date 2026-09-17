@@ -11,7 +11,7 @@ No functional implementation is authorized at bootstrap.
 
 ## Intent rebase design — 2026-09-17
 
-Planning recommendation, not installed architecture. The app-open contract intentionally starts/attaches to a transactional sync session; manual grid/queue operations are a recovery fallback. [Execution ADR](decisions/0003-android-sync-execution.md), [Network ADR](decisions/0004-camera-network-ownership.md), [ledger design](design/LEDGER_AND_INTEGRITY.md), [state machines](design/STATE_MACHINES.md) and [asset policy](design/ASSET_INCLUSION_POLICY.md) specify the target. Existing observed behavior below remains unchanged.
+Accepted in principle by user review (ADR0005), not installed architecture or technical validation. The app-open contract intentionally starts/attaches to a transactional sync session; manual grid/queue operations are a recovery fallback. [Execution ADR](decisions/0003-android-sync-execution.md), [Network ADR](decisions/0004-camera-network-ownership.md), [ledger design](design/LEDGER_AND_INTEGRITY.md), [state machines](design/STATE_MACHINES.md) and [asset policy](design/ASSET_INCLUSION_POLICY.md) specify the target. Existing observed behavior below remains unchanged.
 
 | Boundary | Owner / responsibility |
 |---|---|
@@ -27,7 +27,9 @@ Planning recommendation, not installed architecture. The app-open contract inten
 | Ledger | Room design, durable intents/identity/recordings/replicas/evidence and migrations; canonical reconciled truth |
 | IntegrityVerifier | Checks explicit assurance policy; never equates EOF or local hash with source equality |
 | Destination adapters | Pending phone storage first; later SAF SSD and independent cloud replication |
-| Diagnostics | Typed redacted events and bounded export, not raw protocol/file logging |
+| CleanupCoordinator (future GATE-9 proposal) | Separate confirmed snapshot operation, exclusive camera-write lease, durable per-asset intents and exhaustive post-verification; no automatic trigger |
+| GPS recording sync | Optional opted-in telemetry owner, shared connection arbitration; never a backup prerequisite |
+| Diagnostics | Always-available sanitized bounded events; separate temporary opt-in verbose mode and sanitized explicit export |
 
 ```mermaid
 flowchart TD
@@ -64,8 +66,8 @@ flowchart TD
 | K. Partial reconciliation | Persisted URI plus actual length/checkpoint/source validation; no append of changed object or full 200 response; journal cross-system publication |
 | L. Replica independence | Separate destination/replica records and required policy; recording-member completeness per destination; phone verified first |
 | M. Cloud isolation | Per-Network camera sockets and separate Internet client; sequential camera then cloud default, concurrent Internet NOT_VERIFIED |
-| N. CAMERA SYNC COMPLETE | Sealed stable full source generation, no unknown required member, every required phone assetVersion LOCAL_VERIFIED |
-| O. SAFE TO CLEAR CAMERA | Local complete plus all explicitly configured required independent replicas verified; policy unresolved => no signal; never deletes |
+| N. CAMERA SYNC COMPLETE | Complete stable source inventory, required and precautionary member set resolved/preserved under asset policy, every required phone assetVersion LOCAL_VERIFIED; unrelated unknowns do not imply failure |
+| O. SAFE TO CLEAR CAMERA | Current phone plus independent SSD/cloud proof and any additional required replicas, source/identity revalidation and no ambiguity; scoped informational status, separate confirmed cleanup only |
 | P. Genuine user cases | Pairing, Android approval, revoked permission, proven credential change, persistent camera absence, ambiguity/identity uncertainty, storage/grant failure, explicit user stop |
 | Q. Proof | TEST_MATRIX automated fault boundaries plus real SM-S938B/Pocket4P lifecycle, permissions, routing, inventory and recovery; none newly run during pause |
 
@@ -139,6 +141,10 @@ A separate awake-camera/foreground-app connection failure is recorded as [FOREGR
 R-037 requires automatic capture-day folders and shared parent-recording grouping across phone/SSD/cloud. See [capture-day design](design/CAPTURE_DAY_ORGANIZATION.md) for immutable allocations, explicit timezone fallbacks, conflict handling and mixed-MIME storage feasibility. The baseline writes flat MIME-specific roots and attempts camera clock synchronization on connect; neither proves target timestamp correctness. Ledger path changes and completed-copy lookup must be designed together. Existing files are not moved or redownloaded by this planning change.
 
 External storage is expected to require Android storage APIs such as SAF or an equivalent supported mechanism. Verify target-device behavior before architecture is finalized.
+
+## Accepted safety and optional-feature boundaries
+
+[Asset policy v2](design/ASSET_INCLUSION_POLICY.md) separates enumeration/recording/local/redundancy/safety predicates and six classes. [Cleanup design](design/VERIFIED_SNAPSHOT_CLEANUP.md) specifies confirmation, races, state machine, audit and unverified protocol limits. [GPS/diagnostics design](design/GPS_AND_DIAGNOSTICS.md) separates backup from optional telemetry and logging. Neither a completed sync, GPS preference nor diagnostic flag can initiate deletion. No functional changes are made; target capabilities remain unverified.
 
 ## Security boundaries
 

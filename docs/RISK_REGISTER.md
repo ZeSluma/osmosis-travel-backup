@@ -29,8 +29,8 @@
 | RISK-025 | Chosen Android execution model cannot meet screen-off/stop/thermal constraints | NOT_TESTED on selected host design | High | ADR0003 conditional recommendation; X02-X07; honest user-action fallback, no restart evasion |
 | RISK-026 | Retry loops drain battery or silently misdiagnose network failure as stale credentials | Misleading credential suggestion observed; budgets unimplemented | High | R18/28, bounded jitter/persisted budgets, reason-confidence model, N01/N02/P01 |
 | RISK-027 | Android17 local-network enforcement blocks camera TCP/UDP after target migration | Platform migration requirement confirmed | High | N05 target36 simulation and target37 permission tests; no premature permission addition |
-| RISK-028 | Local hash or coarse size is misrepresented as remote equality; unsafe safe-clear policy | Baseline assurance limited; policy pending | Critical | Explicit method/version, source-checksum limits, required independent replica policy; no safe-clear until policy/evidence satisfied |
-| RISK-029 | One-tap capability claimed before lifecycle/recovery/enum integrity | Historical ordering mismatch confirmed | Critical | Explicit gate dependency proposal; G7 before G4, no renumbering or automatic implementation authorization |
+| RISK-028 | Local hash or coarse size is misrepresented as remote equality; unsafe safe-clear policy | Baseline assurance limited; two-domain policy accepted, enforcement unverified | Critical | Explicit method/version, source-checksum limits, required independent replica policy; no safe-clear until policy/evidence satisfied |
+| RISK-029 | One-tap capability claimed before lifecycle/recovery/enum integrity | Historical ordering mismatch confirmed | Critical | Accepted gate dependencies; G7 before G4, no renumbering or automatic implementation authorization |
 | RISK-030 | Cross-platform fixture transformations obscure baseline regressions | CRLF-only 14 failures measured | Medium | Preserve original evidence; future canonical EOL/CI policy with Windows/Linux D01, no silent suppression |
 
 ## Capture-day organization risks — R-037
@@ -40,6 +40,18 @@
 | RISK-031 | Filename/default-phone timezone or wrong camera clock misfiles a delayed travel recording | Target timestamp semantics unknown | High | Source-priority resolver, provenance, deterministic uncertain fallback, conflict warnings; CD03/CD06/CD07, G1/G4 |
 | RISK-032 | Retry/date change or same-name collision creates duplicate folders/files or splits required sidecars | New capability not implemented | High | Frozen ledger mapping, unique reservation, parent grouping, journaled directory/URI allocation; CD01/CD04/CD05/CD08, G2/G3/G5/G6/G7 |
 | RISK-033 | Mixed-MIME phone collection rules prevent one recording directory; baseline clock-sync-on-connect distorts timestamp experiment | Baseline root split and clock command observed; target effects unverified | High | G1 supported storage-adapter review and pre-connect clock observations, no unsupported MIME placement or unapproved clock changes; CD05-CD07 |
+
+## Explicit cleanup / optional-feature risks
+
+| ID | Risk | Likelihood | Impact | Mitigation / Gate |
+|---|---|---|---|---|
+| RISK-034 | New/replaced source or reused handle deleted under stale approval | Target semantics unverified | Critical | Immutable snapshot, camera/storage/version checks before each command, fresh confirmation on changed plan, no bulk/format shortcut; CL01/CL04, proposed G9 |
+| RISK-035 | False delete success from partial newest-page listing, lost reply or implicit group effects | Baseline listing limit observed; Pocket effects unverified | Critical | Full pre/post inventory and known collateral closure; no blind resend, per-item unknown journal; CL02/CL05/CL08/CL09 |
+| RISK-036 | Stale/unavailable or non-independent replica enables destructive action | Design not implemented | Critical | Two current verified independent storage domains, invalidate eligibility on proof change, policy version binding; CL07 and AS tests |
+| RISK-037 | Background job/replayed confirmation or process recovery silently initiates deletion | New workflow not implemented | Critical | Separate operation and UI-bound plan confirmation, explicit continuation, all entry points gated; CL03/CL06/CL10 |
+| RISK-038 | Unknown-class policy either hides required assets or permanently fails unrelated auxiliary inventory | Target classification unverified | High | Six classes, provenance, precautionary preservation and distinct completeness predicates; AS01-AS03 |
+| RISK-039 | GPS mode contends for BLE or backup implicitly collects location | Baseline mutual exclusion observed | High | Separate opt-in lifecycle/permission and connection arbitration; backup GPS OFF tests; GD01/GD02; not a proven foreground-drop cause |
+| RISK-040 | Verbose/logcat/share leaks secrets or unbounded logging becomes reliability dependency | Baseline raw-string sinks and file-only count bound observed | High | All-sink allowlist, bounded normal/verbose channels, fail-safe diagnostics and sanitized explicit export; GD03-GD05, G1/G7 |
 
 ## Finding-to-requirement separation
 

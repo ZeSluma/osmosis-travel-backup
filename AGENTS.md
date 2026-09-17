@@ -37,14 +37,14 @@ Never silently resolve conflicts.
 
 ## Invariants
 
-- INV-001: no automatic camera deletion
+- INV-001: never automatically delete camera originals; future explicit user-initiated and confirmed deletion requires a precisely scoped, revalidated, redundantly verified snapshot with no destructive ambiguity (ADR0005); no deletion authorized during current planning
 - INV-002: no VERIFIED state before complete transfer + integrity criteria
 - INV-003: interrupted downloads never appear complete
 - INV-004: verified files are not unnecessarily re-transferred
 - INV-005: secrets, Wi-Fi passwords, GPS, media content and unnecessary PII never enter logs/crash reports
 - INV-006: process abort must not leave ledger inconsistent
 - INV-007: cloud is never required for local-backup success
-- INV-008: SAFE TO CLEAR CAMERA is informational only
+- INV-008: SAFE TO CLEAR CAMERA is informational only and never triggers deletion; a separate explicitly confirmed snapshot-cleanup workflow may consume eligibility only after its dedicated gate
 
 ## Gate semantics
 

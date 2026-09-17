@@ -18,6 +18,14 @@ Design review in progress, not SECURITY PASS. Baseline behavior is preserved; al
 
 Existing no-auto-delete and informational-only safe-clear invariants remain absolute. Unknown media types are not disposable. Rebase documentation does not authorize hashing/copying private media or conducting new hardware tests during pause.
 
+## Accepted safety / GPS / diagnostics reconciliation
+
+ADR0005 adopts default phone plus one independently verified SSD/cloud storage domain, not phone-only safety. Replica availability and proof are revalidated before explicit cleanup. [Cleanup design](design/VERIFIED_SNAPSHOT_CLEANUP.md) requires exact immutable scope, non-forgeable internal confirmation binding, exclusive/fenced writer, strong camera/storage/object identity, known collateral effects and exhaustive post-verification. External intents, replayed UI actions, sync callbacks and retry jobs must not authorize deletion. No format fallback. Existing upstream delete entry points are baseline code, not evidence of policy enforcement; dedicated later GATE-9 proposal must cover every destructive path before real use.
+
+GPS telemetry is explicit opt-in; backup never initiates location collection. Review permission and location-FGS/background implications before deciding cross-session GPS auto-resumption. BLE ownership arbitration must prevent telemetry/offload contention without falsely diagnosing the existing foreground drop as GPS-caused.
+
+[GPS_AND_DIAGNOSTICS](design/GPS_AND_DIAGNOSTICS.md) applies the no-secret/GPS/media/PII rule to normal events, logcat, verbose files and exports. Normal event recording is bounded and independent of verbose mode. Verbose is OFF by default, temporary, app-private and explicitly exported only after sanitization; omit unsafe raw fields, never automatically upload. No GPS-coordinate diagnostic exception is enabled by this review. Baseline FileLog has no central redaction or per-file byte/time bound, and its share path is not a sanitized-export guarantee; privacy remains an open GATE-1 review item.
+
 ## Security goal
 
 Protect media, credentials and user privacy while keeping the local camera workflow reliable.

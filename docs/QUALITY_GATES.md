@@ -2,7 +2,7 @@
 
 ## 2026-09-17 intent rebase notice
 
-The historical gate IDs/scopes below remain traceable. Their listed ordering is insufficient for the clarified product contract: lifecycle-safe ownership and automatic recovery must precede one-tap acceptance. See [explicit revised dependency proposal](plans/REVISED_GATE_DEPENDENCIES.md). It proposes order 0,1,2,3,7,4,(5,6),8 while retaining IDs; adoption is pending review, no silent renumbering. Regardless of adoption, GATE-4 cannot claim reliable one-open synchronization without the GATE-7 lifecycle/recovery criteria and complete recording/snapshot verification. Requirements R-016..R-036 and TEST_MATRIX provide the reviewable delta. GATE-0 remains a disclosed-limitation baseline, not product-completeness approval.
+The user accepted order **0 -> 1 -> 2 -> 3 -> 7 -> 4 -> (5,6) -> 8**, retaining all gate IDs and historical evidence. [ADR0005](decisions/0005-gate-safety-and-optional-features.md) records adoption; [dependency graph and accepted scopes](plans/REVISED_GATE_DEPENDENCIES.md) govern execution. GATE-7 precedes GATE-4 because autonomous one-tap backup requires proven lifecycle-safe execution, automatic reconnect and recoverable synchronization. Sections remain in numeric ID order for lookup, not execution. GATE-0 remains baseline reproduction, not product-completeness approval. R-016..R-041 and TEST_MATRIX define current additions.
 
 ## Gate state model
 
@@ -61,6 +61,7 @@ Required:
 - logging/privacy plan
 - dependency/supply-chain review
 - build/signing/CI review
+- confirm accepted policy implementation design: two independent copies, six asset classes, capture-day paths, GPS/logging independence and future cleanup isolation
 - architecture decision on persistent orchestration
 - architecture decision on storage and network binding
 - threat/failure review
@@ -71,6 +72,7 @@ Functional backup extension remains blocked until GATE 1 is complete.
 
 Required:
 
+- durable foundations and recording/asset identity/state model, including capture-day/path and classification provenance; broad one-open/all-new acceptance is GATE-4
 - persistent media identity/state model
 - idempotent re-run behavior
 - new/unverified-only transfer
@@ -91,6 +93,8 @@ Required:
 - no false VERIFIED state
 
 ## GATE 4 — One-tap BACKUP CAMERA
+
+Prerequisites: GATE-2, GATE-3 and GATE-7 PASS. Full snapshot/recording enumeration, automatic new/unverified-only planning, stable capture-day layout and GPS/Save logs OFF tests must pass.
 
 Required:
 
@@ -145,4 +149,8 @@ Required:
 - safe false-positive behavior
 - rollback/disable path
 
-This gate is optional and must not compromise the reliability of the one-tap path.
+This gate is optional and must not compromise the reliability of the one-tap path. It never authorizes automatic deletion.
+
+## Proposed GATE-9 — Explicit verified-snapshot cleanup
+
+Placement proposal only, not yet adopted/authorized: after GATE-4 and policy-required GATE-5 and/or GATE-6, with G2/G3/G7 dependencies already passed. GATE-8 is independent. Require reviewed strong source/storage identity and group collateral effects, current two-domain replica proof, exhaustive pre/post enumeration, explicit scope-bound confirmation, durable partial-operation recovery, security of every destructive entry point, CL01-CL10 and S25/Pocket HIL using separately authorized disposable recordings. No real destructive use before dedicated acceptance and explicit authorization. Protocol ambiguity leaves the action unavailable. No format fallback. Historical gate records stay intact.

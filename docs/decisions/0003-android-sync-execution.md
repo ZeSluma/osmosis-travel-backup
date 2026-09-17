@@ -1,5 +1,6 @@
 # ADR 0003 — Execution owner for an intentional camera sync
 
+2026-09-17 review: architecture accepted in principle per [ADR0005](0005-gate-safety-and-optional-features.md); technical validation, security acceptance and implementation authorization remain outstanding.
 Date: 2026-09-17. Status: selected design recommendation, pending GATE-1 review and target-device validation. No implementation/dependency/manifest change authorized. Supersedes any implicit dataSync-first assumption, not verified baseline facts.
 
 ## Decision

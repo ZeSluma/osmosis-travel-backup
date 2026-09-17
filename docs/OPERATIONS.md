@@ -77,6 +77,14 @@ Hardware-required gates must state exact devices used.
 
 No hardware PASS by inference.
 
+## Accepted review and future cleanup operations
+
+ADR0005 adopts gate order 0-1-2-3-7-4-(5,6)-8 and default two independent outside-camera copies. The separate GATE-9 cleanup placement remains proposed. Do not interpret architecture acceptance, safe status or backup completion as permission to run destructive commands. Current work is documentation only; hardware remains paused and unresolved causes remain unconfirmed.
+
+Future cleanup requires explicit user initiation/confirmation of a freshly revalidated exact snapshot. No format, automatic background delete or widened retry scope. On interruption retain the per-item audit, reconcile read-only, then request explicit continuation of the still-present approved set after safety rechecks. If identity, replicas or post-enumeration cannot be verified, report action required/unverified; never success. No camera-original or completed-copy changes are authorized now.
+
+GPS Sync is optional recording telemetry; Save logs is temporary advanced diagnosis. Neither is a runtime requirement for backup. After an explicit hardware return, controlled foreground-drop reproduction may use reviewed/sanitized temporary upstream logs only if required; record/restore toggle state, terminate verbose capture, correlate connection/session/visibility events and never upload automatically. Do not persist raw secrets, coordinates or media while collecting evidence. No log mode is a reliability workaround.
+
 ## ChatGPT / Codex execution model
 
 Normal ChatGPT conversation may be used for planning, research and review.
