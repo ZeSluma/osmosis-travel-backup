@@ -8,4 +8,4 @@ Test all cases from the user request: inventory/type combinations, changed/reuse
 
 Persist original failures and corrections under docs/evidence/GATE-2/2026-09-17_ledger/. Use coherent commits, push only gate-2/persistent-ledger-sync-planner and independently verify remote SHA. Main and upstream remain unchanged. Handoff stays local/untracked.
 
-Physical S25/Pocket testing is paused. Finish software work first; hardware inventory/idempotence/restart/new-media/time/type/group evidence remains NOT_TESTED until explicitly resumed. GATE-2 cannot PASS without mandatory evidence. Real camera deletion, merge and release remain unauthorized.
+Physical S25/Pocket testing explicitly resumed on 2026-09-17. Verified APK installed and read-only preconnection audit complete; inventory/idempotence/restart/new-media/time/type/group observations are pending in the [hardware report](../../evidence/GATE-2/2026-09-17_hardware/REPORT.md). GATE-2 cannot PASS without mandatory evidence. Real camera deletion, merge and release remain unauthorized.

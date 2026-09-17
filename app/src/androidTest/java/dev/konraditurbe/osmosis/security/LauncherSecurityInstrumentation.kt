@@ -6,17 +6,27 @@ import android.content.Intent
 import android.os.Bundle
 import dev.konraditurbe.osmosis.ui.MainActivity
 
-/** Platform-only harness: run on an empty emulator, never on a user's paired-camera installation. */
+/** Synthetic modes require an empty emulator. Only explicit hardwareAudit=read-only
+ * may run on a paired target at a controlled no-transfer restart checkpoint. */
 class LauncherSecurityInstrumentation : Instrumentation() {
     private var ledgerPhase: String? = null
+    private var readOnlyHardwareAudit = false
     override fun onCreate(arguments: Bundle?) {
         super.onCreate(arguments)
         ledgerPhase = arguments?.getString("ledgerPhase")
+        readOnlyHardwareAudit = arguments?.getString("hardwareAudit") == "read-only"
         start()
     }
 
     override fun onStart() {
         val results = Bundle()
+        if (readOnlyHardwareAudit) {
+            // Dedicated early return: never reaches synthetic credential/ledger/intent tests.
+            val projection = dev.konraditurbe.osmosis.ledger.Gate2ReadOnlyAudit.project()
+            results.putString("stream", projection)
+            finish(if (projection.contains("BLOCKED_READ_ONLY_PROJECTION")) Activity.RESULT_CANCELED else Activity.RESULT_OK, results)
+            return
+        }
         ledgerPhase?.let { phase ->
             try {
                 results.putString("stream", dev.konraditurbe.osmosis.ledger.LedgerInstrumentation.run(this, phase))

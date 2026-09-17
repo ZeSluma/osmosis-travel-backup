@@ -4,7 +4,7 @@ current_gate: GATE-2
 gate_status: BLOCKED
 gate_0_status: PASS
 gate_0_completed_date: "2026-09-17"
-hardware_session_status: PAUSED_BY_USER
+hardware_session_status: ACTIVE_FIRST_ENUMERATION_AUDITED
 hardware_resume_requires_explicit_return: true
 intent_rebase_status: ACCEPTED_IN_PRINCIPLE_RECONCILED
 intent_rebase_evidence: docs/evidence/GATE-1/2026-09-17_intent-rebase/INTENT_AUDIT.md
@@ -67,10 +67,10 @@ bootstrap_evidence: docs/evidence/GATE-0/2026-09-17_bootstrap/REPORT.md
 active_plan: docs/plans/active/GATE-2-LEDGER.md
 
 open_blockers:
-  - GATE-2 target S25 Ultra/Pocket4P validation NOT_TESTED; physical session remains paused pending explicit user return
+  - GATE-2 first physical enumeration/persisted ledger audited; repeat-scan/new-asset hardware checks pending. Legacy local copies are not linked or verified by the ledger; safe no-retransfer behavior for those copies is NOT_TESTED.
 deferred_runtime_requirements:
   - G2 software ledger/credential migration/fencing tests pass; target HIL pending. G3 integrity/publication/storage reconciliation remains NOT_TESTED; SC01/SC02/SC08 hardware and broader crash coverage remain explicit.
-  - G7 execution/network/privacy/permissions and separate session-loss or sleep observations; SC03-SC07 and X/N/GD tests; hardware remains paused
+  - G7 execution/network/privacy/permissions and separate session-loss or sleep observations; SC03-SC07 and X/N/GD tests remain pending independently of resumed G2 hardware work
   - G4 complete inventory, asset identity, required recording members and capture-day hardware evidence
   - G5/G6 replica independence and TLS routing; G9 destructive authorization/capability proof remains NOT_TESTED and unauthorized
 
@@ -170,6 +170,8 @@ gate_1_status: PASS
 gate_2_status: BLOCKED
 gate_2_software_status: PASS
 gate_2_hardware_status: NOT_TESTED
+gate_2_hardware_progress: First rescan connection and two-asset persisted inventory observed; both DISCOVERED with REVALIDATE_IDENTITY plans, no legacy local-file adoption
+gate_2_hardware_evidence: docs/evidence/GATE-2/2026-09-17_hardware/REPORT.md
 gate_2_evidence: docs/evidence/GATE-2/2026-09-17_ledger/REPORT.md
 gate_2_decision: docs/decisions/0009-gate2-foundation-and-continuous-execution.md
 gate_2_feature_commit: 986e71a0cb90a6e780ebb5951fe04f9106099284
@@ -181,7 +183,12 @@ gate_2_lint: FAIL - five unchanged baseline errors; zero new errors
 gate_2_security: scoped B1 and ledger/Keystore/backup emulator checks PASS; no physical-device claim
 build_tool_dependency_debt: 44 OSV advisory IDs on 11 unchanged G1 build-classpath coordinates; no returned new/runtime advisory; reviewed build/CI remediation before release
 next_action: >-
-  Await explicit physical hardware return: connect S25 Ultra with USB debugging and power on Pocket4P.
-  Verify current APK and conduct the non-destructive GATE-2 HIL checklist. No media deletion/re-download.
+  User explicitly resumed hardware. S25 Ultra ADB, protected file sizes, published branch and APK SHA256 verified.
+  Verified APK installed without data clear; read-only audit confirms no ledger before initial camera connection.
+  Saved-entry reconnect failed while fresh rescan succeeded; root cause unconfirmed.
+  First persisted snapshot contains two DISCOVERED required assets; actual planner returns REVALIDATE_IDENTITY for both.
+  Neither existing local copy is linked/verified; do not claim no-retransfer acceptance or start a download to test it.
+  Continue read-only repeat-enumeration/path/identity persistence validation through normal camera reconnection.
+  No media deletion/re-download; overall GATE-2 remains BLOCKED pending mandatory evidence.
   Gate2 remains BLOCKED until mandatory evidence is collected. Then reconstruct next defined gate under
   continuous policy; no routine gate-boundary permission required. No main mutation, merge or release.

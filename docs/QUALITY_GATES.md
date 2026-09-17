@@ -1,6 +1,6 @@
 # Quality Gates
 
-Current execution policy (2026-09-17): GATE-2 implementation is authorized; AGENTS.md now permits continuous progression through sufficiently defined non-destructive gates after dependency/evidence checks. Earlier statements requiring a new permission solely at a gate boundary are historical and superseded. Hardware remains paused; no main mutation, merge, release or real deletion is authorized. Current implementation/evidence status is PROJECT_STATE.yaml and the active GATE-2 plan.
+Current execution policy (2026-09-17): GATE-2 implementation is authorized; AGENTS.md now permits continuous progression through sufficiently defined non-destructive gates after dependency/evidence checks. Earlier statements requiring a new permission solely at a gate boundary are historical and superseded. Hardware explicitly resumed for non-destructive GATE-2 validation on 2026-09-17; earlier pause statements below are historical. No main mutation, merge, release or real deletion is authorized. Current implementation/evidence status is PROJECT_STATE.yaml, the active GATE-2 plan and docs/evidence/GATE-2/2026-09-17_hardware/REPORT.md.
 
 ## 2026-09-17 intent rebase notice
 
