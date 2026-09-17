@@ -4,7 +4,7 @@ current_gate: GATE-2
 gate_status: BLOCKED
 gate_0_status: PASS
 gate_0_completed_date: "2026-09-17"
-hardware_session_status: ACTIVE_AWAITING_RECONCILIATION_RECHECK
+hardware_session_status: AWAITING_USB_RECONNECT
 hardware_resume_requires_explicit_return: true
 intent_rebase_status: ACCEPTED_IN_PRINCIPLE_RECONCILED
 intent_rebase_evidence: docs/evidence/GATE-1/2026-09-17_intent-rebase/INTENT_AUDIT.md
@@ -180,15 +180,18 @@ gate_2_local_reconciliation_software: PASS
 camera_liveness_requirement: R-042; GATE-7; docs/design/CAMERA_SESSION_LIVENESS.md; KA01-KA07 NOT_TESTED
 gate_2_feature_commit: 986e71a0cb90a6e780ebb5951fe04f9106099284
 gate_2_branch_publication: PUBLISHED_VERIFIED
-gate_2_verified_remote_code_tip: f4d39b9ec8012f5e109cf6293604b48e0a1777e4
-gate_2_final_functional_commit: 93576f6e53b9f4ee52d84a8cc9c63a66af92df48
+gate_2_verified_remote_code_tip: 54aee87ce32eaee59ce9e65ca4d231f230658794
+gate_2_final_functional_commit: 54aee87ce32eaee59ce9e65ca4d231f230658794
+gate_2_reconciliation_publication: PUBLISHED_VERIFIED
+gate_2_reconciliation_target_install: BLOCKED_NO_ADB_DEVICE
 gate_2_unit_tests: 335 passed, zero failures/errors in authoritative LF source snapshot; includes22 local-candidate policy tests
 gate_2_lint: FAIL - five unchanged baseline errors; zero new errors
 gate_2_security: scoped B1, ledger/Keystore, migration1/2-to-3, local-provider/association restart and audit privacy/corruption emulator checks PASS; physical local-candidate adoption not yet verified
 build_tool_dependency_debt: 44 OSV advisory IDs on 11 unchanged G1 build-classpath coordinates; no returned new/runtime advisory; reviewed build/CI remediation before release
 next_action: >-
-  Publish the verified G2 reconciliation checkpoint and verify branch/main SHAs. Install the exact tested debug APK
-  without data clear, then ask only for normal Pocket rescan/reconnection with no download. Verify schema3,
+  G2 reconciliation checkpoint54aee87 is published and independently verified; main unchanged.
+  Reconnect/unlock S25 via USB debugging; install the exact tested debug APK without data clear (not yet installed).
+  Then perform normal Pocket rescan/reconnection with no download. Verify schema3,
   new enumeration generation, stable two assets/groups/day/path, persistent local candidates and unverified planning;
   verify restart and unchanged protected media. No G2 PASS until mandatory evidence is satisfied.
   Keep saved-entry failure/rescan recovery and future G7 AP/keepalive work separate. No main mutation, merge or release.

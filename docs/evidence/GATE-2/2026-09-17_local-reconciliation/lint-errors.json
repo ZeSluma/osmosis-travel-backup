@@ -1,31 +1,31 @@
 [
   {
     "id": "CoarseFineLocation",
-    "file": "C:\\Users\\Selim\\AppData\\Local\\Temp\\osmosis-gate2-lf-fafddfa5573640d6a5d8d4a2b9bfb981\\app\\src\\main\\AndroidManifest.xml",
+    "file": "app/src/main/AndroidManifest.xml",
     "line": "13",
     "severity": "Error"
   },
   {
     "id": "UseAppTint",
-    "file": "C:\\Users\\Selim\\AppData\\Local\\Temp\\osmosis-gate2-lf-fafddfa5573640d6a5d8d4a2b9bfb981\\app\\src\\main\\res\\layout\\activity_preview.xml",
+    "file": "app/src/main/res/layout/activity_preview.xml",
     "line": "210",
     "severity": "Error"
   },
   {
     "id": "UseAppTint",
-    "file": "C:\\Users\\Selim\\AppData\\Local\\Temp\\osmosis-gate2-lf-fafddfa5573640d6a5d8d4a2b9bfb981\\app\\src\\main\\res\\layout\\activity_preview.xml",
+    "file": "app/src/main/res/layout/activity_preview.xml",
     "line": "219",
     "severity": "Error"
   },
   {
     "id": "UseAppTint",
-    "file": "C:\\Users\\Selim\\AppData\\Local\\Temp\\osmosis-gate2-lf-fafddfa5573640d6a5d8d4a2b9bfb981\\app\\src\\main\\res\\layout\\activity_preview.xml",
+    "file": "app/src/main/res/layout/activity_preview.xml",
     "line": "229",
     "severity": "Error"
   },
   {
     "id": "UseAppTint",
-    "file": "C:\\Users\\Selim\\AppData\\Local\\Temp\\osmosis-gate2-lf-fafddfa5573640d6a5d8d4a2b9bfb981\\app\\src\\main\\res\\layout\\item_camera.xml",
+    "file": "app/src/main/res/layout/item_camera.xml",
     "line": "60",
     "severity": "Error"
   }
