@@ -1520,7 +1520,7 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
                 logLine("DELETE requested: ${f.name} (handle $hx)")
                 toast(getString(R.string.deleting, f.name))
                 cmdExec.execute {
-                    val status = runCatching { dl.deleteFiles(listOf(f.opHandle)) }.getOrNull()
+                    val status: Int? = runCatching { dl.deleteFiles(listOf(f.opHandle)) }.getOrNull()
                     main.post {
                         when (status) {
                             0 -> {
@@ -1583,7 +1583,7 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
             handles.joinToString(" ") { "0x%08x".format(it) })
         toast(getString(R.string.bulk_deleting, files.size))
         cmdExec.execute {
-            val status = runCatching { dl.deleteFiles(handles) }.getOrNull()
+            val status: Int? = runCatching { dl.deleteFiles(handles) }.getOrNull()
             main.post {
                 when (status) {
                     0 -> {
