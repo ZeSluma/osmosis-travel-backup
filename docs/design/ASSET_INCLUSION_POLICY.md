@@ -20,6 +20,8 @@ Every recording has explicit primary/audio/metadata/RAW/member relationships in 
 
 ## Enumeration generation and truthful completion
 
+R-037 [capture-day organization](CAPTURE_DAY_ORGANIZATION.md) groups every required member under its parent recording's resolved capture day, including DNG, separate audio and metadata whose own file dates differ. Unknown membership/time provenance must remain explicit. Destination roots may differ across phone/SSD/cloud, but the persisted logical grouping is reused.
+
 SyncCoordinator enumerates independent of grid scrolling. Source currently lazily pages through CameraSession.fetchNextPage and uses per-store mapping; new planner must walk all present/eligible stores and pages, expand groups and resolve required companion assets. No single newest-page response, empty exception fallback or stable UI count means complete.
 
 Create OPEN generation with store-presence evidence, cursor chain, raw record counts, unique asset versions and policy version. Validate page endings, repeated/nonadvancing cursors, truncation, overlap and expected counts. A missing store is not empty: establish absent card versus unmounted/unresponsive store. Failed page or unresolved required/unknown asset leaves INCOMPLETE. Treat protocol paging heuristics as candidates needing HIL validation, not immutable truth.

@@ -18,6 +18,8 @@ Read PROJECT_STATE.yaml and completed GATE-0 build, disposition and hardware evi
 
 ## Acceptance and restrictions
 
+R-037 review additionally covers [capture-day resolution](../../design/CAPTURE_DAY_ORGANIZATION.md): Pocket timestamp/offset/naming trust, deterministic uncertainty rules, stable allocation across retries, parent-sidecar grouping and mixed-MIME phone storage feasibility. CD01-CD08 define downstream acceptance; actual hardware remains paused and NOT_TESTED. Clock synchronization on baseline connection must be considered before any later timestamp experiment.
+
 Before GATE-1 closure: review selected connectedDevice execution and per-Network routing designs, resolve redundancy policy, validate asset identity/enumeration capability assumptions with separately authorized experiments, disposition security risks, and explicitly adopt/revise the gate dependency proposal. Asset inclusion policy is user-confirmed, but target inventory remains unverified. Record which decisions are approved and which HIL proofs remain future gate criteria. No one-tap capability claim before lifecycle/recovery and full snapshot verification.
 
 Persist the security/architecture decisions and threat/failure review required by QUALITY_GATES.md. Do not mark untested behavior PASS. GATE-0 known-good identifies a measured baseline with disclosed limitations, not production backup assurance.

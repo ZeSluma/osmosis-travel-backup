@@ -15,6 +15,10 @@ network_ownership_recommendation: camera-specific Network adapters; sequential d
 asset_inclusion_policy_status: USER_CONFIRMED
 asset_inclusion_policy: docs/design/ASSET_INCLUSION_POLICY.md
 redundancy_policy_status: USER_DECISION_PENDING
+capture_day_requirement: R-037
+capture_day_design: docs/design/CAPTURE_DAY_ORGANIZATION.md
+capture_day_status: NOT_TESTED
+capture_day_open_validation: Pocket timestamp/offset/naming trust and clock-sync effects; mixed-MIME phone folder support; CD01-CD08
 
 upstream_repository: KonradIT/osmosis
 fork_repository: ZeSluma/osmosis-travel-backup

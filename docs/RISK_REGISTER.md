@@ -33,6 +33,14 @@
 | RISK-029 | One-tap capability claimed before lifecycle/recovery/enum integrity | Historical ordering mismatch confirmed | Critical | Explicit gate dependency proposal; G7 before G4, no renumbering or automatic implementation authorization |
 | RISK-030 | Cross-platform fixture transformations obscure baseline regressions | CRLF-only 14 failures measured | Medium | Preserve original evidence; future canonical EOL/CI policy with Windows/Linux D01, no silent suppression |
 
+## Capture-day organization risks — R-037
+
+| ID | Risk | Likelihood | Impact | Mitigation / Gate |
+|---|---|---|---|---|
+| RISK-031 | Filename/default-phone timezone or wrong camera clock misfiles a delayed travel recording | Target timestamp semantics unknown | High | Source-priority resolver, provenance, deterministic uncertain fallback, conflict warnings; CD03/CD06/CD07, G1/G4 |
+| RISK-032 | Retry/date change or same-name collision creates duplicate folders/files or splits required sidecars | New capability not implemented | High | Frozen ledger mapping, unique reservation, parent grouping, journaled directory/URI allocation; CD01/CD04/CD05/CD08, G2/G3/G5/G6/G7 |
+| RISK-033 | Mixed-MIME phone collection rules prevent one recording directory; baseline clock-sync-on-connect distorts timestamp experiment | Baseline root split and clock command observed; target effects unverified | High | G1 supported storage-adapter review and pre-connect clock observations, no unsupported MIME placement or unapproved clock changes; CD05-CD07 |
+
 ## Finding-to-requirement separation
 
 APP_BACKGROUND_SESSION_LOSS maps to R17/R28; AUTO_RECONNECT and AUTO_RESUME map separately to R18; observed FILE/MEDIASTORE persistence does not resolve UI recognition (R3/R4/R16). Foreground drop maps to R28/RISK-019, with SESSION_STATE_DESYNC only a candidate. CAMERA_SLEEP_OR_IDLE remains unverified R36/RISK-016. Intentional WIFI_NETWORK_LOSS in TEST E is not camera sleep. CAMERA_POWER_OFF, BLE_SESSION_LOSS, ANDROID_PROCESS_DEATH, ANDROID_JOB_OR_SERVICE_STOP, PERMISSION_REVOKED, CREDENTIAL_CHANGED, CAMERA_REQUIRES_USER_CONFIRMATION and STORAGE_FAILURE each retain separate prospective reason/test entries in STATE_MACHINES/TEST_MATRIX; their presence there is not a claim they were observed. No root cause finalized during hardware pause.

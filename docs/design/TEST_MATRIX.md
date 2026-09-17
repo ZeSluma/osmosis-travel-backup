@@ -36,6 +36,23 @@ Status: planned, NOT_TESTED unless linked baseline evidence explicitly says othe
 
 Crash injection points for X03: before enumeration; each page commit; before URI creation; after URI creation/before URI journal; before transfer; during write/before flush; after flushed bytes/before checkpoint; after checkpoint/before next read; during verification; after verification intent/before MediaStore finalization; after finalization/before LOCAL_VERIFIED commit; between files; during retry/reconnect; after owner lease replaced. Assert complete asset implies all required recording members and proof, not UI success. Fakes expose injectable clock/backoff, network, camera repository, stream, writer, verifier and database transaction boundaries; model-based transition tests reject illegal promotions.
 
+## Capture-day organization — R-037 (all NOT_TESTED)
+
+Run resolver/fault tests with synthetic dates first. Future HIL uses S25 Ultra + Pocket 4P and separately authorized non-critical recordings only, after explicit hardware resume. No existing original/local file is moved, edited, deleted or redownloaded. Do not change phone/camera clocks or zones without a bounded test window and restoration plan; baseline connection itself attempts camera clock synchronization. Evidence contains synthetic dates or approved test-only timestamp fields, opaque asset IDs and sanitized numeric/path assertions, never raw metadata dumps/GPS/content.
+
+| ID | Gate / experiment | Acceptance oracle |
+|---|---|---|
+| CD01 | G2/G4; two recordings from one capture day, then repeated sync/concurrent Start | One automatically created day folder, one replica per original, no duplicate folder or provider-generated duplicate filename; no manual folder creation |
+| CD02 | G2/G4; recordings from two independently established capture days | Exactly two canonical YYYY-MM-DD folders; each asset in its original day; valid calendar-year formatting across New Year |
+| CD03 | G1/G4; postpone sync several days and change phone travel zone before sync | Verified capture day wins over download day/current zone; source/offset provenance persisted; no claim filename trustworthy without independent model/firmware evidence |
+| CD04 | G2/G3/G7; interrupt then restart/resume across midnight/phone-zone change, crash around directory/path reservation and URI journal | Same frozen relative path and actual partial URI retained; bytes safely continue, one folder/file, no duplicate or unnecessary retransfer |
+| CD05 | G1/G4; primary plus available DNG/audio/metadata, differing sidecar mtime and late discovery | Parent capture-day grouping retained; all required companions co-located, mixed-MIME adapter works; missing required member still incomplete; unavailable target types remain NOT_TESTED with fake coverage separately |
+| CD06 | G1/G4; independently record just before/after local midnight, recording spanning midnight; simulated/authorized DST overlap/gap and date-line travel | Independent recordings use their own capture-local days; split parent stays together; no conversion by current phone zone, no silent normalization; actual Pocket offset/zone evidence recorded separately from synthetic tests |
+| CD07 | G1/G4; missing zone, instant-only source, invalid/unverified filename, wrong clock, metadata/remote disagreement | Exact documented fallback and provenance/conflict warning; nullable instant when local-only; no invented authoritative date, source priority respected; never rewrite original metadata |
+| CD08 | G5/G6; replicate same group days later to different roots; name collision and lost permission/retry | Same ledger day/member mapping under each root, stable non-overwriting collision name, no upload-date folders; required replica state independent |
+
+Pocket investigation protocol: compare known test recording start with allowlisted capture-field values, remote-file timestamp and filename; determine whether offset/zone exists and what each value means. Record camera clock/zone before any app connection and again after baseline syncTime attempt, with no assumption its command succeeded. Compare recordings before/after independently authorized travel-zone/clock transitions; preserve old recordings unchanged. If exact edge cases cannot safely be reproduced on hardware, report NOT_TESTED and retain synthetic coverage separately. Confirm S25 storage behavior for all required asset types before R-037 acceptance.
+
 ## Planned Android16 local-network simulation (not executed)
 
 Use a separately approved test window, record initial settings and app permissions, and keep real originals safe. Under [official instructions](https://developer.android.com/privacy-and-security/local-network-permission):

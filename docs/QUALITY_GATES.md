@@ -6,6 +6,8 @@ The historical gate IDs/scopes below remain traceable. Their listed ordering is 
 
 ## Gate state model
 
+R-037 automatic capture-day organization is an additional product acceptance requirement: G1 reviews source/timezone/fallback and destination feasibility; G2 persists/reserves paths; G3/G7 prove crash/resume stability; G4 proves real capture-day grouping; G5/G6 reuse it for replicas. CD01-CD08 remain NOT_TESTED. This changes no historical GATE-0 outcome or gate ID/order adoption status.
+
 Each gate is one of:
 
 - PASS

@@ -22,6 +22,7 @@ Planning recommendation, not installed architecture. The app-open contract inten
 | Protocol adapter | Upstream packet/handshake knowledge; one live datalink; explicit network context and session health |
 | MediaRepository / enumerator | Walk every store/page/group, classify originals/companions, produce versioned completeness evidence |
 | SyncPlanner | Compare current asset versions with verified/partial replicas, schedule missing work and automatically reevaluate after READY |
+| CaptureTimeResolver / DestinationPlanner | Apply R-037 source trust/priority, persist capture-local day and uncertainty, reserve stable recording-member paths before allocation; no date recalculation on retry |
 | TransferEngine | Bounded streams/range validation/checkpoints; fenced IO children, no UI queue dependency |
 | Ledger | Room design, durable intents/identity/recordings/replicas/evidence and migrations; canonical reconciled truth |
 | IntegrityVerifier | Checks explicit assurance policy; never equates EOF or local hash with source equality |
@@ -134,6 +135,8 @@ Camera-side sleep/standby must be modeled separately from Android background/pro
 A separate awake-camera/foreground-app connection failure is recorded as [FOREGROUND_SESSION_DROP](evidence/GATE-0/2026-09-17_hardware/FOREGROUND_SESSION_DROP.md), RISK-019. A camera playback message concurrent with the app's failure message suggests a possible session-state mismatch but does not prove the cause or live connectivity. GATE 1 must distinguish transport, protocol session and UI state; this occurrence is neither a sleep nor an app-background disconnect.
 
 ## Storage considerations
+
+R-037 requires automatic capture-day folders and shared parent-recording grouping across phone/SSD/cloud. See [capture-day design](design/CAPTURE_DAY_ORGANIZATION.md) for immutable allocations, explicit timezone fallbacks, conflict handling and mixed-MIME storage feasibility. The baseline writes flat MIME-specific roots and attempts camera clock synchronization on connect; neither proves target timestamp correctness. Ledger path changes and completed-copy lookup must be designed together. Existing files are not moved or redownloaded by this planning change.
 
 External storage is expected to require Android storage APIs such as SAF or an equivalent supported mechanism. Verify target-device behavior before architecture is finalized.
 

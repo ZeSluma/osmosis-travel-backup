@@ -28,6 +28,10 @@ Replica states are independent: ABSENT, WRITING, PARTIAL, VERIFYING, VERIFIED, U
 
 Recording completeness is a derived transactional query over resolved RecordingMember requirements: every required primary/RAW/audio/non-regenerable or processing-relevant metadata member must be verified at the destination. An absent required sidecar or unknown member role blocks recording completeness even if the primary is verified. Policy versions prevent an older primary-only success being reinterpreted as complete under the expanded user-confirmed asset scope.
 
+## Capture-time and destination persistence extension — R-037
+
+[Capture-day design](CAPTURE_DAY_ORGANIZATION.md) adds a versioned CaptureResolution for each recording: candidate timestamps and provenance, resolved local timestamp/precision, nullable instant/zone/offset, captureDay, confidence/fallback/conflicts and policy revision. Members inherit the parent resolution. Replica records additionally persist destination root, relative directory, stable leaf name, full relative path and allocation phase; directory identity is journaled. Unique path and logical-replica reservations prevent duplicates. Freeze allocation before IO; resume/retry/restart and SSD/cloud use the same logical mapping. Capture grouping is not remote identity, and unknown time is not fabricated precision. Organization confidence remains separate from byte verification. Historical flat files require safe import, not unnecessary retransfer.
+
 ## Remote identity evidence and limits
 
 Observed baseline CameraFile exposes path, HTTP storage mapping, handle, size, type, duration/resolution, filename-derived timestamp; fileIndex/mtime support some other models. No trustworthy Pocket checksum or immutable volume/source generation ID was established. handleShared and absent handles in upstream model demonstrate that handle alone is unsafe; filename-derived timestamp is not independent evidence from filename.

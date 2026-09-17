@@ -8,6 +8,8 @@ Source-level existence of reconnect/resume/MediaStore lookup is not a behavioral
 
 ## Philosophy
 
+R-037 adds CD01-CD08 in TEST_MATRIX: automatic same/different-day folders, delayed sync, path-stable restart/resume, required companions, midnight/travel/DST, uncertain/conflicting timestamps and later SSD/cloud roots. Hardware cases require explicit resume and remain NOT_TESTED. [Capture-day policy](design/CAPTURE_DAY_ORGANIZATION.md) defines exact fallback oracles and clock-sync confounders.
+
 Testing is evidence for gate closure, not ceremony.
 
 ## GATE 0 baseline
