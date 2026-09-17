@@ -1,0 +1,44 @@
+{
+  "id": "GHSA-r937-wjx7-w2jp",
+  "aliases": [
+    "CVE-2026-53914"
+  ],
+  "summary": "JetBrains Kotlin: Unsafe Deserialization in Kotlin Build Cache Enables Code Execution",
+  "details": "In JetBrains Kotlin before 2.4.20 code execution was possible via unsafe deserialization in the build cache metadata",
+  "affected_version_1_9_24": true,
+  "ranges": [
+    {
+      "type": "ECOSYSTEM",
+      "events": [
+        {
+          "introduced": "0"
+        },
+        {
+          "fixed": "2.4.20-Beta1"
+        }
+      ]
+    }
+  ],
+  "references": [
+    {
+      "type": "ADVISORY",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-53914"
+    },
+    {
+      "type": "WEB",
+      "url": "https://github.com/JetBrains/kotlin/commit/bf51df665b458fda7c3eaf436c4d88dc119d7ec6"
+    },
+    {
+      "type": "PACKAGE",
+      "url": "https://github.com/JetBrains/kotlin"
+    },
+    {
+      "type": "WEB",
+      "url": "https://github.com/JetBrains/kotlin/releases/tag/v2.4.20-Beta1"
+    },
+    {
+      "type": "WEB",
+      "url": "https://www.jetbrains.com/privacy-security/issues-fixed"
+    }
+  ]
+}

@@ -22,10 +22,17 @@ bootstrap_evidence: docs/evidence/GATE-0/2026-09-17_bootstrap/REPORT.md
 active_plan: docs/plans/active/GATE-0-BASELINE.md
 
 open_blockers:
-  - unchanged Windows unit tests fail in 14 of 265 tests due to golden-resource CRLF sensitivity; original failures recorded, not fixed
-  - unchanged lintDebug fails with 5 errors, 79 warnings and 2 hints; original findings recorded, not fixed
   - Samsung Galaxy S25 Ultra + DJI Osmo Pocket 4P baseline hardware evidence has not yet been captured
-  - security review has open privacy, integrity and supply-chain findings including Kotlin build-plugin advisory GHSA-r937-wjx7-w2jp
+
+disposition_evidence: docs/evidence/GATE-0/2026-09-17_disposition/REPORT.md
+baseline_debt:
+  - Windows CRLF golden-test sensitivity is ENVIRONMENT_SPECIFIC; isolated unchanged LF baseline passes all 265 tests
+  - lintDebug remains FAIL; four UseAppTint errors are BASELINE_DEBT, CoarseFineLocation is deferred to GATE-1 permission review
+  - existing transfer integrity and idempotency limitations remain documented; hardware transfers require independent verification
+gate_1_security_tasks:
+  - review permission correctness including coarse/fine location, logging/privacy, credential storage and cleartext scope
+  - review Kotlin Gradle plugin advisory GHSA-r937-wjx7-w2jp; APPLICABLE_REDUCED_EXPOSURE in current local environment
+  - review CI cache trust, action pinning, dependency/artifact verification and compatible toolchain remediation
 
 baseline_evidence: docs/evidence/GATE-0/2026-09-17_baseline/REPORT.md
 baseline_results:
@@ -34,6 +41,7 @@ baseline_results:
   wrapper_jar_integrity: PASS
   assembleDebug: PASS
   testDebugUnitTest: FAIL
+  testDebugUnitTest_lf_checkout: PASS
   lintDebug: FAIL
   hardware: NOT_TESTED
 
@@ -65,11 +73,15 @@ completed_evidence:
   - unchanged debug build succeeds with isolated JDK 21 and Android SDK 36 on Windows
   - unit-test and lint original failures persisted with sanitized diagnostics
   - source reconstruction and limited security/dependency/secret review persisted
+  - clean LF-preserving checkout of exact baseline passes 265 unit tests; original 14 CRLF failures differ only by CR characters
+  - unchanged lint errors dispositioned as baseline debt or GATE-1 review; original lint FAIL retained
+  - expanded redacted Gitleaks reachable-history scan finds no leaks; security baseline disposition recorded with limitations
+  - only mandatory remaining GATE-0 evidence category is actual target-hardware testing, subject to satisfactory results
 
 implementation_authorized: false
 release_allowed: false
 
 next_action: >-
-  Review and agree disposition of the recorded unchanged-baseline test/lint/security findings,
-  then collect actual S25 Ultra + Pocket 4P hardware and resume/integrity evidence.
-  Do not implement functional fixes or close GATE 0 without the required authorization and evidence.
+  Collect actual S25 Ultra + Pocket 4P install/connect/browse/original-download/large-file/resume evidence
+  with independent transfer checks and sanitized diagnostics. Review results against GATE-0 criteria;
+  record any new hardware/security failures as blockers. No functional implementation or release is authorized.

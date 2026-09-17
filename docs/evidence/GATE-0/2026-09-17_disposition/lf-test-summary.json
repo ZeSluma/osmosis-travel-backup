@@ -1,0 +1,53 @@
+{
+  "tests": 265.0,
+  "failures": 0.0,
+  "errors": 0.0,
+  "skipped": 0.0,
+  "suites": 40,
+  "golden_tests": [
+    {
+      "name": "pocket 3 twentynine"
+    },
+    {
+      "name": "action 6 internal"
+    },
+    {
+      "name": "pocket 3 nine stars moved"
+    },
+    {
+      "name": "pocket 3 five with a star"
+    },
+    {
+      "name": "xtra full card"
+    },
+    {
+      "name": "pocket 3 fifteen"
+    },
+    {
+      "name": "pocket 4"
+    },
+    {
+      "name": "xtra newest page"
+    },
+    {
+      "name": "action 4 with stars"
+    },
+    {
+      "name": "nano newest page"
+    },
+    {
+      "name": "pocket 3 eleven panos"
+    },
+    {
+      "name": "action 6 sd"
+    },
+    {
+      "name": "pocket 3 nine with a panorama"
+    },
+    {
+      "name": "nano with favourites and bursts"
+    }
+  ],
+  "checkout_status": [],
+  "source_delta": []
+}

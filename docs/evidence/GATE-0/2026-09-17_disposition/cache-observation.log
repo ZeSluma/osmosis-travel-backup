@@ -1,0 +1,69 @@
+Initialized native services in: <USERPROFILE>\AppData\Local\Temp\osmosis-gate0-toolchain\gradle-cache\native
+Initialized jansi services in: <USERPROFILE>\AppData\Local\Temp\osmosis-gate0-toolchain\gradle-cache\native
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.14.5/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Starting process 'Gradle build daemon'. Working directory: <USERPROFILE>\AppData\Local\Temp\osmosis-gate0-toolchain\gradle-cache\daemon\8.14.5 Command: <USERPROFILE>\AppData\Local\Temp\osmosis-gate0-toolchain\jdk-21.0.12.1+1\bin\java.exe --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.lang.invoke=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.prefs/java.util.prefs=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.prefs/java.util.prefs=ALL-UNNAMED --add-opens=java.base/java.nio.charset=ALL-UNNAMED --add-opens=java.base/java.net=ALL-UNNAMED --add-opens=java.base/java.util.concurrent.atomic=ALL-UNNAMED --add-opens=java.xml/javax.xml.namespace=ALL-UNNAMED -Xmx2048m -Dfile.encoding=UTF-8 -Duser.country=DE -Duser.language=de -Duser.variant -cp <USERPROFILE>\AppData\Local\Temp\osmosis-gate0-toolchain\gradle-cache\wrapper\dists\gradle-8.14.5-bin\690y85m0j9nfaub7xoiayko8a\gradle-8.14.5\lib\gradle-daemon-main-8.14.5.jar -javaagent:<USERPROFILE>\AppData\Local\Temp\osmosis-gate0-toolchain\gradle-cache\wrapper\dists\gradle-8.14.5-bin\690y85m0j9nfaub7xoiayko8a\gradle-8.14.5\lib\agents\gradle-instrumentation-agent-8.14.5.jar org.gradle.launcher.daemon.bootstrap.GradleDaemon 8.14.5
+Successfully started process 'Gradle build daemon'
+An attempt to start the daemon took 1.217 secs.
+The client will now receive all logging from the daemon (pid: 25024). The daemon log file: <USERPROFILE>\AppData\Local\Temp\osmosis-gate0-toolchain\gradle-cache\daemon\8.14.5\daemon-25024.out.log
+Daemon will be stopped at the end of the build
+Using 16 worker leases.
+Received JVM installation metadata from '<USERPROFILE>\AppData\Local\Temp\osmosis-gate0-toolchain\jdk-21.0.12.1+1': {JAVA_HOME=<USERPROFILE>\AppData\Local\Temp\osmosis-gate0-toolchain\jdk-21.0.12.1+1, JAVA_VERSION=21.0.12.1, JAVA_VENDOR=Eclipse Adoptium, RUNTIME_NAME=OpenJDK Runtime Environment, RUNTIME_VERSION=21.0.12.1+1-LTS, VM_NAME=OpenJDK 64-Bit Server VM, VM_VERSION=21.0.12.1+1-LTS, VM_VENDOR=Eclipse Adoptium, OS_ARCH=amd64}
+Watching the file system is configured to be enabled if available
+Now considering [<USERPROFILE>\AppData\Local\Temp\osmosis-gate0-lf-f07bf8ca66c24ee18e944ef9a7c1a737] as hierarchies to watch
+File system watching is active
+Starting Build
+Settings evaluated using settings file '<USERPROFILE>\AppData\Local\Temp\osmosis-gate0-lf-f07bf8ca66c24ee18e944ef9a7c1a737\settings.gradle'.
+Projects loaded. Root project using build file '<USERPROFILE>\AppData\Local\Temp\osmosis-gate0-lf-f07bf8ca66c24ee18e944ef9a7c1a737\build.gradle'.
+Included projects: [root project 'Osmosis', project ':app']
+
+> Configure project :
+Evaluating root project 'Osmosis' using build file '<USERPROFILE>\AppData\Local\Temp\osmosis-gate0-lf-f07bf8ca66c24ee18e944ef9a7c1a737\build.gradle'.
+Resolved plugin [id: 'com.android.application', version: '8.13.2', apply: false]
+Resolved plugin [id: 'org.jetbrains.kotlin.android', version: '1.9.24', apply: false]
+
+> Configure project :app
+Evaluating project ':app' using build file '<USERPROFILE>\AppData\Local\Temp\osmosis-gate0-lf-f07bf8ca66c24ee18e944ef9a7c1a737\app\build.gradle'.
+Resolved plugin [id: 'com.android.application']
+Resolved plugin [id: 'org.jetbrains.kotlin.android']
+Using default execution profile
+Using Kotlin Gradle Plugin gradle82 variant
+All projects evaluated.
+Task name matched 'help'
+Selected primary task 'help' from project :
+Tasks to be executed: [task ':help']
+Tasks that were excluded: []
+Resolve mutations for :help (Thread[#122,Execution worker,5,main]) started.
+:help (Thread[#122,Execution worker,5,main]) started.
+
+> Task :help
+Caching disabled for task ':help' because:
+  Build cache is disabled
+Task ':help' is not up-to-date because:
+  Task has not declared any outputs despite executing actions.
+
+Welcome to Gradle 8.14.5.
+
+To run a build, run gradlew <task> ...
+
+To see a list of available tasks, run gradlew tasks
+
+To see more detail about a task, run gradlew help --task <task>
+
+To see a list of command-line options, run gradlew --help
+
+For more detail on using Gradle, see https://docs.gradle.org/8.14.5/userguide/command_line_interface.html
+
+For troubleshooting, visit https://help.gradle.org
+
+[Incubating] Problems report is available at: file:///<USERPROFILE>/AppData/Local/Temp/osmosis-gate0-lf-f07bf8ca66c24ee18e944ef9a7c1a737/build/reports/problems/problems-report.html
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 9.0.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/8.14.5/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD SUCCESSFUL in 10s
+1 actionable task: 1 executed
+Watched directory hierarchies: []
+COMMAND: .\gradlew.bat help --info --console=plain --no-daemon; EXIT: 0

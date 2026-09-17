@@ -1,0 +1,13 @@
+{
+  "core_autocrlf": "true",
+  "core_eol": null,
+  "core_attributesfile": null,
+  "tracked_attributes": [],
+  "info_attributes_present": false,
+  "effective_golden_attributes": [
+    "app/src/test/resources/manifests/golden/op4_45.bin.golden.txt: text: unspecified",
+    "app/src/test/resources/manifests/golden/op4_45.bin.golden.txt: eol: unspecified",
+    "app/src/test/resources/manifests/golden/op4_45.bin.golden.txt: working-tree-encoding: unspecified"
+  ],
+  "configuration_changed": false
+}

@@ -1,0 +1,57 @@
+[
+  {
+    "rule": "CoarseFineLocation",
+    "file": "app/src/main/AndroidManifest.xml",
+    "line": "13",
+    "description": "If you need access to FINE location, you must request both `ACCESS_FINE_LOCATION` and `ACCESS_COARSE_LOCATION`",
+    "severity": "Error",
+    "baseline_blob": "a166cc23512ac33e57b93febfdb066202a3a574a",
+    "current_blob": "a166cc23512ac33e57b93febfdb066202a3a574a",
+    "classification": "DEFER_TO_GATE-1",
+    "category": "compatibility; permission correctness/security review"
+  },
+  {
+    "rule": "UseAppTint",
+    "file": "app/src/main/res/layout/activity_preview.xml",
+    "line": "210",
+    "description": "Must use `app:tint` instead of `android:tint`",
+    "severity": "Error",
+    "baseline_blob": "f4ba0dccf0be6965f0ff9c6b3ab22f5ef21e9f53",
+    "current_blob": "f4ba0dccf0be6965f0ff9c6b3ab22f5ef21e9f53",
+    "classification": "BASELINE_DEBT",
+    "category": "UI correctness/compatibility; maintainability"
+  },
+  {
+    "rule": "UseAppTint",
+    "file": "app/src/main/res/layout/activity_preview.xml",
+    "line": "219",
+    "description": "Must use `app:tint` instead of `android:tint`",
+    "severity": "Error",
+    "baseline_blob": "f4ba0dccf0be6965f0ff9c6b3ab22f5ef21e9f53",
+    "current_blob": "f4ba0dccf0be6965f0ff9c6b3ab22f5ef21e9f53",
+    "classification": "BASELINE_DEBT",
+    "category": "UI correctness/compatibility; maintainability"
+  },
+  {
+    "rule": "UseAppTint",
+    "file": "app/src/main/res/layout/activity_preview.xml",
+    "line": "229",
+    "description": "Must use `app:tint` instead of `android:tint`",
+    "severity": "Error",
+    "baseline_blob": "f4ba0dccf0be6965f0ff9c6b3ab22f5ef21e9f53",
+    "current_blob": "f4ba0dccf0be6965f0ff9c6b3ab22f5ef21e9f53",
+    "classification": "BASELINE_DEBT",
+    "category": "UI correctness/compatibility; maintainability"
+  },
+  {
+    "rule": "UseAppTint",
+    "file": "app/src/main/res/layout/item_camera.xml",
+    "line": "60",
+    "description": "Must use `app:tint` instead of `android:tint`",
+    "severity": "Error",
+    "baseline_blob": "9140a11636f8a7fa380a6845b358d874f331c4fb",
+    "current_blob": "9140a11636f8a7fa380a6845b358d874f331c4fb",
+    "classification": "BASELINE_DEBT",
+    "category": "UI correctness/compatibility; maintainability"
+  }
+]

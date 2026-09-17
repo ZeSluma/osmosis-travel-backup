@@ -1,0 +1,33 @@
+[
+  {
+    "repository": "ZeSluma/osmosis-travel-backup",
+    "main": "2fcdbc97e6dbefc875d425368be67cf32b50bb06",
+    "open_work": []
+  },
+  {
+    "repository": "KonradIT/osmosis",
+    "main": "2fcdbc97e6dbefc875d425368be67cf32b50bb06",
+    "open_work": [
+      {
+        "number": 40,
+        "title": "Mini Pro 5 Wifi Password"
+      },
+      {
+        "number": 32,
+        "title": "Support for Osmo Action 1"
+      },
+      {
+        "number": 24,
+        "title": "Implement support for \"v2\" WLM API (newer drones)"
+      },
+      {
+        "number": 11,
+        "title": "WIP: Support osmo action 1"
+      },
+      {
+        "number": 8,
+        "title": "Rsdk device"
+      }
+    ]
+  }
+]

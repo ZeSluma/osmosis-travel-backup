@@ -1,0 +1,22 @@
+{
+  "temporary_checkout": "<USERPROFILE>\\AppData\\Local\\Temp\\osmosis-gate0-lf-f07bf8ca66c24ee18e944ef9a7c1a737",
+  "commit": "2fcdbc97e6dbefc875d425368be67cf32b50bb06",
+  "autocrlf": "false",
+  "initial_status": [],
+  "golden_eol": [
+    "i/lf    w/lf    attr/                 \tapp/src/test/resources/manifests/golden/nano_45.bin.golden.txt",
+    "i/lf    w/lf    attr/                 \tapp/src/test/resources/manifests/golden/nano_delete.bin.golden.txt",
+    "i/lf    w/lf    attr/                 \tapp/src/test/resources/manifests/golden/oa4_45.bin.golden.txt",
+    "i/lf    w/lf    attr/                 \tapp/src/test/resources/manifests/golden/oa6_internal_2.bin.golden.txt",
+    "i/lf    w/lf    attr/                 \tapp/src/test/resources/manifests/golden/oa6_sd_3.bin.golden.txt",
+    "i/lf    w/lf    attr/                 \tapp/src/test/resources/manifests/golden/op3_11_panos.bin.golden.txt",
+    "i/lf    w/lf    attr/                 \tapp/src/test/resources/manifests/golden/op3_15.bin.golden.txt",
+    "i/lf    w/lf    attr/                 \tapp/src/test/resources/manifests/golden/op3_29.bin.golden.txt",
+    "i/lf    w/lf    attr/                 \tapp/src/test/resources/manifests/golden/op3_5_starred.bin.golden.txt",
+    "i/lf    w/lf    attr/                 \tapp/src/test/resources/manifests/golden/op3_9_pano.bin.golden.txt",
+    "i/lf    w/lf    attr/                 \tapp/src/test/resources/manifests/golden/op3_9_stars_moved.bin.golden.txt",
+    "i/lf    w/lf    attr/                 \tapp/src/test/resources/manifests/golden/op4_45.bin.golden.txt",
+    "i/lf    w/lf    attr/                 \tapp/src/test/resources/manifests/golden/xtra_13.bin.golden.txt",
+    "i/lf    w/lf    attr/                 \tapp/src/test/resources/manifests/golden/xtra_delete.bin.golden.txt"
+  ]
+}
