@@ -1,0 +1,266 @@
+[
+  {
+    "Suite": "dev.konraditurbe.osmosis.ble.BleAdvertTest",
+    "Tests": 10,
+    "Failures": 0,
+    "Errors": 0
+  },
+  {
+    "Suite": "dev.konraditurbe.osmosis.ble.CameraModelBrandTest",
+    "Tests": 11,
+    "Failures": 0,
+    "Errors": 0
+  },
+  {
+    "Suite": "dev.konraditurbe.osmosis.camera.CompositeManifestTest",
+    "Tests": 12,
+    "Failures": 0,
+    "Errors": 0
+  },
+  {
+    "Suite": "dev.konraditurbe.osmosis.camera.DatalinkManifestTest",
+    "Tests": 2,
+    "Failures": 0,
+    "Errors": 0
+  },
+  {
+    "Suite": "dev.konraditurbe.osmosis.camera.FileOpPayloadTest",
+    "Tests": 5,
+    "Failures": 0,
+    "Errors": 0
+  },
+  {
+    "Suite": "dev.konraditurbe.osmosis.camera.HandleValidationTest",
+    "Tests": 4,
+    "Failures": 0,
+    "Errors": 0
+  },
+  {
+    "Suite": "dev.konraditurbe.osmosis.camera.ManifestFuzzTest",
+    "Tests": 3,
+    "Failures": 0,
+    "Errors": 0
+  },
+  {
+    "Suite": "dev.konraditurbe.osmosis.camera.ManifestGoldenTest",
+    "Tests": 14,
+    "Failures": 0,
+    "Errors": 0
+  },
+  {
+    "Suite": "dev.konraditurbe.osmosis.camera.ManifestInvariantTest",
+    "Tests": 7,
+    "Failures": 0,
+    "Errors": 0
+  },
+  {
+    "Suite": "dev.konraditurbe.osmosis.camera.ManifestRobustnessTest",
+    "Tests": 8,
+    "Failures": 0,
+    "Errors": 0
+  },
+  {
+    "Suite": "dev.konraditurbe.osmosis.camera.Oa4ManifestTest",
+    "Tests": 12,
+    "Failures": 0,
+    "Errors": 0
+  },
+  {
+    "Suite": "dev.konraditurbe.osmosis.camera.Oa4StarredManifestTest",
+    "Tests": 8,
+    "Failures": 0,
+    "Errors": 0
+  },
+  {
+    "Suite": "dev.konraditurbe.osmosis.camera.Oa6LiveCardTest",
+    "Tests": 11,
+    "Failures": 0,
+    "Errors": 0
+  },
+  {
+    "Suite": "dev.konraditurbe.osmosis.camera.Op3LiveCardTest",
+    "Tests": 7,
+    "Failures": 0,
+    "Errors": 0
+  },
+  {
+    "Suite": "dev.konraditurbe.osmosis.camera.Op3ManifestTest",
+    "Tests": 2,
+    "Failures": 0,
+    "Errors": 0
+  },
+  {
+    "Suite": "dev.konraditurbe.osmosis.camera.Op3MixedCardTest",
+    "Tests": 5,
+    "Failures": 0,
+    "Errors": 0
+  },
+  {
+    "Suite": "dev.konraditurbe.osmosis.camera.Op4ManifestTest",
+    "Tests": 3,
+    "Failures": 0,
+    "Errors": 0
+  },
+  {
+    "Suite": "dev.konraditurbe.osmosis.camera.PaginationTest",
+    "Tests": 20,
+    "Failures": 0,
+    "Errors": 0
+  },
+  {
+    "Suite": "dev.konraditurbe.osmosis.camera.PhotoHandleTest",
+    "Tests": 2,
+    "Failures": 0,
+    "Errors": 0
+  },
+  {
+    "Suite": "dev.konraditurbe.osmosis.camera.VideoFormatIndexTest",
+    "Tests": 6,
+    "Failures": 0,
+    "Errors": 0
+  },
+  {
+    "Suite": "dev.konraditurbe.osmosis.core.EmbeddedJpegTest",
+    "Tests": 5,
+    "Failures": 0,
+    "Errors": 0
+  },
+  {
+    "Suite": "dev.konraditurbe.osmosis.core.HandleCollisionTest",
+    "Tests": 4,
+    "Failures": 0,
+    "Errors": 0
+  },
+  {
+    "Suite": "dev.konraditurbe.osmosis.core.MediaAddressingTest",
+    "Tests": 9,
+    "Failures": 0,
+    "Errors": 0
+  },
+  {
+    "Suite": "dev.konraditurbe.osmosis.core.VideoFormatsTest",
+    "Tests": 7,
+    "Failures": 0,
+    "Errors": 0
+  },
+  {
+    "Suite": "dev.konraditurbe.osmosis.dcf.DcfIndexTest",
+    "Tests": 9,
+    "Failures": 0,
+    "Errors": 0
+  },
+  {
+    "Suite": "dev.konraditurbe.osmosis.dcf.DroneResFpsTest",
+    "Tests": 5,
+    "Failures": 0,
+    "Errors": 0
+  },
+  {
+    "Suite": "dev.konraditurbe.osmosis.dcf.DroneStarFlagTest",
+    "Tests": 3,
+    "Failures": 0,
+    "Errors": 0
+  },
+  {
+    "Suite": "dev.konraditurbe.osmosis.drone.DroneManifestTest",
+    "Tests": 12,
+    "Failures": 0,
+    "Errors": 0
+  },
+  {
+    "Suite": "dev.konraditurbe.osmosis.drone.DroneSerialBleTest",
+    "Tests": 3,
+    "Failures": 0,
+    "Errors": 0
+  },
+  {
+    "Suite": "dev.konraditurbe.osmosis.drone.DroneSerialTest",
+    "Tests": 4,
+    "Failures": 0,
+    "Errors": 0
+  },
+  {
+    "Suite": "dev.konraditurbe.osmosis.drone.DroneWriteCmdTest",
+    "Tests": 4,
+    "Failures": 0,
+    "Errors": 0
+  },
+  {
+    "Suite": "dev.konraditurbe.osmosis.drone.Mini3ManifestTest",
+    "Tests": 5,
+    "Failures": 0,
+    "Errors": 0
+  },
+  {
+    "Suite": "dev.konraditurbe.osmosis.duml.DjiCrcTest",
+    "Tests": 4,
+    "Failures": 0,
+    "Errors": 0
+  },
+  {
+    "Suite": "dev.konraditurbe.osmosis.duml.DjiMessageTest",
+    "Tests": 3,
+    "Failures": 0,
+    "Errors": 0
+  },
+  {
+    "Suite": "dev.konraditurbe.osmosis.duml.SessionCommandsTest",
+    "Tests": 4,
+    "Failures": 0,
+    "Errors": 0
+  },
+  {
+    "Suite": "dev.konraditurbe.osmosis.ledger.LedgerEnumeratorTest",
+    "Tests": 9,
+    "Failures": 0,
+    "Errors": 0
+  },
+  {
+    "Suite": "dev.konraditurbe.osmosis.ledger.LedgerModelTest",
+    "Tests": 31,
+    "Failures": 0,
+    "Errors": 0
+  },
+  {
+    "Suite": "dev.konraditurbe.osmosis.ledger.LocalCandidatePolicyTest",
+    "Tests": 22,
+    "Failures": 0,
+    "Errors": 0
+  },
+  {
+    "Suite": "dev.konraditurbe.osmosis.net.DumlTransportTest",
+    "Tests": 12,
+    "Failures": 0,
+    "Errors": 0
+  },
+  {
+    "Suite": "dev.konraditurbe.osmosis.net.StorageStatusTest",
+    "Tests": 7,
+    "Failures": 0,
+    "Errors": 0
+  },
+  {
+    "Suite": "dev.konraditurbe.osmosis.rsdk.NewCameraStatusTest",
+    "Tests": 5,
+    "Failures": 0,
+    "Errors": 0
+  },
+  {
+    "Suite": "dev.konraditurbe.osmosis.rsdk.RsdkProtocolTest",
+    "Tests": 5,
+    "Failures": 0,
+    "Errors": 0
+  },
+  {
+    "Suite": "dev.konraditurbe.osmosis.ui.LauncherInputPolicyTest",
+    "Tests": 8,
+    "Failures": 0,
+    "Errors": 0
+  },
+  {
+    "Suite": "dev.konraditurbe.osmosis.ui.ScrubFramesTest",
+    "Tests": 3,
+    "Failures": 0,
+    "Errors": 0
+  }
+]

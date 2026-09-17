@@ -1,5 +1,7 @@
 # Ledger, identity, replica and integrity design
 
+Current G2 reconciliation under [ADR0010](../decisions/0010-gate2-local-candidate-reconciliation.md) implements schema3 local_candidates and replica localPresence for pre-ledger downloads. Scoped MediaStore plus read-only descriptor stat yields metadata-only associations, never source equivalence. Unique candidates persist as LOCAL_PRESENT_UNVERIFIED with VERIFY_EXISTING; conflicts/missing/unavailable evidence remains NEEDS_REVALIDATION. Existing physical URIs and reserved capture-day paths stay separate; no relocation/re-download. Source verification and G3 stronger integrity remain unimplemented, and post-update target HIL remains required.
+
 GATE-2 update: [ADR0009](../decisions/0009-gate2-foundation-and-continuous-execution.md) and [software evidence](../evidence/GATE-2/2026-09-17_ledger/REPORT.md) identify the implemented subset: Room schema/migration, candidate identity, recording members, capture/path reservations, fenced reconciliation and deterministic plans. The broader transfer/publication/replica/cleanup design below remains later work. Hardware is NOT_TESTED; no verifier or full-source completeness is claimed.
 
 Status: proposed schema/algorithms, not implemented. R-003 through R-006 and R-019 through R-026. No new dependency. Canonical truth is a transactional ledger reconciled against bytes and source evidence; UI/MediaStore alone cannot establish synchronization.

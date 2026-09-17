@@ -96,4 +96,6 @@ CL tests first use synthetic cameras/fault injection. Real deletion HIL is separ
 
 ## Existing evidence carried forward, not substitute for these tests
 
+R-042 adds [KA01–KA07 Pocket4P liveness experiments](CAMERA_SESSION_LIVENESS.md), all G7/NOT_TESTED: no-traffic idle control, evidence-backed keepalive with measured cadence/margin, active-transfer traffic, Android screen-off/background, temporary camera Auto Power Off comparison/restoration, automatic AP/session recovery and independently evidenced Auto Media Transfer/Mimo interaction. Distinguish AP/BLE/playback/device power transitions with exact timings; never assign another model's timeout or infer Mimo ownership from display text. No power-setting change, transfer or keepalive implementation occurs during G2 reconciliation.
+
 GATE-0: manual range continuation 374,356,968 -> 3,071,380,142 bytes PASS; automatic reconnect/resume FAIL; file/MediaStore persistence PASS; post-restart UI recognition FAIL; awake foreground drop observed with root cause unconfirmed. Screen-off/service recovery, strong identity, complete original inventory, sleep causes and concurrent Internet are NOT_TESTED. Historical controlled force-stop tested completed-file persistence only, not recovery of an active backup process. No automatic claim is promoted from that test.

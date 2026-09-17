@@ -82,6 +82,8 @@ Normal operation requires no manual file selection, queue maintenance, rescan, r
 
 Acceptance mapping and evidence status: [TEST_MATRIX](design/TEST_MATRIX.md). These requirements describe the intended system; baseline PASS is not evidence they are implemented.
 
+**R-042 Active-session camera liveness:** lifecycle-safe CameraConnectionManager owns camera Network/session, evidence-backed Pocket4P keepalive, health monitoring and bounded automatic recovery, independently of Activity visibility. Distinguish camera power/standby/display sleep, AP idle, BLE idle and datalink/playback loss. Validate source identity before handing the recovered session to partial-work revalidation. Do not require permanently disabled Auto Power Off; any unavoidable camera setting needs actual evidence and explicit USER_ACTION_REQUIRED. Investigate Auto Media Transfer/Mimo interaction without attributing ownership from camera UI wording. [Liveness design and KA01–KA07](design/CAMERA_SESSION_LIVENESS.md) specify G7 evidence; all remain NOT_TESTED. No G7 implementation in current G2 work.
+
 ## 3. Non-functional requirements
 
 - Target-device reliability must be evidenced on Samsung Galaxy S25 Ultra + DJI Osmo Pocket 4P.

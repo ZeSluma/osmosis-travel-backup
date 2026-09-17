@@ -40,7 +40,15 @@ data class MembershipRow(val snapshotId: String, val assetId: String)
     ForeignKey(entity = AssetRow::class, parentColumns = ["id"], childColumns = ["assetId"])],
     indices = [Index(value = ["destination", "relativePath"], unique = true)])
 data class ReplicaRow(val assetId: String, val destination: String, val relativePath: String,
-    val state: String, val committedLength: Long, val ownerEpoch: Long, val localLocator: String? = null)
+    val state: String, val committedLength: Long, val ownerEpoch: Long, val localLocator: String? = null,
+    @ColumnInfo(defaultValue = "'NOT_SCANNED'") val localPresence: String = "NOT_SCANNED")
+
+@Entity(tableName = "local_candidates", primaryKeys = ["assetId", "locator"], foreignKeys = [
+    ForeignKey(entity = AssetRow::class, parentColumns = ["id"], childColumns = ["assetId"])], indices = [Index("locator")])
+data class LocalCandidateRow(val assetId: String, val locator: String, val displayName: String,
+    val directory: String, val bytes: Long?, val pending: Boolean, val metadataVersion: String,
+    val evidence: String, val confidence: String, val status: String, val observedAt: String,
+    val ownerEpoch: Long)
 
 @Dao
 interface LedgerDao {
@@ -61,6 +69,10 @@ interface LedgerDao {
     @Query("SELECT assets.* FROM assets INNER JOIN membership ON assets.id=membership.assetId WHERE membership.snapshotId=:snapshot ORDER BY assets.id") fun assets(snapshot: String): List<AssetRow>
     @Query("SELECT * FROM replicas WHERE assetId=:asset AND destination='PHONE_LOCAL'") fun replica(asset: String): ReplicaRow?
     @Upsert fun replica(row: ReplicaRow)
+    @Query("SELECT * FROM local_candidates WHERE assetId=:asset ORDER BY locator") fun localCandidates(asset: String): List<LocalCandidateRow>
+    @Query("SELECT COUNT(DISTINCT assetId) FROM local_candidates WHERE locator=:locator AND assetId!=:asset AND status NOT IN ('MISSING','UNAVAILABLE')")
+    fun otherCandidateOwners(locator: String, asset: String): Int
+    @Upsert fun localCandidate(row: LocalCandidateRow)
     @Query("SELECT COUNT(*) FROM assets") fun assetCount(): Int
     @Query("SELECT COUNT(*) FROM recordings") fun recordingCount(): Int
 }

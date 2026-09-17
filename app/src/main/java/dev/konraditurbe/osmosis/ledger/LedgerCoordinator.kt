@@ -47,6 +47,7 @@ class LedgerCoordinator private constructor(context: Context) {
                 captured.forEach { inventory["${it.storage}:${it.path}"] = it }
                 val lease = repository.begin(association, UUID.randomUUID().toString(), "MOUNT_MAPPING_ONLY", enumerationStart)
                 repository.reconcile(lease, inventory.values.map(CameraLedgerAdapter::asset), Instant.now(), ZoneId.systemDefault())
+                repository.reconcileLocal(lease, LocalMediaInventory(appContext).read(), Instant.now())
                 repository.finish(lease, endedAt, pagesEnded, false, false, false, failed)
                 latestPlan = repository.plan(lease.snapshotId)
                 status = "PLANNED_INCOMPLETE_INVENTORY"

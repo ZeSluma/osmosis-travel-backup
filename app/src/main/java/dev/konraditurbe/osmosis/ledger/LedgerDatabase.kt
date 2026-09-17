@@ -11,7 +11,7 @@ import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory
 import java.io.File
 
 @Database(entities = [SourceRow::class, SnapshotRow::class, RecordingRow::class, AssetRow::class,
-    MemberRow::class, MembershipRow::class, ReplicaRow::class], version = 2, exportSchema = true)
+    MemberRow::class, MembershipRow::class, ReplicaRow::class, LocalCandidateRow::class], version = 3, exportSchema = true)
 abstract class LedgerDatabase : RoomDatabase() {
     abstract fun ledger(): LedgerDao
     companion object {
@@ -20,12 +20,19 @@ abstract class LedgerDatabase : RoomDatabase() {
                 db.execSQL("ALTER TABLE replicas ADD COLUMN localLocator TEXT")
             }
         }
+        val MIGRATION_2_3 = object : Migration(2, 3) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE replicas ADD COLUMN localPresence TEXT NOT NULL DEFAULT 'NOT_SCANNED'")
+                db.execSQL("CREATE TABLE IF NOT EXISTS local_candidates (assetId TEXT NOT NULL, locator TEXT NOT NULL, displayName TEXT NOT NULL, directory TEXT NOT NULL, bytes INTEGER, pending INTEGER NOT NULL, metadataVersion TEXT NOT NULL, evidence TEXT NOT NULL, confidence TEXT NOT NULL, status TEXT NOT NULL, observedAt TEXT NOT NULL, ownerEpoch INTEGER NOT NULL, PRIMARY KEY(assetId, locator), FOREIGN KEY(assetId) REFERENCES assets(id) ON UPDATE NO ACTION ON DELETE NO ACTION)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_local_candidates_locator ON local_candidates (locator)")
+            }
+        }
         fun open(context: Context, name: String = "sync-ledger.db"): LedgerDatabase {
             require(name.matches(Regex("[A-Za-z0-9._-]+")))
             return Room.databaseBuilder(context.applicationContext, LedgerDatabase::class.java,
                 File(context.noBackupFilesDir, name).absolutePath)
                 .openHelperFactory(PreserveCorruptDatabaseFactory())
-                .addMigrations(MIGRATION_1_2)
+                .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
                 .build()
         }
     }

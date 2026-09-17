@@ -1,0 +1,15 @@
+{
+  "base_commit": "45a64f6f8a9752abc20c753f0fde6742d42d82f1",
+  "debug_sha256": "D42573232A017F649388327E57171FE59E9659759EE41409582D7BD09D2DB496",
+  "test_apk_sha256": "B5F22305B55140D58F4C16AA8E44E6F6260F73DBF0AFCFA26805DB16720C44BE",
+  "unit_tests": 335.0,
+  "unit_failures": 0.0,
+  "unit_errors": 0.0,
+  "lint_errors": 5,
+  "lint_warnings": 78,
+  "lint_hints": 2,
+  "emulator_suite": "PASS",
+  "process_candidate_persistence": "PASS",
+  "b1": "PASS",
+  "target_post_update_hardware": "NOT_TESTED"
+}

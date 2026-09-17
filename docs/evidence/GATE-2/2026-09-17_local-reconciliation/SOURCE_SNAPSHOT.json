@@ -1,0 +1,62 @@
+[
+  {
+    "path": "app/schemas/dev.konraditurbe.osmosis.ledger.LedgerDatabase/3.json",
+    "normalized_sha256": "A7770EA2D351496EFD742FDC7A06812B23091F061DA34D2E4ABE1C5848DEA09E",
+    "matches_tested_lf_source": true
+  },
+  {
+    "path": "app/src/androidTest/java/dev/konraditurbe/osmosis/ledger/Gate2ReadOnlyAudit.java",
+    "normalized_sha256": "31CE770E39A8395823DB8FE9DDADBB9E8A848F54859A30F086D3D056FA580FD4",
+    "matches_tested_lf_source": true
+  },
+  {
+    "path": "app/src/androidTest/java/dev/konraditurbe/osmosis/ledger/LedgerInstrumentation.kt",
+    "normalized_sha256": "E1C5F91FE422F68C0274B4E36750CC4B8BD2686D717EF8F4D6A703DE4AD09BD0",
+    "matches_tested_lf_source": true
+  },
+  {
+    "path": "app/src/androidTest/java/dev/konraditurbe/osmosis/ledger/LocalReconciliationInstrumentation.kt",
+    "normalized_sha256": "71257BF9DF7683E0052E8F80BBDAF88BA92AEB87362F23D414D2C8A330FB7E42",
+    "matches_tested_lf_source": true
+  },
+  {
+    "path": "app/src/main/java/dev/konraditurbe/osmosis/ledger/LedgerCoordinator.kt",
+    "normalized_sha256": "41AA1F0B5A518C6F525045D9E7B50073CD02B7711406C4F5658AF29136E7411B",
+    "matches_tested_lf_source": true
+  },
+  {
+    "path": "app/src/main/java/dev/konraditurbe/osmosis/ledger/LedgerDatabase.kt",
+    "normalized_sha256": "4CA4AB017FDB2B30E1E6553FCD17C085AD9766B925CD8C663550410F0EB48129",
+    "matches_tested_lf_source": true
+  },
+  {
+    "path": "app/src/main/java/dev/konraditurbe/osmosis/ledger/LedgerModel.kt",
+    "normalized_sha256": "AC1BB1EBE87A185C915448D3B2EA3CADB0B5A41572498CC0C10F1994A180D72B",
+    "matches_tested_lf_source": true
+  },
+  {
+    "path": "app/src/main/java/dev/konraditurbe/osmosis/ledger/LedgerRepository.kt",
+    "normalized_sha256": "016D86C600EAA729CFD8FC5A951FFB61C5E5D00B5D75BAB1B3EB7A4591FB2DDB",
+    "matches_tested_lf_source": true
+  },
+  {
+    "path": "app/src/main/java/dev/konraditurbe/osmosis/ledger/LedgerRows.kt",
+    "normalized_sha256": "03163DE00AA735CF011364CBD57D3A339DAA269189D89850C8D2810CAC714A53",
+    "matches_tested_lf_source": true
+  },
+  {
+    "path": "app/src/main/java/dev/konraditurbe/osmosis/ledger/LocalCandidatePolicy.kt",
+    "normalized_sha256": "1004BACF035C848AEB8ACC57479DA587114497425CFC8E5991E170F4E1B5028D",
+    "matches_tested_lf_source": true
+  },
+  {
+    "path": "app/src/main/java/dev/konraditurbe/osmosis/ledger/LocalMediaInventory.kt",
+    "normalized_sha256": "AD56FE61EC95A3281E82BBAF16269A7AFC25FABF6D1FEFD7FF1AEA8BB059C09C",
+    "matches_tested_lf_source": true
+  },
+  {
+    "path": "app/src/test/java/dev/konraditurbe/osmosis/ledger/LocalCandidatePolicyTest.kt",
+    "normalized_sha256": "FD9F862645BD268625B869D16982EFB1A970236459F443B06382933B1DA3DA33",
+    "matches_tested_lf_source": true
+  }
+]

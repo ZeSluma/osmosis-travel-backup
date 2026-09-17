@@ -4,7 +4,7 @@ import java.security.MessageDigest
 import java.time.*
 
 enum class AssetClass { KNOWN_REQUIRED, KNOWN_OPTIONAL, KNOWN_REGENERABLE_EXCLUDED, UNKNOWN_POTENTIALLY_REQUIRED, UNKNOWN_NON_RECORDING, UNSUPPORTED }
-enum class TransferState { DISCOVERED, PLANNED, PARTIAL, TRANSFERRED_UNVERIFIED, LOCAL_VERIFIED, FAILED, RETRY_PENDING, NEEDS_REVALIDATION }
+enum class TransferState { DISCOVERED, PLANNED, PARTIAL, TRANSFERRED_UNVERIFIED, LOCAL_VERIFIED, FAILED, RETRY_PENDING, NEEDS_REVALIDATION, LOCAL_PRESENT_UNVERIFIED }
 enum class PlanAction { DOWNLOAD, RESUME_REVALIDATE, VERIFY_EXISTING, REVALIDATE_IDENTITY, REVIEW_UNKNOWN }
 enum class TimeSource { CAMERA_CAPTURE, REMOTE_FILE, VERIFIED_FILENAME, SYNC_FALLBACK }
 
@@ -70,12 +70,16 @@ data class PlanResult(val snapshotId: String, val items: List<PlanItem>, val enu
 object SyncPlanner {
     /** GATE-2 has no authority to mint verification. A remembered VERIFIED label alone is insufficient. */
     fun action(classification: AssetClass, state: TransferState, identityAmbiguous: Boolean,
-        currentVerificationProven: Boolean = false): PlanAction? {
+        currentVerificationProven: Boolean = false, localPresence: LocalPresence = LocalPresence.NOT_SCANNED): PlanAction? {
         if (classification in setOf(AssetClass.KNOWN_REGENERABLE_EXCLUDED, AssetClass.KNOWN_OPTIONAL, AssetClass.UNKNOWN_NON_RECORDING)) return null
         if (classification in setOf(AssetClass.UNKNOWN_POTENTIALLY_REQUIRED, AssetClass.UNSUPPORTED)) return PlanAction.REVIEW_UNKNOWN
+        if (localPresence in setOf(LocalPresence.AMBIGUOUS, LocalPresence.CHANGED, LocalPresence.MISSING, LocalPresence.UNAVAILABLE)) return PlanAction.REVALIDATE_IDENTITY
         if (state == TransferState.LOCAL_VERIFIED && currentVerificationProven && !identityAmbiguous) return null
+        if (localPresence == LocalPresence.PRESENT_UNVERIFIED) return PlanAction.VERIFY_EXISTING
         if (state == TransferState.PARTIAL) return PlanAction.RESUME_REVALIDATE
         if (state == TransferState.TRANSFERRED_UNVERIFIED) return PlanAction.VERIFY_EXISTING
+        if (state == TransferState.LOCAL_PRESENT_UNVERIFIED) return PlanAction.REVALIDATE_IDENTITY
+        if (localPresence == LocalPresence.ABSENT && state != TransferState.LOCAL_VERIFIED) return PlanAction.DOWNLOAD
         if (identityAmbiguous || state in setOf(TransferState.LOCAL_VERIFIED, TransferState.NEEDS_REVALIDATION)) return PlanAction.REVALIDATE_IDENTITY
         return PlanAction.DOWNLOAD
     }

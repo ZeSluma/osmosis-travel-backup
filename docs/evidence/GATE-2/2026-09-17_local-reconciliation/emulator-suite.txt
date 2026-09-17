@@ -1,0 +1,1 @@
+PASS: empty, required members/audio, idempotence, plans, partial/unverified, recreation, new/removed, photo/RAW/metadata/excluded, identity, fencing, incomplete/failure, FK/rollback, migrations1/2-to-3, local candidates/provider changes, audit privacy/corruption; synthetic provider indexed-size lag observed=false

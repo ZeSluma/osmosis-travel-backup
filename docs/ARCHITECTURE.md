@@ -132,6 +132,8 @@ Camera protocol
 
 ## Network considerations
 
+R-042 adds [active-session liveness](design/CAMERA_SESSION_LIVENESS.md): CameraConnectionManager/Controller under the connectedDevice execution host owns keepalive and recovery, not MainActivity. Camera Auto Power Off, AP idle sleep, BLE idle and playback/datalink failure are separate mechanisms. Existing upstream heartbeat code and other-model timeouts do not prove Pocket4P behavior. Default power settings remain the target; no permanently disabled Auto Power Off prerequisite. Actual Mimo/Auto Media Transfer competition requires independent evidence. Assigned to G7, not implemented during G2.
+
 Camera access may require binding traffic to the camera Wi-Fi/AP while later cloud sync requires ordinary Internet connectivity.
 
 The design must explicitly handle network ownership/routing transitions. Do not assume camera-network binding and OneDrive Internet access can occur simultaneously without evidence.

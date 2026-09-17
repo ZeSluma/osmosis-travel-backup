@@ -106,7 +106,11 @@ class LedgerRepository(private val db: LedgerDatabase) {
         val assets = dao.assets(snapshotId)
         val plans = assets.mapNotNull { asset ->
             val replica = checkNotNull(dao.replica(asset.id))
-            SyncPlanner.action(AssetClass.valueOf(asset.classification), TransferState.valueOf(replica.state), asset.identityAmbiguous)
+            val presence = if (dao.localCandidates(asset.id).any {
+                it.status !in setOf("MISSING", "UNAVAILABLE") && dao.otherCandidateOwners(it.locator, asset.id) > 0
+            }) LocalPresence.AMBIGUOUS else LocalPresence.valueOf(replica.localPresence)
+            SyncPlanner.action(AssetClass.valueOf(asset.classification), TransferState.valueOf(replica.state), asset.identityAmbiguous,
+                localPresence = presence)
                 ?.let { PlanItem(asset.id, it, replica.relativePath) }
         }.sortedBy { it.assetId }
         val completeGroups = assets.map { it.recordingId }.distinct().all { group ->
@@ -116,6 +120,48 @@ class LedgerRepository(private val db: LedgerDatabase) {
         PlanResult(snapshotId, plans, snapshot.status == "COMPLETE", completeGroups,
             snapshot.status == "COMPLETE" && completeGroups && plans.isEmpty())
     }
+
+    /** Metadata-only candidate adoption. Fenced and atomic; no file or verified-state writes.
+     * Absence refers only to the accessible landing-zone inventory, not all phone storage.
+     * Revalidation/integrity in G3 must decide reuse/retransmission without overwriting originals.
+     */
+    fun reconcileLocal(lease: EnumerationLease, inventory: LocalInventory, now: Instant) = transaction {
+        requireLease(lease)
+        val assets = dao.assets(lease.snapshotId)
+        val assessments = assets.associate { asset ->
+            val replica = checkNotNull(dao.replica(asset.id))
+            val prior = dao.localCandidates(asset.id).map { it.toMatch() }
+            asset.id to LocalCandidatePolicy.assess(asset.remotePath, asset.size, replica.relativePath, inventory, prior)
+        }
+        // Persist all candidates first so a single local row claimed by multiple
+        // remote identities is never chosen based on traversal order.
+        for ((assetId, assessment) in assessments) for (match in assessment.matches) {
+            val media = match.media
+            dao.localCandidate(LocalCandidateRow(assetId, media.locator, media.displayName, media.directory,
+                media.bytes, media.pending, media.metadataVersion, match.evidence, "METADATA_ONLY_NOT_SOURCE_PROOF",
+                match.status, now.toString(), lease.epoch))
+        }
+        for ((assetId, assessment) in assessments) {
+            val replica = checkNotNull(dao.replica(assetId))
+            val crossClaim = assessment.matches.any { it.status !in setOf("MISSING", "UNAVAILABLE") &&
+                dao.otherCandidateOwners(it.media.locator, assetId) > 0 }
+            val presence = if (crossClaim) LocalPresence.AMBIGUOUS else assessment.presence
+            val oldState = TransferState.valueOf(replica.state)
+            val transferOwned = oldState in setOf(TransferState.PARTIAL, TransferState.TRANSFERRED_UNVERIFIED)
+            val state = when {
+                transferOwned -> oldState // metadata cannot erase actual transfer progress
+                presence == LocalPresence.PRESENT_UNVERIFIED -> TransferState.LOCAL_PRESENT_UNVERIFIED
+                presence == LocalPresence.ABSENT -> TransferState.DISCOVERED
+                else -> TransferState.NEEDS_REVALIDATION
+            }
+            val locator = if (transferOwned) replica.localLocator else if (presence == LocalPresence.PRESENT_UNVERIFIED)
+                assessment.matches.single { it.status == "CANDIDATE" }.media.locator else null
+            dao.replica(replica.copy(state = state.name, localPresence = presence.name, localLocator = locator))
+        }
+    }
+
+    private fun LocalCandidateRow.toMatch() = LocalMatch(
+        LocalMediaObservation(locator, displayName, directory, bytes, pending, metadataVersion), evidence, status)
 
     /** No public VERIFIED promotion exists. GATE-3 must provide actual integrity/publication proof. */
     fun recordProgress(lease: EnumerationLease, assetId: String, bytes: Long, finished: Boolean) = transaction {

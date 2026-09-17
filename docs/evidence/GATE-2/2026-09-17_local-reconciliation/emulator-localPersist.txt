@@ -1,0 +1,1 @@
+PASS: synthetic candidate reference persisted for process restart

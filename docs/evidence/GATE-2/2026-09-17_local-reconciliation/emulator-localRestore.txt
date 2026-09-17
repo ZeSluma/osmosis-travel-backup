@@ -1,0 +1,1 @@
+PASS: process restart retains candidate, evidence and unverified plan

@@ -1,10 +1,10 @@
 project: osmosis-travel-backup
-current_phase: gate_2_software_complete_hardware_pending
+current_phase: gate_2_local_reconciliation_software_verified_hardware_pending
 current_gate: GATE-2
 gate_status: BLOCKED
 gate_0_status: PASS
 gate_0_completed_date: "2026-09-17"
-hardware_session_status: ACTIVE_FIRST_ENUMERATION_AUDITED
+hardware_session_status: ACTIVE_AWAITING_RECONCILIATION_RECHECK
 hardware_resume_requires_explicit_return: true
 intent_rebase_status: ACCEPTED_IN_PRINCIPLE_RECONCILED
 intent_rebase_evidence: docs/evidence/GATE-1/2026-09-17_intent-rebase/INTENT_AUDIT.md
@@ -67,7 +67,7 @@ bootstrap_evidence: docs/evidence/GATE-0/2026-09-17_bootstrap/REPORT.md
 active_plan: docs/plans/active/GATE-2-LEDGER.md
 
 open_blockers:
-  - GATE-2 first physical enumeration/persisted ledger audited; repeat-scan/new-asset hardware checks pending. Legacy local copies are not linked or verified by the ledger; safe no-retransfer behavior for those copies is NOT_TESTED.
+  - GATE-2 schema3 local-candidate reconciliation software verified; S25 post-update candidate discovery/reference/restart and distinct enumeration-generation evidence remain NOT_TESTED. No re-download/deletion allowed.
 deferred_runtime_requirements:
   - G2 software ledger/credential migration/fencing tests pass; target HIL pending. G3 integrity/publication/storage reconciliation remains NOT_TESTED; SC01/SC02/SC08 hardware and broader crash coverage remain explicit.
   - G7 execution/network/privacy/permissions and separate session-loss or sleep observations; SC03-SC07 and X/N/GD tests remain pending independently of resumed G2 hardware work
@@ -164,31 +164,31 @@ release_allowed: false
 
 execution_policy: CONTINUOUS_DEFINED_NONDESTRUCTIVE_GATES
 execution_policy_source: AGENTS.md
-current_implementation_scope: GATE-2 persistent ledger and deterministic planning
+current_implementation_scope: GATE-2 persistent ledger, legacy local-candidate reconciliation and deterministic planning; no GATE-3 or GATE-7 implementation
 ledger_branch_parent: a58d858ecfd404579960d9a32960e151071f9fd3
 gate_1_status: PASS
 gate_2_status: BLOCKED
 gate_2_software_status: PASS
 gate_2_hardware_status: NOT_TESTED
-gate_2_hardware_progress: First rescan connection and two-asset persisted inventory observed; both DISCOVERED with REVALIDATE_IDENTITY plans, no legacy local-file adoption
+gate_2_hardware_progress: Pre-fix two-asset persisted stability PASS; same snapshot observed twice, no new generation independently proven; post-fix legacy-candidate HIL pending
 gate_2_hardware_evidence: docs/evidence/GATE-2/2026-09-17_hardware/REPORT.md
 gate_2_evidence: docs/evidence/GATE-2/2026-09-17_ledger/REPORT.md
 gate_2_decision: docs/decisions/0009-gate2-foundation-and-continuous-execution.md
+gate_2_local_reconciliation_decision: docs/decisions/0010-gate2-local-candidate-reconciliation.md
+gate_2_local_reconciliation_evidence: docs/evidence/GATE-2/2026-09-17_local-reconciliation/REPORT.md
+gate_2_local_reconciliation_software: PASS
+camera_liveness_requirement: R-042; GATE-7; docs/design/CAMERA_SESSION_LIVENESS.md; KA01-KA07 NOT_TESTED
 gate_2_feature_commit: 986e71a0cb90a6e780ebb5951fe04f9106099284
 gate_2_branch_publication: PUBLISHED_VERIFIED
 gate_2_verified_remote_code_tip: f4d39b9ec8012f5e109cf6293604b48e0a1777e4
 gate_2_final_functional_commit: 93576f6e53b9f4ee52d84a8cc9c63a66af92df48
-gate_2_unit_tests: 313 passed, zero failures/errors in authoritative LF checkout
+gate_2_unit_tests: 335 passed, zero failures/errors in authoritative LF source snapshot; includes22 local-candidate policy tests
 gate_2_lint: FAIL - five unchanged baseline errors; zero new errors
-gate_2_security: scoped B1 and ledger/Keystore/backup emulator checks PASS; no physical-device claim
+gate_2_security: scoped B1, ledger/Keystore, migration1/2-to-3, local-provider/association restart and audit privacy/corruption emulator checks PASS; physical local-candidate adoption not yet verified
 build_tool_dependency_debt: 44 OSV advisory IDs on 11 unchanged G1 build-classpath coordinates; no returned new/runtime advisory; reviewed build/CI remediation before release
 next_action: >-
-  User explicitly resumed hardware. S25 Ultra ADB, protected file sizes, published branch and APK SHA256 verified.
-  Verified APK installed without data clear; read-only audit confirms no ledger before initial camera connection.
-  Saved-entry reconnect failed while fresh rescan succeeded; root cause unconfirmed.
-  First persisted snapshot contains two DISCOVERED required assets; actual planner returns REVALIDATE_IDENTITY for both.
-  Neither existing local copy is linked/verified; do not claim no-retransfer acceptance or start a download to test it.
-  Continue read-only repeat-enumeration/path/identity persistence validation through normal camera reconnection.
-  No media deletion/re-download; overall GATE-2 remains BLOCKED pending mandatory evidence.
-  Gate2 remains BLOCKED until mandatory evidence is collected. Then reconstruct next defined gate under
-  continuous policy; no routine gate-boundary permission required. No main mutation, merge or release.
+  Publish the verified G2 reconciliation checkpoint and verify branch/main SHAs. Install the exact tested debug APK
+  without data clear, then ask only for normal Pocket rescan/reconnection with no download. Verify schema3,
+  new enumeration generation, stable two assets/groups/day/path, persistent local candidates and unverified planning;
+  verify restart and unchanged protected media. No G2 PASS until mandatory evidence is satisfied.
+  Keep saved-entry failure/rescan recovery and future G7 AP/keepalive work separate. No main mutation, merge or release.

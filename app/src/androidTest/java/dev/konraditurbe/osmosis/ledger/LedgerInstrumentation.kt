@@ -17,6 +17,8 @@ object LedgerInstrumentation {
         val zone = ZoneId.of("Europe/Berlin")
         var stage = "open"
         try {
+            if (phase == "localPersist") return LocalReconciliationInstrumentation.persist(context)
+            if (phase == "localRestore") return LocalReconciliationInstrumentation.restore(context)
             if (phase == "persist") {
                 val db = LedgerDatabase.open(context, "gate2-process.db")
                 val repo = LedgerRepository(db)
@@ -44,6 +46,8 @@ object LedgerInstrumentation {
             }
             stage = "credential-migration"
             CredentialInstrumentation.verify(context)
+            stage = "local-reconciliation"
+            LocalReconciliationInstrumentation.verify(context)
             val db = LedgerDatabase.open(context, "gate2-${System.nanoTime()}.db")
             var repo = LedgerRepository(db)
             stage = "empty"
@@ -190,13 +194,41 @@ object LedgerInstrumentation {
             sqlite.version=1; sqlite.close()
             val migrated=LedgerDatabase.open(context,name)
             check(migrated.ledger().source("association")?.ownerEpoch==7L)
-            check(migrated.openHelper.writableDatabase.version==2)
+            check(migrated.openHelper.writableDatabase.version==3)
+            check(migrated.ledger().replica("asset")?.localPresence=="NOT_SCANNED")
             check(migrated.ledger().replica("asset")?.committedLength==25L)
             check(migrated.ledger().replica("asset")?.relativePath=="2026-01-01/unknown.xyz")
             check(migrated.ledger().replica("asset")?.localLocator==null)
             check(migrated.ledger().asset("asset")?.classification=="UNKNOWN_POTENTIALLY_REQUIRED")
             check(migrated.ledger().members("group").single().required)
             migrated.close()
+            stage = "migration-two-to-three"
+            val name2="gate2-migration2-${System.nanoTime()}.db"
+            val schema2=JSONObject(instrumentation.context.assets.open("dev.konraditurbe.osmosis.ledger.LedgerDatabase/2.json").bufferedReader().use { it.readText() }).getJSONObject("database")
+            val sqlite2=SQLiteDatabase.openOrCreateDatabase(File(context.noBackupFilesDir,name2),null)
+            val entities2=schema2.getJSONArray("entities")
+            for(i in 0 until entities2.length()) {
+                val entity=entities2.getJSONObject(i); val table=entity.getString("tableName")
+                sqlite2.execSQL(entity.getString("createSql").replace("\${TABLE_NAME}",table))
+                val indices=entity.getJSONArray("indices")
+                for(j in 0 until indices.length()) sqlite2.execSQL(indices.getJSONObject(j).getString("createSql").replace("\${TABLE_NAME}",table))
+            }
+            val setup2=schema2.getJSONArray("setupQueries")
+            for(i in 0 until setup2.length()) sqlite2.execSQL(setup2.getString(i))
+            sqlite2.execSQL("INSERT INTO sources VALUES ('migration2','association2','UNCERTAIN','fake',7)")
+            sqlite2.execSQL("INSERT INTO recordings VALUES ('group2','migration2','fake',1,'2026-01-01T12:00','CAMERA_CAPTURE',NULL,'2026-01-01','CAMERA_LOCAL_ZONE_UNKNOWN','UNCERTAIN',0)")
+            sqlite2.execSQL("INSERT INTO assets VALUES ('asset2','migration2','group2','fp2','fake','unknown.xyz',100,NULL,'UNKNOWN',NULL,NULL,'UNKNOWN_POTENTIALLY_REQUIRED','UNCLASSIFIED',1,7)")
+            sqlite2.execSQL("INSERT INTO members VALUES ('group2','member2','asset2',1)")
+            sqlite2.execSQL("INSERT INTO replicas VALUES ('asset2','PHONE_LOCAL','2026-01-01/unknown.xyz','PARTIAL',25,7,'content://synthetic/partial')")
+            sqlite2.version=2; sqlite2.close()
+            val migrated2=LedgerDatabase.open(context,name2)
+            check(migrated2.openHelper.writableDatabase.version==3)
+            val replica2=checkNotNull(migrated2.ledger().replica("asset2"))
+            check(replica2.localPresence=="NOT_SCANNED" && replica2.state=="PARTIAL" && replica2.committedLength==25L)
+            check(replica2.localLocator=="content://synthetic/partial" && replica2.relativePath=="2026-01-01/unknown.xyz")
+            check(migrated2.ledger().localCandidates("asset2").isEmpty())
+            check(migrated2.ledger().members("group2").single().required)
+            migrated2.close()
             stage = "unsupported-version-preserved"
             val unsupported=SQLiteDatabase.openDatabase(File(context.noBackupFilesDir,name).absolutePath,null,SQLiteDatabase.OPEN_READWRITE)
             unsupported.version=99;unsupported.close()
@@ -207,9 +239,10 @@ object LedgerInstrumentation {
             check(retained.version==99)
             retained.rawQuery("SELECT committedLength FROM replicas WHERE assetId='asset'",null).use { check(it.moveToFirst() && it.getLong(0)==25L) }
             retained.close()
-            return "PASS: empty, required members/audio, idempotence, plans, partial/unverified, recreation, new/removed, photo/RAW/metadata/excluded, identity, fencing, incomplete/failure, FK/rollback, migration"
-        } catch (_: Throwable) {
-            throw IllegalStateException("GATE2_ASSERTION_$stage") // synthetic stage only; no SQL or values
+            return "PASS: empty, required members/audio, idempotence, plans, partial/unverified, recreation, new/removed, photo/RAW/metadata/excluded, identity, fencing, incomplete/failure, FK/rollback, migrations1/2-to-3, local candidates/provider changes, audit privacy/corruption; synthetic provider indexed-size lag observed=${LocalReconciliationInstrumentation.providerSizeLagObserved}"
+        } catch (error: Throwable) {
+            val localStage=error.message?.takeIf { it.matches(Regex("SYNTHETIC_LOCAL_[A-Z_]+")) }
+            throw IllegalStateException("GATE2_ASSERTION_$stage${localStage?.let { ":$it" } ?: ""}") // allowlisted synthetic stage only
         }
     }
 }
