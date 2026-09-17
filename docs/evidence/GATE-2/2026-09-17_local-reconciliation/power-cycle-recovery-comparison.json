@@ -1,0 +1,15 @@
+{
+  "Comparison": "empty generation to recovered generation after app process restart and user camera power cycle",
+  "StableAssetGroupDestinationLocalReferenceStateAndPolicy": true,
+  "AssetCount": 2,
+  "PreviousSnapshotCount": 3,
+  "CurrentSnapshotCount": 4,
+  "BothAssetsInLatestSnapshot": true,
+  "HistoricalSnapshotsRetained": true,
+  "LatestSnapshotStillIncomplete": true,
+  "MediaStatBytes": [
+    38447651,
+    3071380142
+  ],
+  "ContentIntegrityVerified": false
+}

@@ -1,5 +1,9 @@
 # GATE-2 target-hardware validation — active session
 
+## Latest checkpoint (supersedes pending statements in historical sections below)
+
+Verified schema3 reconciliation APK installed; target legacy-local adoption, repeated enumeration without duplicate assets, and persisted asset/group/capture-path/local-reference/state stability across app process restart PASS for the2 known videos. Both retain one local candidate and VERIFY_EXISTING, never LOCAL_VERIFIED. Protected sizes38447651 and3071380142 unchanged. [Recovery/persistence evidence](CAMERA_UNREACHABLE_UNTIL_POWER_CYCLE.md) links exact audit and comparisons. New-media planning and capture-time/type/relationship hardware disposition remain open; overall G2 BLOCKED. Saved-entry reconnect, connected-but-empty enumeration and camera-unreachable-until-power-cycle are three separate findings; causes unconfirmed, future G7 investigation. Earlier missing-local-association findings below are historical, superseded by schema3 evidence; do not erase original failures.
+
 The user explicitly resumed non-destructive S25 Ultra + Pocket 4P validation on 2026-09-17. Prior pause is lifted for this scope. No real-media re-download, deletion, overwrite or content inspection is needed for the initial ledger checks. GATE-2 remains BLOCKED pending required observations; hardware is NOT_TESTED except the preflight facts below. Historical sleep/background/foreground root-cause uncertainty is unchanged.
 
 ## Preflight
