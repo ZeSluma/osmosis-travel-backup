@@ -96,10 +96,32 @@ object LedgerInstrumentation {
             repo.reconcile(changed,listOf(photo.copy(size=61),photo.copy(remoteTime="changed")),now,zone)
             check(db.ledger().assets(changed.snapshotId).size==2)
             check(db.ledger().recordingCount()>=5)
+            stage = "uncertain-identical-reuse"
+            val reuse=repo.begin("source","4","fake",now)
+            val countBeforeReuse=db.ledger().assetCount()
+            repo.reconcile(reuse,listOf(photo),now.plusSeconds(86400),ZoneId.of("Asia/Tokyo"))
+            check(db.ledger().assetCount()==countBeforeReuse)
+            check(repo.plan(reuse.snapshotId).items.single().action==PlanAction.REVALIDATE_IDENTITY)
+            check(db.ledger().asset(photo.identity(reuse.sourceId))!!.identityAmbiguous)
+            stage = "capture-days-and-parent-group"
+            val dates=repo.begin("dates","1","fake",now)
+            val dayA=primary.copy(path="original.mp4",memberKey="original.mp4",recordingKey="day-a",requiredMemberKeys=setOf("original.mp4","original.wav"),
+                capture=listOf(CaptureCandidate(TimeSource.CAMERA_CAPTURE,local=java.time.LocalDateTime.parse("2026-01-01T23:59:59"),trusted=true)))
+            val companion=dayA.copy(path="original.wav",memberKey="original.wav",mediaType="AUDIO",capture=emptyList())
+            val dayB=dayA.copy(path="next.mp4",memberKey="next.mp4",recordingKey="day-b",requiredMemberKeys=emptySet(),
+                capture=listOf(CaptureCandidate(TimeSource.CAMERA_CAPTURE,local=java.time.LocalDateTime.parse("2026-01-02T00:00:01"),trusted=true)))
+            repo.reconcile(dates,listOf(companion,dayB,dayA),now,zone)
+            val datePlan=repo.plan(dates.snapshotId)
+            check(datePlan.items.count { it.relativePath.startsWith("2026-01-01/") }==2)
+            check(datePlan.items.count { it.relativePath.startsWith("2026-01-02/") }==1)
+            repo.recordProgress(dates,dayA.identity(dates.sourceId),25,false)
+            repo=LedgerRepository(db)
+            repo.reconcile(dates,listOf(dayA,companion,dayB),now.plusSeconds(86400),ZoneId.of("Pacific/Honolulu"))
+            check(repo.plan(dates.snapshotId).items.map { it.relativePath }==datePlan.items.map { it.relativePath })
             stage = "failure-incomplete"
-            repo.finish(changed,now,true,true,true,true,failed=true)
-            check(!repo.plan(changed.snapshotId).enumerationComplete)
-            check(runCatching { repo.reconcile(changed,listOf(photo),now,zone) }.isFailure)
+            repo.finish(reuse,now,true,true,true,true,failed=true)
+            check(!repo.plan(reuse.snapshotId).enumerationComplete)
+            check(runCatching { repo.reconcile(reuse,listOf(photo),now,zone) }.isFailure)
             stage = "rollback-and-foreign-key"
             val before=db.ledger().assetCount()
             check(runCatching { db.runInTransaction {
