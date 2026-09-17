@@ -1,17 +1,19 @@
 # Security
 
+Current execution policy (2026-09-17): GATE-2 implementation is authorized; AGENTS.md now permits continuous progression through sufficiently defined non-destructive gates after dependency/evidence checks. Earlier statements requiring a new permission solely at a gate boundary are historical and superseded. Hardware remains paused; no main mutation, merge, release or real deletion is authorized. Current implementation/evidence status is PROJECT_STATE.yaml and the active GATE-2 plan.
+
 ## Intent rebase threat/disposition review — 2026-09-17
 
 GATE-1 PASS after the narrowly authorized B1/B2 fixes and verification in [ADR0008](decisions/0008-b1-b2-security-remediation.md) and [implementation evidence](evidence/GATE-1/2026-09-17_B1-B2/REPORT.md). External launcher test commands are removed; saved-camera shortcut hints require validation and user confirmation. Kotlin2.4.20 is actually resolved and tested. Broader credential/cleartext/logging architecture remains deferred to its assigned gates; no blanket production-security or release approval.
 
 | Boundary / threat | Required disposition before implementation/release acceptance |
 |---|---|
-| Camera credentials in ordinary private prefs | Selected per-camera Keystore AES-GCM blob and opaque ledger reference; crash-safe verified migration and invalidation/re-pair contract; explicit backup/D2D exclusions. Not implemented; SC01/SC02 |
+| Camera credentials in ordinary private prefs | G2 implements per-camera Keystore AES-GCM blobs, crash-safe lazy migration and explicit backup/D2D exclusions; scoped synthetic SC01/SC02 checks pass. Actual S25 key/OEM behavior remains NOT_TESTED; see ADR0009. |
 | Local cleartext and hostile camera/LAN input | Selected default-deny with finite exact-IP exception plus per-Network host/port/path and redirect guards; XML cannot enforce interface/CIDR/port. AOSP supports exact literal matching; target-client enforcement remains SC03/N tests |
 | Non-exported execution host, launcher/debug extras, intents/provider | Inventory exported components and existing test hooks; explicit immutable notification intents, input validation and least privilege; never let arbitrary intent claim verification/trigger delete |
 | Logs/crash reports/media metadata | Typed event allowlist, reason confidence, no raw packet/exception/URL/credential/GPS/content; test secrets injected at all error paths. Disable unsolicited telemetry; export only sanitized bundle |
 | Ledger and filesystem mutation/crash | Canonical transactional truth, fenced writers, no adopt-by-name, cross-system journal, no destructive migrations; valid replica cannot be overwritten by partial |
-| Kotlin advisory / new Room toolchain | B2 CLOSED: actual KGP2.4.20 resolution, successful compilation and273 LF unit tests; five baseline lint errors remain, no new errors. No processor installed; future Room/processor needs a separate review |
+| Kotlin advisory / new Room toolchain | B2 CLOSED: actual KGP2.4.20 resolution, successful compilation and273 LF unit tests; five baseline lint errors remain, no new errors. G2 adds reviewed Room2.8.5/KSP2.3.12 with resolved Kotlin2.4.20 and313 LF tests; expanded build-tool advisory debt is documented separately |
 | CI/signing | Mutable action/cache trust and artifact verification review, least-privilege tokens, no fork reuse of upstream signing, fork release signing separate; no secrets printed/requested/rotated |
 | Cloud/SSD | Separate tokens/SAF grants and replica verification, cloud TLS independent of cleartext camera, no routing leakage; local success independent of remote services |
 | Platform permission changes | Consent/denial/revocation distinct from camera authentication; future target37 local-network migration tested, not premature current manifest addition |
@@ -108,3 +110,7 @@ Missing fork release signing is a release blocker, not by itself a GATE 0 blocke
 ## GATE-1 verification started
 
 [Initial read-only verification](evidence/GATE-1/2026-09-17_initial-verification/REPORT.md) and [closure review](evidence/GATE-1/2026-09-17_security-closure/REPORT.md) are historical; [B1/B2 evidence](evidence/GATE-1/2026-09-17_B1-B2/REPORT.md) closes their blockers. Both current merged variants contain six components, with the AndroidX profiling receiver protected by DUMP. Scoped emulator checks do not constitute S25/Pocket runtime proof. Broader bounded diagnostics, GPS separation, ledger classification and future controls retain their reviewed designs and deferred tests.
+
+## GATE-2 scoped verification
+
+[ADR0009](decisions/0009-gate2-foundation-and-continuous-execution.md) implements the ledger/credential/backup foundation and records scoped emulator tests. B1/B2 remain verified. Expanded resolved-coordinate review identifies44 advisories on11 unchanged G1 build-only coordinates; see the G2 report for scope and deferred CI/toolchain remediation. This is not a blanket all-history/runtime security certificate. Real hardware/Keystore/OEM D2D and broader all-sink logging/network controls remain unverified at their assigned boundaries.

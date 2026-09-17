@@ -1,7 +1,7 @@
 project: osmosis-travel-backup
-current_phase: gate_1_complete_awaiting_gate_2_authorization
-current_gate: GATE-1
-gate_status: PASS
+current_phase: gate_2_software_complete_hardware_pending
+current_gate: GATE-2
+gate_status: BLOCKED
 gate_0_status: PASS
 gate_0_completed_date: "2026-09-17"
 hardware_session_status: PAUSED_BY_USER
@@ -14,10 +14,10 @@ gate_order_decision: docs/decisions/0005-gate-safety-and-optional-features.md
 gate_1_entry_status: BOOTSTRAP_COMPLETE
 gate_1_review_phase: COMPLETE_B1_B2_VERIFIED
 gate_1_completed_date: "2026-09-17"
-working_branch: gate-1/security-foundation
+working_branch: gate-2/persistent-ledger-sync-planner
 security_branch_parent: efb4830e435b1efeef7a6de56fde0ea609806171
 security_implementation_scope: B1_B2_ONLY_COMPLETED
-general_product_implementation_authorized: false
+general_product_implementation_authorized: true
 b1_status: CLOSED
 b2_status: CLOSED
 b1_commit: 7ed2a4afbb1dc1585b48f1693914076e792a4fed
@@ -64,11 +64,12 @@ bootstrap_commit: "81aef44d580c71e0d8ea9a26fdd26b48e44d535a"
 bootstrap_publication_verified_at: "2026-09-17T08:32:26Z"
 bootstrap_evidence: docs/evidence/GATE-0/2026-09-17_bootstrap/REPORT.md
 
-active_plan: docs/plans/active/GATE-1-SECURITY-ARCHITECTURE.md
+active_plan: docs/plans/active/GATE-2-LEDGER.md
 
-open_blockers: []
+open_blockers:
+  - GATE-2 target S25 Ultra/Pocket4P validation NOT_TESTED; physical session remains paused pending explicit user return
 deferred_runtime_requirements:
-  - G2/G3 credential and ledger migration, integrity, fencing and storage reconciliation; SC01/SC02/SC08
+  - G2 software ledger/credential migration/fencing tests pass; target HIL pending. G3 integrity/publication/storage reconciliation remains NOT_TESTED; SC01/SC02/SC08 hardware and broader crash coverage remain explicit.
   - G7 execution/network/privacy/permissions and separate session-loss or sleep observations; SC03-SC07 and X/N/GD tests; hardware remains paused
   - G4 complete inventory, asset identity, required recording members and capture-day hardware evidence
   - G5/G6 replica independence and TLS routing; G9 destructive authorization/capability proof remains NOT_TESTED and unauthorized
@@ -95,7 +96,7 @@ baseline_debt:
   - camera-side sleep is a separate low-confidence observation; trigger, connection effects and active-transfer exposure not verified
   - FOREGROUND_SESSION_DROP observed with awake camera and foreground app; not sleep/background attributed, manual recovery outcome pending
 gate_1_security_tasks:
-  - B1 CLOSED through narrow hardening and scoped SC09 evidence; further product work unauthorized
+  - B1 CLOSED; G2 regression retains SC09. Continuous defined-gate execution is authorized under current AGENTS policy.
   - B2 CLOSED through resolved Kotlin2.4.20 and SC10 build/unit/lint verification
   - enforce reviewed credential, cleartext, logging and coarse/fine permission designs through assigned later-gate SC tests
   - apply reviewed CI trust/pinning, dependency verification and fork-signing policy before release; no secrets accessed
@@ -121,7 +122,7 @@ baseline_results:
 release_blockers:
   - fork-specific release signing has not yet been established; future release prerequisite, not a GATE-0 blocker
 
-security_status: GATE_1_REVIEW_AND_B1_B2_PASS_WITH_DEFERRED_CONTROLS
+security_status: GATE_2_SCOPED_SOFTWARE_REGRESSION_PASS_HARDWARE_PENDING
 
 required_evidence:
   - current repository identity and upstream boundary
@@ -158,9 +159,29 @@ completed_evidence:
   - B2 closed by resolved Kotlin2.4.20, debug/release compilation and265 original plus8 security LF tests; exactly five baseline lint errors retained, zero new errors
   - GATE-1 PASS under ADR0008; general product implementation and release remain unauthorized, no automatic GATE-2 start
 
-implementation_authorized: false
+implementation_authorized: true
 release_allowed: false
 
+execution_policy: CONTINUOUS_DEFINED_NONDESTRUCTIVE_GATES
+execution_policy_source: AGENTS.md
+current_implementation_scope: GATE-2 persistent ledger and deterministic planning
+ledger_branch_parent: a58d858ecfd404579960d9a32960e151071f9fd3
+gate_1_status: PASS
+gate_2_status: BLOCKED
+gate_2_software_status: PASS
+gate_2_hardware_status: NOT_TESTED
+gate_2_evidence: docs/evidence/GATE-2/2026-09-17_ledger/REPORT.md
+gate_2_decision: docs/decisions/0009-gate2-foundation-and-continuous-execution.md
+gate_2_feature_commit: 986e71a0cb90a6e780ebb5951fe04f9106099284
+gate_2_branch_publication: PUBLISHED_VERIFIED
+gate_2_verified_remote_code_tip: f4d39b9ec8012f5e109cf6293604b48e0a1777e4
+gate_2_final_functional_commit: 93576f6e53b9f4ee52d84a8cc9c63a66af92df48
+gate_2_unit_tests: 313 passed, zero failures/errors in authoritative LF checkout
+gate_2_lint: FAIL - five unchanged baseline errors; zero new errors
+gate_2_security: scoped B1 and ledger/Keystore/backup emulator checks PASS; no physical-device claim
+build_tool_dependency_debt: 44 OSV advisory IDs on 11 unchanged G1 build-classpath coordinates; no returned new/runtime advisory; reviewed build/CI remediation before release
 next_action: >-
-  Await explicit GATE-2 product implementation authorization. B1/B2 scope is complete; no automatic extension.
-  Physical S25/Pocket hardware remains paused pending explicit return. No merge or release authorized.
+  Await explicit physical hardware return: connect S25 Ultra with USB debugging and power on Pocket4P.
+  Verify current APK and conduct the non-destructive GATE-2 HIL checklist. No media deletion/re-download.
+  Gate2 remains BLOCKED until mandatory evidence is collected. Then reconstruct next defined gate under
+  continuous policy; no routine gate-boundary permission required. No main mutation, merge or release.

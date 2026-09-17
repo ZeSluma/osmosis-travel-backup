@@ -1,5 +1,7 @@
 # Quality Gates
 
+Current execution policy (2026-09-17): GATE-2 implementation is authorized; AGENTS.md now permits continuous progression through sufficiently defined non-destructive gates after dependency/evidence checks. Earlier statements requiring a new permission solely at a gate boundary are historical and superseded. Hardware remains paused; no main mutation, merge, release or real deletion is authorized. Current implementation/evidence status is PROJECT_STATE.yaml and the active GATE-2 plan.
+
 ## 2026-09-17 intent rebase notice
 
 The user accepted order **0 -> 1 -> 2 -> 3 -> 7 -> 4 -> (5,6) -> 8**, retaining all gate IDs and historical evidence. [ADR0005](decisions/0005-gate-safety-and-optional-features.md) records adoption; [dependency graph and accepted scopes](plans/REVISED_GATE_DEPENDENCIES.md) govern execution. GATE-7 precedes GATE-4 because autonomous one-tap backup requires proven lifecycle-safe execution, automatic reconnect and recoverable synchronization. Sections remain in numeric ID order for lookup, not execution. GATE-0 remains baseline reproduction, not product-completeness approval. R-016..R-041 and TEST_MATRIX define current additions.

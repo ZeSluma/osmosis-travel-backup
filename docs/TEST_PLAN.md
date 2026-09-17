@@ -1,5 +1,7 @@
 # Test Plan
 
+Current execution policy (2026-09-17): GATE-2 implementation is authorized; AGENTS.md now permits continuous progression through sufficiently defined non-destructive gates after dependency/evidence checks. Earlier statements requiring a new permission solely at a gate boundary are historical and superseded. Hardware remains paused; no main mutation, merge, release or real deletion is authorized. Current implementation/evidence status is PROJECT_STATE.yaml and the active GATE-2 plan.
+
 ## Security closure test obligations
 
 [Closure checklist and proof ownership](evidence/GATE-1/2026-09-17_security-closure/REPORT.md) supplements TEST_MATRIX. SC09 and SC10 have scoped PASS evidence in the B1/B2 report and ADR0008: eight policy tests, empty-emulator launcher tests, debug/release manifests/compilation, resolved Kotlin2.4.20, 265 baseline tests plus eight security tests, and no new lint errors. SC01-SC08 remain NOT_TESTED; physical hardware remains paused. New processor compatibility is reviewed if a processor is later introduced.
@@ -120,3 +122,7 @@ Each run should include enough information to reproduce:
 - results
 - relevant sanitized logs
 - conclusion
+
+## GATE-2 executed software scope
+
+[Evidence](evidence/GATE-2/2026-09-17_ledger/REPORT.md) records313 LF unit tests, real Room emulator migration/constraints/rollback/full/corruption/restart checks and synthetic Keystore SC01/SC02 cases. This does not mark OEM D2D, physical S25/Pocket integration or SC03-SC08 broader later-gate behavior PASS. G2 status remains BLOCKED for mandatory HIL; read HARDWARE_PENDING before resuming.

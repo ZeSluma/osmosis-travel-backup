@@ -1,5 +1,7 @@
 # Risk Register
 
+Current execution policy (2026-09-17): GATE-2 implementation is authorized; AGENTS.md now permits continuous progression through sufficiently defined non-destructive gates after dependency/evidence checks. Earlier statements requiring a new permission solely at a gate boundary are historical and superseded. Hardware remains paused; no main mutation, merge, release or real deletion is authorized. Current implementation/evidence status is PROJECT_STATE.yaml and the active GATE-2 plan.
+
 ## GATE-1 closure additions
 
 [Closure evidence](evidence/GATE-1/2026-09-17_security-closure/REPORT.md) and ADR0007 supersede pending-review wording for design choices; existing runtime uncertainties remain.
@@ -68,3 +70,7 @@ RISK-013/024 resolved design: exact-IP policy plus scoped transport, not global 
 ## Finding-to-requirement separation
 
 APP_BACKGROUND_SESSION_LOSS maps to R17/R28; AUTO_RECONNECT and AUTO_RESUME map separately to R18; observed FILE/MEDIASTORE persistence does not resolve UI recognition (R3/R4/R16). Foreground drop maps to R28/RISK-019, with SESSION_STATE_DESYNC only a candidate. CAMERA_SLEEP_OR_IDLE remains unverified R36/RISK-016. Intentional WIFI_NETWORK_LOSS in TEST E is not camera sleep. CAMERA_POWER_OFF, BLE_SESSION_LOSS, ANDROID_PROCESS_DEATH, ANDROID_JOB_OR_SERVICE_STOP, PERMISSION_REVOKED, CREDENTIAL_CHANGED, CAMERA_REQUIRES_USER_CONFIRMATION and STORAGE_FAILURE each retain separate prospective reason/test entries in STATE_MACHINES/TEST_MATRIX; their presence there is not a claim they were observed. No root cause finalized during hardware pause.
+
+## GATE-2 disposition
+
+RISK-020/021/022/023/031/032 now have software foundation evidence under GATE-2 (transactional fencing, preserved uncertainty, group/path persistence, rollback/migration/corruption tests). Target hardware remains NOT_TESTED; no lifecycle, complete-inventory, integrity or physical folder claim. RISK-008 expanded review found44 advisory IDs on11 unchanged parent build-tool coordinates; no returned advisory on new coordinates/runtime graph. Retain this debt for reviewed CI/toolchain remediation before release; do not mistake the limited G1 coordinate scan for a full transitive audit.

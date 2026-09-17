@@ -1,0 +1,57 @@
+[
+  {
+    "coordinate": "androidx.annotation:annotation-experimental",
+    "previous": "1.4.0",
+    "current": "1.5.0"
+  },
+  {
+    "coordinate": "androidx.annotation:annotation-jvm",
+    "previous": "1.6.0",
+    "current": "1.9.1"
+  },
+  {
+    "coordinate": "androidx.collection:collection-jvm",
+    "previous": null,
+    "current": "1.5.0"
+  },
+  {
+    "coordinate": "androidx.room:room-common-jvm",
+    "previous": null,
+    "current": "2.8.5"
+  },
+  {
+    "coordinate": "androidx.room:room-runtime-android",
+    "previous": null,
+    "current": "2.8.5"
+  },
+  {
+    "coordinate": "androidx.sqlite:sqlite-android",
+    "previous": null,
+    "current": "2.6.2"
+  },
+  {
+    "coordinate": "androidx.sqlite:sqlite-framework-android",
+    "previous": null,
+    "current": "2.6.2"
+  },
+  {
+    "coordinate": "org.jetbrains.kotlinx:kotlinx-coroutines-android",
+    "previous": "1.6.4",
+    "current": "1.8.1"
+  },
+  {
+    "coordinate": "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm",
+    "previous": "1.6.4",
+    "current": "1.8.1"
+  },
+  {
+    "coordinate": "org.jetbrains:annotations",
+    "previous": "13.0",
+    "current": "23.0.0"
+  },
+  {
+    "coordinate": "org.jspecify:jspecify",
+    "previous": null,
+    "current": "1.0.0"
+  }
+]

@@ -1,0 +1,100 @@
+[
+  {
+    "variant": "debug",
+    "type": "activity",
+    "name": "dev.konraditurbe.osmosis.ui.MainActivity",
+    "exported": "true",
+    "permission": ""
+  },
+  {
+    "variant": "debug",
+    "type": "activity",
+    "name": "dev.konraditurbe.osmosis.ui.MediaPreviewActivity",
+    "exported": "false",
+    "permission": ""
+  },
+  {
+    "variant": "debug",
+    "type": "service",
+    "name": "dev.konraditurbe.osmosis.rsdk.GpsService",
+    "exported": "false",
+    "permission": ""
+  },
+  {
+    "variant": "debug",
+    "type": "provider",
+    "name": "androidx.core.content.FileProvider",
+    "exported": "false",
+    "permission": ""
+  },
+  {
+    "variant": "debug",
+    "type": "service",
+    "name": "androidx.room.MultiInstanceInvalidationService",
+    "exported": "false",
+    "permission": ""
+  },
+  {
+    "variant": "debug",
+    "type": "provider",
+    "name": "androidx.startup.InitializationProvider",
+    "exported": "false",
+    "permission": ""
+  },
+  {
+    "variant": "debug",
+    "type": "receiver",
+    "name": "androidx.profileinstaller.ProfileInstallReceiver",
+    "exported": "true",
+    "permission": "android.permission.DUMP"
+  },
+  {
+    "variant": "release",
+    "type": "activity",
+    "name": "dev.konraditurbe.osmosis.ui.MainActivity",
+    "exported": "true",
+    "permission": ""
+  },
+  {
+    "variant": "release",
+    "type": "activity",
+    "name": "dev.konraditurbe.osmosis.ui.MediaPreviewActivity",
+    "exported": "false",
+    "permission": ""
+  },
+  {
+    "variant": "release",
+    "type": "service",
+    "name": "dev.konraditurbe.osmosis.rsdk.GpsService",
+    "exported": "false",
+    "permission": ""
+  },
+  {
+    "variant": "release",
+    "type": "provider",
+    "name": "androidx.core.content.FileProvider",
+    "exported": "false",
+    "permission": ""
+  },
+  {
+    "variant": "release",
+    "type": "service",
+    "name": "androidx.room.MultiInstanceInvalidationService",
+    "exported": "false",
+    "permission": ""
+  },
+  {
+    "variant": "release",
+    "type": "provider",
+    "name": "androidx.startup.InitializationProvider",
+    "exported": "false",
+    "permission": ""
+  },
+  {
+    "variant": "release",
+    "type": "receiver",
+    "name": "androidx.profileinstaller.ProfileInstallReceiver",
+    "exported": "true",
+    "permission": "android.permission.DUMP"
+  }
+]

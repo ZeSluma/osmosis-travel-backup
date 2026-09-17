@@ -1,0 +1,62 @@
+{
+  "date": "2026-09-17",
+  "parent": "a58d858ecfd404579960d9a32960e151071f9fd3",
+  "functional_commit": "93576f6e53b9f4ee52d84a8cc9c63a66af92df48",
+  "test_commit": "f4d39b9ec8012f5e109cf6293604b48e0a1777e4",
+  "main": "2fcdbc97e6dbefc875d425368be67cf32b50bb06",
+  "gradle_flags": "--no-build-cache --console=plain --no-daemon",
+  "lf_checkout": true,
+  "gradle_configuration": "PASS",
+  "assembleDebug": "PASS",
+  "compileReleaseKotlin": "PASS",
+  "unit_tests": {
+    "tests": 313,
+    "errors": 0,
+    "failures": 0
+  },
+  "final_regression": {
+    "exit": 0,
+    "duration_seconds": 39
+  },
+  "lint": {
+    "hints": 2,
+    "warnings": 78,
+    "new_errors": 0,
+    "duration_seconds": 34,
+    "exit": 1,
+    "errors": 5
+  },
+  "emulator": {
+    "process_restart": "PASS",
+    "api": 36,
+    "stopped": true,
+    "room_suite": "PASS",
+    "launcher_security": "PASS",
+    "serial": "emulator-5580",
+    "backup_manager": "Backup is not allowed",
+    "credential_suite": "PASS",
+    "abi": "x86_64"
+  },
+  "hardware": "NOT_TESTED_PAUSED",
+  "apk": {
+    "file": "app-debug.apk",
+    "versionName": "1.4.4",
+    "package": "dev.konraditurbe.osmosis",
+    "sha256": "461C05C4462D0F8F85F776425D2470707C975731C41F5E5FEA4201657ECE89A1",
+    "versionCode": 29
+  },
+  "secrets_scan": {
+    "tool": "gitleaks8.30.1",
+    "redacted": true,
+    "findings": 0,
+    "commits": 4
+  },
+  "osv": {
+    "distinct_advisories": 44,
+    "unchanged_build_only_affected_coordinates": 11,
+    "coordinates": 226,
+    "new_runtime_findings": 0
+  },
+  "release_allowed": false,
+  "gate_status": "BLOCKED_HARDWARE"
+}

@@ -1,5 +1,7 @@
 # Ledger, identity, replica and integrity design
 
+GATE-2 update: [ADR0009](../decisions/0009-gate2-foundation-and-continuous-execution.md) and [software evidence](../evidence/GATE-2/2026-09-17_ledger/REPORT.md) identify the implemented subset: Room schema/migration, candidate identity, recording members, capture/path reservations, fenced reconciliation and deterministic plans. The broader transfer/publication/replica/cleanup design below remains later work. Hardware is NOT_TESTED; no verifier or full-source completeness is claimed.
+
 Status: proposed schema/algorithms, not implemented. R-003 through R-006 and R-019 through R-026. No new dependency. Canonical truth is a transactional ledger reconciled against bytes and source evidence; UI/MediaStore alone cannot establish synchronization.
 
 ## Persistence choice and ownership

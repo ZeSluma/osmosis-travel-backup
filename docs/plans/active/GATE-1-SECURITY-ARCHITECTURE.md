@@ -1,4 +1,6 @@
-# Active Plan — GATE 1 Security and Architecture
+# Closed Plan — GATE 1 Security and Architecture
+
+Retained for traceability. Current plan is GATE-2-LEDGER.md. The later explicit GATE-2 request and global continuous policy supersede the historical authorization wait below; G1 PASS evidence is unchanged.
 
 Status: **PASS** under [ADR0008](../../decisions/0008-b1-b2-security-remediation.md). The user explicitly authorized only B1/B2 security implementation on gate-1/security-foundation; [verification evidence](../../evidence/GATE-1/2026-09-17_B1-B2/REPORT.md) closes both blockers. This scope is complete. Await explicit GATE-2 authorization; no automatic functional extension. The prior read-only blocked result remains historical.
 

@@ -1,0 +1,32 @@
+[
+  {
+    "rule": "CoarseFineLocation",
+    "severity": "Error",
+    "file": "app\\src\\main\\AndroidManifest.xml",
+    "line": "13"
+  },
+  {
+    "rule": "UseAppTint",
+    "severity": "Error",
+    "file": "app\\src\\main\\res\\layout\\activity_preview.xml",
+    "line": "210"
+  },
+  {
+    "rule": "UseAppTint",
+    "severity": "Error",
+    "file": "app\\src\\main\\res\\layout\\activity_preview.xml",
+    "line": "219"
+  },
+  {
+    "rule": "UseAppTint",
+    "severity": "Error",
+    "file": "app\\src\\main\\res\\layout\\activity_preview.xml",
+    "line": "229"
+  },
+  {
+    "rule": "UseAppTint",
+    "severity": "Error",
+    "file": "app\\src\\main\\res\\layout\\item_camera.xml",
+    "line": "60"
+  }
+]
