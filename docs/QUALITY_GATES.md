@@ -1,5 +1,9 @@
 # Quality Gates
 
+## 2026-09-17 intent rebase notice
+
+The historical gate IDs/scopes below remain traceable. Their listed ordering is insufficient for the clarified product contract: lifecycle-safe ownership and automatic recovery must precede one-tap acceptance. See [explicit revised dependency proposal](plans/REVISED_GATE_DEPENDENCIES.md). It proposes order 0,1,2,3,7,4,(5,6),8 while retaining IDs; adoption is pending review, no silent renumbering. Regardless of adoption, GATE-4 cannot claim reliable one-open synchronization without the GATE-7 lifecycle/recovery criteria and complete recording/snapshot verification. Requirements R-016..R-036 and TEST_MATRIX provide the reviewable delta. GATE-0 remains a disclosed-limitation baseline, not product-completeness approval.
+
 ## Gate state model
 
 Each gate is one of:

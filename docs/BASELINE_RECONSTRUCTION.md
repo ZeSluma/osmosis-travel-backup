@@ -2,6 +2,8 @@
 
 ## 2026-09-17 reconciliation
 
+Final hardware evidence now completes GATE-0 as PASS for unchanged-baseline reproduction: [hardware report](evidence/GATE-0/2026-09-17_hardware/REPORT.md). Manual range resume, file persistence and MediaStore persistence passed; automatic reconnect, automatic resume and observed UI downloaded-state recognition after restart failed and remain baseline debt. Camera sleep is separate and not verified. The earlier historical hardware-pending statements below are superseded by this measured result; source lookup capability does not establish successful UI recognition.
+
 The [unchanged baseline run](evidence/GATE-0/2026-09-17_baseline/REPORT.md) now records a successful debug build, Windows golden-test failures and lint failures. Source confirms persisted resume URIs and MediaStore-based completed-copy detection; the historical stateless grid-tick roadmap observation below must not be generalized to all downloaded state. No durable project backup ledger exists. Hardware remains NOT_TESTED.
 
 Current fork and upstream main both match the historical candidate. Local governance initialization and refreshed observations are recorded in [the bootstrap report](evidence/GATE-0/2026-09-17_bootstrap/REPORT.md). The historical account below is preserved as history; its missing-governance statement describes the pre-bootstrap state. No build or hardware success is inferred from repository inspection.

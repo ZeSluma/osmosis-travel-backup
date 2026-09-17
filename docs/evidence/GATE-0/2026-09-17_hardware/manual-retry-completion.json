@@ -1,0 +1,15 @@
+{
+  "utc": "2026-09-17T10:06:34.6202878Z",
+  "exit": 0,
+  "rows": [
+    {
+      "size_bytes": 38447651,
+      "is_pending": 0
+    },
+    {
+      "size_bytes": 3071380142,
+      "is_pending": 0
+    }
+  ],
+  "query_error": false
+}

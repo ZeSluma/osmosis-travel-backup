@@ -1,13 +1,27 @@
 project: osmosis-travel-backup
-current_phase: baseline
-current_gate: GATE-0
-gate_status: BLOCKED
+current_phase: security_architecture_review
+current_gate: GATE-1
+gate_status: NOT_TESTED
+gate_0_status: PASS
+gate_0_completed_date: "2026-09-17"
+hardware_session_status: PAUSED_BY_USER
+hardware_resume_requires_explicit_return: true
+intent_rebase_status: DESIGN_DRAFT_REVIEW_REQUIRED
+intent_rebase_evidence: docs/evidence/GATE-1/2026-09-17_intent-rebase/INTENT_AUDIT.md
+gate_order_proposal: docs/plans/REVISED_GATE_DEPENDENCIES.md
+gate_order_proposal_status: PROPOSED_NOT_ADOPTED
+android_execution_recommendation: connectedDevice foreground service hosting a single fenced SyncCoordinator; HIL validation required
+network_ownership_recommendation: camera-specific Network adapters; sequential downstream replication default
+asset_inclusion_policy_status: USER_CONFIRMED
+asset_inclusion_policy: docs/design/ASSET_INCLUSION_POLICY.md
+redundancy_policy_status: USER_DECISION_PENDING
 
 upstream_repository: KonradIT/osmosis
 fork_repository: ZeSluma/osmosis-travel-backup
 
-known_good_version: null
-known_good_commit: null
+known_good_version: "1.4.4 (29), unchanged debug baseline with documented limitations"
+known_good_commit: "2fcdbc97e6dbefc875d425368be67cf32b50bb06"
+known_good_scope: GATE-0 baseline reproduction only; not production backup reliability or release approval
 
 baseline_candidate_commit: "2fcdbc97e6dbefc875d425368be67cf32b50bb06"
 baseline_candidate_requires_refresh: false
@@ -19,16 +33,34 @@ bootstrap_commit: "81aef44d580c71e0d8ea9a26fdd26b48e44d535a"
 bootstrap_publication_verified_at: "2026-09-17T08:32:26Z"
 bootstrap_evidence: docs/evidence/GATE-0/2026-09-17_bootstrap/REPORT.md
 
-active_plan: docs/plans/active/GATE-0-BASELINE.md
+active_plan: docs/plans/active/GATE-1-SECURITY-ARCHITECTURE.md
 
 open_blockers:
-  - Samsung Galaxy S25 Ultra + DJI Osmo Pocket 4P baseline hardware evidence has not yet been captured
+  - GATE-1 security and architecture criteria are not yet satisfied; functional implementation remains unauthorized
+  - execution/network recommendations and revised gate ordering require review; S25 lifecycle/concurrency and Pocket identity/inventory assumptions remain unverified
+  - required independent-replica policy for SAFE TO CLEAR CAMERA is not yet confirmed; signal must remain unavailable
+
+hardware_evidence: docs/evidence/GATE-0/2026-09-17_hardware/REPORT.md
+gate_1_architecture_tasks:
+  - address observed background/return camera reconnect failure with unchanged credentials; define background-transfer network and lifecycle requirements, separate from foreground TEST E
+  - automatically attempt safe reconnection to the known Pocket 4P after temporary network loss without repeated user interaction
+  - automatically continue interrupted active backup jobs after successful reconnection whenever safe; AUTO_RECONNECT and AUTO_RESUME observed FAIL in TEST E
+  - independently characterize camera-side sleep/standby, idle versus active-transfer exposure, detection and wake/session recovery; RISK-016, not merged into AUTO_RECONNECT
+  - address failed UI recognition of a completed original after process restart despite persistent file and completed MediaStore entry; do not infer UI persistence from source lookup code
+  - investigate separate FOREGROUND_SESSION_DROP with awake camera and foreground app; SESSION_STATE_DESYNC candidate, root cause unconfirmed, RISK-019
+
+camera_sleep_evidence: docs/evidence/GATE-0/2026-09-17_hardware/CAMERA_SLEEP.md
+camera_sleep_status: NOT_TESTED
 
 disposition_evidence: docs/evidence/GATE-0/2026-09-17_disposition/REPORT.md
 baseline_debt:
   - Windows CRLF golden-test sensitivity is ENVIRONMENT_SPECIFIC; isolated unchanged LF baseline passes all 265 tests
   - lintDebug remains FAIL; four UseAppTint errors are BASELINE_DEBT, CoarseFineLocation is deferred to GATE-1 permission review
   - existing transfer integrity and idempotency limitations remain documented; hardware transfers require independent verification
+  - background/return connection failure with unchanged credentials; AUTO_RECONNECT FAIL and AUTO_RESUME FAIL recorded separately
+  - FILE_PERSISTENCE PASS and MEDIASTORE_PERSISTENCE PASS; OSMOSIS_DOWNLOADED_STATE_RECOGNITION_AFTER_RESTART FAIL
+  - camera-side sleep is a separate low-confidence observation; trigger, connection effects and active-transfer exposure not verified
+  - FOREGROUND_SESSION_DROP observed with awake camera and foreground app; not sleep/background attributed, manual recovery outcome pending
 gate_1_security_tasks:
   - review permission correctness including coarse/fine location, logging/privacy, credential storage and cleartext scope
   - review Kotlin Gradle plugin advisory GHSA-r937-wjx7-w2jp; APPLICABLE_REDUCED_EXPOSURE in current local environment
@@ -43,7 +75,14 @@ baseline_results:
   testDebugUnitTest: FAIL
   testDebugUnitTest_lf_checkout: PASS
   lintDebug: FAIL
-  hardware: NOT_TESTED
+  hardware: PASS
+  hardware_scope: required unchanged-baseline observations complete; runtime failures retained as baseline debt
+  auto_reconnect: FAIL
+  auto_resume: FAIL
+  manual_range_resume: PASS
+  file_persistence: PASS
+  mediastore_persistence: PASS
+  osmosis_downloaded_state_recognition_after_restart: FAIL
 
 release_blockers:
   - fork-specific release signing has not yet been established; future release prerequisite, not a GATE-0 blocker
@@ -76,12 +115,14 @@ completed_evidence:
   - clean LF-preserving checkout of exact baseline passes 265 unit tests; original 14 CRLF failures differ only by CR characters
   - unchanged lint errors dispositioned as baseline debt or GATE-1 review; original lint FAIL retained
   - expanded redacted Gitleaks reachable-history scan finds no leaks; security baseline disposition recorded with limitations
-  - only mandatory remaining GATE-0 evidence category is actual target-hardware testing, subject to satisfactory results
+  - S25 Ultra Android 16 and Pocket 4 Pro install/connect/enumerate/normal-download/large-interruption/manual-resume observations persisted
+  - process restart retains completed file and MediaStore identity; UI downloaded-state recognition failure independently recorded
+  - GATE-0 accepted as unchanged-baseline reproducibility with disclosed debt; no implementation or release authorization
 
 implementation_authorized: false
 release_allowed: false
 
 next_action: >-
-  Collect actual S25 Ultra + Pocket 4P install/connect/browse/original-download/large-file/resume evidence
-  with independent transfer checks and sanitized diagnostics. Review results against GATE-0 criteria;
-  record any new hardware/security failures as blockers. No functional implementation or release is authorized.
+  Review the intent rebase, ADR0003/0004, ledger/asset/state-machine design and gate-order proposal;
+  resolve redundancy policy and approve validation scope before any implementation.
+  Hardware remains paused until explicit user return. No functional changes or release authorized.

@@ -71,6 +71,8 @@ Avoid ambiguous names such as:
 
 ## Hardware evidence
 
+Current hardware pause is recorded in PROJECT_STATE. A planning/documentation instruction does not implicitly resume phone/camera testing. Preserve unresolved runtime causes as unconfirmed and distinguish published evidence from uncommitted local observations. The 2026-09-17 intent rebase explicitly authorizes publishing the preserved evidence with one governance/planning commit; it does not authorize further media transfer or power/permission experiments.
+
 Hardware-required gates must state exact devices used.
 
 No hardware PASS by inference.

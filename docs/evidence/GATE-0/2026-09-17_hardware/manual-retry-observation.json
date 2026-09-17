@@ -1,0 +1,11 @@
+{
+  "utc": "2026-09-17T10:05:51.3276862Z",
+  "sizes_bytes": [
+    38447651,
+    3071380142
+  ],
+  "historical_allowlisted_events": [
+    "RESUME offset_MB=374",
+    "DONE saved=1 skipped=0 failed=0"
+  ]
+}

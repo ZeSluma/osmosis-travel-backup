@@ -1,5 +1,11 @@
 # Test Plan
 
+## Rebased acceptance matrix
+
+The authoritative proposed test additions are [TEST_MATRIX](design/TEST_MATRIX.md), tied to R-016..R-036 and the explicit [gate dependency proposal](plans/REVISED_GATE_DEPENDENCIES.md). Use fault-injectable state-machine boundaries, not tests that merely reproduce UI code. Every new case remains NOT_TESTED until executed and persisted. Current hardware session is PAUSED_BY_USER; do not run ADB, device setup, recording, power-setting changes or new transfers until explicit return.
+
+Source-level existence of reconnect/resume/MediaStore lookup is not a behavioral PASS. Keep observed foreground loss, Android background loss, sleep hypothesis, auto-reconnect, auto-resume and restart UI recognition distinct. No destructive source/format tests on current camera media. Source identity/recording-member completeness and notification/ledger truth are acceptance conditions, not optional late enhancements.
+
 ## Philosophy
 
 Testing is evidence for gate closure, not ceremony.

@@ -1,5 +1,23 @@
 # Security
 
+## Intent rebase threat/disposition review — 2026-09-17
+
+Design review in progress, not SECURITY PASS. Baseline behavior is preserved; all fixes require later authorization. [ADRs](decisions/0003-android-sync-execution.md), [network design](decisions/0004-camera-network-ownership.md) and [test matrix](design/TEST_MATRIX.md) define boundaries.
+
+| Boundary / threat | Required disposition before implementation/release acceptance |
+|---|---|
+| Camera credentials in ordinary private prefs | Credential-reference abstraction; evaluate Keystore-backed encryption at rest and invalidation/restore semantics; exclude secrets from logs, exports, backups and DB diagnostics; do not invent secure storage already present |
+| Local cleartext and hostile camera/LAN input | Evaluate narrow network-security configuration for actual numeric/dynamic endpoints, do not assume domain rules cover CIDR. Adapter endpoint allowlist, no cross-host redirect, bounded parser sizes/timeouts, range validation and per-Network routing; retain compatibility evidence before tightening |
+| Non-exported execution host, launcher/debug extras, intents/provider | Inventory exported components and existing test hooks; explicit immutable notification intents, input validation and least privilege; never let arbitrary intent claim verification/trigger delete |
+| Logs/crash reports/media metadata | Typed event allowlist, reason confidence, no raw packet/exception/URL/credential/GPS/content; test secrets injected at all error paths. Disable unsolicited telemetry; export only sanitized bundle |
+| Ledger and filesystem mutation/crash | Canonical transactional truth, fenced writers, no adopt-by-name, cross-system journal, no destructive migrations; valid replica cannot be overwritten by partial |
+| Kotlin advisory / new Room toolchain | Baseline plugin1.9.24 advisory remains applicable/reduced exposure; future compatible fix and Room processor choice need advisory/provenance/license/build review. No upgrade/dependency added now |
+| CI/signing | Mutable action/cache trust and artifact verification review, least-privilege tokens, no fork reuse of upstream signing, fork release signing separate; no secrets printed/requested/rotated |
+| Cloud/SSD | Separate tokens/SAF grants and replica verification, cloud TLS independent of cleartext camera, no routing leakage; local success independent of remote services |
+| Platform permission changes | Consent/denial/revocation distinct from camera authentication; future target37 local-network migration tested, not premature current manifest addition |
+
+Existing no-auto-delete and informational-only safe-clear invariants remain absolute. Unknown media types are not disposable. Rebase documentation does not authorize hashing/copying private media or conducting new hardware tests during pause.
+
 ## Security goal
 
 Protect media, credentials and user privacy while keeping the local camera workflow reliable.

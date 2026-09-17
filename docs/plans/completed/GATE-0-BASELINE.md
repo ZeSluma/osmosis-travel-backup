@@ -1,4 +1,6 @@
-# Active Plan — GATE 0 Baseline
+# Completed Plan — GATE 0 Baseline
+
+Completed 2026-09-17: PASS for unchanged-baseline reproducibility, with runtime failures carried forward as documented debt. Final evidence: `docs/evidence/GATE-0/2026-09-17_hardware/REPORT.md`. Acceptance criteria below are unchanged; this is not feature-completeness or release approval.
 
 ## Goal
 
