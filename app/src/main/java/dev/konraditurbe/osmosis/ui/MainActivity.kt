@@ -1050,6 +1050,7 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
                     // DJI-standard 9004+poke. Either guess can be wrong on an untested model, so if the
                     // handshake never lands we retry the alternate config and log which port answered.
                     var ledgerEnumerationFailed = false
+                    var ledgerEnumerationStarted = java.time.Instant.now()
                     fun open(m: CameraModel): Pair<MediaSession, List<CameraFile>> {
                         logLine("=== media list [${m.name}] via udp/${m.datalinkPort} (poke=${m.tcpPoke}) ===")
                         // A drone speaks a different protocol end to end — the 0x51 session-open gate,
@@ -1063,6 +1064,7 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
                         // Publish before the fetch, not after: fetchFileList owns the next 10-20 s and
                         // teardown has to be able to close this socket during it.
                         pendingSession = c
+                        ledgerEnumerationStarted = java.time.Instant.now()
                         val enumeration = dev.konraditurbe.osmosis.ledger.LedgerEnumerator.enumerate(c)
                         ledgerEnumerationFailed = enumeration.failed
                         val f = enumeration.files
@@ -1107,7 +1109,7 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
                     val ledger = dev.konraditurbe.osmosis.ledger.LedgerCoordinator.get(applicationContext)
                     val ledgerToken = ledger.newSession()
                     ledgerSession = ledgerToken
-                    currentAddress?.let { ledger.observe(it, ledgerToken, fixed, !dl.moreAvailable, ledgerEnumerationFailed || !dl.handshakeOk) }
+                    currentAddress?.let { ledger.observe(it, ledgerToken, fixed, !dl.moreAvailable, ledgerEnumerationFailed || !dl.handshakeOk, ledgerEnumerationStarted) }
                     logLine("MANIFEST: ${fixed.size} files — " +
                         fixed.groupBy { it.storage }.entries.sortedBy { it.key }
                             .joinToString(", ") { (s, list) -> "storage=$s (${list.size} files)" } +

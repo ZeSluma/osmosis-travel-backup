@@ -29,26 +29,29 @@ class LedgerCoordinator private constructor(context: Context) {
     private val repository by lazy { LedgerRepository(LedgerDatabase.open(appContext)) }
     @Volatile private var activeSession: String? = null
     fun newSession(): String = UUID.randomUUID().toString().also { activeSession = it }
+    private val enumerationStarts = mutableMapOf<String, Instant>()
     private val inventories = mutableMapOf<String, MutableMap<String, CameraFile>>()
     @Volatile var latestPlan: PlanResult? = null
         private set
     @Volatile var status: String = "NOT_TESTED"
         private set
 
-    fun observe(association: String, session: String, files: List<CameraFile>, pagesEnded: Boolean, failed: Boolean) {
+    fun observe(association: String, session: String, files: List<CameraFile>, pagesEnded: Boolean, failed: Boolean, startedAt: Instant = Instant.now()) {
         val captured = files.toList()
+        val endedAt = Instant.now()
         writer.execute {
             try {
                 if (session != activeSession) return@execute
+                val enumerationStart = enumerationStarts.getOrPut(session) { startedAt }
                 val inventory = inventories.getOrPut(session) { linkedMapOf() }
                 captured.forEach { inventory["${it.storage}:${it.path}"] = it }
-                val lease = repository.begin(association, UUID.randomUUID().toString(), "MOUNT_MAPPING_ONLY", Instant.now())
+                val lease = repository.begin(association, UUID.randomUUID().toString(), "MOUNT_MAPPING_ONLY", enumerationStart)
                 repository.reconcile(lease, inventory.values.map(CameraLedgerAdapter::asset), Instant.now(), ZoneId.systemDefault())
-                repository.finish(lease, Instant.now(), pagesEnded, false, false, false, failed)
+                repository.finish(lease, endedAt, pagesEnded, false, false, false, failed)
                 latestPlan = repository.plan(lease.snapshotId)
                 status = "PLANNED_INCOMPLETE_INVENTORY"
                 // Bound in-memory sessions; durable generations and assets remain in Room.
-                if (inventories.size > 4) inventories.keys.firstOrNull { it != session }?.let(inventories::remove)
+                if (inventories.size > 4) inventories.keys.firstOrNull { it != session }?.let { inventories.remove(it); enumerationStarts.remove(it) }
             } catch (_: Exception) {
                 latestPlan = null
                 status = "LEDGER_REVIEW_REQUIRED"
