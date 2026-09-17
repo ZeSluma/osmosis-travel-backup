@@ -1,0 +1,61 @@
+project: osmosis-travel-backup
+current_phase: baseline
+current_gate: GATE-0
+gate_status: NOT_TESTED
+
+upstream_repository: KonradIT/osmosis
+fork_repository: ZeSluma/osmosis-travel-backup
+
+known_good_version: null
+known_good_commit: null
+
+baseline_candidate_commit: "2fcdbc97e6dbefc875d425368be67cf32b50bb06"
+baseline_candidate_requires_refresh: false
+baseline_verified_date: "2026-09-17"
+bootstrap_branch: bootstrap/project-initialization
+bootstrap_status: PASS
+bootstrap_persistence: LOCAL_COMMIT_ONLY
+bootstrap_evidence: docs/evidence/GATE-0/2026-09-17_bootstrap/REPORT.md
+
+active_plan: docs/plans/active/GATE-0-BASELINE.md
+
+open_blockers:
+  - unchanged fork build has not yet been reproduced for this project
+  - unit tests have not yet been reproduced for this project
+  - Samsung Galaxy S25 Ultra + DJI Osmo Pocket 4P baseline hardware evidence has not yet been captured
+  - security baseline is initial only
+  - governance is local only; not pushed or verified in GitHub
+  - GitHub push authentication not yet verified
+
+release_blockers:
+  - fork-specific release signing has not yet been established; future release prerequisite, not a GATE-0 blocker
+
+security_status: INITIAL_REVIEW
+
+required_evidence:
+  - current repository identity and upstream boundary
+  - exact baseline source commit
+  - Gradle wrapper validation
+  - assembleDebug result
+  - testDebugUnitTest result
+  - lint/static-check result where applicable
+  - dependency/security/secret baseline
+  - Samsung Galaxy S25 Ultra + DJI Osmo Pocket 4P connect/browse/download baseline
+  - resumable-download baseline evidence
+
+completed_evidence:
+  - fork parent/source verified through read-only GitHub API on 2026-09-17
+  - local main and live fork/upstream main match the exact baseline candidate
+  - fork branch list and open PRs/issues verified; no prior bootstrap found
+  - workflows, Android configuration and roadmap observations rechecked locally
+  - governance documentation initialized locally with no tracked functional changes
+  - successful HTTPS clone from the fork confirmed by the user; push authentication remains unverified
+
+implementation_authorized: false
+release_allowed: false
+
+next_action: >-
+  Await explicit authorization to push the local governance commit. On authorization,
+  verify push authentication and publication to the fork under ADR 0002 without merging.
+  Then reproduce the unchanged GATE 0
+  baseline with wrapper validation, build, unit tests, lint/security checks and target-hardware evidence.
