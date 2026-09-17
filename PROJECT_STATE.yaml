@@ -4,7 +4,7 @@ current_gate: GATE-2
 gate_status: BLOCKED
 gate_0_status: PASS
 gate_0_completed_date: "2026-09-17"
-hardware_session_status: PARTIAL_ENUMERATION_WEAK_IDENTITY_REQUIRES_REVALIDATION
+hardware_session_status: THREE_MEDIA_AUDITED_TIMESTAMP_PASS_IDENTITY_CONFLICT_OPEN
 hardware_resume_requires_explicit_return: true
 intent_rebase_status: ACCEPTED_IN_PRINCIPLE_RECONCILED
 intent_rebase_evidence: docs/evidence/GATE-1/2026-09-17_intent-rebase/INTENT_AUDIT.md
@@ -67,7 +67,7 @@ bootstrap_evidence: docs/evidence/GATE-0/2026-09-17_bootstrap/REPORT.md
 active_plan: docs/plans/active/GATE-2-LEDGER.md
 
 open_blockers:
-  - Latest schema4 snapshot has1 untrusted member and4 ledger rows; same-name size-null variant requires identity revalidation. Three historical assets/local references retained. Third-asset timestamp persistence not tested; no download/deletion.
+  - Latest schema4 snapshot7 contains original3 assets but remains INCOMPLETE;4 historical identity rows retain same-name size-null conflict. Original38MB candidate retained but selected locator cleared/NEEDS_REVALIDATION. Third filename-time persistence PASS; identity reconciliation still open, no media changes.
 deferred_runtime_requirements:
   - G2 software ledger/credential migration/fencing tests pass; target HIL pending. G3 integrity/publication/storage reconciliation remains NOT_TESTED; SC01/SC02/SC08 hardware and broader crash coverage remain explicit.
   - G7 execution/network/privacy/permissions and separate session-loss or sleep observations; SC03-SC07 and X/N/GD tests remain pending independently of resumed G2 hardware work
@@ -187,7 +187,7 @@ gate_2_final_functional_commit: 54aee87ce32eaee59ce9e65ca4d231f230658794
 gate_2_reconciliation_publication: PUBLISHED_VERIFIED
 gate_2_reconciliation_target_install: PASS
 gate_2_unit_tests: 347 passed, zero failures/errors in authoritative LF source snapshot; includes12 DJI filename tests
-gate_2_filename_time: ADR0011 implemented; additive schema4, strict DJI_FILENAME local calendar time, offset UNKNOWN; emulator migration/path persistence PASS; target reevaluation 2026-09-17T18:40:37 with null offset PASS, persistence awaiting rescan
+gate_2_filename_time: PASS scoped to third-asset persisted DJI_FILENAME local time2026-09-17T18:40:37, day2026-09-17, null zone/offset UNKNOWN and stable path; absolute Instant not claimed
 gate_2_filename_evidence: docs/evidence/GATE-2/2026-09-17_filename-time/REPORT.md
 gate_2_lint: FAIL - five unchanged baseline errors; zero new errors
 gate_2_security: scoped B1, ledger/Keystore, migration1/2-to-3, local-provider/association restart and audit privacy/corruption emulator checks PASS; target candidates and preservation across incomplete empty enumeration verified, source integrity not proven
@@ -195,7 +195,7 @@ gate_2_empty_enumeration: CONNECTED_BUT_MEDIA_ENUMERATION_EMPTY; snapshot3 INCOM
 gate_2_camera_recovery: CAMERA_UNREACHABLE_UNTIL_POWER_CYCLE; user power cycle and fresh rescan restored two videos; snapshot4 contains same two asset identities; root cause UNCONFIRMED; separate G7 wake/recovery investigation
 build_tool_dependency_debt: 44 OSV advisory IDs on 11 unchanged G1 build-classpath coordinates; no returned new/runtime advisory; reviewed build/CI remediation before release
 next_action: >-
-  One ordinary fresh rescan with awake camera, no media selection/download, settings or power-cycle.
-  Compare restored enumeration metadata and historical identities; preserve fourth ambiguous variant pending evidence, never auto-merge by filename.
-  Evidence: docs/evidence/GATE-2/2026-09-17_filename-time/PARTIAL_ENUMERATION.md.
-  G2 BLOCKED; duplicate-free degraded-enumeration acceptance reopened; no deletion inference or third-asset persistence PASS.
+  No repeated physical rescan needed for this checkpoint; current three-member enumeration and third-asset time persistence audited.
+  Resolve weak-observation identity handling with non-destructive design/regression evidence; do not merge by filename or clear historical ambiguity merely to pass.
+  Evidence: docs/evidence/GATE-2/2026-09-17_filename-time/RESTORED_THREE.md.
+  Full snapshot remains INCOMPLETE; G2 BLOCKED for identity/coverage disposition, no download/deletion.
