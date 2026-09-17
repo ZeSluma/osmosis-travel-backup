@@ -2,7 +2,7 @@
 
 Accepted product boundaries, implementation NOT_TESTED. R-040/R-041; no functional changes. Hardware remains paused; controlled diagnosis is planned, not run.
 
-[GATE-1 closure audit](../evidence/GATE-1/2026-09-17_security-closure/SURFACES.md) completes the permission and sink review. Selected budgets below are design requirements; baseline does not enforce them. GPS uses a separately opted-in location FGS started while eligible/visible, correct coarse/fine flow and permission-state checks; continued foreground-service location after Activity background does not itself require ACCESS_BACKGROUND_LOCATION. No arbitrary background start or silent GPS resumption is promised. SC05/SC06 supplement GD tests; current G1 is BLOCKED on separate B1/B2 conditions.
+[GATE-1 closure audit](../evidence/GATE-1/2026-09-17_security-closure/SURFACES.md) completes the permission and sink review. Selected budgets below are design requirements; baseline does not enforce them. GPS uses a separately opted-in location FGS started while eligible/visible, correct coarse/fine flow and permission-state checks; continued foreground-service location after Activity background does not itself require ACCESS_BACKGROUND_LOCATION. No arbitrary background start or silent GPS resumption is promised. SC05/SC06 supplement GD tests; current G1 is PASS after separate B1/B2 verification in ADR0008.
 
 ## Independent product features
 

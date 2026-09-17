@@ -68,7 +68,7 @@ Required:
 
 Functional backup extension remains blocked until GATE 1 is complete.
 
-[ADR0007 closure checklist](evidence/GATE-1/2026-09-17_security-closure/REPORT.md) explicitly covers credentials, defensible cleartext boundary, evidence-backed Network/execution ownership, acceptable component/intents, logging/GPS privacy, dependency disposition, Android17 plan, ledger classification and assignment of all remaining runtime assumptions. Current G1 is BLOCKED on B1 launcher controls and B2 MUST_FIX_BEFORE_IMPLEMENTATION Kotlin remediation. SC09/SC10 close those conditions only with actual evidence after narrow authorization. Later implementation/hardware tests assigned to their gates remain NOT_TESTED; documentation alone never satisfies a runtime criterion. Passing G1 does not automatically set implementation_authorized=true.
+[ADR0007 closure checklist](evidence/GATE-1/2026-09-17_security-closure/REPORT.md) explicitly covers credentials, defensible cleartext boundary, evidence-backed Network/execution ownership, acceptable component/intents, logging/GPS privacy, dependency disposition, Android17 plan, ledger classification and assignment of all remaining runtime assumptions. Current G1 is PASS under ADR0008: B1/B2 were narrowly authorized, implemented and verified by scoped SC09/SC10 evidence. The full result is in the B1/B2 report. Later implementation/hardware tests assigned to their gates remain NOT_TESTED; documentation alone never satisfies a runtime criterion. Passing G1 does not automatically set implementation_authorized=true.
 
 ## GATE 2 — Persistent ledger + all-new backup
 

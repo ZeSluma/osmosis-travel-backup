@@ -1,6 +1,8 @@
 # ADR0007 — GATE-1 security closure disposition
 
-Date:2026-09-17. Status: evidence-backed architecture dispositions recorded; GATE-1 **BLOCKED**, implementation_authorized=false, release_allowed=false. This review does not authorize security fixes, dependency edits, functional extensions or hardware resumption.
+Superseded for B1/B2 status by [ADR0008](0008-b1-b2-security-remediation.md). The following records the original pre-authorization decision; design dispositions remain applicable.
+
+Date:2026-09-17. Original status: evidence-backed architecture dispositions recorded; GATE-1 **BLOCKED**, implementation_authorized=false, release_allowed=false. This review does not authorize security fixes, dependency edits, functional extensions or hardware resumption.
 
 The [closure report](../evidence/GATE-1/2026-09-17_security-closure/REPORT.md) and its three detailed audits resolve the previously open design choices: per-camera Keystore credential store with crash-safe migration; default-deny plus exact camera-IP exception and per-Network guards; connectedDevice service-owned coordinator and callback/transport manager; bounded sanitized diagnostics; optional GPS; target37 migration; minimized app-private ledger without an unjustified encryption dependency.
 

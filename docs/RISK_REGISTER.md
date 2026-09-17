@@ -6,8 +6,8 @@
 
 | ID | Risk | Evidence / impact | Disposition |
 |---|---|---|---|
-| RISK-041 | Exported launcher exposes sensitive test controls and logs supplied PIN | Source-confirmed surface; exploitation NOT_TESTED; high | B1 GATE-1 blocker; separately authorized isolation/removal/validation and SC09 before PASS |
-| RISK-042 | Affected Kotlin cache deserialization persists into new compiler/ledger work | 1.9.24 applicable, current no-KAPT reduced exposure; high potential build compromise | B2 MUST_FIX_BEFORE_IMPLEMENTATION; stable2.4.20 fixed candidate, compatibility ranges verified but SC10 pending |
+| RISK-041 | Exported launcher exposes sensitive test controls and logs supplied PIN | Source-confirmed surface; exploitation NOT_TESTED; high | B1 CLOSED under ADR0008; hooks removed, validated shortcut confirmation and SC09 evidence; preserve regression coverage |
+| RISK-042 | Affected Kotlin cache deserialization persists into new compiler/ledger work | Historical1.9.24 applicable; fixed2.4.20 now resolved, no KAPT introduced; supply-chain residual risk remains | B2 CLOSED under ADR0008; actually resolved2.4.20, build/LF tests and no new lint errors; CI/cache trust remains separate |
 | RISK-043 | Plaintext prefs or OEM transfer expose camera credentials / stale ledger authority | Plaintext and missing explicit backup rules observed; high | Keystore blob migration, noBackup plus explicit rules, SC01/SC02; design resolved, enforcement untested |
 
 RISK-013/024 resolved design: exact-IP policy plus scoped transport, not global cleartext or process binding; SC03 remains open. RISK-007/040 resolved design: typed bounded all-sink sanitization; baseline remains unsafe to assume sanitized. RISK-039 permission design separates GPS, fixes coarse/fine flow later and requires SC06. RISK-008 mutable actions/caches and signing remain pre-release hardening; no blanket security PASS. RISK-016/019 sleep and awake foreground drops remain separate, root causes unconfirmed.

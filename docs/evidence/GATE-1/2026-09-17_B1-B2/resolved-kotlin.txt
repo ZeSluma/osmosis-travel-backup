@@ -1,0 +1,4 @@
+     \--- org.jetbrains.kotlin:kotlin-gradle-plugin:2.4.20
+          |    +--- org.jetbrains.kotlin:kotlin-gradle-plugin:2.4.20 (c)
++--- org.jetbrains.kotlin:kotlin-stdlib:2.4.20
+|    |    |    |    |    |              \--- org.jetbrains.kotlin:kotlin-stdlib:2.4.20 (*)

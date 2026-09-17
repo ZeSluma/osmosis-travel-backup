@@ -2,7 +2,7 @@
 
 ## Intent rebase threat/disposition review — 2026-09-17
 
-Closure review completed with GATE-1 BLOCKED, not SECURITY PASS. [ADR0007](decisions/0007-security-closure-disposition.md) and the [closure evidence](evidence/GATE-1/2026-09-17_security-closure/REPORT.md) supersede the initial pending-review dispositions below. B1 requires launcher intent hardening; B2 requires a compatible patched Kotlin toolchain before implementation. Baseline behavior is preserved; all fixes require separate authorization.
+GATE-1 PASS after the narrowly authorized B1/B2 fixes and verification in [ADR0008](decisions/0008-b1-b2-security-remediation.md) and [implementation evidence](evidence/GATE-1/2026-09-17_B1-B2/REPORT.md). External launcher test commands are removed; saved-camera shortcut hints require validation and user confirmation. Kotlin2.4.20 is actually resolved and tested. Broader credential/cleartext/logging architecture remains deferred to its assigned gates; no blanket production-security or release approval.
 
 | Boundary / threat | Required disposition before implementation/release acceptance |
 |---|---|
@@ -11,7 +11,7 @@ Closure review completed with GATE-1 BLOCKED, not SECURITY PASS. [ADR0007](decis
 | Non-exported execution host, launcher/debug extras, intents/provider | Inventory exported components and existing test hooks; explicit immutable notification intents, input validation and least privilege; never let arbitrary intent claim verification/trigger delete |
 | Logs/crash reports/media metadata | Typed event allowlist, reason confidence, no raw packet/exception/URL/credential/GPS/content; test secrets injected at all error paths. Disable unsolicited telemetry; export only sanitized bundle |
 | Ledger and filesystem mutation/crash | Canonical transactional truth, fenced writers, no adopt-by-name, cross-system journal, no destructive migrations; valid replica cannot be overwritten by partial |
-| Kotlin advisory / new Room toolchain | B2 MUST_FIX_BEFORE_IMPLEMENTATION; plugin1.9.24 applicable/reduced exposure. Stable2.4.20 fixed candidate lies within documented current Gradle/AGP compatibility ranges; upgrade/K2/processor regressions NOT_TESTED. No dependency edit now |
+| Kotlin advisory / new Room toolchain | B2 CLOSED: actual KGP2.4.20 resolution, successful compilation and273 LF unit tests; five baseline lint errors remain, no new errors. No processor installed; future Room/processor needs a separate review |
 | CI/signing | Mutable action/cache trust and artifact verification review, least-privilege tokens, no fork reuse of upstream signing, fork release signing separate; no secrets printed/requested/rotated |
 | Cloud/SSD | Separate tokens/SAF grants and replica verification, cloud TLS independent of cleartext camera, no routing leakage; local success independent of remote services |
 | Platform permission changes | Consent/denial/revocation distinct from camera authentication; future target37 local-network migration tested, not premature current manifest addition |
@@ -107,4 +107,4 @@ Missing fork release signing is a release blocker, not by itself a GATE 0 blocke
 
 ## GATE-1 verification started
 
-[Initial read-only verification](evidence/GATE-1/2026-09-17_initial-verification/REPORT.md) is historical. The [closure review](evidence/GATE-1/2026-09-17_security-closure/REPORT.md) resolves the models and records GATE-1 BLOCKED on B1/B2. The component audit includes all six merged-debug components, including permission-protected AndroidX ProfileInstallReceiver. All-sink diagnostics are specified as bounded normal events (10 MiB/seven days) and temporary verbose (10 MiB/30 minutes/session end), with sanitized explicit export and no automatic upload. Optional GPS has no target36 backup dependency. Ledger data minimization/no additional DB encryption and CI/signing dispositions are recorded in the audit. Controls remain unimplemented and future tests NOT_TESTED; no secret or hardware access occurred.
+[Initial read-only verification](evidence/GATE-1/2026-09-17_initial-verification/REPORT.md) and [closure review](evidence/GATE-1/2026-09-17_security-closure/REPORT.md) are historical; [B1/B2 evidence](evidence/GATE-1/2026-09-17_B1-B2/REPORT.md) closes their blockers. Both current merged variants contain six components, with the AndroidX profiling receiver protected by DUMP. Scoped emulator checks do not constitute S25/Pocket runtime proof. Broader bounded diagnostics, GPS separation, ledger classification and future controls retain their reviewed designs and deferred tests.

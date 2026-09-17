@@ -1,6 +1,6 @@
 # ADR 0003 — Execution owner for an intentional camera sync
 
-2026-09-17 closure: architecture evidence reviewed under [ADR0007](0007-security-closure-disposition.md); [execution contract](../evidence/GATE-1/2026-09-17_security-closure/PLATFORM.md) resolves permissions/start/stop/durable ownership. GATE-1 remains BLOCKED on B1/B2, independent of deferred G7 runtime proof.
+2026-09-17 closure: architecture evidence reviewed under [ADR0007](0007-security-closure-disposition.md); [execution contract](../evidence/GATE-1/2026-09-17_security-closure/PLATFORM.md) resolves permissions/start/stop/durable ownership. ADR0008 closes B1/B2 with GATE-1 PASS, independent of deferred G7 runtime proof.
 Date: 2026-09-17. Status: selected evidence-backed design; target-device validation NOT_TESTED. No implementation/dependency/manifest change authorized. Supersedes any implicit dataSync-first assumption, not verified baseline facts.
 
 ## Decision

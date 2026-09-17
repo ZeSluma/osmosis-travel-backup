@@ -1,0 +1,32 @@
+{
+  "source_commit": "d2bbb3bbd7ea4ec584722fa012799db7b57a55e3",
+  "baseline_tests": 265,
+  "security_tests": 8,
+  "totals": {
+    "failures": 0,
+    "tests": 273,
+    "skipped": 0,
+    "errors": 0
+  },
+  "lint_errors": 5,
+  "lint_warnings": 79,
+  "lint_errors_by_rule": [
+    {
+      "rule": "CoarseFineLocation",
+      "count": 1
+    },
+    {
+      "rule": "UseAppTint",
+      "count": 4
+    }
+  ],
+  "lint_new_errors": 0,
+  "combined_command_exit": 1,
+  "combined_failure_reason": "lint: five preserved baseline errors",
+  "duration_seconds": 63,
+  "resolved_kotlin_gradle_plugin": "2.4.20",
+  "debug_apk_sha256": "fbc5455dd5ea138a42363bcf7f1c1a6d20b60ba0d66a6a902b27a451bf895996",
+  "hardware_access": "isolated API36 emulator only; physical session remains paused",
+  "final_emulator_security_test": "PASS: exact final LF debug APK; normal/cold/warm/malformed input; physical devices untouched",
+  "final_release_and_harness_compile": "PASS; exit0; 41 seconds"
+}

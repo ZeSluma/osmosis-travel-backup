@@ -1,0 +1,112 @@
+[
+  {
+    "variant": "debug",
+    "kind": "activity",
+    "component": "dev.konraditurbe.osmosis.ui.MainActivity",
+    "exported": "true",
+    "permission": "",
+    "actions": [
+      "android.intent.action.MAIN"
+    ]
+  },
+  {
+    "variant": "debug",
+    "kind": "activity",
+    "component": "dev.konraditurbe.osmosis.ui.MediaPreviewActivity",
+    "exported": "false",
+    "permission": "",
+    "actions": []
+  },
+  {
+    "variant": "debug",
+    "kind": "service",
+    "component": "dev.konraditurbe.osmosis.rsdk.GpsService",
+    "exported": "false",
+    "permission": "",
+    "actions": []
+  },
+  {
+    "variant": "debug",
+    "kind": "provider",
+    "component": "androidx.core.content.FileProvider",
+    "exported": "false",
+    "permission": "",
+    "actions": []
+  },
+  {
+    "variant": "debug",
+    "kind": "provider",
+    "component": "androidx.startup.InitializationProvider",
+    "exported": "false",
+    "permission": "",
+    "actions": []
+  },
+  {
+    "variant": "debug",
+    "kind": "receiver",
+    "component": "androidx.profileinstaller.ProfileInstallReceiver",
+    "exported": "true",
+    "permission": "android.permission.DUMP",
+    "actions": [
+      "androidx.profileinstaller.action.INSTALL_PROFILE",
+      "androidx.profileinstaller.action.SKIP_FILE",
+      "androidx.profileinstaller.action.SAVE_PROFILE",
+      "androidx.profileinstaller.action.BENCHMARK_OPERATION"
+    ]
+  },
+  {
+    "variant": "release",
+    "kind": "activity",
+    "component": "dev.konraditurbe.osmosis.ui.MainActivity",
+    "exported": "true",
+    "permission": "",
+    "actions": [
+      "android.intent.action.MAIN"
+    ]
+  },
+  {
+    "variant": "release",
+    "kind": "activity",
+    "component": "dev.konraditurbe.osmosis.ui.MediaPreviewActivity",
+    "exported": "false",
+    "permission": "",
+    "actions": []
+  },
+  {
+    "variant": "release",
+    "kind": "service",
+    "component": "dev.konraditurbe.osmosis.rsdk.GpsService",
+    "exported": "false",
+    "permission": "",
+    "actions": []
+  },
+  {
+    "variant": "release",
+    "kind": "provider",
+    "component": "androidx.core.content.FileProvider",
+    "exported": "false",
+    "permission": "",
+    "actions": []
+  },
+  {
+    "variant": "release",
+    "kind": "provider",
+    "component": "androidx.startup.InitializationProvider",
+    "exported": "false",
+    "permission": "",
+    "actions": []
+  },
+  {
+    "variant": "release",
+    "kind": "receiver",
+    "component": "androidx.profileinstaller.ProfileInstallReceiver",
+    "exported": "true",
+    "permission": "android.permission.DUMP",
+    "actions": [
+      "androidx.profileinstaller.action.INSTALL_PROFILE",
+      "androidx.profileinstaller.action.SKIP_FILE",
+      "androidx.profileinstaller.action.SAVE_PROFILE",
+      "androidx.profileinstaller.action.BENCHMARK_OPERATION"
+    ]
+  }
+]

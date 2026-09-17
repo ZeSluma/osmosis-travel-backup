@@ -2,7 +2,7 @@
 
 ## Current security closure disposition
 
-[ADR0007](decisions/0007-security-closure-disposition.md): GATE-1 BLOCKED on B1 launcher test controls and B2 Kotlin MUST_FIX_BEFORE_IMPLEMENTATION. The architecture/security evidence review is complete; the next step requires explicit narrow security-remediation authorization, not functional extension. Do not execute debug intent hooks, read real credential stores, enable untrusted/shared build metadata or introduce KAPT under this disposition. Use synthetic canaries for privacy tests. No source, dependency, Gradle or workflow edits were made by the closure review.
+[ADR0008](decisions/0008-b1-b2-security-remediation.md): GATE-1 PASS; explicitly authorized B1/B2 scope is completed on gate-1/security-foundation. Await explicit GATE-2 authorization; no automatic product implementation. Historical ADR0007 blockers are closed by persisted verification. Do not execute debug intent hooks, read real credential stores, enable untrusted/shared build metadata or introduce KAPT under this disposition. Use synthetic canaries for privacy tests. No source, dependency, Gradle or workflow edits were made by the closure review.
 
 Credential loss means normal re-pair/re-entry after explanation, never automatic camera reset. Planned migration retires plaintext only after durable decryptable ciphertext; no backup/export of credentials/ledger state. Runtime diagnostics must be bounded/sanitized and user-exported; existing raw Save Logs is not compliant by assumption. Signing uses a separately controlled fork identity before release; no upstream-key assumption. Hardware remains paused, media untouched and unresolved sleep/foreground/background causes separate. Implementation and release authorization remain false.
 

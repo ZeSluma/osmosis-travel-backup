@@ -1,6 +1,6 @@
 # Accepted gate dependency rebase — 2026-09-17
 
-Status: ACCEPTED by explicit user review, recorded in ADR0005. File path retained for traceability. GATE-0 evidence/status and original graph below remain unchanged; GATE-1 is NOT_TESTED and implementation unauthorized. GATE-7 must precede GATE-4 so lifecycle-safe execution, automatic reconnect and recoverable sync are proven before one-tap claims.
+Status: ACCEPTED by explicit user review, recorded in ADR0005. File path retained for traceability. GATE-0 evidence/status and original graph below remain unchanged; GATE-1 is PASS under ADR0008; general product implementation remains unauthorized. GATE-7 must precede GATE-4 so lifecycle-safe execution, automatic reconnect and recoverable sync are proven before one-tap claims.
 
 ## Historical graph and mismatch
 

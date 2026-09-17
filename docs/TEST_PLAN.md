@@ -2,7 +2,7 @@
 
 ## Security closure test obligations
 
-[Closure checklist and proof ownership](evidence/GATE-1/2026-09-17_security-closure/REPORT.md) supplements TEST_MATRIX. All cases below are NOT_TESTED; none execute during hardware pause. B1/B2 must close before GATE-1 PASS under ADR0007; other target controls are verified when implemented at the assigned gate.
+[Closure checklist and proof ownership](evidence/GATE-1/2026-09-17_security-closure/REPORT.md) supplements TEST_MATRIX. SC09 and SC10 have scoped PASS evidence in the B1/B2 report and ADR0008: eight policy tests, empty-emulator launcher tests, debug/release manifests/compilation, resolved Kotlin2.4.20, 265 baseline tests plus eight security tests, and no new lint errors. SC01-SC08 remain NOT_TESTED; physical hardware remains paused. New processor compatibility is reviewed if a processor is later introduced.
 
 | ID | Required assertion / ownership |
 |---|---|
