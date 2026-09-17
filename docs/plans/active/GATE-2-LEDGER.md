@@ -1,3 +1,9 @@
+# Current target checkpoint — migration PASS, user unavailable
+
+[Target partial evidence](../../evidence/GATE-2/2026-09-17_identity-observations/TARGET_PARTIAL.md): schema5 confirmed;4 historical identities, both existing local candidate relationships, file sizes and third capture-time/day/unknown zone retained. Snapshot8 is INCOMPLETE with0 actionable members and2 unresolved observations; one UI tile is not full source coverage. No deletion or filename merge inferred. Software fixture already covers this safe transition; no code correction or repeated test run needed.
+
+Only remaining current G2 integration assertion is actual38MB candidate reselection after sufficient normal positive-length metadata; not exercised here, software fixture PASS. Migration is no longer a blocker. User temporarily unavailable: no device polling/rescans/reconnects or downloads. Wait for explicit return. G2 BLOCKED; G3 prerequisite not yet met; release false. Earlier pending migration/install statements below are historical, superseded here.
+
 # Current checkpoint — schema5 identity observations
 
 Software correction and regression PASS under [ADR0012](../../decisions/0012-incomplete-identity-observations.md) and [evidence](../../evidence/GATE-2/2026-09-17_identity-observations/REPORT.md): incomplete observations are durable history, not actionable assets; no filename-only merge, loss of historical references or false source deletion. 353 unit tests, debug/release compilation, guarded migration/reconciliation/restart emulator suite and B1 PASS; unchanged5-error lint baseline remains. Strong evidence alone can link observations; snapshot remains INCOMPLETE.

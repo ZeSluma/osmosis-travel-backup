@@ -1,10 +1,10 @@
 project: osmosis-travel-backup
-current_phase: gate_2_identity_observations_software_verified_target_migration_pending
+current_phase: gate_2_schema5_migration_pass_target_reselection_pending
 current_gate: GATE-2
 gate_status: BLOCKED
 gate_0_status: PASS
 gate_0_completed_date: "2026-09-17"
-hardware_session_status: SCHEMA5_APK_INSTALLED_NORMAL_ENUMERATION_PENDING
+hardware_session_status: USER_UNAVAILABLE_NO_DEVICE_RETRIES
 hardware_resume_requires_explicit_return: true
 intent_rebase_status: ACCEPTED_IN_PRINCIPLE_RECONCILED
 intent_rebase_evidence: docs/evidence/GATE-1/2026-09-17_intent-rebase/INTENT_AUDIT.md
@@ -67,7 +67,7 @@ bootstrap_evidence: docs/evidence/GATE-0/2026-09-17_bootstrap/REPORT.md
 active_plan: docs/plans/active/GATE-2-LEDGER.md
 
 open_blockers:
-  - Schema5 identity-observation software verification PASS; S25 migration/integration and real candidate-reference preservation/reselection pending. Verified schema5 APK installed and launched; ordinary camera enumeration pending. Prior schema4 history and timestamp evidence preserved; no media changes.
+  - Schema5 migration/history preservation PASS on S25 despite partial enumeration; actual38MB local-candidate reselection remains NOT_TESTED because latest snapshot has no actionable members. User unavailable; no device retries. Software replay PASS; no media changes.
 deferred_runtime_requirements:
   - G2 software ledger/credential migration/fencing tests pass; target HIL pending. G3 integrity/publication/storage reconciliation remains NOT_TESTED; SC01/SC02/SC08 hardware and broader crash coverage remain explicit.
   - G7 execution/network/privacy/permissions and separate session-loss or sleep observations; SC03-SC07 and X/N/GD tests remain pending independently of resumed G2 hardware work
@@ -172,7 +172,7 @@ gate_1_status: PASS
 gate_2_status: BLOCKED
 gate_2_software_status: PASS
 gate_2_hardware_status: NOT_TESTED
-gate_2_hardware_progress: Prior schema3/4 restart, one-new-asset and persisted DJI filename-time checks PASS; latest target schema4 has3 current/4 historical identities. New schema5 integration pending; no fresh target audit or media mutation.
+gate_2_hardware_progress: Schema5 migration PASS;8 snapshots/4 historical identities retained,2 unresolved observations/latest0 actionable members INCOMPLETE. Both existing candidate relationships and protected file sizes preserved;38MB pointer reselection not exercised. Third local filename time/day/unknown zone preserved.
 gate_2_hardware_evidence: docs/evidence/GATE-2/2026-09-17_hardware/REPORT.md
 gate_2_evidence: docs/evidence/GATE-2/2026-09-17_ledger/REPORT.md
 gate_2_decision: docs/decisions/0009-gate2-foundation-and-continuous-execution.md
@@ -195,13 +195,16 @@ gate_2_empty_enumeration: CONNECTED_BUT_MEDIA_ENUMERATION_EMPTY; snapshot3 INCOM
 gate_2_camera_recovery: CAMERA_UNREACHABLE_UNTIL_POWER_CYCLE; user power cycle and fresh rescan restored two videos; snapshot4 contains same two asset identities; root cause UNCONFIRMED; separate G7 wake/recovery investigation
 build_tool_dependency_debt: 44 OSV advisory IDs on 11 unchanged G1 build-classpath coordinates; no returned new/runtime advisory; reviewed build/CI remediation before release
 next_action: >-
-  S25 connected; tested schema5 APK installed preserving data and normal launch PASS. Perform one normal camera search/connect without selection/download, then audit migration/history/local references.
-  Software transition is verified; no identical rescans to manufacture identity proof. Keep snapshot INCOMPLETE, no download/delete, G3 waits for G2 target integration.
+  Wait for explicit user return; no device polling, rescans or connection attempts while unavailable. Software disposition complete.
+  Remaining G2 assertion is real38MB candidate reselection after sufficient normal metadata, not migration or full source coverage. Latest partial observation cannot exercise it; no download/delete or filename merge.
 
 gate_2_identity_decision: docs/decisions/0012-incomplete-identity-observations.md
 gate_2_identity_evidence: docs/evidence/GATE-2/2026-09-17_identity-observations/REPORT.md
 gate_2_identity_software: PASS
-gate_2_identity_target_migration: NOT_TESTED
+gate_2_identity_target_migration: PASS
 
 gate_2_identity_target_install: PASS
 gate_2_identity_install_evidence: docs/evidence/GATE-2/2026-09-17_identity-observations/TARGET_INSTALL.md
+
+gate_2_identity_target_partial_evidence: docs/evidence/GATE-2/2026-09-17_identity-observations/TARGET_PARTIAL.md
+gate_2_identity_target_reselection: NOT_TESTED
