@@ -1,7 +1,7 @@
 project: osmosis-travel-backup
-current_phase: gate_2_complete_gate_3_bootstrap
-current_gate: GATE-2
-gate_status: PASS
+current_phase: gate_3_integrity_assurance_entry_review
+current_gate: GATE-3
+gate_status: BLOCKED
 gate_0_status: PASS
 gate_0_completed_date: "2026-09-17"
 hardware_session_status: GATE2_HARDWARE_COMPLETE_NO_TRANSFER_AUTHORIZED
@@ -14,7 +14,7 @@ gate_order_decision: docs/decisions/0005-gate-safety-and-optional-features.md
 gate_1_entry_status: BOOTSTRAP_COMPLETE
 gate_1_review_phase: COMPLETE_B1_B2_VERIFIED
 gate_1_completed_date: "2026-09-17"
-working_branch: gate-2/persistent-ledger-sync-planner
+working_branch: codex/gate-3-transfer-integrity
 security_branch_parent: efb4830e435b1efeef7a6de56fde0ea609806171
 security_implementation_scope: B1_B2_ONLY_COMPLETED
 general_product_implementation_authorized: true
@@ -64,9 +64,10 @@ bootstrap_commit: "81aef44d580c71e0d8ea9a26fdd26b48e44d535a"
 bootstrap_publication_verified_at: "2026-09-17T08:32:26Z"
 bootstrap_evidence: docs/evidence/GATE-0/2026-09-17_bootstrap/REPORT.md
 
-active_plan: docs/plans/active/GATE-2-LEDGER.md
+active_plan: docs/plans/active/GATE-3-INTEGRITY.md
 
-open_blockers: []
+open_blockers:
+  - G3 integrity assurance decision for Pocket lacking proven immutable source version; do not silently weaken LOCAL_VERIFIED. See active G3 plan.
 deferred_runtime_requirements:
   - G2 software ledger/credential migration/fencing tests pass; target HIL pending. G3 integrity/publication/storage reconciliation remains NOT_TESTED; SC01/SC02/SC08 hardware and broader crash coverage remain explicit.
   - G7 execution/network/privacy/permissions and separate session-loss or sleep observations; SC03-SC07 and X/N/GD tests remain pending independently of resumed G2 hardware work
@@ -165,7 +166,7 @@ product_identity_distribution: Future R-043 phase after proven G2/G3/G7/G4 workf
 execution_policy: CONTINUOUS_DEFINED_NONDESTRUCTIVE_GATES
 cost_policy: AGENTS.md cost-aware execution; targeted iterations, batched evidence, full verification at meaningful checkpoints
 execution_policy_source: AGENTS.md
-current_implementation_scope: GATE-2 persistent ledger, legacy local-candidate reconciliation and deterministic planning; no GATE-3 or GATE-7 implementation
+current_implementation_scope: GATE-3 entry review under continuous authorization; verification authority awaits explicit assurance disposition; no real media transfer or GATE-7 implementation
 ledger_branch_parent: a58d858ecfd404579960d9a32960e151071f9fd3
 gate_1_status: PASS
 gate_2_status: PASS
@@ -194,7 +195,7 @@ gate_2_empty_enumeration: CONNECTED_BUT_MEDIA_ENUMERATION_EMPTY; snapshot3 INCOM
 gate_2_camera_recovery: CAMERA_UNREACHABLE_UNTIL_POWER_CYCLE; user power cycle and fresh rescan restored two videos; snapshot4 contains same two asset identities; root cause UNCONFIRMED; separate G7 wake/recovery investigation
 build_tool_dependency_debt: 44 OSV advisory IDs on 11 unchanged G1 build-classpath coordinates; no returned new/runtime advisory; reviewed build/CI remediation before release
 next_action: >-
-  Bootstrap GATE-3 safe single-original transfer/integrity on a dedicated branch under continuous authorization. Preserve existing media; no real download/delete/read/hash without explicit test authorization.
+  Resolve strict source-version verification versus a separately named lower-assurance outcome; never equate size/range/local hash with proven camera-byte equality. No additional identical hardware rescan.
 
 gate_2_identity_decision: docs/decisions/0012-incomplete-identity-observations.md
 gate_2_identity_evidence: docs/evidence/GATE-2/2026-09-17_identity-observations/REPORT.md
@@ -208,3 +209,7 @@ gate_2_identity_target_partial_evidence: docs/evidence/GATE-2/2026-09-17_identit
 gate_2_identity_target_reselection: PASS
 
 gate_2_closure_evidence: docs/evidence/GATE-2/2026-09-17_identity-observations/CLOSURE.md
+
+gate_3_status: BLOCKED
+gate_3_implementation_status: NOT_TESTED
+gate_3_parent: 136b02b3951b18def39ace3062ca164584d1f2cd
