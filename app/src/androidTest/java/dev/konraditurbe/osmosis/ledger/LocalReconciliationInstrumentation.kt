@@ -55,7 +55,7 @@ object LocalReconciliationInstrumentation {
             val projection=Gate2ReadOnlyAudit.project(java.io.File(context.noBackupFilesDir,name))
             check(!projection.contains("BLOCKED_READ_ONLY_PROJECTION")) { "SYNTHETIC_LOCAL_AUDIT_QUERY" }
             val audit=org.json.JSONObject(projection)
-            check(audit.getInt("schema")==4)
+            check(audit.getInt("schema")==5)
             check(audit.getJSONArray("assets").getJSONObject(0).getString("recomputed_planner_action")=="VERIFY_EXISTING")
             check(!projection.contains(local.locator) && !projection.contains(local.displayName))
             check(db.ledger().localCandidates(asset.id).size==1)
@@ -135,8 +135,22 @@ object LocalReconciliationInstrumentation {
                 check(changedPresence==LocalPresence.CHANGED) { "SYNTHETIC_LOCAL_PROVIDER_CHANGED_${changedPresence.name}" }
                 check(db.ledger().replica(asset.id)!!.state=="NEEDS_REVALIDATION")
                 context.contentResolver.delete(uri,null,null)
-                repo.reconcileLocal(lease,LocalMediaInventory(context).read(),now)
-                check(db.ledger().replica(asset.id)!!.localPresence=="MISSING") { "SYNTHETIC_LOCAL_PROVIDER_MISSING" }
+                var removedInventory=LocalMediaInventory(context).read()
+                if (!removedInventory.accessibleScopeComplete) {
+                    repo.reconcileLocal(lease,removedInventory,now)
+                    check(db.ledger().replica(asset.id)!!.state=="NEEDS_REVALIDATION")
+                }
+                for(attempt in 1..10) {
+                    if (removedInventory.accessibleScopeComplete) break
+                    Thread.sleep(100)
+                    removedInventory=LocalMediaInventory(context).read()
+                }
+                check(removedInventory.accessibleScopeComplete) {
+                    "SYNTHETIC_LOCAL_REMOVAL_${removedInventory.failure?.name ?: "UNKNOWN"}"
+                }
+                repo.reconcileLocal(lease,removedInventory,now)
+                val removedPresence=db.ledger().replica(asset.id)!!.localPresence
+                check(removedPresence=="MISSING") { "SYNTHETIC_LOCAL_PROVIDER_MISSING_$removedPresence" }
                 check(db.ledger().replica(asset.id)!!.localLocator==null)
                 check(repo.plan(lease.snapshotId).items.single().action==PlanAction.REVALIDATE_IDENTITY)
             }

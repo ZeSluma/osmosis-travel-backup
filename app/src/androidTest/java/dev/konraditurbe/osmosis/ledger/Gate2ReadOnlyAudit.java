@@ -36,7 +36,7 @@ public final class Gate2ReadOnlyAudit {
         try (SQLiteDatabase db = SQLiteDatabase.openDatabase(ROOT + "sync-ledger.db", null,
                 SQLiteDatabase.OPEN_READONLY | SQLiteDatabase.NO_LOCALIZED_COLLATORS,
                 broken -> { throw new IllegalStateException("AUDIT_CORRUPTION_PRESERVED"); })) {
-            if (!db.isReadOnly() || (db.getVersion() != 3 && db.getVersion() != 4)) throw new IllegalStateException();
+            if (!db.isReadOnly() || (db.getVersion() < 3 || db.getVersion() > 5)) throw new IllegalStateException();
             JSONArray rows = new JSONArray();
             try (Cursor c = db.rawQuery("SELECT a.id,a.remotePath,a.remoteTime,r.timestamp,r.zoneEvidence,r.confidence,p.relativePath "
                     + "FROM assets a JOIN recordings r ON r.id=a.recordingId JOIN replicas p ON p.assetId=a.id "
@@ -77,7 +77,7 @@ public final class Gate2ReadOnlyAudit {
             try (SQLiteDatabase db = SQLiteDatabase.openDatabase(file.getPath(), null,
                     SQLiteDatabase.OPEN_READONLY | SQLiteDatabase.NO_LOCALIZED_COLLATORS,
                     broken -> { throw new IllegalStateException("AUDIT_CORRUPTION_PRESERVED"); })) {
-                if (!db.isReadOnly() || (db.getVersion() != 3 && db.getVersion() != 4)) throw new IllegalStateException();
+                if (!db.isReadOnly() || (db.getVersion() < 3 || db.getVersion() > 5)) throw new IllegalStateException();
                 result.put("schema", db.getVersion());
                 // One SELECT provides a consistent SQLite statement snapshot of
                 // every projection; no multi-query race and no write transaction.
@@ -92,7 +92,8 @@ public final class Gate2ReadOnlyAudit {
                     + "JOIN sources src ON s.sourceId=src.id WHERE m.assetId=a.id AND s.ownerEpoch=src.ownerEpoch),"
                     + "p.localLocator,p.committedLength,CASE WHEN EXISTS(SELECT 1 FROM local_candidates lc "
                     + "JOIN local_candidates other ON lc.locator=other.locator AND lc.assetId!=other.assetId "
-                    + "WHERE lc.assetId=a.id AND lc.status NOT IN ('MISSING','UNAVAILABLE') "
+                    + "JOIN assets otherAsset ON otherAsset.id=other.assetId "
+                    + "WHERE lc.assetId=a.id AND a.size>0 AND otherAsset.size>0 AND lc.status NOT IN ('MISSING','UNAVAILABLE') "
                     + "AND other.status NOT IN ('MISSING','UNAVAILABLE')) THEN 'AMBIGUOUS' ELSE p.localPresence END,"
                     + "(SELECT COUNT(*) FROM local_candidates lc WHERE lc.assetId=a.id) "
                     + "FROM assets a JOIN recordings r ON a.recordingId=r.id "
@@ -100,7 +101,9 @@ public final class Gate2ReadOnlyAudit {
                     + "UNION ALL SELECT 'snapshot',id,status,scope,endedAt IS NOT NULL,"
                     + "(SELECT COUNT(*) FROM membership WHERE snapshotId=snapshots.id),"
                     + "NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL FROM snapshots";
-                JSONArray assets = new JSONArray(), snapshots = new JSONArray();
+                if (db.getVersion() >= 5) sql += " UNION ALL SELECT 'observation',id,status,resolvedAssetId,"
+                    + "NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL FROM identity_observations";
+                JSONArray assets = new JSONArray(), snapshots = new JSONArray(), observations = new JSONArray();
                 try (Cursor c = db.rawQuery(sql, null)) {
                     while (c.moveToNext()) {
                         JSONObject row = new JSONObject();
@@ -121,6 +124,7 @@ public final class Gate2ReadOnlyAudit {
                             row.put("fallback",token(c.getString(9),"SYNC_TIME_FALLBACK,NONE,SECONDARY_LOCAL_DAY,CAMERA_LOCAL_ZONE_UNKNOWN,UTC_DAY_FALLBACK"));
                             row.put("relationship_uncertain",c.getInt(10)!=0);
                             row.put("bytes",c.isNull(11)?JSONObject.NULL:c.getLong(11));
+                            row.put("identity_role", c.isNull(11) || c.getLong(11)<=0 ? "UNRESOLVED_HISTORY" : "ASSET_CANDIDATE");
                             row.put("remote_time_present",c.getInt(12)!=0);
                             row.put("strong_version_present",c.getInt(13)!=0);
                             row.put("in_latest_source_snapshot",c.getInt(14)!=0);
@@ -136,6 +140,11 @@ public final class Gate2ReadOnlyAudit {
                                 TransferState.valueOf(c.getString(6)),c.getInt(5)!=0,false,LocalPresence.valueOf(c.getString(17)));
                             row.put("recomputed_planner_action",action==null?"NO_ACTION":action.name());
                             assets.put(row);
+                        } else if (c.getString(0).equals("observation")) {
+                            row.put("observation",opaque(c.getString(1)));
+                            row.put("status",token(c.getString(2),"UNRESOLVED,RESOLVED_SAME_VERSION"));
+                            row.put("resolved_asset",c.isNull(3)?JSONObject.NULL:opaque(c.getString(3)));
+                            observations.put(row);
                         } else {
                             row.put("snapshot",opaque(c.getString(1)));
                             row.put("status",token(c.getString(2),"INCOMPLETE,COMPLETE"));
@@ -147,6 +156,7 @@ public final class Gate2ReadOnlyAudit {
                     }
                 }
                 result.put("assets",assets).put("snapshots",snapshots);
+                result.put("identity_observations",observations);
                 result.put("planner_evidence","PRODUCTION_POLICY_RECOMPUTED_FROM_PERSISTED_ROWS_NOT_LIVE_QUEUE");
             }
             return result.toString();

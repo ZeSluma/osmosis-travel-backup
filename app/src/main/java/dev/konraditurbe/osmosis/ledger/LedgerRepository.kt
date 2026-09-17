@@ -49,6 +49,12 @@ class LedgerRepository(private val db: LedgerDatabase) {
             }
         for ((id, duplicates) in unique.toSortedMap()) {
             val item = duplicates.first()
+            if (!IdentityEvidence.materializable(item.size)) {
+                dao.observation(IdentityObservationRow(key("observation",lease.snapshotId,id),lease.sourceId,
+                    lease.snapshotId,item.path,item.storage,item.size,item.remoteTime,item.mediaType,item.handle,
+                    item.strongVersion,"UNRESOLVED",null))
+                continue
+            }
             val existing = dao.asset(id)
             val groupId = if (item.relationshipProven) key(lease.sourceId, item.storage, item.recordingKey) else key("ungrouped", id)
             // Later uncertain relationship claims cannot relocate an allocated original.
@@ -101,15 +107,23 @@ class LedgerRepository(private val db: LedgerDatabase) {
                 dao.replica(replica.copy(state = next.name, ownerEpoch = lease.epoch))
             }
         }
+        // Never resolve by filename, last-seen order or absence. Retain the evidence even after linking.
+        val known = dao.sourceAssets(lease.sourceId)
+        for (observation in dao.observations(lease.sourceId).filter { it.status == "UNRESOLVED" }) {
+            val proven = known.filter { IdentityEvidence.provesSameVersion(observation,it) }
+            if (proven.size == 1) dao.observation(observation.copy(status="RESOLVED_SAME_VERSION",resolvedAssetId=proven.single().id))
+        }
     }
 
     fun finish(lease: EnumerationLease, now: Instant, allPages: Boolean, allStores: Boolean,
         allMembers: Boolean, stableGeneration: Boolean, failed: Boolean = false) = transaction {
         val snapshot = requireLease(lease)
         if (snapshot.endedAt != null) return@transaction
-        val complete = allPages && allStores && allMembers && stableGeneration && !failed
+        val identityUnresolved = dao.observations(lease.sourceId).any { it.status == "UNRESOLVED" } ||
+            dao.assets(lease.snapshotId).any { it.identityAmbiguous }
+        val complete = allPages && allStores && allMembers && stableGeneration && !failed && !identityUnresolved
         dao.snapshot(snapshot.copy(endedAt = now.toString(), status = if (complete) "COMPLETE" else "INCOMPLETE",
-            failure = if (failed) "ENUMERATION_FAILED" else if (!complete) "COVERAGE_UNPROVEN" else null,
+            failure = if (failed) "ENUMERATION_FAILED" else if (identityUnresolved) "IDENTITY_UNRESOLVED" else if (!complete) "COVERAGE_UNPROVEN" else null,
             scope = "pages=$allPages;stores=$allStores;members=$allMembers;stable=$stableGeneration"))
     }
 
@@ -167,7 +181,8 @@ class LedgerRepository(private val db: LedgerDatabase) {
                 else -> TransferState.NEEDS_REVALIDATION
             }
             val locator = if (transferOwned) replica.localLocator else if (presence == LocalPresence.PRESENT_UNVERIFIED)
-                assessment.matches.single { it.status == "CANDIDATE" }.media.locator else null
+                assessment.matches.single { it.status == "CANDIDATE" }.media.locator
+                else if (presence == LocalPresence.AMBIGUOUS) replica.localLocator else null
             dao.replica(replica.copy(state = state.name, localPresence = presence.name, localLocator = locator))
         }
     }
@@ -179,6 +194,7 @@ class LedgerRepository(private val db: LedgerDatabase) {
     fun recordProgress(lease: EnumerationLease, assetId: String, bytes: Long, finished: Boolean) = transaction {
         requireLease(lease)
         val asset = checkNotNull(dao.asset(assetId))
+        require(IdentityEvidence.materializable(asset.size)) { "UNRESOLVED_OBSERVATION_NOT_TRANSFERABLE" }
         require(asset.sourceId == lease.sourceId && asset.lastEpoch == lease.epoch)
         val replica = checkNotNull(dao.replica(assetId))
         require(bytes >= replica.committedLength && (asset.size == null || bytes <= asset.size))

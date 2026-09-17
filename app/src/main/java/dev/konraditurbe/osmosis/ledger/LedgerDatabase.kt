@@ -11,7 +11,8 @@ import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory
 import java.io.File
 
 @Database(entities = [SourceRow::class, SnapshotRow::class, RecordingRow::class, AssetRow::class,
-    MemberRow::class, MembershipRow::class, ReplicaRow::class, LocalCandidateRow::class, CaptureEvidenceRow::class], version = 4, exportSchema = true)
+    MemberRow::class, MembershipRow::class, ReplicaRow::class, LocalCandidateRow::class, CaptureEvidenceRow::class,
+    IdentityObservationRow::class], version = 5, exportSchema = true)
 abstract class LedgerDatabase : RoomDatabase() {
     abstract fun ledger(): LedgerDao
     companion object {
@@ -32,12 +33,20 @@ abstract class LedgerDatabase : RoomDatabase() {
                 db.execSQL("CREATE TABLE IF NOT EXISTS capture_evidence (assetId TEXT NOT NULL, timestamp TEXT NOT NULL, source TEXT NOT NULL, zoneEvidence TEXT, captureDay TEXT NOT NULL, confidence TEXT NOT NULL, fallback TEXT NOT NULL, reservationDayConflict INTEGER NOT NULL, PRIMARY KEY(assetId), FOREIGN KEY(assetId) REFERENCES assets(id) ON UPDATE NO ACTION ON DELETE NO ACTION)")
             }
         }
+        val MIGRATION_4_5 = object : Migration(4, 5) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("CREATE TABLE IF NOT EXISTS identity_observations (id TEXT NOT NULL, sourceId TEXT NOT NULL, snapshotId TEXT, remotePath TEXT NOT NULL, storage TEXT NOT NULL, size INTEGER, remoteTime TEXT, mediaType TEXT NOT NULL, handleEvidence TEXT, strongVersion TEXT, status TEXT NOT NULL, resolvedAssetId TEXT, PRIMARY KEY(id), FOREIGN KEY(sourceId) REFERENCES sources(id) ON UPDATE NO ACTION ON DELETE NO ACTION)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_identity_observations_sourceId ON identity_observations(sourceId)")
+                db.execSQL("INSERT INTO identity_observations SELECT 'legacy:' || id,sourceId,NULL,remotePath,storage,size,remoteTime,mediaType,handleEvidence,strongVersion,'UNRESOLVED',NULL FROM assets WHERE size IS NULL OR size<=0")
+                // Retain every legacy asset, membership, replica and candidate row as history.
+            }
+        }
         fun open(context: Context, name: String = "sync-ledger.db"): LedgerDatabase {
             require(name.matches(Regex("[A-Za-z0-9._-]+")))
             return Room.databaseBuilder(context.applicationContext, LedgerDatabase::class.java,
                 File(context.noBackupFilesDir, name).absolutePath)
                 .openHelperFactory(PreserveCorruptDatabaseFactory())
-                .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
+                .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
                 .build()
         }
     }

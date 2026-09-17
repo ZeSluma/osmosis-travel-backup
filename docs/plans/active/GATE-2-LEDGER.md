@@ -1,3 +1,11 @@
+# Current checkpoint — schema5 identity observations
+
+Software correction and regression PASS under [ADR0012](../../decisions/0012-incomplete-identity-observations.md) and [evidence](../../evidence/GATE-2/2026-09-17_identity-observations/REPORT.md): incomplete observations are durable history, not actionable assets; no filename-only merge, loss of historical references or false source deletion. 353 unit tests, debug/release compilation, guarded migration/reconciliation/restart emulator suite and B1 PASS; unchanged5-error lint baseline remains. Strong evidence alone can link observations; snapshot remains INCOMPLETE.
+
+G2 BLOCKED for new schema5 target integration only. Software replay proves the transition; another identical rescan cannot prove source identity. S25 currently absent from ADB. Next physical step is USB reconnection; then install-r and verify actual migration, historical3+1 records, both candidate references and unchanged capture day/unknown zone through the normal existing flow. No media download/delete or payload reads. G3 waits on G2 target integration acceptance. Implementation true in current scope, release false.
+
+Below is chronological historical context; old software-conflict and timestamp-pending statements are superseded by this checkpoint and the latest persisted evidence, not retroactively rewritten as PASS.
+
 # Active plan — GATE-2 ledger and missing-asset planner
 
 Latest [three-member audit](../../evidence/GATE-2/2026-09-17_filename-time/RESTORED_THREE.md): original3 current assets restored, third DJI_FILENAME persistence PASS with null zone and stable day/path. Historical size-null variant remains an unresolved cross-claim; original38MB candidate retained but selected pointer cleared by conservative policy. No further physical rescan is currently justified. Weak-observation identity reconciliation and complete-coverage disposition remain G2 blockers; do not fabricate a trustworthy full snapshot or merge by filename.
