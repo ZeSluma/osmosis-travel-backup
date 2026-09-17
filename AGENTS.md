@@ -12,6 +12,12 @@ Before any user interaction, check existing evidence, whether the physical fact 
 
 Maintain the machine-readable `execution` section in PROJECT_STATE.yaml. Run `tools/autonomy/control.py --check` before proposing a stop. Safety/security/data-integrity, destructive authorization, credentials, unavoidable external approval, unresolved Source-of-Truth conflict and explicit user pause remain genuine boundaries; never force work through them. No main/upstream mutation, merge, release or protected-media changes. Hooks reinforce this contract but do not replace judgment or override higher-priority instructions. Their activation/trust status is documented, never assumed.
 
+## Product capability first — permanent
+
+Gates are safety/evidence checkpoints, not the primary optimization target. For each substantial cycle, prefer the smallest safe change that gives the user a visible end-to-end capability: observe source → identify unsatisfied work → plan → transfer/recover safely → persist → show an honest status. Classify work as A (safety/data integrity), B (current product-capability blocker), or C (non-blocking hardening); resolve A/B and persist/defer C. An APK, passing test, commit, hardware plan, or gate boundary is not itself sprint completion.
+
+At meaningful checkpoints, correct repeated workflow failures with the smallest durable rule change. Check whether the cycle produced capability, repeated evidence, caused an unnecessary hardware loop, or spent disproportionate credits. This self-correction may never weaken invariants, the source-of-truth order, deletion/VERIFIED/redundancy rules, security boundaries, or main/merge/release restrictions.
+
 ## Scope
 
 This repository is the user-controlled development fork for the **OSMOSIS TRAVEL BACKUP** project.
