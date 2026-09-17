@@ -16,7 +16,7 @@ execution: {
     {"id": "HTTP_LOOPBACK_REGRESSION", "state": "IN_PROGRESS"},
     {"id": "FULL_G3_CHECKPOINT", "state": "READY"},
     {"id": "HOOK_RUNTIME_ACTIVATION", "state": "LOCAL_PATH_WAITING_FOR_APPROVAL"},
-    {"id": "CLOUD_HANDOFF", "state": "PUBLISHED_PENDING_SHA_VERIFICATION"}
+    {"id": "CLOUD_HANDOFF", "state": "PUBLISHED_VERIFIED_450eaf8531fa173c6c8fa0d23ac7b3f37a035f5d"}
   ]
 }
 current_phase: gate_3_schema7_guarded_resume_and_autonomy_control_in_progress
@@ -259,4 +259,4 @@ gate_3_target_ui_state: FAIL - after restart/reconnect all4 videos appear withou
 
 gate_3_target_retry_refusal: PASS - zero new transfer attempts, B330769591 bytes pending1 preserved; no successful-resume claim
 gate_3_ui_correction: SOFTWARE_PROVEN and EMULATOR_PROVEN; original hardware FAIL retained, target correction NOT_TESTED
-gate_3_handoff: 2026-09-18 cloud continuation checkpoint; working tree intentionally contains uncommitted schema7 guarded-resume, publication recovery, strict HTTP framing, autonomy control and evidence changes. CODEX_HANDOFF_ALL_IN_ONE.md remains local/untracked and excluded from publication.
+gate_3_handoff: 2026-09-18 cloud continuation checkpoint published and verified at450eaf8531fa173c6c8fa0d23ac7b3f37a035f5d on codex/gate-3-transfer-integrity; schema7 guarded-resume, publication recovery, strict HTTP framing, autonomy control and evidence included. CODEX_HANDOFF_ALL_IN_ONE.md remains local/untracked and excluded from publication.
