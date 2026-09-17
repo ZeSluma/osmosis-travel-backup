@@ -46,6 +46,20 @@ class CheckedCopyTest {
         val failed=CheckedCopy.copy(bytes.size.toLong(),0,response,{input},{ByteArrayOutputStream()},{})
         assertEquals(CheckedCopy.Outcome.PARTIAL,failed.outcome)
     }
+    @Test fun cancellationDuringBlockingReadDoesNotWriteUnjournaledBuffer() {
+        var cancelled=false
+        val input=object:InputStream(){
+            override fun read(buffer:ByteArray,offset:Int,length:Int):Int {
+                buffer[offset]=7;cancelled=true;return 1
+            }
+            override fun read():Int=error("bulk read required")
+        }
+        val output=ByteArrayOutputStream();val checkpoints=mutableListOf<Long>()
+        val r=CheckedCopy.copy(1,0,ResponseMetadata(200,1,null),{input},{output},{checkpoints+=it},{cancelled})
+        assertEquals(CheckedCopy.Outcome.PARTIAL,r.outcome)
+        assertEquals(0,r.received);assertEquals(0,r.durableBytes)
+        assertEquals(0,output.size());assertTrue(checkpoints.isEmpty())
+    }
     @Test fun resumeDigestIsOnlySuffixAndCannotVerifyWholeFile() {
         val suffix=bytes.copyOfRange(65536,bytes.size);val output=ByteArrayOutputStream()
         val r=CheckedCopy.copy(bytes.size.toLong(),65536,ResponseMetadata(206,suffix.size.toLong(),"bytes 65536-129999/130000"),{suffix.inputStream()},{output},{})

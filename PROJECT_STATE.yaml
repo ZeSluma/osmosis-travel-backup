@@ -8,18 +8,18 @@ execution: {
   "reachable_non_destructive_work_remaining": true,
   "software_preparation_exhausted": false,
   "human_stop": {"required": false, "kind": "NONE", "reason": "Safe software and execution-layer work remains; device absence is local only."},
-  "hardware_validation": {"state": "LOCAL_PATH_WAITING_FOR_HARDWARE", "queue": "docs/hardware/VALIDATION_QUEUE.json", "consolidated": false},
+  "hardware_validation": {"state": "LOCAL_PATH_WAITING_FOR_HARDWARE", "queue": "docs/hardware/VALIDATION_QUEUE.json", "consolidated": true},
   "work_items": [
     {"id": "AUTONOMY_CONTROL", "state": "IMPLEMENTED_SOFTWARE_PROVEN"},
-    {"id": "CRASH_BOUNDARY_MATRIX", "state": "IN_PROGRESS"},
-    {"id": "CAMERA_LEDGER_HARNESS", "state": "READY"},
-    {"id": "HTTP_LOOPBACK_REGRESSION", "state": "IN_PROGRESS"},
-    {"id": "FULL_G3_CHECKPOINT", "state": "READY"},
+    {"id": "CRASH_BOUNDARY_MATRIX", "state": "PARTIALLY_PROVEN_FAIL_CLOSED"},
+    {"id": "CAMERA_LEDGER_HARNESS", "state": "SYNTHETIC_EMULATOR_PROVEN"},
+    {"id": "HTTP_LOOPBACK_REGRESSION", "state": "SYNTHETIC_PROVEN_TARGET_CONTRACT_PENDING"},
+    {"id": "FULL_G3_CHECKPOINT", "state": "SOFTWARE_PROVEN_HARDWARE_PENDING"},
     {"id": "HOOK_RUNTIME_ACTIVATION", "state": "LOCAL_PATH_WAITING_FOR_APPROVAL"},
     {"id": "CLOUD_HANDOFF", "state": "PUBLISHED_VERIFIED_450eaf8531fa173c6c8fa0d23ac7b3f37a035f5d"}
   ]
 }
-current_phase: gate_3_schema7_guarded_resume_and_autonomy_control_in_progress
+current_phase: gate_3_test_ready_prototype_checkpoint_hardware_validation_pending
 current_gate: GATE-3
 gate_status: NOT_TESTED
 gate_0_status: PASS
@@ -87,6 +87,7 @@ bootstrap_evidence: docs/evidence/GATE-0/2026-09-17_bootstrap/REPORT.md
 active_plan: docs/plans/active/GATE-3-INTEGRITY.md
 
 open_blockers: []
+gate_3_prototype_checkpoint: "2026-09-18: full unit/build plus guarded synthetic emulator suite PASS; see docs/evidence/GATE-3/2026-09-17_integrity/PROTOTYPE_SPRINT.md. Hardware proof remains pending."
 deferred_runtime_requirements:
   - G2 scoped software and target foundations PASS; G3 target integrity/publication/storage and source-continuity evidence remain NOT_TESTED; synthetic process-death coverage does not establish target behavior.
   - G7 execution/network/privacy/permissions and separate session-loss or sleep observations; SC03-SC07 and X/N/GD tests remain pending independently of resumed G2 hardware work

@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "scope": "PROJECT_WIDE_PERMANENT",
-  "consolidated": false,
+  "consolidated": true,
   "session_not_before": "2026-09-17T22:40:37Z",
   "items": [
     {
@@ -10,7 +10,7 @@
       "question": "Does the final bundled build retain all schema6 history/local references and display A/B independently after migration?",
       "why_hardware": "Actual S25 provider and installed-app UI integration cannot be proven by the emulator alone.",
       "software_evidence": ["ResumeInstrumentation schema6-to7", "BackupDisplayTest", "BackupDisplayInstrumentation", "TARGET_SESSION existing A/B metadata"],
-      "software_preparation_complete": false,
+      "software_preparation_complete": true,
       "prerequisites": ["Final regression checkpoint", "No active transfer", "One verified APK", "Protected-reference metadata captured"],
       "observation": "One install and normal connection; observe transferred-unconfirmed A and partial-review B; metadata-only comparison afterward.",
       "criteria": {"PASS": "History and reference bindings preserved; no invented resume/source proof; A/B labels distinct and accurate.", "FAIL": "Lost/changed references, false promotion or incorrect status binding.", "INCONCLUSIVE": "Device/provider/session unavailable or incomplete enumeration prevents applicable label observation."},
@@ -26,7 +26,7 @@
       "question": "Does Pocket expose an independently justifiable immutable source-version contract usable for resume?",
       "why_hardware": "Simulated immutable versions cannot establish DJI endpoint semantics.",
       "software_evidence": ["GuardedResumeTest", "ResumeInstrumentation", "ResumeProcessInstrumentation", "Existing200/length/ETag-presence evidence"],
-      "software_preparation_complete": false,
+      "software_preparation_complete": true,
       "prerequisites": ["Finish protocol/fault/recovery matrix", "Define read-only capability observation", "No retroactive validator adoption for B"],
       "observation": "Only new discriminating sanitized metadata evidence under the final session plan; no repeated playback-state question or automatic transfer.",
       "criteria": {"PASS": "Independent version/continuity contract is justified by specific evidence and its adapter tests; mere ETag presence is insufficient.", "FAIL": "Contradictory response/version behavior defeats the proposed contract.", "INCONCLUSIVE": "Metadata absent, ambiguous or semantics unsupported; retain safe refusal and overall UNVERIFIED."},
@@ -34,7 +34,14 @@
       "batch_with": ["G3-MIGRATION-UI"]
     }
   ],
-  "batches": [],
+  "batches": [
+    {
+      "id": "G3-PROTOTYPE-TOMORROW",
+      "purpose": "One installable build, one connection, two non-critical new-transfer observations and one shared restart; no repeated playback/rescan probes.",
+      "order": ["protect existing references and install", "normal connection and trustworthy enumeration", "observe status labels", "new complete transfer", "new interrupted transfer", "one reconnect only if required", "restart and metadata-only comparison"],
+      "decision_rule": "A missing immutable source-version contract yields safe resume refusal and UNVERIFIED, never a false failure of file-integrity evidence."
+    }
+  ],
   "excluded_redundant_observations": [
     "Playback running via DJI Mimo recurrence without a new distinguishing hypothesis",
     "Repeated identical rescan for already-known partial enumeration",

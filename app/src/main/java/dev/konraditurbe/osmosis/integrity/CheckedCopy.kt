@@ -27,6 +27,9 @@ object CheckedCopy {
                         val n=input.read(buffer)
                         if(n<0) break
                         if(n==0) throw java.io.IOException("NO_PROGRESS")
+                        // A blocking read may return after ownership was cancelled.  Do not make a
+                        // newly-read buffer visible unless the caller still owns this attempt.
+                        if(cancelled()) return Result(Outcome.PARTIAL,received,durable,null)
                         if(n.toLong()>contract.responseLength-received) throw java.io.IOException("EXCESS_BODY")
                         output.write(buffer,0,n);received+=n
                         digest.update(buffer,0,n)
