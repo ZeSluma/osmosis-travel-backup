@@ -4,7 +4,7 @@ current_gate: GATE-2
 gate_status: BLOCKED
 gate_0_status: PASS
 gate_0_completed_date: "2026-09-17"
-hardware_session_status: FILENAME_APK_INSTALLED_AWAITING_RESCAN_FOR_PERSISTENCE
+hardware_session_status: PARTIAL_ENUMERATION_WEAK_IDENTITY_REQUIRES_REVALIDATION
 hardware_resume_requires_explicit_return: true
 intent_rebase_status: ACCEPTED_IN_PRINCIPLE_RECONCILED
 intent_rebase_evidence: docs/evidence/GATE-1/2026-09-17_intent-rebase/INTENT_AUDIT.md
@@ -67,7 +67,7 @@ bootstrap_evidence: docs/evidence/GATE-0/2026-09-17_bootstrap/REPORT.md
 active_plan: docs/plans/active/GATE-2-LEDGER.md
 
 open_blockers:
-  - Schema4 filename-time software/migration verified and APK installed; target read-only evaluation PASS, persistent target re-enumeration pending. Existing three-asset planning and local-reference persistence already PASS. No download/deletion.
+  - Latest schema4 snapshot has1 untrusted member and4 ledger rows; same-name size-null variant requires identity revalidation. Three historical assets/local references retained. Third-asset timestamp persistence not tested; no download/deletion.
 deferred_runtime_requirements:
   - G2 software ledger/credential migration/fencing tests pass; target HIL pending. G3 integrity/publication/storage reconciliation remains NOT_TESTED; SC01/SC02/SC08 hardware and broader crash coverage remain explicit.
   - G7 execution/network/privacy/permissions and separate session-loss or sleep observations; SC03-SC07 and X/N/GD tests remain pending independently of resumed G2 hardware work
@@ -195,7 +195,7 @@ gate_2_empty_enumeration: CONNECTED_BUT_MEDIA_ENUMERATION_EMPTY; snapshot3 INCOM
 gate_2_camera_recovery: CAMERA_UNREACHABLE_UNTIL_POWER_CYCLE; user power cycle and fresh rescan restored two videos; snapshot4 contains same two asset identities; root cause UNCONFIRMED; separate G7 wake/recovery investigation
 build_tool_dependency_debt: 44 OSV advisory IDs on 11 unchanged G1 build-classpath coordinates; no returned new/runtime advisory; reviewed build/CI remediation before release
 next_action: >-
-  One ordinary fresh rescan/connection with three media visible, no selection/download.
-  Verify schema4 ingestion, persisted third-asset DJI_FILENAME local time/day and null offset, unchanged old paths/references.
-  First asset has different filename day versus frozen prior reservation: preserve path and record pending conflict, never move files.
-  External clock note remains approximate only; G2 stays BLOCKED pending target proof/disposition. No G3/G7, main mutation, merge or release.
+  One ordinary fresh rescan with awake camera, no media selection/download, settings or power-cycle.
+  Compare restored enumeration metadata and historical identities; preserve fourth ambiguous variant pending evidence, never auto-merge by filename.
+  Evidence: docs/evidence/GATE-2/2026-09-17_filename-time/PARTIAL_ENUMERATION.md.
+  G2 BLOCKED; duplicate-free degraded-enumeration acceptance reopened; no deletion inference or third-asset persistence PASS.
