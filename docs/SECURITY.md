@@ -20,7 +20,7 @@ Existing no-auto-delete and informational-only safe-clear invariants remain abso
 
 ## Accepted safety / GPS / diagnostics reconciliation
 
-ADR0005 adopts default phone plus one independently verified SSD/cloud storage domain, not phone-only safety. Replica availability and proof are revalidated before explicit cleanup. [Cleanup design](design/VERIFIED_SNAPSHOT_CLEANUP.md) requires exact immutable scope, non-forgeable internal confirmation binding, exclusive/fenced writer, strong camera/storage/object identity, known collateral effects and exhaustive post-verification. External intents, replayed UI actions, sync callbacks and retry jobs must not authorize deletion. No format fallback. Existing upstream delete entry points are baseline code, not evidence of policy enforcement; dedicated later GATE-9 proposal must cover every destructive path before real use.
+ADR0005 adopts default phone plus one independently verified SSD/cloud storage domain, not phone-only safety. Replica availability and proof are revalidated before explicit cleanup. [Cleanup design](design/VERIFIED_SNAPSHOT_CLEANUP.md) requires exact immutable scope, non-forgeable internal confirmation binding, exclusive/fenced writer, strong camera/storage/object identity, known collateral effects and exhaustive post-verification. External intents, replayed UI actions, sync callbacks and retry jobs must not authorize deletion. No format fallback. Existing upstream delete entry points are baseline code, not evidence of policy enforcement; accepted dedicated later GATE-9 must cover every destructive path before real use. ADR0006 binds confirmation to source/replica proof versions and safety generation; new evidence immediately revokes safety, material changes revoke authorization. Narrow same-live-operation continuation is not a background initiation right.
 
 GPS telemetry is explicit opt-in; backup never initiates location collection. Review permission and location-FGS/background implications before deciding cross-session GPS auto-resumption. BLE ownership arbitration must prevent telemetry/offload contention without falsely diagnosing the existing foreground drop as GPS-caused.
 
@@ -104,3 +104,7 @@ Do not reuse or assume upstream signing secrets.
 Fork release signing must be explicitly designed, documented and tested before releases are allowed.
 
 Missing fork release signing is a release blocker, not by itself a GATE 0 blocker. GATE 0 observes signing assumptions; GATE 1 reviews the build/signing design.
+
+## GATE-1 verification started
+
+[Initial read-only verification](evidence/GATE-1/2026-09-17_initial-verification/REPORT.md) records G1-01..G1-11: official-platform comparison, observed manifest/intent/credential/cleartext/diagnostic surfaces, refreshed Kotlin advisory disposition and proposed credential/transport controls. Overall gate remains NOT_TESTED; findings are not implementation or runtime proof. No secrets or hardware accessed.

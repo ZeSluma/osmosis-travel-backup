@@ -11,9 +11,16 @@ intent_rebase_evidence: docs/evidence/GATE-1/2026-09-17_intent-rebase/INTENT_AUD
 gate_order_proposal: docs/plans/REVISED_GATE_DEPENDENCIES.md
 gate_order_proposal_status: ACCEPTED
 gate_order_decision: docs/decisions/0005-gate-safety-and-optional-features.md
-gate_1_entry_status: DOCUMENTATION_READY
+gate_1_entry_status: BOOTSTRAP_COMPLETE
+gate_1_review_phase: STARTED_READ_ONLY
+gate_1_review_evidence: docs/evidence/GATE-1/2026-09-17_initial-verification/REPORT.md
 reconciliation_evidence: docs/evidence/GATE-1/2026-09-17_review-reconciliation/REPORT.md
-cleanup_gate_proposal: GATE-9 after GATE-4 and policy-required GATE-5/GATE-6; PROPOSED_NOT_ADOPTED
+cleanup_gate_status: ACCEPTED
+cleanup_gate: GATE-9 - SAFE CAMERA CLEANUP
+cleanup_gate_dependencies: GATE-4 and all its prerequisites PASS; policy-required secondary gate GATE-5 or GATE-6, both only if policy requires
+cleanup_decision: docs/decisions/0006-cleanup-gate-and-authorization.md
+cleanup_confirmation: one explicit destructive confirmation; enhanced mode optional and OFF by default
+cleanup_authorization: exact plan and safety generation; bounded unchanged live-operation continuation per ADR0006
 cleanup_status: NOT_TESTED
 cleanup_design: docs/design/VERIFIED_SNAPSHOT_CLEANUP.md
 gps_diagnostics_design: docs/design/GPS_AND_DIAGNOSTICS.md
@@ -48,7 +55,7 @@ bootstrap_evidence: docs/evidence/GATE-0/2026-09-17_bootstrap/REPORT.md
 active_plan: docs/plans/active/GATE-1-SECURITY-ARCHITECTURE.md
 
 open_blockers:
-  - GATE-1 security and architecture criteria are not yet satisfied; functional implementation remains unauthorized
+  - GATE-1 G1-01 through G1-11 review/dispositions incomplete; credential and cleartext controls, intent/debug-hook and dependency/CI policies need acceptance; implementation unauthorized
   - execution/network architecture accepted in principle; security review and S25 lifecycle/concurrency/Pocket identity/inventory evidence remain outstanding
   - safe-to-clear policy confirmed but predicate/source/replica verification and cleanup capability are unimplemented and unverified; no destructive use authorized
 
@@ -99,7 +106,7 @@ baseline_results:
 release_blockers:
   - fork-specific release signing has not yet been established; future release prerequisite, not a GATE-0 blocker
 
-security_status: INITIAL_REVIEW
+security_status: READ_ONLY_VERIFICATION_STARTED
 
 required_evidence:
   - current repository identity and upstream boundary
@@ -135,7 +142,7 @@ implementation_authorized: false
 release_allowed: false
 
 next_action: >-
-  Begin the separate GATE-1 security/architecture review using accepted ADR0005 policies;
+  Continue the separately started GATE-1 security/architecture review using ADR0005/0006;
   validate design assumptions and plan scoped experiments before any implementation.
-  Review proposed GATE-9 placement later; GPS/verbose logging are never backup prerequisites.
+  Close documented G1 review items with evidence; GPS/verbose logging are never backup prerequisites.
   Hardware remains paused until explicit user return. No functional changes or release authorized.

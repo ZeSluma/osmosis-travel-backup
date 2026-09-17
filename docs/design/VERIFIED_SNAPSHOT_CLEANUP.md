@@ -1,6 +1,6 @@
 # Explicit verified-source-snapshot cleanup
 
-Status: requirements and proposed architecture only, NOT_TESTED. R-038/R-039; ADR0005. No delete/format command, test or camera interaction is authorized by this document.
+Status: requirements and proposed architecture only, NOT_TESTED. R-038/R-039; ADR0005/0006. GATE-9 is accepted, NOT_TESTED. No delete/format command, test or camera interaction is authorized by this document.
 
 ## Eligibility and scope
 
@@ -20,9 +20,11 @@ Group effects must be known: if deleting a primary implicitly deletes companions
 
 Normal UX: informational safe status -> `Delete safely backed-up camera media` -> confirmation summary -> explicit destructive confirmation. Show recordings and assets, approximate bytes, verified storage destinations, retained new/unverified counts and latest verification time. No routine manual selection of hundreds of assets. Never use generic OK as the authorization. Cancel emits zero delete commands and preserves all media.
 
-Bind persisted confirmation to snapshot/plan digest, policy, camera/storage identity, exact approved set and operation UUID. App intents, callbacks, scheduled jobs, sync completion, availability events and generic retry timers cannot mint or renew confirmation. Recreated UI observes the operation without a duplicate command. Process death/connection loss stops destructive dispatch: read-only reconnect/enumeration may reconcile the existing operation, but continuation requires an explicit `Resume confirmed cleanup` action after renewed preconditions, with unchanged remaining scope summarized. This conservative continuation policy prevents surprise background deletion and automatic resend of uncertain commands.
+Bind authorization to operation UUID, cleanup snapshot ID, plan digest/exact asset-version and collateral set, camera/storage identity and generation, current redundancy identities/proof versions, policy and safety-validation generation. A prior displayed SAFE label is not authorization. New assets, stale/invalid proofs, relevant SSD/cloud loss, identity changes, required unknowns, partial enumeration or ledger inconsistency immediately set safety false and stop dispatch; material changes invalidate approval. Revalidate immediately before execution. No silent substitution of a different replica proof set under old approval.
 
-Optional enhanced confirmation: evaluate press-and-hold as a later preference, with accessible explicit confirmation as fallback. Swipe/biometric authentication may add friction or accessibility/platform complexity and does not replace snapshot safety. None is required by the default policy; exact optional UX can be decided in GATE-9.
+Default: one explicit destructive confirmation, no typed phrase/per-file selection/repetitive dialogs. Show latest source AND redundancy verification, exact scope and retained counts. Enhanced biometric/hold/swipe is optional and OFF unless evidence supports a reviewed stronger default.
+
+[ADR0006](../decisions/0006-cleanup-gate-and-authorization.md) defines bounded continuation: transient disconnect may resume under the same still-live, unexpired operation authorization only after exhaustive read-only reconciliation proves the same remaining approved asset versions, camera/storage, replica evidence and safety generation. Expected confirmed removals shrink the work set without changing scope. No user pause/cancel, process death, service termination, camera restart, new files or material proof change is allowed on this path; no-progress expiry initially 10 minutes, to be validated. On any exception, revoke and request one fresh confirmation of the still-present remaining intended set after revalidation. Completed items are not reconfirmed or resent. UI recreation alone attaches to the same live owner. No generic job/retry/sync callback can initiate cleanup or mint approval.
 
 ## Separate durable state machine
 
@@ -33,14 +35,14 @@ Optional enhanced confirmation: evaluate press-and-hold as a later preference, w
 | DELETE_REVALIDATING | Full identity/source/replica comparison; valid plan -> DELETE_CONFIRMATION_REQUIRED; ambiguity -> DELETE_USER_ACTION_REQUIRED |
 | DELETE_CONFIRMATION_REQUIRED | Persist exact proposed scope; explicit confirmation -> final pre-command revalidation -> DELETE_IN_PROGRESS; cancel -> DELETE_NOT_ELIGIBLE |
 | DELETE_IN_PROGRESS | One fenced operation; journal per-asset intent before each command, never blind retry; loss/stop -> DELETE_PARTIAL; attempted set processed -> DELETE_VERIFYING |
-| DELETE_PARTIAL | Preserve confirmed/unknown/not-attempted sets; reconnect only reads; explicit resume after reconciliation/confirmation of remainder may continue |
+| DELETE_PARTIAL | Preserve confirmed/unknown/not-attempted sets; reconnect first reads; unchanged active authorization may continue under ADR0006, otherwise fresh remaining-scope confirmation |
 | DELETE_VERIFYING | Complete post-delete inventory of intended AND retained assets; all criteria pass -> DELETE_COMPLETE |
 | DELETE_COMPLETE | All intended absent, all excluded/new/unverified retained, no unintended disappearance, storage enumerable; only here CAMERA CLEANUP COMPLETE |
 | DELETE_FAILED | Known non-recoverable rejection; record actual state and partial results, never full success |
 | DELETE_UNVERIFIED | Reply/absence ambiguous or post-enumeration incomplete; no success; read-only reconciliation then explicit action |
 | DELETE_USER_ACTION_REQUIRED | Wrong camera/store, unsafe identity, unavailable replica or unsupported capability; no destructive retries |
 
-Example 100 approved / 37 confirmed / connection lost: record exactly 37 confirmed, remaining statuses separately (an in-flight request may be UNKNOWN, not automatically failed). Reconnect, fully enumerate and match strong identities. Already absent is `ABSENT_CONFIRMED` only under complete enumeration of the same storage/version context; distinguish absence observed from proof our command caused it. Do not reissue stale handles. Only still-present original approved members can enter a new explicitly resumed remainder. Treat protocol status as evidence, never as a substitute for inventory verification.
+Example 100 approved / 37 confirmed / connection lost: record exactly 37 confirmed, remaining statuses separately (an in-flight request may be UNKNOWN, not automatically failed). Reconnect, fully enumerate and match strong identities. Already absent is `ABSENT_CONFIRMED` only under complete enumeration of the same storage/version context; distinguish absence observed from proof our command caused it. Do not reissue stale handles. Only still-present original approved members can continue under the strictly bounded original authorization or a freshly confirmed remaining plan per ADR0006. Treat protocol status as evidence, never as a substitute for inventory verification.
 
 ## Ledger and sanitized audit
 
@@ -69,4 +71,4 @@ Existing upstream delete UI is baseline functionality, not the future safety-gat
 
 ## Gate placement and evidence
 
-Proposed GATE-9 requires passed G2/G3/G7/G4 plus policy-required G5/G6 replica capability, reviewed source/identity/safe-clear predicates, all CL tests and S25 Ultra + Pocket 4P HIL on explicitly disposable test recordings. No real destructive use before separate authorization. GATE-8 zero-touch is independent and never authorizes deletion. Historical gates remain unchanged.
+Accepted GATE-9 requires passed G2/G3/G7/G4 plus a passed G5 or G6 secondary replica capability sufficient for policy (both only when required), reviewed source/identity/safe-clear predicates, CL01-CL12 and S25 Ultra + Pocket 4P HIL on explicitly disposable test recordings. No real destructive use before separate authorization. GATE-8 zero-touch is independent and never authorizes deletion. Historical gates remain unchanged.

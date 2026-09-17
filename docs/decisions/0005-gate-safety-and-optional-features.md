@@ -1,5 +1,7 @@
 # ADR 0005 — Accepted gate order and safety policy reconciliation
 
+2026-09-17 follow-up: [ADR0006](0006-cleanup-gate-and-authorization.md) accepts the GATE-9 placement and confirmation defaults proposed below and supersedes their pending status. Earlier text is retained as decision history.
+
 2026-09-17. Accepted product/governance decisions from the user's three review documents. Architecture rebase accepted in principle, not an implementation authorization or hardware proof. Supersedes pending-decision statements in the initial rebase; historical evidence stays unchanged.
 
 1. Adopt GATE-0 -> GATE-1 -> GATE-2 -> GATE-3 -> GATE-7 -> GATE-4 -> GATE-5 / GATE-6 -> GATE-8, retaining IDs. GATE-7 precedes GATE-4 because one-tap autonomous backup cannot be claimed until lifecycle-safe execution, automatic reconnect and recoverable synchronization are demonstrated. Accepted scopes and graph are in REVISED_GATE_DEPENDENCIES; completed records are not renumbered.

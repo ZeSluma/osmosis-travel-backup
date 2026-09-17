@@ -27,7 +27,7 @@ Accepted in principle by user review (ADR0005), not installed architecture or te
 | Ledger | Room design, durable intents/identity/recordings/replicas/evidence and migrations; canonical reconciled truth |
 | IntegrityVerifier | Checks explicit assurance policy; never equates EOF or local hash with source equality |
 | Destination adapters | Pending phone storage first; later SAF SSD and independent cloud replication |
-| CleanupCoordinator (future GATE-9 proposal) | Separate confirmed snapshot operation, exclusive camera-write lease, durable per-asset intents and exhaustive post-verification; no automatic trigger |
+| CleanupCoordinator (accepted future GATE-9) | Separate confirmed snapshot operation, exclusive camera-write lease, durable per-asset intents and exhaustive post-verification; no automatic trigger |
 | GPS recording sync | Optional opted-in telemetry owner, shared connection arbitration; never a backup prerequisite |
 | Diagnostics | Always-available sanitized bounded events; separate temporary opt-in verbose mode and sanitized explicit export |
 
@@ -144,7 +144,7 @@ External storage is expected to require Android storage APIs such as SAF or an e
 
 ## Accepted safety and optional-feature boundaries
 
-[Asset policy v2](design/ASSET_INCLUSION_POLICY.md) separates enumeration/recording/local/redundancy/safety predicates and six classes. [Cleanup design](design/VERIFIED_SNAPSHOT_CLEANUP.md) specifies confirmation, races, state machine, audit and unverified protocol limits. [GPS/diagnostics design](design/GPS_AND_DIAGNOSTICS.md) separates backup from optional telemetry and logging. Neither a completed sync, GPS preference nor diagnostic flag can initiate deletion. No functional changes are made; target capabilities remain unverified.
+[Asset policy v2](design/ASSET_INCLUSION_POLICY.md) separates enumeration/recording/local/redundancy/safety predicates and six classes. [Cleanup design](design/VERIFIED_SNAPSHOT_CLEANUP.md) specifies confirmation, races, state machine, audit and unverified protocol limits. [GPS/diagnostics design](design/GPS_AND_DIAGNOSTICS.md) separates backup from optional telemetry and logging. Neither a completed sync, GPS preference nor diagnostic flag can initiate deletion. [ADR0006](decisions/0006-cleanup-gate-and-authorization.md) adopts cleanup dependencies and one-confirmation UX, immediate safety revocation, plan/proof binding and bounded same-live-operation continuation. No functional changes are made; target capabilities remain unverified.
 
 ## Security boundaries
 

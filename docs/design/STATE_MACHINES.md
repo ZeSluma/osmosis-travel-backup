@@ -86,7 +86,7 @@ Transient network/timeout/session/busy errors: full jitter delay U(0, min(60 s, 
 
 ## Cleanup is a separate state machine
 
-[VERIFIED_SNAPSHOT_CLEANUP](VERIFIED_SNAPSHOT_CLEANUP.md) defines DELETE_NOT_ELIGIBLE through DELETE_COMPLETE/UNVERIFIED with persisted confirmation and per-asset intents. Sync COMPLETE, reconnect timers and GPS/verbose settings cannot initiate or resume destructive dispatch. After interruption, only read-only reconciliation may occur automatically; the user explicitly resumes the unchanged remaining scope after fresh preconditions. No partial deletion is COMPLETE.
+[VERIFIED_SNAPSHOT_CLEANUP](VERIFIED_SNAPSHOT_CLEANUP.md) defines separate durable DELETE states. ADR0006 permits bounded continuation only within an already confirmed still-live operation, after complete read-only reconciliation of unchanged safety/identity/remaining scope. Generic reconnect/sync/GPS/verbose callbacks cannot initiate cleanup or authorize it. Process death, camera restart, cancel, expiry or changed evidence revokes authorization and requires a fresh confirmation of the remaining plan. SAFE status is immediately invalidated on new assets, replica proof/availability change, unknown required data, incomplete inventory or ledger inconsistency. No partial deletion is COMPLETE.
 
 ## Structured diagnostics and UX
 

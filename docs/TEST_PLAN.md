@@ -8,7 +8,7 @@ Source-level existence of reconnect/resume/MediaStore lookup is not a behavioral
 
 ## Philosophy
 
-ADR0005 reconciliation adds AS01-AS03 (classification and independent redundancy), CL01-CL10 (future destructive snapshot gate) and GD01-GD05 (GPS/verbose independence, privacy and session diagnosis). All are NOT_TESTED. Fake destructive tests precede any separately authorized S25/Pocket HIL with disposable new recordings; no current media is a test deletion target. GATE-1 entry readiness is a documentation audit, not execution or PASS of these cases.
+ADR0005 reconciliation adds AS01-AS03 (classification and independent redundancy), CL01-CL12 (future destructive snapshot gate) and GD01-GD05 (GPS/verbose independence, privacy and session diagnosis). All are NOT_TESTED. Fake destructive tests precede any separately authorized S25/Pocket HIL with disposable new recordings; no current media is a test deletion target. GATE-1 entry readiness is a documentation audit, not execution or PASS of these cases.
 
 R-037 adds CD01-CD08 in TEST_MATRIX: automatic same/different-day folders, delayed sync, path-stable restart/resume, required companions, midnight/travel/DST, uncertain/conflicting timestamps and later SSD/cloud roots. Hardware cases require explicit resume and remain NOT_TESTED. [Capture-day policy](design/CAPTURE_DAY_ORGANIZATION.md) defines exact fallback oracles and clock-sync confounders.
 

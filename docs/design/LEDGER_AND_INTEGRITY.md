@@ -34,7 +34,7 @@ Recording completeness is a derived transactional query over resolved RecordingM
 
 ## Safety and cleanup ledger extension
 
-Add versioned ReplicaPolicy with distinct storage-domain references, required set/minimum two and proof freshness/availability; physical independence cannot be inferred from different paths. Derived enumeration/recording/local/redundancy/safety predicates follow ASSET_INCLUSION_POLICY v2. CleanupSnapshot, CleanupOperation and CleanupItem are separate immutable-scope/audited records defined in [cleanup design](VERIFIED_SNAPSHOT_CLEANUP.md), with confirmation, per-asset intent/result/unknown state and retained-set verification. No sync callback creates deletion authorization. Critical cleanup/ledger state is not pruned with rotating diagnostics.
+Add versioned ReplicaPolicy with distinct storage-domain references, required set/minimum two and proof freshness/availability; physical independence cannot be inferred from different paths. Derived enumeration/recording/local/redundancy/safety predicates follow ASSET_INCLUSION_POLICY v2. CleanupSnapshot, CleanupOperation and CleanupItem are separate immutable-scope/audited records defined in [cleanup design](VERIFIED_SNAPSHOT_CLEANUP.md), with confirmation bound to plan/source/replica proof and safety-generation versions, active authorization/expiry/revocation, per-asset intent/result/unknown state and retained-set verification. ADR0006 permits only bounded unchanged live-operation continuation; changes require fresh remaining-plan confirmation. No sync callback creates deletion authorization. Critical cleanup/ledger state is not pruned with rotating diagnostics.
 
 ## Remote identity evidence and limits
 

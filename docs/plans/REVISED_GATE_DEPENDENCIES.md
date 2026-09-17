@@ -31,9 +31,15 @@ flowchart LR
     G4 --> G6[6 Cloud replica]
     G5 --> G8[8 Optional zero-touch]
     G6 --> G8
+    G4 --> R{Configured independent replica requirement}
+    G5 -->|SSD route passed| R
+    G6 -->|Cloud route passed| R
+    R --> G9[9 SAFE CAMERA CLEANUP]
 ```
 
-Planning/isolated experiments may be parallel only after authorization; a PASS requires all predecessors. GATE-5/6 independent branches avoid requiring Internet/cloud for SSD or phone success. Accepted execution order 0 -> 1 -> 2 -> 3 -> 7 -> 4 -> (5,6) -> optional 8. Do not rename historical evidence directories to pretend chronological gate numbers.
+GATE-9 adoption: ADR0006 adds the policy node shown above. It is an OR for default phone+SSD or phone+cloud, an AND only when both secondary destinations are required; it is not an implicit requirement to pass both. G4 plus all ledger/integrity/lifecycle prerequisites must already PASS. No edge from G8 to G9. G8 dependencies from the earlier accepted graph remain unchanged.
+
+Planning/isolated experiments may be parallel only after authorization; a PASS requires its mandatory predecessors; the G9 policy node explicitly permits OR/AND according to the configured replica policy. GATE-5/6 independent branches avoid requiring Internet/cloud for SSD or phone success. Accepted execution order 0 -> 1 -> 2 -> 3 -> 7 -> 4 -> (5,6) -> optional 8. Do not rename historical evidence directories to pretend chronological gate numbers.
 
 | Gate ID | Accepted scope / explicit acceptance |
 |---|---|
@@ -45,6 +51,7 @@ Planning/isolated experiments may be parallel only after authorization; a PASS r
 | 4 | Complete all-original snapshot/recording discovery, automatic planner, final enumeration, UI recognition, idempotent repeated open. Zero normal-operation manual select/queue/rescan/retry; known platform consent exceptions are explicit. Must pass G2/G3/G7 and absent cloud must not impede phone completion |
 | 5 | Independent SAF SSD replica with persisted grant/remount, hash/equality verification where meaningful, removal failures isolated from phone; never weaken local truth |
 | 6 | Independent OAuth/network/cloud replica, offline/expiry/resume policy, no camera route leakage, optional UIDT/WorkManager design re-reviewed for actual use |
+| 9 | SAFE CAMERA CLEANUP: exact confirmed snapshot, current two-domain proof, revocable safety/authorization, bounded partial recovery, exhaustive pre/post inventory, audit and dedicated non-critical-media S25/Pocket HIL; no automatic initiation/format |
 | 8 | Optional camera appearance trigger only after association/presence and Android eligibility evidence; explicit user opt-in, no claim it bypasses force-stop or permissions |
 
 ## Migration and adoption record
