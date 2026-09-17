@@ -8,13 +8,25 @@ import dev.konraditurbe.osmosis.ui.MainActivity
 
 /** Platform-only harness: run on an empty emulator, never on a user's paired-camera installation. */
 class LauncherSecurityInstrumentation : Instrumentation() {
+    private var ledgerPhase: String? = null
     override fun onCreate(arguments: Bundle?) {
         super.onCreate(arguments)
+        ledgerPhase = arguments?.getString("ledgerPhase")
         start()
     }
 
     override fun onStart() {
         val results = Bundle()
+        ledgerPhase?.let { phase ->
+            try {
+                results.putString("stream", dev.konraditurbe.osmosis.ledger.LedgerInstrumentation.run(this, phase))
+                finish(Activity.RESULT_OK, results)
+            } catch (error: IllegalStateException) {
+                results.putString("stream", error.message?.takeIf { it.startsWith("GATE2_ASSERTION_") } ?: "FAIL: synthetic ledger precondition")
+                finish(Activity.RESULT_CANCELED, results)
+            }
+            return
+        }
         var activity: Activity? = null
         try {
             check(targetContext.getSharedPreferences("osmosis", 0).all.isEmpty()) {

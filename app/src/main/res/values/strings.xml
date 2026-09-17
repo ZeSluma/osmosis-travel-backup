@@ -191,4 +191,5 @@
     <string name="power_drawing">drawing %1$d mA</string>
     <string name="power_idle">idle</string>
     <string name="power_docked_suffix"> · docked</string>
+    <string name="credential_storage_unavailable">Camera credentials could not be stored securely. Please try again or re-enter them after unlocking the phone.</string>
 </resources>

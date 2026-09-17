@@ -191,4 +191,5 @@
     <string name="power_docked_suffix"> · у док-станції</string>
     <string name="shortcut_connect">Підключити</string>
     <string name="shortcut_connect_confirm">Підключитися до %1$s?</string>
+    <string name="credential_storage_unavailable">Не вдалося безпечно зберегти облікові дані камери. Спробуйте ще раз або введіть їх після розблокування телефона.</string>
 </resources>

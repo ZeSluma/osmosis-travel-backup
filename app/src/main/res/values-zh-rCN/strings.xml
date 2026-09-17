@@ -193,4 +193,5 @@
     <string name="power_docked_suffix"> · 已连接底座</string>
     <string name="shortcut_connect">连接</string>
     <string name="shortcut_connect_confirm">连接到 %1$s？</string>
+    <string name="credential_storage_unavailable">无法安全保存相机凭据。请重试，或解锁手机后重新输入。</string>
 </resources>

@@ -209,6 +209,10 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
     private var currentModel = CameraModel.DEFAULT
     private var currentModelId: Int? = null
     private var currentAddress: String? = null
+    private var ledgerSession: String? = null
+    private val credentialRequest = java.util.concurrent.atomic.AtomicLong()
+    private val credentialCache = java.util.concurrent.ConcurrentHashMap<String, String>()
+    private val credentialStore by lazy { dev.konraditurbe.osmosis.security.CameraCredentialStore(applicationContext) }
 
     // WiFi credentials over BLE: the camera hands out its own AP SSID + passphrase when asked
     // (0x07/0x07 = SSID, 0x07/0x0e = password), learned from the official app's BLE trace. We query
@@ -402,6 +406,8 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
     }
 
     override fun onDestroy() {
+        credentialRequest.incrementAndGet()
+        credentialCache.clear()
         shortcutConfirmation?.dismiss()
         super.onDestroy()
         // Deliberately NOT closing the log file here: GPS sync runs as a foreground service and the
@@ -651,7 +657,8 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
                     0 -> promptPasswordFor(r.mac) { logLine("Password updated.") }
                     1 -> {
                         savedCameras.remove(r.mac)
-                        getSharedPreferences("osmosis", MODE_PRIVATE).edit().remove("pass_${r.mac}").apply()
+                        credentialCache.remove(r.mac)
+                        credentialWorker.execute { credentialStore.forget(r.mac) }
                         logLine("Forgot ${r.name ?: r.mac}")
                         rebuildCameraList()
                         CameraShortcuts.refresh(this)   // drop it from the launcher shortcuts too
@@ -664,6 +671,7 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
     private fun switchToGrid() { selectorGroup.visibility = View.GONE; gridGroup.visibility = View.VISIBLE }
 
     private fun switchToSelector() {
+        credentialRequest.incrementAndGet()
         // Returning to the overview must fully release the current camera — GATT, datalink, WiFi binding,
         // AND the 1 Hz BLE keepalive. Leaving the old GATT connected (+ keepalive pinging it) kept the
         // camera from re-advertising ("not available" on rescan) and wedged the next camera's connect on
@@ -692,7 +700,15 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
         pairPin = currentModel.pairingToken
         // No up-front password prompt: the camera hands us the passphrase over BLE after pairing
         // (see onPaired). savedPassFor seeds the fallback for models that don't expose it.
-        connectAndOffload(device)
+        val credentialGeneration = credentialRequest.incrementAndGet()
+        val chosenAddress = device.address
+        credentialWorker.execute {
+            val saved = credentialStore.read(chosenAddress)
+            if (saved != null) credentialCache[chosenAddress] = saved else credentialCache.remove(chosenAddress)
+            main.post {
+                if (!isFinishing && !isDestroyed && currentAddress == chosenAddress && credentialRequest.get() == credentialGeneration && !GpsSyncState.locked) connectAndOffload(device)
+            }
+        }
     }
 
     private fun connectAndOffload(device: BluetoothDevice) {
@@ -720,7 +736,7 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
     /** Password is stored per-camera (by MAC). No global fallback — that would leak one camera's
      *  password to another (e.g. the Nano's onto the Xtra). */
     private fun savedPassFor(addr: String): String =
-        getSharedPreferences("osmosis", MODE_PRIVATE).getString("pass_$addr", "") ?: ""
+        credentialCache[addr] ?: ""
 
     /** Per-camera password capture (keyed by MAC). SSID comes from the BLE device name. */
     /**
@@ -740,7 +756,6 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
     }
 
     private fun promptPasswordFor(addr: String, onSaved: () -> Unit) {
-        val prefs = getSharedPreferences("osmosis", MODE_PRIVATE)
         val input = EditText(this).apply {
             setHint(R.string.wifi_password_hint); setText(savedPassFor(addr)); setSelection(text.length)
         }
@@ -751,8 +766,15 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
             .setPositiveButton(R.string.save) { _, _ ->
                 val p = input.text.toString().trim()
                 if (p.isEmpty()) { logLine("Password empty — not saved."); return@setPositiveButton }
-                prefs.edit().putString("pass_$addr", p).apply()
-                onSaved()
+                credentialWorker.execute {
+                    val saved = credentialStore.save(addr, p)
+                    if (saved) credentialCache[addr] = p
+                    main.post {
+                        if (!isFinishing && !isDestroyed) {
+                            if (saved && currentAddress == addr) onSaved() else if (!saved) toast(getString(R.string.credential_storage_unavailable))
+                        }
+                    }
+                }
             }
             .setNegativeButton(R.string.cancel, null)
             .show()
@@ -1027,6 +1049,7 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
                     // confirmed on the Xtra rebrand (own OUI EC:9E:EA), so a genuine DJI unit gets the
                     // DJI-standard 9004+poke. Either guess can be wrong on an untested model, so if the
                     // handshake never lands we retry the alternate config and log which port answered.
+                    var ledgerEnumerationFailed = false
                     fun open(m: CameraModel): Pair<MediaSession, List<CameraFile>> {
                         logLine("=== media list [${m.name}] via udp/${m.datalinkPort} (poke=${m.tcpPoke}) ===")
                         // A drone speaks a different protocol end to end — the 0x51 session-open gate,
@@ -1040,8 +1063,9 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
                         // Publish before the fetch, not after: fetchFileList owns the next 10-20 s and
                         // teardown has to be able to close this socket during it.
                         pendingSession = c
-                        val f = runCatching { c.fetchFileList("192.168.2.1") }
-                            .getOrElse { logLine("datalink error: ${it.message}"); emptyList() }
+                        val enumeration = dev.konraditurbe.osmosis.ledger.LedgerEnumerator.enumerate(c)
+                        ledgerEnumerationFailed = enumeration.failed
+                        val f = enumeration.files
                         return c to f
                     }
 
@@ -1079,6 +1103,11 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
                     // 0x40000000 → storage 1, else 0), confirmed by one HEAD per store. See resolveStorage.
                     storageForBit.clear()
                     val fixed = applyStorageAndSort(files)
+                    if (superseded(dl)) return@Thread
+                    val ledger = dev.konraditurbe.osmosis.ledger.LedgerCoordinator.get(applicationContext)
+                    val ledgerToken = ledger.newSession()
+                    ledgerSession = ledgerToken
+                    currentAddress?.let { ledger.observe(it, ledgerToken, fixed, !dl.moreAvailable, ledgerEnumerationFailed || !dl.handshakeOk) }
                     logLine("MANIFEST: ${fixed.size} files — " +
                         fixed.groupBy { it.storage }.entries.sortedBy { it.key }
                             .joinToString(", ") { (s, list) -> "storage=$s (${list.size} files)" } +
@@ -1405,12 +1434,21 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
         findViewById<View>(R.id.loadMoreSpinner)?.apply {
             visibility = View.VISIBLE; alpha = 1f; scaleX = 1f; scaleY = 1f; translationY = 0f
         }
+        val pageLedgerToken = ledgerSession
+        val pageLedgerAddress = currentAddress
         Thread {
-            val more = runCatching {
+            val fetched = runCatching {
                 applyStorageAndSort(dl.fetchNextPage())
-            }.getOrElse { emptyList() }
+            }
+            val more = fetched.getOrElse { emptyList() }
             main.post {
                 adapter?.append(more)
+                val token = pageLedgerToken
+                val address = pageLedgerAddress
+                if (token != null && address != null) {
+                    dev.konraditurbe.osmosis.ledger.LedgerCoordinator.get(applicationContext)
+                        .observe(address, token, more, !dl.moreAvailable, fetched.isFailure)
+                }
                 findViewById<View>(R.id.loadMoreSpinner)?.animate()?.alpha(0f)?.setDuration(180)
                     ?.withEndAction { findViewById<View>(R.id.loadMoreSpinner)?.visibility = View.GONE }?.start()
                 if (more.isNotEmpty()) logLine("Loaded ${more.size} older (${adapter?.totalFiles() ?: 0} total)")
@@ -1859,7 +1897,10 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
                     val pass = parseStatusPackString(p)
                     if (!pass.isNullOrEmpty()) {
                         offloadPass = pass
-                        currentAddress?.let { getSharedPreferences("osmosis", MODE_PRIVATE).edit().putString("pass_$it", pass).apply() }
+                        currentAddress?.let { address ->
+                            credentialCache[address] = pass
+                            credentialWorker.execute { credentialStore.save(address, pass) }
+                        }
                         logLine("WIFI <- 0x07/0e password retrieved over BLE (${pass.length} chars)")
                         maybeStartOffload()
                     } else logLine("WIFI <- 0x07/0e no password in reply")
@@ -1984,6 +2025,7 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
     private fun short(u: java.util.UUID) = u.toString().substring(4, 8)
 
     companion object {
+        private val credentialWorker = java.util.concurrent.Executors.newSingleThreadExecutor { task -> Thread(task, "osmosis-credentials") }
         private const val REQ_PERMS = 1001
         private const val REQ_GPS_PERMS = 1002
         /** Total AP rejoins allowed per offload session — a cap, deliberately not reset on success,
