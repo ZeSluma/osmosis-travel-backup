@@ -1,7 +1,7 @@
 project: osmosis-travel-backup
 current_phase: security_architecture_review
 current_gate: GATE-1
-gate_status: NOT_TESTED
+gate_status: BLOCKED
 gate_0_status: PASS
 gate_0_completed_date: "2026-09-17"
 hardware_session_status: PAUSED_BY_USER
@@ -12,8 +12,11 @@ gate_order_proposal: docs/plans/REVISED_GATE_DEPENDENCIES.md
 gate_order_proposal_status: ACCEPTED
 gate_order_decision: docs/decisions/0005-gate-safety-and-optional-features.md
 gate_1_entry_status: BOOTSTRAP_COMPLETE
-gate_1_review_phase: STARTED_READ_ONLY
-gate_1_review_evidence: docs/evidence/GATE-1/2026-09-17_initial-verification/REPORT.md
+gate_1_review_phase: CLOSURE_REVIEW_COMPLETE_REMEDIATION_BLOCKED
+gate_1_review_evidence: docs/evidence/GATE-1/2026-09-17_security-closure/REPORT.md
+gate_1_security_decision: docs/decisions/0007-security-closure-disposition.md
+kotlin_advisory_disposition: MUST_FIX_BEFORE_IMPLEMENTATION
+kotlin_fixed_candidate: "2.4.20; advisory fixed and documented toolchain ranges compatible; upgrade NOT_TESTED"
 reconciliation_evidence: docs/evidence/GATE-1/2026-09-17_review-reconciliation/REPORT.md
 cleanup_gate_status: ACCEPTED
 cleanup_gate: GATE-9 - SAFE CAMERA CLEANUP
@@ -55,9 +58,13 @@ bootstrap_evidence: docs/evidence/GATE-0/2026-09-17_bootstrap/REPORT.md
 active_plan: docs/plans/active/GATE-1-SECURITY-ARCHITECTURE.md
 
 open_blockers:
-  - GATE-1 G1-01 through G1-11 review/dispositions incomplete; credential and cleartext controls, intent/debug-hook and dependency/CI policies need acceptance; implementation unauthorized
-  - execution/network architecture accepted in principle; security review and S25 lifecycle/concurrency/Pocket identity/inventory evidence remain outstanding
-  - safe-to-clear policy confirmed but predicate/source/replica verification and cleanup capability are unimplemented and unverified; no destructive use authorized
+  - B1 unnecessary sensitive external launcher test extras; scoped hardening and external-intent regression evidence required before GATE-1 PASS
+  - B2 Kotlin1.9.24 advisory MUST_FIX_BEFORE_IMPLEMENTATION; authorized compatible patched-toolchain change and regression evidence required
+deferred_runtime_requirements:
+  - G2/G3 credential and ledger migration, integrity, fencing and storage reconciliation; SC01/SC02/SC08
+  - G7 execution/network/privacy/permissions and separate session-loss or sleep observations; SC03-SC07 and X/N/GD tests; hardware remains paused
+  - G4 complete inventory, asset identity, required recording members and capture-day hardware evidence
+  - G5/G6 replica independence and TLS routing; G9 destructive authorization/capability proof remains NOT_TESTED and unauthorized
 
 hardware_evidence: docs/evidence/GATE-0/2026-09-17_hardware/REPORT.md
 gate_1_architecture_tasks:
@@ -81,9 +88,10 @@ baseline_debt:
   - camera-side sleep is a separate low-confidence observation; trigger, connection effects and active-transfer exposure not verified
   - FOREGROUND_SESSION_DROP observed with awake camera and foreground app; not sleep/background attributed, manual recovery outcome pending
 gate_1_security_tasks:
-  - review permission correctness including coarse/fine location, logging/privacy, credential storage and cleartext scope
-  - review Kotlin Gradle plugin advisory GHSA-r937-wjx7-w2jp; APPLICABLE_REDUCED_EXPOSURE in current local environment
-  - review CI cache trust, action pinning, dependency/artifact verification and compatible toolchain remediation
+  - resolve B1 with separately authorized intent-surface hardening and SC09 evidence; no functional extension now
+  - resolve B2 with separately authorized Kotlin security remediation; APPLICABLE_REDUCED_EXPOSURE does not mean fixed
+  - enforce reviewed credential, cleartext, logging and coarse/fine permission designs through assigned later-gate SC tests
+  - apply reviewed CI trust/pinning, dependency verification and fork-signing policy before release; no secrets accessed
 
 baseline_evidence: docs/evidence/GATE-0/2026-09-17_baseline/REPORT.md
 baseline_results:
@@ -106,7 +114,7 @@ baseline_results:
 release_blockers:
   - fork-specific release signing has not yet been established; future release prerequisite, not a GATE-0 blocker
 
-security_status: READ_ONLY_VERIFICATION_STARTED
+security_status: REVIEW_COMPLETE_B1_B2_BLOCKED
 
 required_evidence:
   - current repository identity and upstream boundary
@@ -137,12 +145,14 @@ completed_evidence:
   - S25 Ultra Android 16 and Pocket 4 Pro install/connect/enumerate/normal-download/large-interruption/manual-resume observations persisted
   - process restart retains completed file and MediaStore identity; UI downloaded-state recognition failure independently recorded
   - GATE-0 accepted as unchanged-baseline reproducibility with disclosed debt; no implementation or release authorization
+  - GATE-1 architecture/security closure review persisted; six merged-debug components audited, B1 intent surface and B2 Kotlin remediation conditions explicit
+  - official platform evidence, direct-coordinate OSV lookup and wrapper checksum rechecked; no new runtime or full-history secret-scan claim
 
 implementation_authorized: false
 release_allowed: false
 
 next_action: >-
-  Continue the separately started GATE-1 security/architecture review using ADR0005/0006;
-  validate design assumptions and plan scoped experiments before any implementation.
-  Close documented G1 review items with evidence; GPS/verbose logging are never backup prerequisites.
+  Obtain explicit narrow security-remediation scope for B1 launcher intent controls and B2 Kotlin upgrade;
+  complete the required regression evidence and re-review GATE-1 before functional extension.
+  ADR0007 and the closure report assign remaining runtime proofs to later gates; none are PASS by inference.
   Hardware remains paused until explicit user return. No functional changes or release authorized.

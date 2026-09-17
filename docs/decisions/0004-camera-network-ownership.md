@@ -1,7 +1,7 @@
 # ADR 0004 — Explicit camera Network ownership
 
-2026-09-17 review: architecture accepted in principle per [ADR0005](0005-gate-safety-and-optional-features.md); technical validation, security acceptance and implementation authorization remain outstanding.
-Date: 2026-09-17. Status: selected design recommendation; hardware validation outstanding. No functional changes.
+2026-09-17 closure: architecture evidence reviewed under [ADR0007](0007-security-closure-disposition.md); [transport contract](../evidence/GATE-1/2026-09-17_security-closure/PLATFORM.md) resolves finite exact-IP XML feasibility plus mandatory per-Network enforcement. CameraConnectionManager and CameraConnectionController mean the same owner. GATE-1 BLOCKED on B1/B2; routing/runtime proof remains G7 NOT_TESTED.
+Date: 2026-09-17. Status: selected evidence-backed design; hardware validation outstanding. No functional changes.
 
 ## Observed baseline and decision
 

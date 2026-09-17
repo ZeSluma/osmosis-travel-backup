@@ -1,7 +1,7 @@
 # ADR 0003 — Execution owner for an intentional camera sync
 
-2026-09-17 review: architecture accepted in principle per [ADR0005](0005-gate-safety-and-optional-features.md); technical validation, security acceptance and implementation authorization remain outstanding.
-Date: 2026-09-17. Status: selected design recommendation, pending GATE-1 review and target-device validation. No implementation/dependency/manifest change authorized. Supersedes any implicit dataSync-first assumption, not verified baseline facts.
+2026-09-17 closure: architecture evidence reviewed under [ADR0007](0007-security-closure-disposition.md); [execution contract](../evidence/GATE-1/2026-09-17_security-closure/PLATFORM.md) resolves permissions/start/stop/durable ownership. GATE-1 remains BLOCKED on B1/B2, independent of deferred G7 runtime proof.
+Date: 2026-09-17. Status: selected evidence-backed design; target-device validation NOT_TESTED. No implementation/dependency/manifest change authorized. Supersedes any implicit dataSync-first assumption, not verified baseline facts.
 
 ## Decision
 
@@ -47,6 +47,6 @@ This is our inference from the external-device use case and [Android's transfer 
 
 Android 17 does not change our selected owner by assumption. Local-network authorization is a separately gated transport precondition; see ADR 0004. No SDK bump now.
 
-## Validation before approval to implement
+## Validation before execution-model capability acceptance
 
 TEST_MATRIX IDs X01-X07/N01-N05 must test visible start, immediate background, screen-off, process recreation, explicit stop, notification denial, and local-only network ownership. Run multi-GB and long-duration batches on the actual S25 Ultra; measure callbacks, stop reasons, memory, CPU, thermal/battery, bytes and single-owner fencing. Paused hardware session remains paused. Neither this ADR nor source review earns those PASS results.

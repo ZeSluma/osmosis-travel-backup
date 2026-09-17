@@ -2,16 +2,16 @@
 
 ## Intent rebase threat/disposition review — 2026-09-17
 
-Design review in progress, not SECURITY PASS. Baseline behavior is preserved; all fixes require later authorization. [ADRs](decisions/0003-android-sync-execution.md), [network design](decisions/0004-camera-network-ownership.md) and [test matrix](design/TEST_MATRIX.md) define boundaries.
+Closure review completed with GATE-1 BLOCKED, not SECURITY PASS. [ADR0007](decisions/0007-security-closure-disposition.md) and the [closure evidence](evidence/GATE-1/2026-09-17_security-closure/REPORT.md) supersede the initial pending-review dispositions below. B1 requires launcher intent hardening; B2 requires a compatible patched Kotlin toolchain before implementation. Baseline behavior is preserved; all fixes require separate authorization.
 
 | Boundary / threat | Required disposition before implementation/release acceptance |
 |---|---|
-| Camera credentials in ordinary private prefs | Credential-reference abstraction; evaluate Keystore-backed encryption at rest and invalidation/restore semantics; exclude secrets from logs, exports, backups and DB diagnostics; do not invent secure storage already present |
-| Local cleartext and hostile camera/LAN input | Evaluate narrow network-security configuration for actual numeric/dynamic endpoints, do not assume domain rules cover CIDR. Adapter endpoint allowlist, no cross-host redirect, bounded parser sizes/timeouts, range validation and per-Network routing; retain compatibility evidence before tightening |
+| Camera credentials in ordinary private prefs | Selected per-camera Keystore AES-GCM blob and opaque ledger reference; crash-safe verified migration and invalidation/re-pair contract; explicit backup/D2D exclusions. Not implemented; SC01/SC02 |
+| Local cleartext and hostile camera/LAN input | Selected default-deny with finite exact-IP exception plus per-Network host/port/path and redirect guards; XML cannot enforce interface/CIDR/port. AOSP supports exact literal matching; target-client enforcement remains SC03/N tests |
 | Non-exported execution host, launcher/debug extras, intents/provider | Inventory exported components and existing test hooks; explicit immutable notification intents, input validation and least privilege; never let arbitrary intent claim verification/trigger delete |
 | Logs/crash reports/media metadata | Typed event allowlist, reason confidence, no raw packet/exception/URL/credential/GPS/content; test secrets injected at all error paths. Disable unsolicited telemetry; export only sanitized bundle |
 | Ledger and filesystem mutation/crash | Canonical transactional truth, fenced writers, no adopt-by-name, cross-system journal, no destructive migrations; valid replica cannot be overwritten by partial |
-| Kotlin advisory / new Room toolchain | Baseline plugin1.9.24 advisory remains applicable/reduced exposure; future compatible fix and Room processor choice need advisory/provenance/license/build review. No upgrade/dependency added now |
+| Kotlin advisory / new Room toolchain | B2 MUST_FIX_BEFORE_IMPLEMENTATION; plugin1.9.24 applicable/reduced exposure. Stable2.4.20 fixed candidate lies within documented current Gradle/AGP compatibility ranges; upgrade/K2/processor regressions NOT_TESTED. No dependency edit now |
 | CI/signing | Mutable action/cache trust and artifact verification review, least-privilege tokens, no fork reuse of upstream signing, fork release signing separate; no secrets printed/requested/rotated |
 | Cloud/SSD | Separate tokens/SAF grants and replica verification, cloud TLS independent of cleartext camera, no routing leakage; local success independent of remote services |
 | Platform permission changes | Consent/denial/revocation distinct from camera authentication; future target37 local-network migration tested, not premature current manifest addition |
@@ -24,7 +24,7 @@ ADR0005 adopts default phone plus one independently verified SSD/cloud storage d
 
 GPS telemetry is explicit opt-in; backup never initiates location collection. Review permission and location-FGS/background implications before deciding cross-session GPS auto-resumption. BLE ownership arbitration must prevent telemetry/offload contention without falsely diagnosing the existing foreground drop as GPS-caused.
 
-[GPS_AND_DIAGNOSTICS](design/GPS_AND_DIAGNOSTICS.md) applies the no-secret/GPS/media/PII rule to normal events, logcat, verbose files and exports. Normal event recording is bounded and independent of verbose mode. Verbose is OFF by default, temporary, app-private and explicitly exported only after sanitization; omit unsafe raw fields, never automatically upload. No GPS-coordinate diagnostic exception is enabled by this review. Baseline FileLog has no central redaction or per-file byte/time bound, and its share path is not a sanitized-export guarantee; privacy remains an open GATE-1 review item.
+[GPS_AND_DIAGNOSTICS](design/GPS_AND_DIAGNOSTICS.md) applies the no-secret/GPS/media/PII rule to normal events, logcat, verbose files and exports. Normal event recording is bounded and independent of verbose mode. Verbose is OFF by default, temporary, app-private and explicitly exported only after sanitization; omit unsafe raw fields, never automatically upload. No GPS-coordinate diagnostic exception is enabled by this review. Baseline FileLog has no central redaction or per-file byte/time bound, and its share path is not a sanitized-export guarantee; the completed closure review selects the all-sink controls but their enforcement remains untested (SC05).
 
 ## Security goal
 
@@ -107,4 +107,4 @@ Missing fork release signing is a release blocker, not by itself a GATE 0 blocke
 
 ## GATE-1 verification started
 
-[Initial read-only verification](evidence/GATE-1/2026-09-17_initial-verification/REPORT.md) records G1-01..G1-11: official-platform comparison, observed manifest/intent/credential/cleartext/diagnostic surfaces, refreshed Kotlin advisory disposition and proposed credential/transport controls. Overall gate remains NOT_TESTED; findings are not implementation or runtime proof. No secrets or hardware accessed.
+[Initial read-only verification](evidence/GATE-1/2026-09-17_initial-verification/REPORT.md) is historical. The [closure review](evidence/GATE-1/2026-09-17_security-closure/REPORT.md) resolves the models and records GATE-1 BLOCKED on B1/B2. The component audit includes all six merged-debug components, including permission-protected AndroidX ProfileInstallReceiver. All-sink diagnostics are specified as bounded normal events (10 MiB/seven days) and temporary verbose (10 MiB/30 minutes/session end), with sanitized explicit export and no automatic upload. Optional GPS has no target36 backup dependency. Ledger data minimization/no additional DB encryption and CI/signing dispositions are recorded in the audit. Controls remain unimplemented and future tests NOT_TESTED; no secret or hardware access occurred.

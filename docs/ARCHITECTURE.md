@@ -2,6 +2,8 @@
 
 ## Status
 
+[ADR0007](decisions/0007-security-closure-disposition.md) completes the architecture/security review with GATE-1 BLOCKED on B1 external test controls and B2 Kotlin remediation. [Platform evidence](evidence/GATE-1/2026-09-17_security-closure/PLATFORM.md) defines the selected credential migration, exact-IP plus per-Network cleartext boundary and target36 execution contract. CameraConnectionManager is the CameraConnectionController below, not a second owner. [Ledger classification](evidence/GATE-1/2026-09-17_security-closure/DEPENDENCIES_LEDGER.md) selects minimized app-private/no-backup records without adding DB encryption; credentials are separately protected. Architecture evidence is distinct from the target's unimplemented controls and deferred hardware proof. The closure report maps every outstanding runtime assumption to a later gate; implementation remains unauthorized.
+
 This document separates:
 
 - **Observed baseline facts** that must be re-verified against the repository.

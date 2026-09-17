@@ -1,5 +1,22 @@
 # Test Plan
 
+## Security closure test obligations
+
+[Closure checklist and proof ownership](evidence/GATE-1/2026-09-17_security-closure/REPORT.md) supplements TEST_MATRIX. All cases below are NOT_TESTED; none execute during hardware pause. B1/B2 must close before GATE-1 PASS under ADR0007; other target controls are verified when implemented at the assigned gate.
+
+| ID | Required assertion / ownership |
+|---|---|
+| SC01 | G2: synthetic credential migration interrupted before/after durable encrypted write/plaintext retirement remains recoverable; per-camera isolation and key invalidation require honest re-pair, never secret logging |
+| SC02 | G2: inspect app backups/D2D rules and test no credential/ledger/WAL/export leakage; restored state cannot carry verification/deletion authority; actual S25 behavior separately authorized |
+| SC03 | G7/N: min29 and target36 exact-IP XML plus HTTP/native preview/TCP/UDP adapters reject wrong Network/epoch/host/port/redirect; cloud always TLS and separate routing |
+| SC04 | G7/X: visible service start, notification denial, screen off, OS kill, force-stop/Task Manager and multi-GB tests preserve one owner/partial truth, respect stop, no promised automatic resurrection |
+| SC05 | G7/G4/GD: synthetic sensitive canaries cannot reach normal/verbose/Logcat/export; retention bounds, expiry, disk-full and logging-disabled backup preserve correct truth |
+| SC06 | G7/G4/GD: GPS OFF backup with location denied; separate opt-in precise/approximate/revoked GPS, foreground-start/background continuation and BLE arbitration |
+| SC07 | G7/N05: Android16 restriction simulation and target37 grant/deny/revoke/upgrade matrix; restore settings; no implicit hardware resume |
+| SC08 | G2/G3: all supported schema migrations and crash/ENOSPC/corruption paths preserve identity/path/member/replica truth; no destructive fallback or false VERIFIED |
+| SC09 | G1/B1: authorized hardening then source plus debug/release merged-manifest audit and external intent/replay/oversize tests; launcher cannot expose test credentials, pairing override or cleanup authority; legitimate known-camera shortcut still works |
+| SC10 | G1/B2: authorized fixed Kotlin candidate from trusted caches, clean build/unit/lint comparison preserving original debt, K2/JVM21 and future processor compatibility; no suppressions to fabricate PASS |
+
 ## Rebased acceptance matrix
 
 The authoritative proposed test additions are [TEST_MATRIX](design/TEST_MATRIX.md), tied to R-016..R-041 and the explicit [accepted gate dependencies](plans/REVISED_GATE_DEPENDENCIES.md). Use fault-injectable state-machine boundaries, not tests that merely reproduce UI code. Every new case remains NOT_TESTED until executed and persisted. Current hardware session is PAUSED_BY_USER; do not run ADB, device setup, recording, power-setting changes or new transfers until explicit return.

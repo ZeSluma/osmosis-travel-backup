@@ -2,6 +2,8 @@
 
 Accepted product boundaries, implementation NOT_TESTED. R-040/R-041; no functional changes. Hardware remains paused; controlled diagnosis is planned, not run.
 
+[GATE-1 closure audit](../evidence/GATE-1/2026-09-17_security-closure/SURFACES.md) completes the permission and sink review. Selected budgets below are design requirements; baseline does not enforce them. GPS uses a separately opted-in location FGS started while eligible/visible, correct coarse/fine flow and permission-state checks; continued foreground-service location after Activity background does not itself require ACCESS_BACKGROUND_LOCATION. No arbitrary background start or silent GPS resumption is promised. SC05/SC06 supplement GD tests; current G1 is BLOCKED on separate B1/B2 conditions.
+
 ## Independent product features
 
 CAMERA BACKUP must fully discover/connect/enumerate/sync/verify/reconnect/resume and evaluate safe-to-clear with GPS Sync OFF and Save logs OFF. GPS RECORDING SYNC is explicit opt-in telemetry sent through the existing R-SDK GPS-controller path to a compatible camera. Never collect location merely because backup starts. Persist the preference separately from actual running/permission state; a remembered opt-in is not permission to restart a location service silently. Gate-1 reviews Android location/background/foreground-service eligibility before any automatic cross-session resumption design. Location permissions required by a particular Android discovery API, if any, must be explained separately from actively collecting fixes for GPS recording telemetry.
