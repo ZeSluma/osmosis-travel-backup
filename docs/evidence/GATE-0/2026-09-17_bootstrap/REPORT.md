@@ -42,11 +42,11 @@ Latest upstream release is v1.4.4, published 2026-09-07, resolving to `b07196504
 - Unit CI validates wrapper, uses JDK 21 and runs testDebugUnitTest. Actions use mutable version tags. The test workflow has no explicit permissions block.
 - Release workflow is tag-triggered, has contents:write, consumes signing secrets and creates a draft release. Fork secrets were neither read nor assumed available. No workflow was triggered deliberately.
 
-## Operational findings and reconciliation
+## Historical operational findings before publication
 
 During initial initialization, `git ls-remote` failed because that Git runtime could not find `remote-https`. Live identity and refs were instead verified with GitHub's read-only REST API. Initial API access was sandbox-blocked; an approved read-only network invocation succeeded. Branch creation initially encountered the sandbox's read-only .git boundary and succeeded after approval. No dependency/tool installation or Git configuration change was made. This historical runtime failure is not a current HTTPS-access blocker: the user confirmed a successful HTTPS clone from `https://github.com/ZeSluma/osmosis-travel-backup.git`. GitHub push authentication not yet verified.
 
-ADR 0002 requires GitHub verification before treating repository mutation as remotely successful. This bootstrap PASS covers local initialization and validation only. Remote publication is unverified and remains an explicit open operational item. No remote mutation is claimed.
+ADR 0002 requires GitHub verification before treating repository mutation as remotely successful. At initial local validation, publication remained unverified. The publication verification below supersedes that operational status; it does not establish a GATE-0 PASS.
 
 ## Gate report
 
@@ -58,10 +58,10 @@ ADR 0002 requires GitHub verification before treating repository mutation as rem
 | REGRESSION | NOT_TESTED |
 | SECURITY | INITIAL_REVIEW; observations only; dependency/secret scans NOT_TESTED |
 | HARDWARE TEST | NOT_TESTED |
-| OPEN FINDINGS | Build/wrapper/unit/lint/security and hardware evidence missing; remote governance publication unverified. Separately, fork signing remains a future release prerequisite, not a GATE-0 blocker |
+| OPEN FINDINGS | Build/wrapper/unit/lint/security and hardware evidence missing. Separately, fork signing remains a future release prerequisite, not a GATE-0 blocker |
 | EVIDENCE | This report plus the unchanged source commit; no APK or hardware evidence |
 | GATE STATUS | NOT_TESTED |
-| NEXT ACTION | Await explicit push authorization, then verify fork publication; reproduce unchanged baseline without functional fixes |
+| NEXT ACTION | In the next session, reproduce unchanged baseline without functional fixes |
 
 Known-good version and commit remain null. Release remains prohibited. NOT_TESTED is never PASS.
 
@@ -75,4 +75,16 @@ PASS: all 17 expected governance files exist, plus this evidence report. Fifteen
 
 The user accepted the pre-flight and authorized one local governance commit, with no push. The HTTPS-access blocker was removed on the user's confirmed clone evidence; only push authentication remains unverified. Release signing is tracked separately as a future release prerequisite in PROJECT_STATE, SECURITY, QUALITY_GATES, RISK_REGISTER and the active plan. The original handoff comparisons above describe the initial extraction; the additional policy clarifications are intentional user-requested changes.
 
-The reviewed 18 governance files were staged, excluding the local handoff. The first authorized commit attempt failed with `Author identity unknown`; no commit was created by that attempt. The user subsequently configured repository-local author identity, which was verified before retrying the authorized commit. PROJECT_STATE records the committed snapshot as LOCAL_COMMIT_ONLY; the containing Git commit supplies its identity. No push is authorized or claimed; GitHub publication remains unverified under ADR 0002. GATE-0 remains NOT_TESTED, known-good fields remain null, and implementation and release authorization remain false.
+The reviewed 18 governance files were staged, excluding the local handoff. The first authorized commit attempt failed with `Author identity unknown`; no commit was created by that attempt. The user subsequently configured repository-local author identity, which was verified before retrying the authorized commit. The resulting bootstrap commit was `81aef44d580c71e0d8ea9a26fdd26b48e44d535a`. At that time, PROJECT_STATE recorded LOCAL_COMMIT_ONLY and no push was authorized. The later publication below supersedes that status. GATE-0 remains NOT_TESTED, known-good fields remain null, and implementation and release authorization remain false.
+
+## Publication verification — 2026-09-17
+
+The user authorized publication of only `bootstrap/project-initialization` and one small governance reconciliation commit. The command `git -c push.followTags=false push origin refs/heads/bootstrap/project-initialization:refs/heads/bootstrap/project-initialization` succeeded, establishing push authentication to the configured fork.
+
+Independent GitHub REST API GET verification at `2026-09-17T08:32:26Z` confirmed:
+
+- Repository endpoint: `https://api.github.com/repos/ZeSluma/osmosis-travel-backup`; full_name `ZeSluma/osmosis-travel-backup`.
+- Branch endpoint: `https://api.github.com/repos/ZeSluma/osmosis-travel-backup/git/ref/heads/bootstrap/project-initialization`; SHA `81aef44d580c71e0d8ea9a26fdd26b48e44d535a`, matching the local bootstrap commit.
+- Main endpoint: `https://api.github.com/repos/ZeSluma/osmosis-travel-backup/git/ref/heads/main`; SHA `2fcdbc97e6dbefc875d425368be67cf32b50bb06`, unchanged.
+
+PROJECT_STATE now records PUBLISHED_VERIFIED for the original bootstrap commit. The reconciliation commit updates only PROJECT_STATE and this evidence report; its identity is supplied by Git history. The handoff remains local and untracked. No main push, merge, release, functional application change or local baseline test execution was performed. Existing branch-push CI may run; no CI outcome is inferred here. GATE-0 remains NOT_TESTED, implementation_authorized remains false, and release_allowed remains false.

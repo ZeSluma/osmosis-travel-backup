@@ -14,7 +14,9 @@ baseline_candidate_requires_refresh: false
 baseline_verified_date: "2026-09-17"
 bootstrap_branch: bootstrap/project-initialization
 bootstrap_status: PASS
-bootstrap_persistence: LOCAL_COMMIT_ONLY
+bootstrap_persistence: PUBLISHED_VERIFIED
+bootstrap_commit: "81aef44d580c71e0d8ea9a26fdd26b48e44d535a"
+bootstrap_publication_verified_at: "2026-09-17T08:32:26Z"
 bootstrap_evidence: docs/evidence/GATE-0/2026-09-17_bootstrap/REPORT.md
 
 active_plan: docs/plans/active/GATE-0-BASELINE.md
@@ -24,8 +26,6 @@ open_blockers:
   - unit tests have not yet been reproduced for this project
   - Samsung Galaxy S25 Ultra + DJI Osmo Pocket 4P baseline hardware evidence has not yet been captured
   - security baseline is initial only
-  - governance is local only; not pushed or verified in GitHub
-  - GitHub push authentication not yet verified
 
 release_blockers:
   - fork-specific release signing has not yet been established; future release prerequisite, not a GATE-0 blocker
@@ -49,13 +49,13 @@ completed_evidence:
   - fork branch list and open PRs/issues verified; no prior bootstrap found
   - workflows, Android configuration and roadmap observations rechecked locally
   - governance documentation initialized locally with no tracked functional changes
-  - successful HTTPS clone from the fork confirmed by the user; push authentication remains unverified
+  - successful HTTPS clone from the fork confirmed by the user
+  - bootstrap branch pushed to origin; push authentication verified by successful publication
+  - GitHub REST API independently confirms bootstrap commit and unchanged main after publication
 
 implementation_authorized: false
 release_allowed: false
 
 next_action: >-
-  Await explicit authorization to push the local governance commit. On authorization,
-  verify push authentication and publication to the fork under ADR 0002 without merging.
-  Then reproduce the unchanged GATE 0
+  Await the next session to reproduce the unchanged GATE 0
   baseline with wrapper validation, build, unit tests, lint/security checks and target-hardware evidence.
