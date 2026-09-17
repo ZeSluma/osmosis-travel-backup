@@ -27,7 +27,7 @@ object FilenameTimeInstrumentation {
             db.close()
             val upgraded=LedgerDatabase.open(context,name)
             try {
-                check(upgraded.openHelper.writableDatabase.version==6)
+                check(upgraded.openHelper.writableDatabase.version==7)
                 val repo2=LedgerRepository(upgraded)
                 val next=repo2.begin("filename-test","2","fake",now.plusSeconds(5))
                 val items=listOf(old,third).map { it.copy(capture=listOfNotNull(DjiFilenameTime.fromRemotePath(it.path))) }

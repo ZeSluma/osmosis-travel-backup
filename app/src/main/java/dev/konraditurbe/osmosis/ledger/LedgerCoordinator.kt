@@ -99,6 +99,16 @@ class LedgerCoordinator private constructor(context: Context) {
         val lease=latestLease ?: return@submit TransferResult.REVIEW_REQUIRED
         val assetId=CameraLedgerAdapter.asset(file).identity(lease.sourceId)
         if(database.ledger().assets(lease.snapshotId).none{it.id==assetId}) return@submit TransferResult.REVIEW_REQUIRED
+        // Explicit retry can finish a durable publication gap without another network request or media write.
+        if(AttemptRepository(database).publicationCandidate(lease,assetId)!=null) {
+            val destination=dev.konraditurbe.osmosis.integrity.PhonePendingVideo(appContext)
+            val path=database.ledger().replica(assetId)!!.relativePath
+            val recovered=dev.konraditurbe.osmosis.integrity.PublicationRecovery(database).recover(lease,assetId,
+                {locator->destination.publicationDestination(locator,path)},{session!=activeSession || cancelled()})
+            latestPlan=repository.plan(lease.snapshotId)
+            return@submit if(recovered==dev.konraditurbe.osmosis.integrity.PublicationRecovery.Result.RECOVERED_UNVERIFIED)
+                TransferResult.TRANSFERRED_UNVERIFIED else TransferResult.REVIEW_REQUIRED
+        }
         val item=repository.plan(lease.snapshotId).items.singleOrNull{it.assetId==assetId}
             ?: return@submit TransferResult.REVIEW_REQUIRED
         if(item.action==PlanAction.VERIFY_EXISTING) return@submit TransferResult.EXISTING_UNVERIFIED

@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "scope": "PROJECT_WIDE_PERMANENT",
+  "consolidated": false,
+  "session_not_before": "2026-09-17T22:40:37Z",
+  "items": [
+    {
+      "id": "G3-MIGRATION-UI",
+      "state": "WAITING_HARDWARE",
+      "question": "Does the final bundled build retain all schema6 history/local references and display A/B independently after migration?",
+      "why_hardware": "Actual S25 provider and installed-app UI integration cannot be proven by the emulator alone.",
+      "software_evidence": ["ResumeInstrumentation schema6-to7", "BackupDisplayTest", "BackupDisplayInstrumentation", "TARGET_SESSION existing A/B metadata"],
+      "software_preparation_complete": false,
+      "prerequisites": ["Final regression checkpoint", "No active transfer", "One verified APK", "Protected-reference metadata captured"],
+      "observation": "One install and normal connection; observe transferred-unconfirmed A and partial-review B; metadata-only comparison afterward.",
+      "criteria": {"PASS": "History and reference bindings preserved; no invented resume/source proof; A/B labels distinct and accurate.", "FAIL": "Lost/changed references, false promotion or incorrect status binding.", "INCONCLUSIVE": "Device/provider/session unavailable or incomplete enumeration prevents applicable label observation."},
+      "engineering_decision": "Determine whether production adapter/UI/migration needs correction; never infer gate PASS from labels.",
+      "batch_with": ["G3-TRANSPORT-CONTINUITY"],
+      "recurrence_of": "G3 target A/B UI distinction FAIL on8144ded",
+      "new_hypothesis": "Ledger-derived badges fix missing persistent status rendering.",
+      "competing_explanations": ["Old UI lacked projection", "New callback or exact-identity binding still fails"]
+    },
+    {
+      "id": "G3-TRANSPORT-CONTINUITY",
+      "state": "WAITING_HARDWARE",
+      "question": "Does Pocket expose an independently justifiable immutable source-version contract usable for resume?",
+      "why_hardware": "Simulated immutable versions cannot establish DJI endpoint semantics.",
+      "software_evidence": ["GuardedResumeTest", "ResumeInstrumentation", "ResumeProcessInstrumentation", "Existing200/length/ETag-presence evidence"],
+      "software_preparation_complete": false,
+      "prerequisites": ["Finish protocol/fault/recovery matrix", "Define read-only capability observation", "No retroactive validator adoption for B"],
+      "observation": "Only new discriminating sanitized metadata evidence under the final session plan; no repeated playback-state question or automatic transfer.",
+      "criteria": {"PASS": "Independent version/continuity contract is justified by specific evidence and its adapter tests; mere ETag presence is insufficient.", "FAIL": "Contradictory response/version behavior defeats the proposed contract.", "INCONCLUSIVE": "Metadata absent, ambiguous or semantics unsupported; retain safe refusal and overall UNVERIFIED."},
+      "engineering_decision": "Enable no production append until its source/prefix contract is justified; otherwise retain capability unavailable.",
+      "batch_with": ["G3-MIGRATION-UI"]
+    }
+  ],
+  "batches": [],
+  "excluded_redundant_observations": [
+    "Playback running via DJI Mimo recurrence without a new distinguishing hypothesis",
+    "Repeated identical rescan for already-known partial enumeration",
+    "Standalone USB/ADB/UI checks while useful software work remains"
+  ],
+  "historical_session": "docs/evidence/GATE-3/2026-09-17_integrity/HARDWARE_QUEUE.md"
+}

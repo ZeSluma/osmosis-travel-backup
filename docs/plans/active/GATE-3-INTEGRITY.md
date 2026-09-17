@@ -2,6 +2,10 @@
 
 ## Current checkpoint (supersedes historical preparation below)
 
+Permanent project-wide execution clarification supersedes every historical ADB/Human-stop sentence below: local hardware waits are queued while any useful safe software work remains. PROJECT_STATE.execution and docs/hardware/VALIDATION_QUEUE.json control current execution. Current work includes guarded resume/schema7, publication-gap recovery, crash-boundary/cancellation matrix and deterministic adapter-to-ledger harness. No gate PASS is inferred from these in-progress changes.
+
+User supersedes the prior ADB stop with a two-hour SOFTWARE WINDOW starting20:40:37Z on2026-09-17. Continue G3 safe resume/recovery engineering and software verification; queue UI/hardware checks. No routine physical request before approximately22:40:37Z. Missing source proof blocks unsafe IO, not work on the guarded implementation and simulations. See EXECUTION_POLICY.md.
+
 Bundled target session completed on8144ded: A normal transfer/file integrity, B interruption, shared restart and safe retry refusal PASS within their scopes. Original references preserved. Four members observed but snapshot INCOMPLETE; source proof absent, overall UNVERIFIED. Successful resume remains NOT_TESTED. Raster A/B distinction failed on target; read-only ledger badges now pass six new unit tests and emulator rendering. Full382 tests/debug/test build/release compile PASS; five baseline lint errors unchanged. See docs/evidence/GATE-3/2026-09-17_integrity/SESSION_DISPOSITION.md.
 
 Target disconnected before UI APK update (`adb: no devices found`); no install occurred. Human stop: reconnect S25, then install and perform one scoped A/B label observation with no transfer/retry. Do not repeat already settled Playback observations. A current ETag alone cannot establish original B source continuity; no append or gate PASS on safe refusal alone. G3 NOT_TESTED, implementation true, release false. No further media transfer is authorized by the completed two-test queue.

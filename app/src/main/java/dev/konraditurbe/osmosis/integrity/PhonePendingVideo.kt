@@ -10,6 +10,24 @@ import java.security.MessageDigest
 
 /** Creates only a new pending video, never opens a discovered existing file for writing. */
 class PhonePendingVideo(private val context:Context) {
+    /** Exact journal URI and reservation only; no discovery/adoption by filename. No media output API. */
+    fun publicationDestination(locator:String,relativePath:String):PublicationDestination {
+        val uri=Uri.parse(locator)
+        require(uri.scheme=="content" && uri.authority=="media" && uri.query==null && uri.fragment==null)
+        val parts=uri.pathSegments
+        require(parts.size==4 && parts[0] in setOf("external","external_primary") &&
+            parts[1]=="video" && parts[2]=="media" && parts[3].toLongOrNull()?.let{it>0}==true)
+        val folder="Movies/Osmosis/${relativePath.substringBefore('/')}/"
+        val name=relativePath.substringAfter('/')
+        context.contentResolver.query(uri,arrayOf("owner_package_name","relative_path","_display_name"),null,null,null)!!.use {
+            check(it.moveToFirst() && it.getString(0)==context.packageName && it.getString(1)==folder && it.getString(2)==name)
+        }
+        val destination=Destination(context,uri)
+        return object:PublicationDestination {
+            override fun inspect()=destination.inspect()
+            override fun publish()=destination.publish()
+        }
+    }
     fun create(relativePath:String):OwnedPendingDestination {
         require(relativePath.matches(Regex("[0-9]{4}-[0-9]{2}-[0-9]{2}/[A-Za-z0-9._-]+\\.(MP4|MOV|mp4|mov)")))
         val date=relativePath.substringBefore('/');java.time.LocalDate.parse(date)

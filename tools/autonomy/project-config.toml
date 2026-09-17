@@ -1,0 +1,10 @@
+# Reviewed project configuration, staged for .codex/config.toml activation.
+model = "gpt-5.6-terra"
+model_reasoning_effort = "low"
+# Requested subagent defaults require installed-runtime schema validation before activation:
+# agents.default_subagent_model = "gpt-5.6-luna"
+# agents.default_subagent_reasoning_effort = "low"
+developer_instructions = "For all Osmosis project work, bias toward action: complete already-authorized reversible software work before asking the user. Hardware-dependent paths go to docs/hardware/VALIDATION_QUEUE.json; they are not global stops while useful safe work remains. Read PROJECT_STATE.yaml execution and obey genuine safety, approval and source-of-truth boundaries."
+approval_policy = "on-request"
+approvals_reviewer = "auto_review"
+sandbox_mode = "workspace-write"

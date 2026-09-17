@@ -11,7 +11,10 @@ object CheckedCopy {
     /** Caller journals an exclusively owned staging destination before supplying output. */
     fun copy(expected:Long,offset:Long,response:ResponseMetadata,openInput:()->InputStream,
         openOwnedOutput:()->OutputStream, checkpoint:(Long)->Unit,
-        cancelled:()->Boolean={false}):Result {
+        cancelled:()->Boolean={false},durablePrefix:((Long,String)->Unit)?=null,
+        copiedBytes:((ByteArray,Int,Int)->Unit)?=null):Result {
+        // This digest covers bytes read in this invocation; it is a complete prefix only at offset zero.
+        if(offset!=0L && durablePrefix!=null)return Result(Outcome.REJECTED,0,offset,null)
         val contract=RangeContract.validate(expected,offset,response) ?: return Result(Outcome.REJECTED,0,offset,null)
         var received=0L;var durable=offset
         val digest=MessageDigest.getInstance("SHA-256")
@@ -27,9 +30,11 @@ object CheckedCopy {
                         if(n.toLong()>contract.responseLength-received) throw java.io.IOException("EXCESS_BODY")
                         output.write(buffer,0,n);received+=n
                         digest.update(buffer,0,n)
+                        copiedBytes?.invoke(buffer,0,n)
                         output.flush()
                         // Callback must sync the destination then durably journal; flush alone is not durability.
                         checkpoint(offset+received);durable=offset+received
+                        durablePrefix?.invoke(durable,(digest.clone() as MessageDigest).digest().joinToString(""){"%02x".format(it)})
                     }
                     if(received!=contract.responseLength) throw java.io.IOException("SHORT_BODY")
                     output.flush()

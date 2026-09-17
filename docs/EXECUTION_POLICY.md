@@ -1,5 +1,13 @@
 # Autonomous execution and bundled hardware validation
 
+Permanent hard cost priority: Terra/low for primary engineering; Luna/low for narrowly justified subagents. No automatic escalation. Sol requires explicit user approval after a reasonable evidenced Terra attempt; Astra and extra-high/max/ultra require explicit approval. Report a more expensive active root and recommend switching. Defaults never override client selections. Use targeted tests and narrow cached evidence; batch full verification at meaningful checkpoints. Autonomy and safety remain mandatory. Stop non-converging exploration after about three substantively different attempts rather than burning credits.
+
+Permanent across the entire project: ADR0014, root AGENTS autonomy contract and PROJECT_STATE.execution are the operational control layer. Hardware is a last-resort global validation boundary only after useful software preparation and reachable non-destructive work are exhausted. The single current queue is docs/hardware/VALIDATION_QUEUE.json; gate-local queues are historical session records. Run tools/autonomy/control.py --check before proposing user interaction. No root/gate/feature/task boundary alone warrants a stop.
+
+## Current software window
+
+Explicit user instruction starts approximately two hours of autonomous software engineering at2026-09-17T20:40:37Z (target end22:40:37Z). ADB/device absence alone is not a Human Stop Condition. No routine USB, camera rescan, UI observation, recording, transfer, restart or Wi-Fi requests during this window. Queue hardware facts and continue useful implementation, unit/integration/emulator/migration/process-death, malformed protocol, identity, fault-injection and recovery tests. Prepare one consolidated high-information session after the window and useful software preparation, not after each small fix. Safety/data-integrity emergencies, destructive approval, credentials, unavoidable external approval and unresolved source-of-truth conflicts remain real boundaries. Never invent hardware PASS or waive gate dependencies.
+
 Accepted user policy, 2026-09-17. Applies to the current and subsequent defined non-destructive gates. Maximize verified engineering progress per credit and autonomous progress per human interaction without weakening project invariants.
 
 ## Default cycle

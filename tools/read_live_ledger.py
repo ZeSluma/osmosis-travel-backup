@@ -72,11 +72,15 @@ def audit():
     first = (read(''),read('-wal')); second = (read(''),read('-wal'))
     assert first == second, 'UNSTABLE_SNAPSHOT'
     db=image_with_wal(*first)
-    assert db.execute('PRAGMA user_version').fetchone()[0] == 6
+    schema = db.execute('PRAGMA user_version').fetchone()[0]
+    assert schema in (6, 7)
     opaque=lambda s: hashlib.sha256(s.encode()).hexdigest() if s else None
     allowed={'INCOMPLETE','COMPLETE','DISCOVERED','NEEDS_REVALIDATION','LOCAL_PRESENT_UNVERIFIED','TRANSFERRED_UNVERIFIED','LOCAL_VERIFIED','PARTIAL','PRESENT_UNVERIFIED','ABSENT','AMBIGUOUS','NOT_SCANNED','MISSING','UNAVAILABLE','CHANGED','INTENT','ALLOCATING','WRITING','PUBLISH_PENDING','PUBLISHED','CONFIRMED','UNCONFIRMED','FAILED'}
     token=lambda s:s if s in allowed else 'UNRECOGNIZED'
-    result={'schema':6,'capture':'STABLE_DOUBLE_READ_CHECKSUM_VALIDATED_WAL_IN_RAM','counts':{t:db.execute('SELECT COUNT(*) FROM '+t).fetchone()[0] for t in ['assets','snapshots','identity_observations','transfer_attempts','transfer_integrity','source_equivalence']}}
+    tables = ['assets','snapshots','identity_observations','transfer_attempts','transfer_integrity','source_equivalence']
+    if schema == 7:
+        tables.append('resume_evidence')
+    result={'schema':schema,'capture':'STABLE_DOUBLE_READ_CHECKSUM_VALIDATED_WAL_IN_RAM','counts':{t:db.execute('SELECT COUNT(*) FROM '+t).fetchone()[0] for t in tables}}
     result['assets']=[]
     for r in db.execute("SELECT a.id,a.size,p.state,p.localPresence,p.localLocator,p.committedLength,a.identityAmbiguous,a.strongVersion IS NOT NULL FROM assets a JOIN replicas p ON a.id=p.assetId WHERE p.destination='PHONE_LOCAL' ORDER BY a.id"):
         result['assets'].append(dict(asset=opaque(r[0]),bytes=r[1],state=token(r[2]),presence=token(r[3]),locator=opaque(r[4]),committed=r[5],ambiguous=bool(r[6]),source_version_present=bool(r[7])))

@@ -1,10 +1,30 @@
 project: osmosis-travel-backup
-current_phase: gate_3_session_evidenced_ui_correction_pending_target
+execution: {
+  "schema_version": 1,
+  "mode": "AUTONOMOUS_SOFTWARE_FIRST",
+  "scope": "PROJECT_WIDE_PERMANENT",
+  "cost_policy": {"priority": "HARD", "primary_model": "gpt-5.6-terra", "primary_reasoning": "low", "subagent_model": "gpt-5.6-luna", "subagent_reasoning": "low", "automatic_escalation": false, "expensive_model_requires_explicit_approval": true, "project_config_activation": "PENDING_APPROVAL_RUNTIME_VALIDATION", "active_root_switch": "USER_CLIENT_SWITCH_REQUIRED_FROM_GPT6_ASTRA"},
+  "software_work_remaining": true,
+  "reachable_non_destructive_work_remaining": true,
+  "software_preparation_exhausted": false,
+  "human_stop": {"required": false, "kind": "NONE", "reason": "Safe software and execution-layer work remains; device absence is local only."},
+  "hardware_validation": {"state": "LOCAL_PATH_WAITING_FOR_HARDWARE", "queue": "docs/hardware/VALIDATION_QUEUE.json", "consolidated": false},
+  "work_items": [
+    {"id": "AUTONOMY_CONTROL", "state": "IMPLEMENTED_SOFTWARE_PROVEN"},
+    {"id": "CRASH_BOUNDARY_MATRIX", "state": "IN_PROGRESS"},
+    {"id": "CAMERA_LEDGER_HARNESS", "state": "READY"},
+    {"id": "HTTP_LOOPBACK_REGRESSION", "state": "IN_PROGRESS"},
+    {"id": "FULL_G3_CHECKPOINT", "state": "READY"},
+    {"id": "HOOK_RUNTIME_ACTIVATION", "state": "LOCAL_PATH_WAITING_FOR_APPROVAL"},
+    {"id": "CLOUD_HANDOFF", "state": "PUBLISHED_PENDING_SHA_VERIFICATION"}
+  ]
+}
+current_phase: gate_3_schema7_guarded_resume_and_autonomy_control_in_progress
 current_gate: GATE-3
 gate_status: NOT_TESTED
 gate_0_status: PASS
 gate_0_completed_date: "2026-09-17"
-hardware_session_status: BUNDLED_TRANSFER_TESTS_COMPLETE_TARGET_DISCONNECTED_UI_RECHECK_PENDING
+hardware_session_status: SOFTWARE_WINDOW_NO_ROUTINE_HARDWARE_REQUESTS
 hardware_resume_requires_explicit_return: true
 intent_rebase_status: ACCEPTED_IN_PRINCIPLE_RECONCILED
 intent_rebase_evidence: docs/evidence/GATE-1/2026-09-17_intent-rebase/INTENT_AUDIT.md
@@ -194,7 +214,7 @@ gate_2_empty_enumeration: CONNECTED_BUT_MEDIA_ENUMERATION_EMPTY; snapshot3 INCOM
 gate_2_camera_recovery: CAMERA_UNREACHABLE_UNTIL_POWER_CYCLE; user power cycle and fresh rescan restored two videos; snapshot4 contains same two asset identities; root cause UNCONFIRMED; separate G7 wake/recovery investigation
 build_tool_dependency_debt: 44 OSV advisory IDs on 11 unchanged G1 build-classpath coordinates; no returned new/runtime advisory; reviewed build/CI remediation before release
 next_action: >-
-  Human stop - ADB reports no devices found. Reconnect/unlock S25 to install tested UI correction and check distinct A/B labels without any download/retry. Resume remains blocked by missing trustworthy source-continuity proof; do not infer it from ETag presence.
+  Autonomous software window until approximately2026-09-17T22:40:37Z; implement and test G3 recovery/resume contracts, queue hardware assumptions, no routine device requests. ADB unavailability is not a stop condition.
 
 gate_2_identity_decision: docs/decisions/0012-incomplete-identity-observations.md
 gate_2_identity_evidence: docs/evidence/GATE-2/2026-09-17_identity-observations/REPORT.md
@@ -216,8 +236,8 @@ gate_3_parent: 136b02b3951b18def39ace3062ca164584d1f2cd
 gate_3_integrity_decision: docs/decisions/0013-orthogonal-integrity-evidence.md
 
 execution_focus: VERTICAL_SLICE_FIRST_A_SAFETY_B_CURRENT_PATH_C_DEFERRED_HARDENING
-gate_3_current_software_checkpoint: SOFTWARE_PROVEN 382 unit tests PASS, debug/test build and release compile PASS; emulator ledger/storage/UI rendering and launcher security PASS; hardware results in TARGET_SESSION.md
-gate_3_remaining_software: Successful production resume requires actual trustworthy source-continuity evidence; current unknown-prefix/source path safely blocks append and preserves partials. Continue evidence-driven implementation after bundled target facts.
+gate_3_current_software_checkpoint: Prior checkpoint 382 unit tests PASS, debug/test build and release compile PASS; new uncommitted schema7 guarded-resume/publication-recovery/autonomy changes require final targeted and broad checkpoint before any G3 outcome claim.
+gate_3_remaining_software: Finish crash-boundary/cancellation and camera-to-ledger harness; verify schema7 migration and guarded resume with synthetic emulator/process-death fixtures; then run meaningful broad checkpoint. Pocket resume remains disabled without independently justified immutable source-continuity evidence.
 autonomous_execution_policy: docs/EXECUTION_POLICY.md
 hardware_validation_policy: Queue scoped facts, complete useful software preparation, then one consolidated session with independent PASS/FAIL/INCONCLUSIVE criteria
 gate_3_evidence: docs/evidence/GATE-3/2026-09-17_integrity/REPORT.md
@@ -239,3 +259,4 @@ gate_3_target_ui_state: FAIL - after restart/reconnect all4 videos appear withou
 
 gate_3_target_retry_refusal: PASS - zero new transfer attempts, B330769591 bytes pending1 preserved; no successful-resume claim
 gate_3_ui_correction: SOFTWARE_PROVEN and EMULATOR_PROVEN; original hardware FAIL retained, target correction NOT_TESTED
+gate_3_handoff: 2026-09-18 cloud continuation checkpoint; working tree intentionally contains uncommitted schema7 guarded-resume, publication recovery, strict HTTP framing, autonomy control and evidence changes. CODEX_HANDOFF_ALL_IN_ONE.md remains local/untracked and excluded from publication.

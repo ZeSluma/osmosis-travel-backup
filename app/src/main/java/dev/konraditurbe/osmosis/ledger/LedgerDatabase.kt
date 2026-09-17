@@ -12,11 +12,13 @@ import java.io.File
 
 @Database(entities = [SourceRow::class, SnapshotRow::class, RecordingRow::class, AssetRow::class,
     MemberRow::class, MembershipRow::class, ReplicaRow::class, LocalCandidateRow::class, CaptureEvidenceRow::class,
-    IdentityObservationRow::class, TransferIntegrityRow::class, SourceEquivalenceRow::class, TransferAttemptRow::class], version = 6, exportSchema = true)
+    IdentityObservationRow::class, TransferIntegrityRow::class, SourceEquivalenceRow::class, TransferAttemptRow::class,
+    ResumeEvidenceRow::class], version = 7, exportSchema = true)
 abstract class LedgerDatabase : RoomDatabase() {
     abstract fun ledger(): LedgerDao
     abstract fun integrity(): IntegrityDao
     abstract fun attempts(): AttemptDao
+    abstract fun resumes(): ResumeDao
     companion object {
         val MIGRATION_1_2 = object : Migration(1, 2) {
             override fun migrate(db: SupportSQLiteDatabase) {
@@ -53,12 +55,19 @@ abstract class LedgerDatabase : RoomDatabase() {
                 db.execSQL("CREATE INDEX IF NOT EXISTS index_transfer_attempts_assetId ON transfer_attempts(assetId)")
             }
         }
+        val MIGRATION_6_7 = object : Migration(6, 7) {
+            override fun migrate(db:SupportSQLiteDatabase) {
+                db.execSQL("CREATE TABLE IF NOT EXISTS resume_evidence (id TEXT NOT NULL, attemptId TEXT NOT NULL, locator TEXT NOT NULL, checkpoint INTEGER NOT NULL, sha256 TEXT NOT NULL, sourceId TEXT NOT NULL, assetId TEXT NOT NULL, sourceVersion TEXT NOT NULL, ownerEpoch INTEGER NOT NULL, PRIMARY KEY(id), FOREIGN KEY(attemptId) REFERENCES transfer_attempts(id) ON UPDATE NO ACTION ON DELETE NO ACTION)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_resume_evidence_attemptId ON resume_evidence(attemptId)")
+                // Historic partials retain data and journal state but acquire no invented prefix/version proof.
+            }
+        }
         fun open(context: Context, name: String = "sync-ledger.db"): LedgerDatabase {
             require(name.matches(Regex("[A-Za-z0-9._-]+")))
             return Room.databaseBuilder(context.applicationContext, LedgerDatabase::class.java,
                 File(context.noBackupFilesDir, name).absolutePath)
                 .openHelperFactory(PreserveCorruptDatabaseFactory())
-                .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6)
+                .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7)
                 .build()
         }
     }

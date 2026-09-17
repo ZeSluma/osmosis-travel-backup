@@ -1,5 +1,17 @@
 # AGENTS.md
 
+## Hard cost policy — permanent
+
+Default primary: GPT-5.6 Terra / low. Default subagent: GPT-5.6 Luna / low, only for bounded work whose value exceeds its cost; minimize concurrency. No automatic model/reasoning escalation. Sol requires explicit user approval after an evidenced reasonable Terra attempt; Astra and extra-high/max/ultra always require explicit approval. If the active root is more expensive than Terra, disclose it and recommend switching; project defaults do not override explicit client selections or authorize escalation. Prefer narrow reads, cached evidence, targeted tests, deterministic tools and batched verification. Preserve safety and autonomous continuation; do not spend credits on repeated scans, broad rereads, redundant full tests or non-converging exploration beyond roughly three distinct evidence-based attempts.
+
+## Permanent autonomy contract — entire project
+
+Default: implement → test/emulate/simulate → analyze/fix/regress → continue all reachable safe non-destructive work, across gates, features, bugs, migrations and investigations. A hardware dependency is **LOCAL_PATH_WAITING_FOR_HARDWARE**, never by itself a global blocker. Persist it in `docs/hardware/VALIDATION_QUEUE.json` and continue another useful path.
+
+Before any user interaction, check existing evidence, whether the physical fact is necessary now, remaining software/follow-on work, batching, and whether a new discriminating hypothesis justifies repeating an observation. A hardware **GLOBAL_HUMAN_STOP_REQUIRED** requires ALL: genuinely necessary physical evidence; useful software preparation exhausted; no useful reachable non-destructive work; all pending checks consolidated with purpose and PASS/FAIL/INCONCLUSIVE criteria. ADB absence, a completed task/commit/test or gate boundary is insufficient.
+
+Maintain the machine-readable `execution` section in PROJECT_STATE.yaml. Run `tools/autonomy/control.py --check` before proposing a stop. Safety/security/data-integrity, destructive authorization, credentials, unavoidable external approval, unresolved Source-of-Truth conflict and explicit user pause remain genuine boundaries; never force work through them. No main/upstream mutation, merge, release or protected-media changes. Hooks reinforce this contract but do not replace judgment or override higher-priority instructions. Their activation/trust status is documented, never assumed.
+
 ## Scope
 
 This repository is the user-controlled development fork for the **OSMOSIS TRAVEL BACKUP** project.
@@ -75,10 +87,10 @@ The current detailed policy is [docs/EXECUTION_POLICY.md](docs/EXECUTION_POLICY.
 
 Current user policy (2026-09-17) supersedes previous requirements to request permission merely to cross an already-defined non-destructive gate boundary. Continue reconstructing state, implementing, testing, investigating and fixing in-scope failures, reviewing security/scope, persisting evidence, committing, publishing the appropriate working branch and independently verifying its SHA. Repeat through the authoritative dependency graph while requirements and acceptance criteria determine the next work unambiguously.
 
-Before each gate, repeat mandatory bootstrap, verify dependencies and use a dedicated reviewable branch. A gate boundary alone is not a stop condition. Software completion never fabricates hardware PASS or waives predecessor criteria. Finish all software-verifiable current-gate work before requesting the minimum remaining hardware interaction. Hardware remains paused until the user explicitly returns.
+Before each gate, repeat mandatory bootstrap, verify dependencies and use a dedicated reviewable branch. A gate boundary alone is not a stop condition. Software completion never fabricates hardware PASS or waives predecessor criteria. Finish all software-verifiable current-gate work before requesting the minimum remaining hardware interaction. Physical work follows the consolidated queue and current explicit authorization; a queued hardware path never pauses unrelated software work.
 
 Do not stop for ordinary compile/test/lint failures, correction/refactoring, dependency investigation, safe experiments, documentation, branch creation or normal authorized commits/pushes. Preserve original failure evidence, identify the cause, make the smallest justified correction and retest; avoid speculative repeated fixes.
 
-Stop only for physical hardware interaction; a genuine unresolved product/UX decision; credentials/account authorization; external approval; actual destructive/irreversible operations; an unresolved source-of-truth conflict; invariant/security/data-loss risk; or a non-converging blocker after reasonable evidence-based attempts. Report one concise checkpoint with current gate/status, completed gates/work, verified results, exact blocker and required user action, safe options, recommendation, branch, latest commit and remote status.
+A global stop follows the permanent autonomy contract above and PROJECT_STATE.execution, not mere physical-device unavailability. A non-converging local path is recorded while other useful reachable work continues. Consolidate any genuinely necessary user request only after unaffected useful work is exhausted.
 
 Never modify/push main, mutate upstream, merge or release under this autonomy. No automatic camera-original deletion. No real destructive test, verified-media overwrite, format, destructive migration or Git history rewrite without explicit authorization. GATE-9 design/code/fake tests and non-destructive validation may proceed when prerequisites pass; actual camera deletion always requires explicit user participation/authorization. Optional features retain their opt-in rules. Autonomy preserves safety invariants and the source-of-truth hierarchy.

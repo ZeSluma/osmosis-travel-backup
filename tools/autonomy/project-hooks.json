@@ -1,0 +1,23 @@
+{
+  "description": "Osmosis project-wide autonomy, read-only state projection and one-shot Stop continuation.",
+  "hooks": {
+    "SessionStart": [{
+      "matcher": "^(startup|resume|clear|compact)$",
+      "hooks": [{
+        "type": "command",
+        "command": "python3 \"$(git rev-parse --show-toplevel)/tools/autonomy/control.py\"",
+        "commandWindows": "powershell.exe -NoProfile -NonInteractive -Command \"$r = git rev-parse --show-toplevel; if ($LASTEXITCODE -ne 0) { exit 1 }; $p = Join-Path $env:USERPROFILE '.cache/codex-runtimes/codex-primary-runtime/dependencies/python/python.exe'; & $p (Join-Path $r 'tools/autonomy/control.py')\"",
+        "timeout": 5,
+        "additionalContextLimit": 1200
+      }]
+    }],
+    "Stop": [{
+      "hooks": [{
+        "type": "command",
+        "command": "python3 \"$(git rev-parse --show-toplevel)/tools/autonomy/control.py\"",
+        "commandWindows": "powershell.exe -NoProfile -NonInteractive -Command \"$r = git rev-parse --show-toplevel; if ($LASTEXITCODE -ne 0) { exit 1 }; $p = Join-Path $env:USERPROFILE '.cache/codex-runtimes/codex-primary-runtime/dependencies/python/python.exe'; & $p (Join-Path $r 'tools/autonomy/control.py')\"",
+        "timeout": 5
+      }]
+    }]
+  }
+}

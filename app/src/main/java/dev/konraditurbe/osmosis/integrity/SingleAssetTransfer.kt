@@ -6,6 +6,8 @@ import java.io.OutputStream
 
 interface TransferResponse:AutoCloseable {
     val metadata:ResponseMetadata
+    /** Null unless the adapter independently establishes immutable version semantics for this response. */
+    val sourceRevision:SourceRevision? get()=null
     fun input():InputStream
 }
 interface OwnedPendingDestination {
@@ -30,6 +32,12 @@ class SingleAssetTransfer(private val db:LedgerDatabase) {
             if(intent.state!="INTENT")return Result.PARTIAL_OR_REVIEW_REQUIRED
             source().use{response->
                 if(RangeContract.validate(intent.expectedBytes,0,response.metadata)==null)return Result.PARTIAL_OR_REVIEW_REQUIRED
+                val revision=response.sourceRevision
+                if(revision!=null) {
+                    val asset=checkNotNull(db.ledger().asset(assetId))
+                    require(revision.trust==VersionTrust.IMMUTABLE_VERSION && revision.source==lease.sourceId && revision.asset==assetId &&
+                        revision.version.isNotBlank() && !asset.identityAmbiguous && revision.version==asset.strongVersion)
+                }
                 if(cancelled())return Result.PARTIAL_OR_REVIEW_REQUIRED
                 journal.reserveAllocation(lease,intent.id)
                 val dest=createOwnedPending(db.ledger().replica(assetId)!!.relativePath)
@@ -37,7 +45,8 @@ class SingleAssetTransfer(private val db:LedgerDatabase) {
                 require(before.locator==dest.locator && before.pending && before.bytes==0L)
                 journal.attach(lease,intent.id,dest.locator)
                 val copy=CheckedCopy.copy(intent.expectedBytes,0,response.metadata,response::input,dest::output,
-                    {n->dest.sync();journal.checkpoint(lease,intent.id,n);progress(n)},cancelled)
+                    {n->dest.sync();journal.checkpoint(lease,intent.id,n);progress(n)},cancelled,
+                    durablePrefix=revision?.let { trusted->{n,sha->ResumeRepository(db).record(lease,intent.id,n,sha,trusted)} })
                 if(copy.outcome!=CheckedCopy.Outcome.COPIED)return Result.PARTIAL_OR_REVIEW_REQUIRED
                 val local=dest.inspect()
                 val readable=CheckedCopy.readBack(intent.expectedBytes,checkNotNull(copy.digest),dest::input)
@@ -46,6 +55,7 @@ class SingleAssetTransfer(private val db:LedgerDatabase) {
                 val receipt=TransferReceipt(intent.expectedBytes,0,copy.received,response.metadata,false,false,true,true,true,readable)
                 val integrity=IntegrityRepository(db).recordTransfer(lease,assetId,local,receipt)
                 journal.preparePublication(lease,intent.id,integrity)
+                if(cancelled())return Result.PARTIAL_OR_REVIEW_REQUIRED
                 dest.publish()
                 journal.observePublished(lease,intent.id,dest.inspect())
                 // Source identity remains independent and unknown unless separately proven.

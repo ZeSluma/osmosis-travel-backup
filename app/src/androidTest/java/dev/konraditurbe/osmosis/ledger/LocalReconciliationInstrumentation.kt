@@ -55,7 +55,7 @@ object LocalReconciliationInstrumentation {
             val projection=Gate2ReadOnlyAudit.project(java.io.File(context.noBackupFilesDir,name))
             check(!projection.contains("BLOCKED_READ_ONLY_PROJECTION")) { "SYNTHETIC_LOCAL_AUDIT_QUERY" }
             val audit=org.json.JSONObject(projection)
-            check(audit.getInt("schema")==6)
+            check(audit.getInt("schema")==7)
             check(audit.getJSONArray("assets").getJSONObject(0).getString("recomputed_planner_action")=="VERIFY_EXISTING")
             check(!projection.contains(local.locator) && !projection.contains(local.displayName))
             check(db.ledger().localCandidates(asset.id).size==1)

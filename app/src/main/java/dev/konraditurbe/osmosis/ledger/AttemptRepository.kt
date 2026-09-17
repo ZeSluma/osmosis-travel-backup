@@ -16,6 +16,7 @@ interface AttemptDao {
 
 /** Journal only. IO adapters must prove exclusive pending ownership; never adopt by name. */
 class AttemptRepository(private val db:LedgerDatabase) {
+    data class PublicationCandidate(val attempt:TransferAttemptRow,val proof:TransferIntegrityRow)
     private fun <T> tx(block:()->T):T=db.runInTransaction(Callable(block))
     private fun current(lease:EnumerationLease,assetId:String) {
         val a=checkNotNull(db.ledger().asset(assetId))
@@ -73,5 +74,30 @@ class AttemptRepository(private val db:LedgerDatabase) {
         val proof=checkNotNull(db.integrity().transfer(checkNotNull(row.integrityId)))
         require(local.locator==row.locator && local.revision==proof.localRevision && local.bytes==row.expectedBytes && local.readable && !local.pending)
         db.attempts().update(row.copy(state="PUBLISHED"))
+    }
+
+    /** Old epochs retain their evidence identity; only current exact replica bindings may recover publication. */
+    fun publicationCandidate(lease:EnumerationLease,assetId:String):PublicationCandidate?=tx {
+        current(lease,assetId)
+        val replica=db.ledger().replica(assetId) ?: return@tx null
+        val row=db.attempts().forAsset(assetId).singleOrNull() ?: return@tx null
+        if(row.state!="PUBLISH_PENDING" || row.locator==null || row.locator!=replica.localLocator ||
+            row.expectedBytes<=0 || row.checkpoint!=row.expectedBytes || replica.committedLength!=row.expectedBytes ||
+            db.ledger().asset(assetId)?.size!=row.expectedBytes)return@tx null
+        val proof=row.integrityId?.let{db.integrity().transfer(it)} ?: return@tx null
+        if(proof.assetId!=assetId || proof.locator!=row.locator || proof.expectedBytes!=row.expectedBytes ||
+            proof.ownerEpoch!=row.ownerEpoch || proof.result!="CONFIRMED" || proof.localRevision.isBlank())return@tx null
+        PublicationCandidate(row,proof)
+    }
+    fun observeRecoveredPublication(lease:EnumerationLease,candidate:PublicationCandidate,
+        local:dev.konraditurbe.osmosis.integrity.LocalBinding)=tx {
+        val current=publicationCandidate(lease,candidate.attempt.assetId)
+        check(current==candidate) { "PUBLICATION_BINDING_CHANGED" }
+        require(local.locator==candidate.attempt.locator && local.revision==candidate.proof.localRevision &&
+            local.bytes==candidate.attempt.expectedBytes && local.readable && !local.pending)
+        db.attempts().update(candidate.attempt.copy(state="PUBLISHED"))
+        val replica=db.ledger().replica(candidate.attempt.assetId)!!
+        db.ledger().replica(replica.copy(state="TRANSFERRED_UNVERIFIED"))
+        // Never rewrite receipt epochs or create source-equivalence proof during local recovery.
     }
 }

@@ -36,7 +36,7 @@ public final class Gate2ReadOnlyAudit {
         try (SQLiteDatabase db = SQLiteDatabase.openDatabase(ROOT + "sync-ledger.db", null,
                 SQLiteDatabase.OPEN_READONLY | SQLiteDatabase.NO_LOCALIZED_COLLATORS,
                 broken -> { throw new IllegalStateException("AUDIT_CORRUPTION_PRESERVED"); })) {
-            if (!db.isReadOnly() || (db.getVersion() < 3 || db.getVersion() > 6)) throw new IllegalStateException();
+            if (!db.isReadOnly() || (db.getVersion() < 3 || db.getVersion() > 7)) throw new IllegalStateException();
             JSONArray rows = new JSONArray();
             try (Cursor c = db.rawQuery("SELECT a.id,a.remotePath,a.remoteTime,r.timestamp,r.zoneEvidence,r.confidence,p.relativePath "
                     + "FROM assets a JOIN recordings r ON r.id=a.recordingId JOIN replicas p ON p.assetId=a.id "
@@ -77,7 +77,7 @@ public final class Gate2ReadOnlyAudit {
             try (SQLiteDatabase db = SQLiteDatabase.openDatabase(file.getPath(), null,
                     SQLiteDatabase.OPEN_READONLY | SQLiteDatabase.NO_LOCALIZED_COLLATORS,
                     broken -> { throw new IllegalStateException("AUDIT_CORRUPTION_PRESERVED"); })) {
-                if (!db.isReadOnly() || (db.getVersion() < 3 || db.getVersion() > 6)) throw new IllegalStateException();
+                if (!db.isReadOnly() || (db.getVersion() < 3 || db.getVersion() > 7)) throw new IllegalStateException();
                 result.put("schema", db.getVersion());
                 // One SELECT provides a consistent SQLite statement snapshot of
                 // every projection; no multi-query race and no write transaction.

@@ -19,14 +19,15 @@ object IntegrityEvidenceInstrumentation {
             val asset=db.ledger().assets(lease.snapshotId).single()
             val replica=db.ledger().replica(asset.id)!!
             db.ledger().replica(replica.copy(localLocator="content://synthetic/1"))
-            // Exact schema5-to-6 boundary: no proof is invented from pre-existing replica length/state.
+            // Schema5 through current: no proof is invented from pre-existing replica length/state.
+            db.openHelper.writableDatabase.execSQL("DROP TABLE resume_evidence")
             db.openHelper.writableDatabase.execSQL("DROP TABLE transfer_attempts")
             db.openHelper.writableDatabase.execSQL("DROP TABLE source_equivalence")
             db.openHelper.writableDatabase.execSQL("DROP TABLE transfer_integrity")
             val schema=org.json.JSONObject(i.context.assets.open("dev.konraditurbe.osmosis.ledger.LedgerDatabase/5.json").bufferedReader().use{it.readText()}).getJSONObject("database")
             db.openHelper.writableDatabase.execSQL("UPDATE room_master_table SET identity_hash=? WHERE id=42",arrayOf(schema.getString("identityHash")))
             db.openHelper.writableDatabase.version=5;db.close();db=LedgerDatabase.open(context,name)
-            check(db.openHelper.writableDatabase.version==6)
+            check(db.openHelper.writableDatabase.version==7)
             check(db.integrity().transfers(asset.id).isEmpty())
             var evidence=IntegrityRepository(db)
             val local=LocalBinding("content://synthetic/1","revision1",100,true,false)
