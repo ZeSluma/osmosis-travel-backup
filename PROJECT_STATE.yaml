@@ -4,7 +4,7 @@ current_gate: GATE-2
 gate_status: BLOCKED
 gate_0_status: PASS
 gate_0_completed_date: "2026-09-17"
-hardware_session_status: RESTART_PERSISTENCE_VERIFIED_AWAITING_NEW_MEDIA_CHECK
+hardware_session_status: AWAITING_NEW_RECORDING_ENUMERATION_FOR_TIMESTAMP_EVIDENCE
 hardware_resume_requires_explicit_return: true
 intent_rebase_status: ACCEPTED_IN_PRINCIPLE_RECONCILED
 intent_rebase_evidence: docs/evidence/GATE-1/2026-09-17_intent-rebase/INTENT_AUDIT.md
@@ -196,7 +196,9 @@ next_action: >-
   First post-update audit confirms schema3, new generation, stable two assets/groups/day/path and local unverified candidates.
   Recovered snapshot4 contains the same two assets after user camera power cycle and rescan; snapshot3 remains untrusted INCOMPLETE.
   Restart/repeated-enumeration persistence and unchanged protected sizes verified; no duplicate assets or false VERIFIED.
-  Next hardware step is one new non-critical recording and its reported capture date/time, followed by enumeration only;
+  User reports short recording created; external clock/date note is approximate only, never Pocket-displayed time or camera metadata.
+  Latest read-only audit still has only two old assets/four snapshots; enumerate the new recording through ordinary rescan, without transfer.
+  Inspect actual exposed timestamp values/source/offset and reserved path; external reference is only a plausibility window, not an exact oracle;
   verify new versus known planning and truthful timestamp/type/relationship uncertainty without downloading or deleting.
   G2 remains BLOCKED until remaining mandatory hardware criteria are evidenced; no G3/G7 implementation.
   Keep saved-entry failure/rescan recovery and future G7 AP/keepalive work separate. No main mutation, merge or release.
