@@ -189,4 +189,6 @@
     <string name="power_drawing">consumiendo %1$d mA</string>
     <string name="power_idle">inactivo</string>
     <string name="power_docked_suffix"> · acoplado</string>
+    <string name="shortcut_connect">Conectar</string>
+    <string name="shortcut_connect_confirm">¿Conectar con %1$s?</string>
 </resources>

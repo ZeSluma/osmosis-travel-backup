@@ -6,6 +6,8 @@
 
     <!-- Common buttons -->
     <string name="cancel">Cancel</string>
+    <string name="shortcut_connect">Connect</string>
+    <string name="shortcut_connect_confirm">Connect to %1$s?</string>
     <string name="save">Save</string>
     <string name="delete">Delete</string>
     <string name="share">Share</string>

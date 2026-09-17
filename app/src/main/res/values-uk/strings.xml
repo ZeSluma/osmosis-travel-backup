@@ -189,4 +189,6 @@
     <string name="power_drawing">споживання %1$d mA</string>
     <string name="power_idle">очікування</string>
     <string name="power_docked_suffix"> · у док-станції</string>
+    <string name="shortcut_connect">Підключити</string>
+    <string name="shortcut_connect_confirm">Підключитися до %1$s?</string>
 </resources>

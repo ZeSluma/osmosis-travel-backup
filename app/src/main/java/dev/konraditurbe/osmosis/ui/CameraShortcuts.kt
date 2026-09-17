@@ -11,7 +11,7 @@ import dev.konraditurbe.osmosis.core.SavedCameras
 /**
  * Launcher **App Shortcuts** for the paired cameras (long-press the app icon). Surfaces the cameras
  * the user actually reaches for, newest-connected first — the same idea as a messaging app showing
- * recent chats. Tapping one launches [MainActivity] straight into the connect flow for that camera
+ * recent chats. Tapping one launches [MainActivity] with a confirmation before connecting to that camera
  * (see [EXTRA_MAC]); with no paired cameras there are no shortcuts.
  *
  * Dynamic (not manifest) shortcuts, because the list is per-user and changes as cameras are onboarded
@@ -19,7 +19,7 @@ import dev.konraditurbe.osmosis.core.SavedCameras
  * connect, and forgetting a camera.
  */
 object CameraShortcuts {
-    /** Intent extra on a shortcut launch: the BLE MAC of the camera to connect to. */
+    /** Intent extra on a shortcut launch: the BLE MAC of the saved camera to offer for confirmation. */
     const val EXTRA_MAC = "shortcut_mac"
 
     /** The launcher long-press menu only shows a handful; more than this is never seen. */

@@ -191,4 +191,6 @@
     <string name="power_drawing">耗电 %1$d mA</string>
     <string name="power_idle">空闲</string>
     <string name="power_docked_suffix"> · 已连接底座</string>
+    <string name="shortcut_connect">连接</string>
+    <string name="shortcut_connect_confirm">连接到 %1$s？</string>
 </resources>

@@ -192,12 +192,9 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
     // `am start ... --es pin <value>`.
     private var pairPin = "osmo"
 
-    /** `--ez nojoin true` — skip the WiFi join/bind and talk over whatever network is already default. */
-    private var noJoin = false
 
     /** Serial + tag read off the drone's identity beacon over BLE, handed to the datalink session. */
     private var bleDroneSerial: Pair<ByteArray, Int>? = null
-    private var pinOverride: String? = null // `--es pin <v>` test hook; wins over the per-model token
 
     // Shown while the camera/drone is waiting for the user to confirm pairing (0x07/45 → 0x02).
     // A camera confirms on its own screen; a drone (e.g. Mavic) needs a ~2 s press of its power button.
@@ -270,6 +267,8 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        val launchIntent = intent
+        setIntent(android.content.Intent(this, MainActivity::class.java))
         super.onCreate(savedInstanceState)
         // Opt in explicitly instead of inheriting the targetSdk-35 default, so every supported release
         // behaves the same way. Without it, API 29-34 keeps opaque system bars while 35+ goes
@@ -359,87 +358,51 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
         logLine("Osmosis $packageName started")
         selfTestDuml()
 
-        // Test hooks: `--es pin <v>` overrides the pairing PIN; `--ez autoscan true` auto-starts
-        // a scan (perms permitting) so device testing doesn't depend on tapping. Dormant otherwise.
-        intent?.getStringExtra("pin")?.let { pinOverride = it; pairPin = it; logLine("pairPin set to \"$it\"") }
-        // `--ez nojoin true`: phone is already on the AP via Android WiFi settings, so skip the join +
-        // bindProcessToNetwork. Needed to capture our own session — see maybeStartOffload.
-        if (intent?.getBooleanExtra("nojoin", false) == true) {
-            noJoin = true; logLine("nojoin: will use the current default network, no WiFi join")
-        }
-        // `--ez nowriterefresh true`: don't re-register before a write, so writes land on a session old
-        // enough to have drifted. Needed to see whether the control window still loses them.
-        if (intent?.getBooleanExtra("nowriterefresh", false) == true) {
-            dev.konraditurbe.osmosis.camera.CameraSession.debugNoWriteRefresh = true
-            logLine("nowriterefresh: writes will go out on old sessions, no re-registration")
-        }
-        // Pagination evidence hooks (DEBUG): `--ez pageforce true` walks past a short page; `--ei pagesize N`
-        // asks for N records per query; `--ez pageauto true` keeps loading older pages by itself until
-        // the session says there are none, so a full walk needs no pulling.
-        if (intent?.getBooleanExtra("pageforce", false) == true) {
-            dev.konraditurbe.osmosis.camera.CameraSession.debugPageForce = true
-            logLine("pageforce: paging ignores the short-page end test")
-        }
-        intent?.getIntExtra("pagesize", 0)?.takeIf { it > 0 }?.let {
-            dev.konraditurbe.osmosis.camera.CameraSession.debugPageSize = it
-            logLine("pagesize: asking for $it records per list query")
-        }
-        if (intent?.getBooleanExtra("pageauto", false) == true) {
-            pageAuto = true
-            logLine("pageauto: older pages load automatically")
-        }
-        if (intent?.getBooleanExtra("autoscan", false) == true) {
-            main.postDelayed({ startCameraScan(select = true) }, 500)
-        }
-        // WiFi-only flow (AP already awake): `--ez wifi true --es ssid X --es pass <psk>`.
-        if (intent?.getBooleanExtra("wifi", false) == true) {
-            val ssid = intent.getStringExtra("ssid") ?: "OsmoNano-C2D8"
-            val pass = intent.getStringExtra("pass") ?: ""
-            main.postDelayed({ startWifiFlow(ssid, pass) }, 500)
-        }
-        // Full offload (test): `--ez offload true [--es pick <name|brand>]` — auto-picks a camera.
-        if (intent?.getBooleanExtra("offload", false) == true) {
-            logLine("OFFLOAD (intent)")
-            val pick = intent.getStringExtra("pick")
-            main.postDelayed({ startCameraScan(select = true, pick = pick) }, 500)
-        }
-        // Camera selector is the launch screen: show saved cameras, then scan to mark which are in
-        // range and surface new ones (unless a test hook is already driving a scan/flow).
+        // External launches cannot supply test commands. Normal selector scanning is unchanged.
         rebuildCameraList()
-        // Keep the launcher App Shortcuts in sync with the current paired-camera set on every launch.
         CameraShortcuts.refresh(this)
-        // App Shortcut launch: the user long-pressed the app icon and picked a paired camera. Assume
-        // it's powered on and advertising, so scan and auto-connect to that MAC — same path as a tap.
-        val shortcutMac = intent?.getStringExtra(CameraShortcuts.EXTRA_MAC)
-        if (shortcutMac != null) { autoPickMac = shortcutMac; logLine("shortcut: connect to $shortcutMac") }
-        val hookDriving = intent?.getBooleanExtra("autoscan", false) == true ||
-            intent?.getBooleanExtra("offload", false) == true ||
-            intent?.getBooleanExtra("wifi", false) == true
-        when {
-            shortcutMac != null -> main.postDelayed({ startCameraScan(select = true) }, 300)
-            !hookDriving -> startCameraScan(select = true)
-        }
+        startCameraScan(select = true)
+        confirmShortcut(launchIntent)
     }
 
-    /**
-     * A launcher App Shortcut was tapped while we were already running (singleTop). Tear down any live
-     * session, return to the selector, and connect to the chosen camera by MAC — see [CameraShortcuts].
-     */
     override fun onNewIntent(intent: android.content.Intent) {
-        super.onNewIntent(intent)
-        setIntent(intent)
-        val mac = intent.getStringExtra(CameraShortcuts.EXTRA_MAC) ?: return
-        if (dev.konraditurbe.osmosis.rsdk.GpsSyncState.locked) {
-            toast(getString(R.string.gps_active_select_blocked)); return
-        }
-        logLine("shortcut (running): connect to $mac")
-        teardownOffload()
-        switchToSelector()
-        autoPickMac = mac
-        startCameraScan(select = true)
+        // Do not retain or pass untrusted extras to framework/other consumers.
+        val clean = android.content.Intent(this, MainActivity::class.java)
+        super.onNewIntent(clean)
+        setIntent(clean)
+        confirmShortcut(intent)
+    }
+
+    private var shortcutConfirmation: AlertDialog? = null
+
+    private fun confirmShortcut(incoming: android.content.Intent?) {
+        val mac = runCatching {
+            LauncherInputPolicy.camera(
+                incoming?.action,
+                incoming?.data != null,
+                incoming?.categories.orEmpty(),
+                savedCameras.all().map { it.mac }.toSet(),
+            ) { incoming?.getStringExtra(CameraShortcuts.EXTRA_MAC) }
+        }.getOrNull() ?: return
+        val camera = savedCameras.all().firstOrNull { it.mac == mac } ?: return
+        if (GpsSyncState.locked) return
+        // A launcher shortcut is forgeable by another app. A validated hint is not authorization.
+        shortcutConfirmation?.dismiss()
+        shortcutConfirmation = AlertDialog.Builder(this)
+            .setMessage(getString(R.string.shortcut_connect_confirm, camera.name))
+            .setNegativeButton(R.string.cancel, null)
+            .setPositiveButton(R.string.shortcut_connect) { _, _ ->
+                if (!GpsSyncState.locked && savedCameras.all().any { it.mac == mac }) {
+                    teardownOffload()
+                    switchToSelector()
+                    autoPickMac = mac
+                    startCameraScan(select = true)
+                }
+            }.show()
     }
 
     override fun onDestroy() {
+        shortcutConfirmation?.dismiss()
         super.onDestroy()
         // Deliberately NOT closing the log file here: GPS sync runs as a foreground service and the
         // user is usually out with the Activity long gone, so the file has to stay open for it. Every
@@ -540,7 +503,7 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
     private data class Cam(val device: BluetoothDevice, val name: String?, val brand: Brand, val rssi: Int, val modelId: Int?, val model: CameraModel)
     private val discovered = LinkedHashMap<String, Cam>()
     private var autoPick: String? = null
-    // MAC of a camera launched from a launcher App Shortcut: connect the moment it advertises, no tap
+    // MAC explicitly confirmed in the shortcut dialog: connect the moment it advertises
     // (see CameraShortcuts / onHit). Cleared once consumed.
     private var autoPickMac: String? = null
 
@@ -725,8 +688,8 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
         currentAddress = device.address
         offloadSsid = cam?.name ?: safeName(device) ?: "camera"
         // Pairing token is per-device: a drone only releases its WiFi creds to "DJI FLY", cameras to
-        // "osmo". An explicit `--es pin` (pinOverride) still wins, for testing.
-        pairPin = pinOverride ?: currentModel.pairingToken
+        // "osmo". External launches cannot override the model token.
+        pairPin = currentModel.pairingToken
         // No up-front password prompt: the camera hands us the passphrase over BLE after pairing
         // (see onPaired). savedPassFor seeds the fallback for models that don't expose it.
         connectAndOffload(device)
@@ -964,19 +927,6 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
             )
         } else {
             logLine("OFFLOAD: paired -> AP up via the session sequence (0x00/0x2b + 0x53/0x10)")
-        }
-        // DEBUG (`--ez nojoin true`): assume the phone is ALREADY on the camera/drone AP via Android's
-        // own WiFi settings, and skip WifiNetworkSpecifier + bindProcessToNetwork entirely.
-        //
-        // This exists to make the session capturable. PCAPdroid captures through a VPN interface, but
-        // bindProcessToNetwork pins our sockets to the AP network and bypasses that VPN — so a VPN-mode
-        // capture sees none of our traffic (and on this tablet the bind then fails outright, killing the
-        // datalink). Joining the AP normally makes it the DEFAULT route, so our traffic goes through the
-        // VPN, gets captured, and still reaches the drone.
-        if (noJoin) {
-            logLine("OFFLOAD: --ez nojoin — skipping the WiFi join, using the current default network")
-            main.postDelayed({ startDatalink() }, 1500)
-            return
         }
         // AP needs a few seconds to come up; the WifiNetworkSpecifier dialog keeps searching
         // until it appears, so a modest delay before requesting the network is fine.
@@ -1349,8 +1299,6 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
 
     // ---- lazy grid pagination (pull up past the last row to load older pages) --------------------
     private var loadingMore = false
-    /** DEBUG `--ez pageauto true`: chain [loadMorePages] until the session reports no older page. */
-    private var pageAuto = false
     private var storageForBit = HashMap<Int, Int>()   // handle store-bit (0/1) -> resolved /v2 mount (cached)
 
     /** Stamp each file's HTTP storage index (per-file, by its handle's store bit) and sort newest-first —
@@ -1468,7 +1416,6 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
                 if (more.isNotEmpty()) logLine("Loaded ${more.size} older (${adapter?.totalFiles() ?: 0} total)")
                 else logLine("No more media to load.")
                 loadingMore = false
-                if (pageAuto && dl.moreAvailable) main.postDelayed({ loadMorePages() }, 400)
             }
         }.start()
     }
