@@ -166,4 +166,6 @@ Trust boundaries include:
 
 ## Thin-fork rule
 
+Future R-043 [identity/distribution phase](plans/PRODUCT_IDENTITY_DISTRIBUTION.md) may establish a distinct product and autonomous-backup UI after core workflow proof. applicationId changes are migration-sensitive separate-install transitions, not routine renames; resolve storage/ledger/Keystore/grant/adoption boundaries before final production cloud auth/deep links/signing. Current G2 identity remains unchanged.
+
 Do not rewrite upstream protocol implementation unless evidence shows it is necessary. Prefer additive, isolated modules and upstream-compatible changes.

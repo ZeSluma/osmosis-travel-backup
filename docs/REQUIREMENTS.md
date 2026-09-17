@@ -100,6 +100,8 @@ See `AGENTS.md`. INV-001 through INV-008 are non-negotiable unless the user expl
 
 ## 5. Scope sequencing
 
+R-043 — Dedicated future Product Identity / Distribution phase after proven core autonomous sync (G2/G3/G7/G4) and before public release/production cloud-auth finalization. Independent name/icon/visual system, autonomous-backup UI, applicationId/package and signing identity; migration-sensitive adoption of development Osmosis installs; upstream/third-party credits, retained MIT copyright/license obligations and explicit non-affiliation/non-endorsement by DJI. No implied official DJI/Osmo identity. Final applicationId precedes production OAuth/deep-link/signing configuration. [Phase plan](plans/PRODUCT_IDENTITY_DISTRIBUTION.md); NOT_TESTED, no implementation during G2.
+
 Accepted dependency order: **0 -> 1 -> 2 -> 3 -> 7 -> 4 -> (5,6) -> 8**, per [ADR0005](decisions/0005-gate-safety-and-optional-features.md) and [accepted dependency graph](plans/REVISED_GATE_DEPENDENCIES.md). Lifecycle-safe execution, automatic reconnect and recoverable synchronization must be demonstrated before one-tap acceptance. GATE-9 SAFE CAMERA CLEANUP is an accepted separate branch after G4 and the policy-required G5/G6, with no G8 prerequisite, not part of early sync gates. The original numbered scope list below is retained as historical identity context, not execution order.
 
 1. GATE 0 — unchanged baseline

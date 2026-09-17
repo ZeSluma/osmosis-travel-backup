@@ -4,7 +4,7 @@ current_gate: GATE-2
 gate_status: BLOCKED
 gate_0_status: PASS
 gate_0_completed_date: "2026-09-17"
-hardware_session_status: AWAITING_NEW_RECORDING_ENUMERATION_FOR_TIMESTAMP_EVIDENCE
+hardware_session_status: THREE_ASSET_PLANNING_VERIFIED_CAPTURE_TIME_UNCERTAIN
 hardware_resume_requires_explicit_return: true
 intent_rebase_status: ACCEPTED_IN_PRINCIPLE_RECONCILED
 intent_rebase_evidence: docs/evidence/GATE-1/2026-09-17_intent-rebase/INTENT_AUDIT.md
@@ -161,6 +161,7 @@ completed_evidence:
 
 implementation_authorized: true
 release_allowed: false
+product_identity_distribution: Future R-043 phase after proven G2/G3/G7/G4 workflow; before public release and production cloud OAuth/deep-link/signing finalization; NOT_TESTED; no G2 branding changes
 
 execution_policy: CONTINUOUS_DEFINED_NONDESTRUCTIVE_GATES
 execution_policy_source: AGENTS.md
@@ -170,7 +171,7 @@ gate_1_status: PASS
 gate_2_status: BLOCKED
 gate_2_software_status: PASS
 gate_2_hardware_status: NOT_TESTED
-gate_2_hardware_progress: Schema3, repeated generation and restart persistence PASS; two stable assets and local candidates retained through empty generation and camera power cycle; VERIFY_EXISTING and protected sizes unchanged; new-media and capture-time hardware criteria still open
+gate_2_hardware_progress: Schema3, repeated generation, restart persistence and one-new-asset planning PASS; three assets, two old candidates unchanged; new DISCOVERED/ABSENT plans DOWNLOAD without execution; timestamp evidence is untrusted filename plus explicit sync fallback, actual capture-time correctness unproven
 gate_2_hardware_evidence: docs/evidence/GATE-2/2026-09-17_hardware/REPORT.md
 gate_2_evidence: docs/evidence/GATE-2/2026-09-17_ledger/REPORT.md
 gate_2_decision: docs/decisions/0009-gate2-foundation-and-continuous-execution.md
@@ -197,8 +198,9 @@ next_action: >-
   Recovered snapshot4 contains the same two assets after user camera power cycle and rescan; snapshot3 remains untrusted INCOMPLETE.
   Restart/repeated-enumeration persistence and unchanged protected sizes verified; no duplicate assets or false VERIFIED.
   User reports short recording created; external clock/date note is approximate only, never Pocket-displayed time or camera metadata.
-  Latest read-only audit still has only two old assets/four snapshots; enumerate the new recording through ordinary rescan, without transfer.
-  Inspect actual exposed timestamp values/source/offset and reserved path; external reference is only a plausibility window, not an exact oracle;
-  verify new versus known planning and truthful timestamp/type/relationship uncertainty without downloading or deleting.
+  Snapshot5 contains three assets, exactly one new; existing references stable and no media changed.
+  New filename DJI_20260917184037_0003_D.MP4; remoteTime null, media metadata not read, offset unknown.
+  Reserved timestamp 2026-09-17T16:46:04.285117Z is SYNC_TIME_FALLBACK with phone Europe/Berlin, never camera capture proof.
+  Disposition must retain capture-time/type/relationship coverage limits; approximate external window cannot establish exact time or timezone.
   G2 remains BLOCKED until remaining mandatory hardware criteria are evidenced; no G3/G7 implementation.
   Keep saved-entry failure/rescan recovery and future G7 AP/keepalive work separate. No main mutation, merge or release.

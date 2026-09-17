@@ -56,6 +56,8 @@ Planning/isolated experiments may be parallel only after authorization; a PASS r
 
 ## Migration and adoption record
 
+Additional future distribution prerequisite R-043: [Product Identity / Distribution](PRODUCT_IDENTITY_DISTRIBUTION.md) follows proven core autonomous workflow (G2/G3/G7/G4) and precedes public release and final production G6 OAuth/deep-link/signing configuration. This does not block G6 research/isolated development experiments, change historical gate numbering or authorize G2 rebranding. Different applicationId means separate installed app; migration/data-access/re-authentication must be designed and evidenced before distribution.
+
 1. Preserve completed GATE-0 plan/evidence and prior 0-8 names. The earlier rebase persisted hardware evidence; this adoption does not change outcomes or close unknown causes.
 2. Link this accepted graph from QUALITY_GATES and REQUIREMENTS; label historical ordering. Do not move old GATE-7 evidence into GATE-2; no such implementation evidence exists yet.
 3. User adoption is recorded in ADR0005; current quality criteria and active plan now link these accepted dependencies. Future gates remain NOT_TESTED; adoption does not authorize implementation.

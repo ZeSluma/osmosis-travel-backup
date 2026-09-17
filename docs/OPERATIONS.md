@@ -100,3 +100,5 @@ Normal ChatGPT conversation may be used for planning, research and review.
 Repository mutation should be performed only through a verified write-capable engineering environment, currently intended to be Codex or an equivalent user-authorized Git environment.
 
 The repository remains the persistent source of truth.
+
+Public distribution and final production cloud OAuth/deep-link/signing configuration require the future R-043 [Product Identity / Distribution phase](plans/PRODUCT_IDENTITY_DISTRIBUTION.md): final independent app/signing identity, tested development-install migration, credits/license preservation and explicit DJI non-affiliation. Planning only; no current branding change, production auth registration or release authorization.

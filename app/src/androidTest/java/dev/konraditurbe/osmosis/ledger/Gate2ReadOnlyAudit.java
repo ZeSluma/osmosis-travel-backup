@@ -31,6 +31,38 @@ public final class Gate2ReadOnlyAudit {
     public static String project() {
         return project(new File(ROOT + "sync-ledger.db"));
     }
+    /** Opt-in timestamp projection: stored metadata only, never media or protocol traffic. */
+    public static String projectTimestamps() {
+        try (SQLiteDatabase db = SQLiteDatabase.openDatabase(ROOT + "sync-ledger.db", null,
+                SQLiteDatabase.OPEN_READONLY | SQLiteDatabase.NO_LOCALIZED_COLLATORS,
+                broken -> { throw new IllegalStateException("AUDIT_CORRUPTION_PRESERVED"); })) {
+            if (!db.isReadOnly() || db.getVersion() != 3) throw new IllegalStateException();
+            JSONArray rows = new JSONArray();
+            try (Cursor c = db.rawQuery("SELECT a.id,a.remotePath,a.remoteTime,r.timestamp,r.zoneEvidence,r.confidence,p.relativePath "
+                    + "FROM assets a JOIN recordings r ON r.id=a.recordingId JOIN replicas p ON p.assetId=a.id "
+                    + "WHERE p.destination='PHONE_LOCAL'", null)) {
+                while (c.moveToNext()) {
+                    JSONObject row = new JSONObject();
+                    row.put("asset", opaque(c.getString(0)));
+                    String leaf = new File(c.getString(1)).getName();
+                    row.put("remote_filename", leaf.matches("DJI_[0-9]{14}_[0-9]{4}_[A-Z]\\.[A-Z0-9]{1,5}") ? leaf : "WITHHELD_UNRECOGNIZED_FORMAT");
+                    String remote = c.getString(2);
+                    row.put("remote_timestamp", remote == null ? JSONObject.NULL : remote.matches("[0-9]{1,19}") ? remote : "UNRECOGNIZED");
+                    String timestamp = c.getString(3);
+                    row.put("resolved_timestamp", timestamp != null && timestamp.matches("[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9:.+Z-]{5,30}") ? timestamp : "UNRECOGNIZED");
+                    String zone = c.getString(4);
+                    row.put("resolution_zone", zone == null ? JSONObject.NULL : java.time.ZoneId.getAvailableZoneIds().contains(zone) || zone.matches("Z|[+-][0-9]{2}:[0-9]{2}") ? zone : "UNRECOGNIZED");
+                    row.put("resolution_confidence", token(c.getString(5), "UNCERTAIN,CONFLICT,SOURCE_REPORTED"));
+                    String path = c.getString(6);
+                    row.put("destination_relative_path", path.matches("[0-9]{4}-[0-9]{2}-[0-9]{2}/DJI_[0-9]{14}_[0-9]{4}_[A-Z]-[a-f0-9]{24}\\.[A-Z0-9]{1,5}") ? path : "WITHHELD_UNRECOGNIZED_FORMAT");
+                    rows.put(row);
+                }
+            }
+            return new JSONObject().put("timestamp_evidence", rows).put("scope", "PERSISTED_LEDGER_ONLY_NO_MEDIA_READ").toString();
+        } catch (Throwable ignored) {
+            return "{\"audit_status\":\"BLOCKED_READ_ONLY_PROJECTION\"}";
+        }
+    }
     // Package-private overload solely for guarded synthetic emulator fixtures.
     static String project(File file) {
         try {

@@ -11,10 +11,12 @@ import dev.konraditurbe.osmosis.ui.MainActivity
 class LauncherSecurityInstrumentation : Instrumentation() {
     private var ledgerPhase: String? = null
     private var readOnlyHardwareAudit = false
+    private var timestampEvidence = false
     override fun onCreate(arguments: Bundle?) {
         super.onCreate(arguments)
         ledgerPhase = arguments?.getString("ledgerPhase")
         readOnlyHardwareAudit = arguments?.getString("hardwareAudit") == "read-only"
+        timestampEvidence = arguments?.getString("timestampEvidence") == "read-only"
         start()
     }
 
@@ -22,7 +24,8 @@ class LauncherSecurityInstrumentation : Instrumentation() {
         val results = Bundle()
         if (readOnlyHardwareAudit) {
             // Dedicated early return: never reaches synthetic credential/ledger/intent tests.
-            val projection = dev.konraditurbe.osmosis.ledger.Gate2ReadOnlyAudit.project()
+            val projection = if (timestampEvidence) dev.konraditurbe.osmosis.ledger.Gate2ReadOnlyAudit.projectTimestamps()
+                else dev.konraditurbe.osmosis.ledger.Gate2ReadOnlyAudit.project()
             results.putString("stream", projection)
             finish(if (projection.contains("BLOCKED_READ_ONLY_PROJECTION")) Activity.RESULT_CANCELED else Activity.RESULT_OK, results)
             return
