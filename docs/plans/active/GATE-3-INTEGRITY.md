@@ -1,18 +1,23 @@
-# GATE-3 — transfer integrity entry review
+# Active GATE-3 — strict integrity and safe failure handling
 
-Predecessor G2 PASS at136b02b3951b18def39ace3062ca164584d1f2cd, supported by G2 identity-observations/CLOSURE.md. Dedicated branch codex/gate-3-transfer-integrity. No G3 implementation or real transfer has started; release false. Continuous authorization covers unambiguous safe work but does not authorize weakening identity/integrity claims.
+G2 PASS at136b02b3951b18def39ace3062ca164584d1f2cd. Branch codex/gate-3-transfer-integrity. Implementation authorized; release false; G3 overall NOT_TESTED. ADR0013 resolves the former entry decision: independently confirmed transfer integrity is retained, but source uncertainty means overall UNVERIFIED. No transfer-only completion or cleanup authority.
 
-Reviewed QUALITY_GATES, accepted dependency graph, TEST_PLAN SC08/T01-T04/S01-S03 and LEDGER_AND_INTEGRITY range/completion contract. G3 must fence/journal attempt and owned staging URI, validate exact64-bit200/206/range/length semantics, retain safe partial checkpoints, handle ENOSPC/flush/close/restart/publication gaps and never falsely verify. Tests use synthetic content; current camera/phone media cannot be downloaded, overwritten, hashed or deleted.
+## Current software scope
 
-## Safety decision before production verification authority
+Schema6 additively stores transfer receipts, source-equivalence evidence and durable transfer attempts. Strict HTTP range/length validation precedes allocation/write; owned pending destinations are journaled, synced, closed and read back before publication. Pocket4Pro explicit full-video UI uses this path; existing unverified copies are preserved without transfer. Unsupported types/trimmed requests require review in this scoped path. Other camera legacy behavior is outside this change. No G7 service/automatic-recovery claim.
 
-Current Pocket adapter provides no proven immutable source version/checksum. G2 exact candidate matching intentionally remains identityAmbiguous, including both existing local copies. The accepted design requires validated source version, but also describes an assurance-labelled identity_size_range_readable verification method without a remote checksum. It does not define evidence sufficient to waive immutable-version proof for this Pocket under cross-session replacement risk. A local hash alone cannot supply it. G2 filename-time evidence is calendar evidence, not independent object identity.
+Interrupted owned partials are retained. Without proven prefix integrity and source continuity, retry does not append, truncate, reallocate or use the legacy downloader. Safe blocking is implemented; production successful resume remains UNPROVEN, not PASS. Current Pocket evidence does not supply immutable-version proof. Unknown-source behavior is not permission to weaken the integrity contract.
 
-These constraints permit conservative transfer/revalidation blocking; they do not by themselves authorize a weaker LOCAL_VERIFIED claim. Need explicit product/security disposition before enabling that promotion for this target:
+SOFTWARE_PROVEN and EMULATOR_PROVEN results are recorded separately in docs/evidence/GATE-3/2026-09-17_integrity/REPORT.md. Target S25 still has G2/schema5; no real media read/hash/download/delete or new install occurred during software development. Previous MediaStore fixture failure was traced to an inserted provider row without a materialized file; creating only the new owned empty file before inspection passed the synthetic regression. Original failures remain in the report.
 
-1. Strict: retain TRANSFERRED_UNVERIFIED/NEEDS_REVALIDATION whenever source-version equality cannot be demonstrated; develop strict engine with synthetic source-version proof. No promise of actual Pocket LOCAL_VERIFIED until stronger evidence is obtained.
-2. Separate lower-assurance result: allow measured size/range/readability completion under an explicitly named state that is NOT LOCAL_VERIFIED and never satisfies SAFE TO CLEAR CAMERA; exact limits remain visible. Whether/when such a result counts as successful local backup requires explicit acceptance.
+## Work classification / continuation
 
-Never silently interpret either option as camera-byte equality or cleanup authority. No need for another identical hardware rescan to resolve this policy. No source deletion, merge, release, main changes or real media operations. Current Human Stop Condition is safety/product assurance semantics, not gate boundary or temporary device absence. This review does not revoke existing scoped implementation authorization; it blocks the ambiguous verification-authority choice.
+- A: no false overall verification; reject unsafe range append, ambiguous local adoption and invalid ownership; preserve partials/history through failure/restart.
+- B: strict explicit transfer UI, durable journal/publication, process-death tests, regression checkpoint; then consolidate remaining actual Pocket HTTP/source-continuity and S25 storage/lifecycle evidence.
+- C: optimize conservative full-file readback/checkpoint overhead; broad sidecar/types UI in G4, lifecycle/automatic session recovery in G7, unrelated baseline lint debt.
 
-After disposition, implement minimal response/identity validation and targeted fake failure matrix first, then durable journal/publication boundaries, broad checkpoint tests and separately authorized non-critical-media HIL. Preserve all baseline failure evidence.
+Follow docs/EXECUTION_POLICY.md. Continue useful software work before requesting hardware. Do not repeat identical rescans, reopen passed gates, or interpret simulation as hardware proof. No main/merge/release/destructive work. Existing no-download/no-media-mutation restriction remains binding until explicit scoped authorization changes it.
+
+## Pending consolidated hardware validation
+
+Queue details and independent PASS/FAIL/INCONCLUSIVE criteria: docs/evidence/GATE-3/2026-09-17_integrity/HARDWARE_QUEUE.md. Target installation/migration, preserved old copies, real response metadata, new-owned staging/publication, interrupted partial protection and restart evidence should share one prepared session. Successful source-continuity/resume is not assumed; if the target exposes no trustworthy proof, retain the blocked result and investigate in software. Never request repeated rescans as a substitute for that missing proof.

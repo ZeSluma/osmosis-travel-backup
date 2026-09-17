@@ -71,6 +71,8 @@ No functional app code during repository bootstrap.
 
 ## Global continuous project execution policy
 
+The current detailed policy is [docs/EXECUTION_POLICY.md](docs/EXECUTION_POLICY.md). It governs software-first iteration, A/B/C work prioritization, scoped SOFTWARE_PROVEN/EMULATOR_PROVEN/HARDWARE_PROVEN/UNPROVEN evidence, and consolidated hardware-validation sessions. Queue hardware-dependent facts and continue useful software work; request hardware only when it is the actual remaining blocker. Never replace a hardware claim with simulation evidence or repeat identical rescan micro-loops.
+
 Current user policy (2026-09-17) supersedes previous requirements to request permission merely to cross an already-defined non-destructive gate boundary. Continue reconstructing state, implementing, testing, investigating and fixing in-scope failures, reviewing security/scope, persisting evidence, committing, publishing the appropriate working branch and independently verifying its SHA. Repeat through the authoritative dependency graph while requirements and acceptance criteria determine the next work unambiguously.
 
 Before each gate, repeat mandatory bootstrap, verify dependencies and use a dedicated reviewable branch. A gate boundary alone is not a stop condition. Software completion never fabricates hardware PASS or waives predecessor criteria. Finish all software-verifiable current-gate work before requesting the minimum remaining hardware interaction. Hardware remains paused until the user explicitly returns.

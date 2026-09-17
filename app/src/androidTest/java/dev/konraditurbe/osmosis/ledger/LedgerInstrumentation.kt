@@ -17,6 +17,8 @@ object LedgerInstrumentation {
         val zone = ZoneId.of("Europe/Berlin")
         var stage = "open"
         try {
+            if (phase == "integrityPersist") return IntegrityProcessInstrumentation.run(context,true)
+            if (phase == "integrityRestore") return IntegrityProcessInstrumentation.run(context,false)
             if (phase == "localPersist") return LocalReconciliationInstrumentation.persist(context)
             if (phase == "localRestore") return LocalReconciliationInstrumentation.restore(context)
             if (phase == "persist") {
@@ -46,6 +48,12 @@ object LedgerInstrumentation {
             }
             stage = "credential-migration"
             CredentialInstrumentation.verify(context)
+            stage = "phone-staging"
+            PhoneStagingInstrumentation.verify(context)
+            stage = "single-transfer"
+            SingleTransferInstrumentation.verify(context)
+            stage = "integrity-evidence"
+            IntegrityEvidenceInstrumentation.verify(instrumentation)
             stage = "identity-observation"
             IdentityObservationInstrumentation.verify(instrumentation)
             stage = "filename-time"
@@ -198,7 +206,7 @@ object LedgerInstrumentation {
             sqlite.version=1; sqlite.close()
             val migrated=LedgerDatabase.open(context,name)
             check(migrated.ledger().source("association")?.ownerEpoch==7L)
-            check(migrated.openHelper.writableDatabase.version==5)
+            check(migrated.openHelper.writableDatabase.version==6)
             check(migrated.ledger().replica("asset")?.localPresence=="NOT_SCANNED")
             check(migrated.ledger().replica("asset")?.committedLength==25L)
             check(migrated.ledger().replica("asset")?.relativePath=="2026-01-01/unknown.xyz")
@@ -226,7 +234,7 @@ object LedgerInstrumentation {
             sqlite2.execSQL("INSERT INTO replicas VALUES ('asset2','PHONE_LOCAL','2026-01-01/unknown.xyz','PARTIAL',25,7,'content://synthetic/partial')")
             sqlite2.version=2; sqlite2.close()
             val migrated2=LedgerDatabase.open(context,name2)
-            check(migrated2.openHelper.writableDatabase.version==5)
+            check(migrated2.openHelper.writableDatabase.version==6)
             val replica2=checkNotNull(migrated2.ledger().replica("asset2"))
             check(replica2.localPresence=="NOT_SCANNED" && replica2.state=="PARTIAL" && replica2.committedLength==25L)
             check(replica2.localLocator=="content://synthetic/partial" && replica2.relativePath=="2026-01-01/unknown.xyz")
@@ -243,9 +251,9 @@ object LedgerInstrumentation {
             check(retained.version==99)
             retained.rawQuery("SELECT committedLength FROM replicas WHERE assetId='asset'",null).use { check(it.moveToFirst() && it.getLong(0)==25L) }
             retained.close()
-            return "PASS: empty, required members/audio, idempotence, plans, partial/unverified, recreation, new/removed, photo/RAW/metadata/excluded, identity, fencing, incomplete/failure, FK/rollback, migrations1/2-to-3, local candidates/provider changes, audit privacy/corruption; synthetic provider indexed-size lag observed=${LocalReconciliationInstrumentation.providerSizeLagObserved}"
+            return "PASS: empty, required members/audio, idempotence, plans, partial/unverified, recreation, new/removed, photo/RAW/metadata/excluded, identity, fencing, incomplete/failure, FK/rollback, migrations-through-6, local candidates/provider changes, audit privacy/corruption; synthetic provider indexed-size lag observed=${LocalReconciliationInstrumentation.providerSizeLagObserved}"
         } catch (error: Throwable) {
-            val localStage=error.message?.takeIf { it.matches(Regex("SYNTHETIC_LOCAL_[A-Z_]+")) }
+            val localStage=error.message?.takeIf { it.matches(Regex("SYNTHETIC_LOCAL_[A-Z_]+|GATE3_STAGE_[A-Z_]+")) }
             val fixtureLine=error.stackTrace.firstOrNull { it.className in setOf(IdentityObservationInstrumentation::class.java.name,LocalReconciliationInstrumentation::class.java.name) }?.lineNumber
             throw IllegalStateException("GATE2_ASSERTION_$stage${localStage?.let { ":$it" } ?: ""}${fixtureLine?.let { ":fixture_line_$it" } ?: ""}") // no exception text/data
         }

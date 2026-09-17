@@ -12,9 +12,11 @@ import java.io.File
 
 @Database(entities = [SourceRow::class, SnapshotRow::class, RecordingRow::class, AssetRow::class,
     MemberRow::class, MembershipRow::class, ReplicaRow::class, LocalCandidateRow::class, CaptureEvidenceRow::class,
-    IdentityObservationRow::class], version = 5, exportSchema = true)
+    IdentityObservationRow::class, TransferIntegrityRow::class, SourceEquivalenceRow::class, TransferAttemptRow::class], version = 6, exportSchema = true)
 abstract class LedgerDatabase : RoomDatabase() {
     abstract fun ledger(): LedgerDao
+    abstract fun integrity(): IntegrityDao
+    abstract fun attempts(): AttemptDao
     companion object {
         val MIGRATION_1_2 = object : Migration(1, 2) {
             override fun migrate(db: SupportSQLiteDatabase) {
@@ -41,12 +43,22 @@ abstract class LedgerDatabase : RoomDatabase() {
                 // Retain every legacy asset, membership, replica and candidate row as history.
             }
         }
+        val MIGRATION_5_6 = object : Migration(5, 6) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("CREATE TABLE IF NOT EXISTS transfer_integrity (id TEXT NOT NULL, assetId TEXT NOT NULL, locator TEXT NOT NULL, localRevision TEXT NOT NULL, expectedBytes INTEGER NOT NULL, result TEXT NOT NULL, method TEXT NOT NULL, ownerEpoch INTEGER NOT NULL, PRIMARY KEY(id), FOREIGN KEY(assetId) REFERENCES assets(id) ON UPDATE NO ACTION ON DELETE NO ACTION)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_transfer_integrity_assetId ON transfer_integrity(assetId)")
+                db.execSQL("CREATE TABLE IF NOT EXISTS source_equivalence (id TEXT NOT NULL, transferId TEXT NOT NULL, sourceVersion TEXT NOT NULL, ownerEpoch INTEGER NOT NULL, method TEXT NOT NULL, PRIMARY KEY(id), FOREIGN KEY(transferId) REFERENCES transfer_integrity(id) ON UPDATE NO ACTION ON DELETE NO ACTION)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_source_equivalence_transferId ON source_equivalence(transferId)")
+                db.execSQL("CREATE TABLE IF NOT EXISTS transfer_attempts (id TEXT NOT NULL, assetId TEXT NOT NULL, ownerEpoch INTEGER NOT NULL, expectedBytes INTEGER NOT NULL, state TEXT NOT NULL, locator TEXT, checkpoint INTEGER NOT NULL, integrityId TEXT, PRIMARY KEY(id), FOREIGN KEY(assetId) REFERENCES assets(id) ON UPDATE NO ACTION ON DELETE NO ACTION)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_transfer_attempts_assetId ON transfer_attempts(assetId)")
+            }
+        }
         fun open(context: Context, name: String = "sync-ledger.db"): LedgerDatabase {
             require(name.matches(Regex("[A-Za-z0-9._-]+")))
             return Room.databaseBuilder(context.applicationContext, LedgerDatabase::class.java,
                 File(context.noBackupFilesDir, name).absolutePath)
                 .openHelperFactory(PreserveCorruptDatabaseFactory())
-                .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
+                .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6)
                 .build()
         }
     }

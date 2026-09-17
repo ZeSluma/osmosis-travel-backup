@@ -210,6 +210,8 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
     private var currentModelId: Int? = null
     private var currentAddress: String? = null
     private var ledgerSession: String? = null
+    @Volatile private var transferNetwork: Network? = null
+    @Volatile private var transferActivityClosed = false
     private val credentialRequest = java.util.concurrent.atomic.AtomicLong()
     private val credentialCache = java.util.concurrent.ConcurrentHashMap<String, String>()
     private val credentialStore by lazy { dev.konraditurbe.osmosis.security.CameraCredentialStore(applicationContext) }
@@ -406,6 +408,8 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
     }
 
     override fun onDestroy() {
+        transferActivityClosed = true
+        transferNetwork = null
         credentialRequest.incrementAndGet()
         credentialCache.clear()
         shortcutConfirmation?.dismiss()
@@ -986,6 +990,7 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
     }
 
     private fun startWifiFlow(ssid: String, pass: String) {
+        transferNetwork = null
         apJoiner?.release() // release any prior request so only one WiFi specifier is pending
         setConnectProgress(35) // requesting the WiFi join
         logLine("WiFi flow: ssid=\"$ssid\" passLen=${pass.length}")
@@ -996,6 +1001,7 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
             // Both callbacks arrive on a ConnectivityManager thread; hop to main so the download /
             // AP-loss flags stay single-threaded and the check-and-set in onDownloadClicked is safe.
             override fun onNetwork(network: Network, link: LinkProperties?) {
+                transferNetwork = network
                 val ip4 = link?.linkAddresses?.map { it.address }
                     ?.firstOrNull { it is java.net.Inet4Address }
                 main.post {
@@ -1017,6 +1023,7 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
                 }
             }
             override fun onLost() {
+                transferNetwork = null
                 main.post {
                     wifiUp = false
                     if (!offloadMode) return@post
@@ -1676,6 +1683,8 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
      * `downloadOne` resumes from the partial file's size, so this continues rather than restarts.
      */
     private fun maybeResumeAfterRejoin() {
+        // GATE-3 never retries an unproven partial through the legacy download path.
+        if (currentModelId == 0x0022 || currentModel.name == "Osmo Pocket 4 Pro") return
         if (!resumeDownloadOnRejoin || downloadRunning || !wifiUp) return
         resumeDownloadOnRejoin = false
         if ((adapter?.selectedCount() ?: 0) == 0) return
@@ -1691,6 +1700,9 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
         }
         val ad = adapter ?: run { logLine("Nothing listed yet — tap Offload first."); return }
         val jobs = ad.selectedEntries().map { MediaDownloader.Job(it.first, it.second) }
+        val strictPocket = currentModelId == 0x0022 || currentModel.name == "Osmo Pocket 4 Pro"
+        val transferSession = ledgerSession
+        val capturedNetwork = transferNetwork
         // Queue keys parallel to [jobs] — used to drop each cell from the queue once it lands. Bursts queue
         // under the lead's path (the map key), which is NOT job.file.path, so we map by index, not by file.
         val keys = ad.selectedKeys()
@@ -1747,10 +1759,11 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
                     // failed/paused items stay so a later Download resumes them.
                     adapter?.dequeuePaths(doneKeys.toList())
                     updateDownloadFab()
-                    overallBar.progress = 100
-                    overallText.text = getString(R.string.download_done, saved, skipped, failed)
+                    overallBar.progress = if (strictPocket) 0 else 100
+                    overallText.text = if (strictPocket) getString(R.string.strict_transfer_result, saved, skipped, failed)
+                        else getString(R.string.download_done, saved, skipped, failed)
                     fileText.text = ""
-                    main.postDelayed({ progressArea.visibility = View.INVISIBLE }, 3000)
+                    if (!strictPocket) main.postDelayed({ progressArea.visibility = View.INVISIBLE }, 3000)
                 }
                 logLine("DONE: $saved saved, $skipped skipped, $failed failed")
             }
@@ -1759,14 +1772,22 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
         updateDownloadFab()
         Thread {
             try {
-                MediaDownloader(this, http, ::logLine).run(jobs, listener)
+                if (strictPocket) {
+                    dev.konraditurbe.osmosis.integrity.StrictTransferBatch.run(jobs,listener) { job,tick ->
+                        if (transferSession==null || capturedNetwork==null)
+                            dev.konraditurbe.osmosis.ledger.LedgerCoordinator.TransferResult.REVIEW_REQUIRED
+                        else dev.konraditurbe.osmosis.ledger.LedgerCoordinator.get(applicationContext)
+                            .transferOriginal(transferSession,job.file,capturedNetwork,
+                                {transferActivityClosed || transferNetwork!=capturedNetwork},tick)
+                    }
+                } else MediaDownloader(this, http, ::logLine).run(jobs, listener)
             } finally {
                 // In a finally, not in onComplete: a throw anywhere in the run would otherwise wedge
                 // the guard on and leave Download dead for the rest of the session.
                 main.post {
                     downloadRunning = false
                     updateDownloadFab()
-                    maybeResumeAfterRejoin()
+                    if (!strictPocket) maybeResumeAfterRejoin()
                 }
             }
         }.start()

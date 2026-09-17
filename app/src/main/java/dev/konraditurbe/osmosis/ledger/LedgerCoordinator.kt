@@ -2,6 +2,7 @@ package dev.konraditurbe.osmosis.ledger
 
 import android.content.Context
 import dev.konraditurbe.osmosis.core.CameraFile
+import dev.konraditurbe.osmosis.core.urlPath
 import java.time.Instant
 import java.time.ZoneId
 import java.util.UUID
@@ -27,7 +28,10 @@ object CameraLedgerAdapter {
 class LedgerCoordinator private constructor(context: Context) {
     private val appContext = context.applicationContext
     private val writer = Executors.newSingleThreadExecutor { task -> Thread(task, "osmosis-ledger") }
-    private val repository by lazy { LedgerRepository(LedgerDatabase.open(appContext)) }
+    private val database by lazy { LedgerDatabase.open(appContext) }
+    private val repository by lazy { LedgerRepository(database) }
+    private var latestLease: EnumerationLease? = null
+    private var leaseSession: String? = null
     @Volatile private var activeSession: String? = null
     fun newSession(): String = UUID.randomUUID().toString().also { activeSession = it }
     private val enumerationStarts = mutableMapOf<String, Instant>()
@@ -51,16 +55,42 @@ class LedgerCoordinator private constructor(context: Context) {
                 repository.reconcileLocal(lease, LocalMediaInventory(appContext).read(), Instant.now())
                 repository.finish(lease, endedAt, pagesEnded, false, false, false, failed)
                 latestPlan = repository.plan(lease.snapshotId)
+                latestLease = lease
+                leaseSession = session
                 status = "PLANNED_INCOMPLETE_INVENTORY"
                 // Bound in-memory sessions; durable generations and assets remain in Room.
                 if (inventories.size > 4) inventories.keys.firstOrNull { it != session }?.let { inventories.remove(it); enumerationStarts.remove(it) }
             } catch (_: Exception) {
                 latestPlan = null
+                latestLease = null
                 status = "LEDGER_REVIEW_REQUIRED"
                 // Never emit SQL, operational paths or arbitrary exception text to diagnostics.
             }
         }
     }
+    enum class TransferResult { TRANSFERRED_UNVERIFIED, EXISTING_UNVERIFIED, REVIEW_REQUIRED }
+
+    /** Worker-thread caller only. Observation and transfer mutations share one serialized writer. */
+    fun transferOriginal(session:String, file:CameraFile, network:android.net.Network,
+        cancelled:()->Boolean, progress:(Long)->Unit):TransferResult = writer.submit<TransferResult> {
+        if(session!=activeSession || session!=leaseSession || cancelled()) return@submit TransferResult.REVIEW_REQUIRED
+        val lease=latestLease ?: return@submit TransferResult.REVIEW_REQUIRED
+        val assetId=CameraLedgerAdapter.asset(file).identity(lease.sourceId)
+        if(database.ledger().assets(lease.snapshotId).none{it.id==assetId}) return@submit TransferResult.REVIEW_REQUIRED
+        val item=repository.plan(lease.snapshotId).items.singleOrNull{it.assetId==assetId}
+            ?: return@submit TransferResult.REVIEW_REQUIRED
+        if(item.action==PlanAction.VERIFY_EXISTING) return@submit TransferResult.EXISTING_UNVERIFIED
+        if(item.action!=PlanAction.DOWNLOAD || !file.isVideo) return@submit TransferResult.REVIEW_REQUIRED
+        val source=dev.konraditurbe.osmosis.integrity.CameraTransferSource(network)
+        val destination=dev.konraditurbe.osmosis.integrity.PhonePendingVideo(appContext)
+        val result=dev.konraditurbe.osmosis.integrity.SingleAssetTransfer(database).start(lease,assetId,
+            {source.open(file.urlPath())},
+            destination::create,{session!=activeSession || cancelled()},progress)
+        latestPlan=repository.plan(lease.snapshotId)
+        if(result==dev.konraditurbe.osmosis.integrity.SingleAssetTransfer.Result.TRANSFERRED_UNVERIFIED)
+            TransferResult.TRANSFERRED_UNVERIFIED else TransferResult.REVIEW_REQUIRED
+    }.get()
+
     companion object {
         @Volatile private var instance: LedgerCoordinator? = null
         fun get(context: Context): LedgerCoordinator = instance ?: synchronized(this) {

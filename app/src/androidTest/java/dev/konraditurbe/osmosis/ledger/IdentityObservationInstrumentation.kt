@@ -30,7 +30,7 @@ object IdentityObservationInstrumentation {
             db.openHelper.writableDatabase.execSQL("DROP TABLE identity_observations")
             db.openHelper.writableDatabase.execSQL("UPDATE room_master_table SET identity_hash=? WHERE id=42",arrayOf(schema.getString("identityHash")))
             db.openHelper.writableDatabase.version=4;db.close();db=LedgerDatabase.open(context,name);repo=LedgerRepository(db)
-            check(db.openHelper.writableDatabase.version==5 && db.ledger().assetCount()==4)
+            check(db.openHelper.writableDatabase.version==6 && db.ledger().assetCount()==4)
             check(db.ledger().observations(first.sourceId).single().status=="UNRESOLVED")
             val partial=repo.begin("source","partial","test",now)
             repo.reconcile(partial,listOf(a.copy(size=null)),now,zone)

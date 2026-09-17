@@ -1,0 +1,3 @@
+<resources>
+    <string name="strict_transfer_result">文件完整性已确认：%1$d。已保留现有副本：%2$d。需要检查：%3$d。与源文件的一致性尚未确认 — 总体状态：未验证。</string>
+</resources>
