@@ -6,10 +6,10 @@ execution: {
   "primary_progress_metric": "VISIBLE_SAFE_END_TO_END_PRODUCT_CAPABILITY_PER_CREDIT",
   "cost_policy": {"priority": "HARD", "primary_model": "gpt-5.6-terra", "primary_reasoning": "low", "subagent_model": "gpt-5.6-luna", "subagent_reasoning": "low", "automatic_escalation": false, "expensive_model_requires_explicit_approval": true, "project_config_activation": "PENDING_APPROVAL_RUNTIME_VALIDATION", "active_root_switch": "USER_CLIENT_SWITCH_REQUIRED_FROM_GPT6_ASTRA"},
   "software_work_remaining": true,
-  "reachable_non_destructive_work_remaining": false,
-  "software_preparation_exhausted": true,
-  "human_stop": {"required": true, "kind": "SIGNING_CONTINUITY_DECISION", "reason": "The exact final MVP APK cannot replace the installed target package without an uninstall that may erase the private ledger needed for migration evidence."},
-  "hardware_validation": {"state": "GLOBAL_HUMAN_STOP_REQUIRED", "queue": "docs/hardware/VALIDATION_QUEUE.json", "consolidated": true},
+  "reachable_non_destructive_work_remaining": true,
+  "software_preparation_exhausted": false,
+  "human_stop": {"required": false, "kind": "NONE", "reason": "Signer-compatible final build is installed and target migration/UI evidence is captured; only strict Pocket source-continuity semantics remain inconclusive."},
+  "hardware_validation": {"state": "LOCAL_PATH_WAITING_FOR_HARDWARE", "queue": "docs/hardware/VALIDATION_QUEUE.json", "consolidated": true},
   "work_items": [
     {"id": "AUTONOMY_CONTROL", "state": "IMPLEMENTED_SOFTWARE_PROVEN"},
     {"id": "CRASH_BOUNDARY_MATRIX", "state": "PARTIALLY_PROVEN_FAIL_CLOSED"},
@@ -25,7 +25,7 @@ current_gate: GATE-3
 gate_status: NOT_TESTED
 gate_0_status: PASS
 gate_0_completed_date: "2026-09-17"
-hardware_session_status: G3_PROTOTYPE_TOMORROW_BLOCKED_SIGNING_CONTINUITY
+hardware_session_status: G3_PROTOTYPE_TOMORROW_FINAL_BUILD_VALIDATED_SOURCE_CONTINUITY_INCONCLUSIVE
 hardware_resume_requires_explicit_return: true
 intent_rebase_status: ACCEPTED_IN_PRINCIPLE_RECONCILED
 intent_rebase_evidence: docs/evidence/GATE-1/2026-09-17_intent-rebase/INTENT_AUDIT.md
@@ -230,7 +230,7 @@ gate_2_empty_enumeration: CONNECTED_BUT_MEDIA_ENUMERATION_EMPTY; snapshot3 INCOM
 gate_2_camera_recovery: CAMERA_UNREACHABLE_UNTIL_POWER_CYCLE; user power cycle and fresh rescan restored two videos; snapshot4 contains same two asset identities; root cause UNCONFIRMED; separate G7 wake/recovery investigation
 build_tool_dependency_debt: 44 OSV advisory IDs on 11 unchanged G1 build-classpath coordinates; no returned new/runtime advisory; reviewed build/CI remediation before release
 next_action: >-
-  Human decision required: final MVP APK SHA-256 1C087E4B5F93840EF9CD583FAFE573A2CF163C4B6A22ACC7D6E952CDDDE1B860 cannot replace the installed debug package because signatures differ. Do not uninstall or clear data; preserve G3 target history until a reviewed signing-continuity route is chosen.
+  Continue autonomous non-destructive work from G3 evidence. Final signer-compatible target migration/UI validation is PASS; strict Pocket immutable source-version semantics remain INCONCLUSIVE, so production append/resume and overall source verification remain blocked pending a future consolidated discriminating source-contract observation.
 
 gate_2_identity_decision: docs/decisions/0012-incomplete-identity-observations.md
 gate_2_identity_evidence: docs/evidence/GATE-2/2026-09-17_identity-observations/REPORT.md
@@ -260,9 +260,9 @@ gate_3_evidence: docs/evidence/GATE-3/2026-09-17_integrity/REPORT.md
 gate_3_hardware_queue: docs/evidence/GATE-3/2026-09-17_integrity/HARDWARE_QUEUE.md
 gate_3_lint: FAIL - five unchanged baseline errors,79 warnings,2 hints; one new cursor-analysis warning has explicit use closure, retained as nonblocking review
 gate_3_overall_verification: Strict UNVERIFIED while source identity is UNCONFIRMED; independent positive transfer evidence retained; no completion or cleanup eligibility
-gate_3_target_install: PASS for8144ded; newer UI correction NOT_TESTED on target - adb install failed before device access with no devices found
+gate_3_target_install: PASS - signer-compatible final MVP build SHA256 8E82875415F53B10713F39A3310CA6A753B69C2CCC2AAE81CC10946285A4EF3A installed in place with matching existing debug certificate; no uninstall/data clear
 gate_3_target_resume: NOT_TESTED
-gate_3_target_migration: PASS - live stable schema6 projection retains4 historical assets and both protected references, zero fabricated integrity evidence
+gate_3_target_migration: PASS - in-place signer-compatible final build preserves private ledger and migrates SQLite schema6 to7; final UI binds persisted partial/transfer/local-copy states without false promotion
 gate_3_target_enumeration: Scoped regression PASS on8144ded - user sees4 videos, snapshot11 retains4 current members and5 historical assets; no new unresolved observation; overall snapshot INCOMPLETE, source equivalence unconfirmed
 gate_3_hardware_authorization: Explicit user approval for only the hardware-queue NEW non-critical transfer/integrity tests; existing reference files and camera originals protected; no cleanup, destructive tests, merge, release or main modification
 
@@ -271,8 +271,8 @@ gate_3_target_test_a: PASS scoped new full transfer103945077 bytes, integrity CO
 gate_3_target_interruption: PASS - B retained330769591 bytes, journal PARTIAL, MediaStore pending1, no integrity/source promotion
 gate_3_target_restart: PASS scoped shared controlled restart retains A CONFIRMED file evidence and B partial/destination; both references unchanged; source UNCONFIRMED and overall UNVERIFIED
 
-gate_3_target_ui_state: FAIL - after restart/reconnect all4 videos appear without distinguishing completed-unverified A and partial B; persistent evidence remains intact; software UI work required
+gate_3_target_ui_state: PASS - signer-compatible final MVP build after schema7 migration displays four exact ledger-derived statuses: partial/review B, transfer-unconfirmed A, and both protected copies local-copy-unconfirmed; no false overall verification
 
 gate_3_target_retry_refusal: PASS - zero new transfer attempts, B330769591 bytes pending1 preserved; no successful-resume claim
-gate_3_ui_correction: SOFTWARE_PROVEN and EMULATOR_PROVEN; original hardware FAIL retained, target correction NOT_TESTED
+gate_3_ui_correction: SOFTWARE_PROVEN, EMULATOR_PROVEN and TARGET_PROVEN on signer-compatible final MVP build; original target UI failure remains retained as historical evidence
 gate_3_handoff: 2026-09-18 cloud continuation checkpoint published and verified at450eaf8531fa173c6c8fa0d23ac7b3f37a035f5d on codex/gate-3-transfer-integrity; schema7 guarded-resume, publication recovery, strict HTTP framing, autonomy control and evidence included. CODEX_HANDOFF_ALL_IN_ONE.md remains local/untracked and excluded from publication.

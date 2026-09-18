@@ -6,7 +6,7 @@
   "items": [
     {
       "id": "G3-MIGRATION-UI",
-      "state": "WAITING_HARDWARE",
+      "state": "PASS",
       "question": "Does the final bundled build retain all schema6 history/local references and display A/B independently after migration?",
       "why_hardware": "Actual S25 provider and installed-app UI integration cannot be proven by the emulator alone.",
       "software_evidence": ["ResumeInstrumentation schema6-to7", "BackupDisplayTest", "BackupDisplayInstrumentation", "TARGET_SESSION existing A/B metadata"],
@@ -22,7 +22,7 @@
     },
     {
       "id": "G3-TRANSPORT-CONTINUITY",
-      "state": "WAITING_HARDWARE",
+      "state": "INCONCLUSIVE",
       "question": "Does Pocket expose an independently justifiable immutable source-version contract usable for resume?",
       "why_hardware": "Simulated immutable versions cannot establish DJI endpoint semantics.",
       "software_evidence": ["GuardedResumeTest", "ResumeInstrumentation", "ResumeProcessInstrumentation", "Existing200/length/ETag-presence evidence"],

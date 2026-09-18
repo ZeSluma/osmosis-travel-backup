@@ -40,3 +40,18 @@ The current prototype checkpoint is documented in `PROTOTYPE_SPRINT.md`. Full un
 ## 2026-09-18 final MVP installation boundary
 
 The final requested APK (`1C087E…B860`) cannot be installed over the currently installed debug package because Android reports a signing mismatch. The planned `-r` install was refused before any application lifecycle or media operation. An uninstall would erase the private database required for the migration/history-preservation check, so it is not authorized and was not attempted. The consolidated target session is **BLOCKED** before its remaining checks; no existing result is changed. See `TARGET_SESSION.md`.
+
+## 2026-09-18 signer-compatible final-build validation
+
+| Check | Result |
+|---|---|
+| Exact requested APK | BLOCKED for in-place update: signer mismatch; no uninstall attempted |
+| Signer-compatible replacement | PASS: same package/version, matching existing certificate, source tree matches `6c02889`, `adb install -r` success |
+| Private ledger migration | PASS: ledger persisted and SQLite header migrated from schema6 to7 |
+| Protected references | PASS: both filename/size references unchanged |
+| Final UI persistent-state distinction | PASS: four visible assets show distinct partial, transfer-unconfirmed and local-copy-unconfirmed states without selection or transfer |
+| Historical A transfer / B interruption / restart / safe retry refusal | PASS in their existing scoped evidence; deliberately not repeated |
+| Pocket immutable source-version contract | INCONCLUSIVE: ETag presence alone is not trusted continuity evidence |
+| Successful production append/resume | NOT_TESTED; remains blocked by the source-continuity contract |
+
+No app data, local media, camera original, source/configuration, main branch or release state changed.
