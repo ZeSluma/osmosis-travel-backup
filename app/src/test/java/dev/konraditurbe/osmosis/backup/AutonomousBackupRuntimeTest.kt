@@ -24,6 +24,12 @@ class AutonomousBackupRuntimeTest {
         assertEquals(first.first.lease,repeated.first.lease);assertTrue(repeated.second.isEmpty())
         assertTrue(runtime.accepts(checkNotNull(first.first.lease)))
     }
+    @Test fun failedLeaseCannotCompleteButFreshTrustedPlanGetsReplacementWriter(){
+        val runtime=AutonomousBackupRuntime();val failed=runtime.plan(9,SourceTrust.TRUSTED,complete,false).first.lease!!
+        assertTrue(runtime.fail(failed,"TRANSFER_REVIEW_REQUIRED"));assertFalse(runtime.complete(failed))
+        val replacement=runtime.plan(10,SourceTrust.TRUSTED,complete,false).first.lease!!
+        assertFalse(runtime.accepts(failed));assertTrue(runtime.accepts(replacement));assertNotEquals(failed,replacement)
+    }
     @Test fun ssdWorkRequiresPhoneProofAndAvailabilityAndUserStopWins(){
         val runtime=AutonomousBackupRuntime();val good=ReplicaStatus(ReplicaState.VERIFIED,ReplicaProof(1,"a".repeat(64)))
         assertTrue(runtime.replication(4,mapOf("a" to good),false,false).second.isEmpty())
