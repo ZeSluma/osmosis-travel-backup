@@ -16,6 +16,7 @@ class CameraSessionResources {
     var scanner: OsmoScanner? = null
     var gattClient: GattClient? = null
     var connecting = false
+    var ledgerSession: String? = null
     var apJoiner: ApJoiner? = null
     @Volatile var transferNetwork: Network? = null
     var wifiUp = false
@@ -32,6 +33,7 @@ class CameraSessionResources {
         runCatching { datalink?.close() }; datalink = null
         runCatching { apJoiner?.release() }; apJoiner = null
         transferNetwork = null
+        ledgerSession = null
         wifiUp = false; datalinkStarted = false; wifiRejoins = 0; resumeDownloadOnRejoin = false
     }
 }

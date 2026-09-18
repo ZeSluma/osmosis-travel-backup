@@ -201,7 +201,6 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
     private var currentModel = CameraModel.DEFAULT
     private var currentModelId: Int? = null
     private var currentAddress: String? = null
-    private var ledgerSession: String? = null
     /** Durable service-owner epoch; UI work is fenced if a later session supersedes it. */
     private var cameraEpoch: Long = 0L
     private var removeSessionObserver: (() -> Unit)? = null
@@ -1125,7 +1124,7 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
                     if (superseded(dl)) return@Thread
                     val ledger = dev.konraditurbe.osmosis.ledger.LedgerCoordinator.get(applicationContext)
                     val ledgerToken = ledger.newSession()
-                    ledgerSession = ledgerToken
+                    connectionResources.ledgerSession = ledgerToken
                     currentAddress?.let { ledger.observe(it, ledgerToken, fixed, !dl.moreAvailable, ledgerEnumerationFailed || !dl.handshakeOk, ledgerEnumerationStarted) }
                     // Reconnect never makes a source ready by itself. An empty/partial/failed listing
                     // remains untrusted, leaving existing ledger assets intact and transfer fenced.
@@ -1259,16 +1258,16 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
     private fun refreshBackupLabels() {
         if(currentModelId!=0x0022 && currentModel.name!="Osmo Pocket 4 Pro")return
         val target=adapter ?: return
-        val session=ledgerSession ?: return
+        val session=connectionResources.ledgerSession ?: return
         dev.konraditurbe.osmosis.ledger.LedgerCoordinator.get(applicationContext)
             .displayStates(session,target.filesForBackupDisplay()){states->main.post {
-                if(!transferActivityClosed && session==ledgerSession && adapter===target)target.setBackupStates(states)
+                if(!transferActivityClosed && session==connectionResources.ledgerSession && adapter===target)target.setBackupStates(states)
             }}
         // The planner queues only DOWNLOAD actions from a complete enumeration. It never starts a
         // transfer, revisits partial/ambiguous items, or replaces a user's explicit queue decision.
         dev.konraditurbe.osmosis.ledger.LedgerCoordinator.get(applicationContext)
             .automaticDownloadPaths(session,target.filesForBackupDisplay()){paths->main.post {
-                if(!transferActivityClosed && session==ledgerSession && adapter===target && paths.isNotEmpty()) {
+                if(!transferActivityClosed && session==connectionResources.ledgerSession && adapter===target && paths.isNotEmpty()) {
                     target.queueWholePaths(paths);logLine("Backup plan ready: ${paths.size} new original(s) queued.")
                 }
             }}
@@ -1485,7 +1484,7 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
         findViewById<View>(R.id.loadMoreSpinner)?.apply {
             visibility = View.VISIBLE; alpha = 1f; scaleX = 1f; scaleY = 1f; translationY = 0f
         }
-        val pageLedgerToken = ledgerSession
+        val pageLedgerToken = connectionResources.ledgerSession
         val pageLedgerAddress = currentAddress
         Thread {
             val fetched = runCatching {
@@ -1744,7 +1743,7 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
         val ad = adapter ?: run { logLine("Nothing listed yet — tap Offload first."); return }
         val jobs = ad.selectedEntries().map { MediaDownloader.Job(it.first, it.second) }
         val strictPocket = currentModelId == 0x0022 || currentModel.name == "Osmo Pocket 4 Pro"
-        val transferSession = ledgerSession
+        val transferSession = connectionResources.ledgerSession
         val capturedNetwork = connectionResources.transferNetwork
         val capturedCameraEpoch = cameraEpoch
         // Queue keys parallel to [jobs] — used to drop each cell from the queue once it lands. Bursts queue
