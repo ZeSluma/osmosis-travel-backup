@@ -35,7 +35,7 @@ gate_order_decision: docs/decisions/0005-gate-safety-and-optional-features.md
 gate_1_entry_status: BOOTSTRAP_COMPLETE
 gate_1_review_phase: COMPLETE_B1_B2_VERIFIED
 gate_1_completed_date: "2026-09-17"
-working_branch: codex/gate-3-transfer-integrity
+working_branch: codex/gate-7-lifecycle-recovery
 security_branch_parent: efb4830e435b1efeef7a6de56fde0ea609806171
 security_implementation_scope: B1_B2_ONLY_COMPLETED
 general_product_implementation_authorized: true
@@ -85,7 +85,7 @@ bootstrap_commit: "81aef44d580c71e0d8ea9a26fdd26b48e44d535a"
 bootstrap_publication_verified_at: "2026-09-17T08:32:26Z"
 bootstrap_evidence: docs/evidence/GATE-0/2026-09-17_bootstrap/REPORT.md
 
-active_plan: docs/plans/active/GATE-3-INTEGRITY.md
+active_plan: docs/evidence/GATE-7/2026-09-18_bootstrap/REPORT.md
 
 open_blockers: []
 gate_3_prototype_checkpoint: "2026-09-18: guarded synthetic source-continuity contract, unit/build and emulator suite PASS; see docs/evidence/GATE-3/2026-09-17_integrity/PROTOTYPE_SPRINT.md. Hardware proof remains pending."
@@ -230,7 +230,7 @@ gate_2_empty_enumeration: CONNECTED_BUT_MEDIA_ENUMERATION_EMPTY; snapshot3 INCOM
 gate_2_camera_recovery: CAMERA_UNREACHABLE_UNTIL_POWER_CYCLE; user power cycle and fresh rescan restored two videos; snapshot4 contains same two asset identities; root cause UNCONFIRMED; separate G7 wake/recovery investigation
 build_tool_dependency_debt: 44 OSV advisory IDs on 11 unchanged G1 build-classpath coordinates; no returned new/runtime advisory; reviewed build/CI remediation before release
 next_action: >-
-  Continue autonomous non-destructive work from G3 evidence. Final signer-compatible target migration/UI validation is PASS; strict Pocket immutable source-version semantics remain INCONCLUSIVE, so production append/resume and overall source verification remain blocked pending a future consolidated discriminating source-contract observation.
+  Implement and test the first GATE-7 service-owned fenced session-coordinator slice. Keep the final G3 target result and strict unavailable-append boundary intact; queue all target lifecycle/recovery facts until the software-side owner transition is ready.
 
 gate_2_identity_decision: docs/decisions/0012-incomplete-identity-observations.md
 gate_2_identity_evidence: docs/evidence/GATE-2/2026-09-17_identity-observations/REPORT.md
