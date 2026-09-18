@@ -10,6 +10,9 @@ data class SessionLease(
     val userStopped: Boolean = false,
 )
 
+/** UI-safe projection: a reconnect is never presented as a ready source. */
+enum class SessionPresentation { CONNECTED, DEGRADED, RECOVERING, REVALIDATING, READY, USER_ACTION_REQUIRED, STOPPED }
+
 object CameraSessionCoordinator {
     fun begin(previous: SessionLease): SessionLease =
         SessionLease(epoch = previous.epoch + 1, recovery = RecoveryStateMachine.reduce(RecoverySnapshot(), ConnectionEvent.START))
@@ -30,4 +33,14 @@ object CameraSessionCoordinator {
 
     fun mayUseCameraTraffic(current: SessionLease): Boolean =
         !current.userStopped && current.recovery.state == ConnectionState.READY
+
+    fun presentation(current: SessionLease): SessionPresentation = when (current.recovery.state) {
+        ConnectionState.READY -> SessionPresentation.READY
+        ConnectionState.REVALIDATING -> SessionPresentation.REVALIDATING
+        ConnectionState.RECONNECT_WAIT, ConnectionState.RECONNECTING -> SessionPresentation.RECOVERING
+        ConnectionState.USER_ACTION_REQUIRED -> SessionPresentation.USER_ACTION_REQUIRED
+        ConnectionState.STOPPED -> SessionPresentation.STOPPED
+        ConnectionState.CONNECTING -> SessionPresentation.DEGRADED
+        ConnectionState.DISCONNECTED -> SessionPresentation.CONNECTED
+    }
 }

@@ -6,6 +6,12 @@ Default primary: GPT-5.6 Terra / low. Default subagent: GPT-5.6 Luna / low, only
 
 ## Permanent autonomy contract — entire project
 
+## No micro-loops — continuous implementation rule
+
+Do not return control merely because one class, helper, test, fix, migration, commit, build, documentation update, gate subsection, or hardware-dependent subtask is complete. These are intermediate states. After each, reassess the integrated product/gate objective, continue the next safe software task, and repeat implementation → targeted test → fix → regression → next task.
+
+The normal work unit is an integrated objective with multiple implementation and scenario/fault-testing steps, not one change plus one report. A local blocked path is not a global stop: queue hardware facts with explicit PASS/FAIL/INCONCLUSIVE criteria and continue all other useful software work. Return only when the integrated software objective is mature and consolidated external validation is the remaining boundary, or for an actual product decision, credentials/approval, destructive action, unresolved safety/source-of-truth conflict, or a non-converging blocker that prevents further useful work. Before returning, ask whether a materially larger product capability now exists; if only a component or test was added, continue.
+
 Default: implement → test/emulate/simulate → analyze/fix/regress → continue all reachable safe non-destructive work, across gates, features, bugs, migrations and investigations. A hardware dependency is **LOCAL_PATH_WAITING_FOR_HARDWARE**, never by itself a global blocker. Persist it in `docs/hardware/VALIDATION_QUEUE.json` and continue another useful path.
 
 Before any user interaction, check existing evidence, whether the physical fact is necessary now, remaining software/follow-on work, batching, and whether a new discriminating hypothesis justifies repeating an observation. A hardware **GLOBAL_HUMAN_STOP_REQUIRED** requires ALL: genuinely necessary physical evidence; useful software preparation exhausted; no useful reachable non-destructive work; all pending checks consolidated with purpose and PASS/FAIL/INCONCLUSIVE criteria. ADB absence, a completed task/commit/test or gate boundary is insufficient.

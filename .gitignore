@@ -34,3 +34,4 @@ __pycache__/
 
 # Local secrets (GitLab token for F-Droid submission, etc.)
 .env
+.codex/.runtime/

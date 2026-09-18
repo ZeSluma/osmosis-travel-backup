@@ -1,11 +1,12 @@
 project: osmosis-travel-backup
 execution: {
   "schema_version": 1,
-  "mode": "AUTONOMOUS_SOFTWARE_FIRST",
+  "mode": "CONTINUOUS_AUTONOMOUS",
+  "micro_loop_stops_allowed": false,
   "scope": "PROJECT_WIDE_PERMANENT",
   "primary_progress_metric": "VISIBLE_SAFE_END_TO_END_PRODUCT_CAPABILITY_PER_CREDIT",
   "cost_policy": {"priority": "HARD", "primary_model": "gpt-5.6-terra", "primary_reasoning": "low", "subagent_model": "gpt-5.6-luna", "subagent_reasoning": "low", "automatic_escalation": false, "expensive_model_requires_explicit_approval": true, "project_config_activation": "PENDING_APPROVAL_RUNTIME_VALIDATION", "active_root_switch": "USER_CLIENT_SWITCH_REQUIRED_FROM_GPT6_ASTRA"},
-  "software_work_remaining": true,
+  "software_work_remaining": true, "autonomous_work_remaining": true, "human_stop_required": false, "human_stop_kind": null, "human_stop_reason": null,
   "reachable_non_destructive_work_remaining": true,
   "software_preparation_exhausted": false,
   "human_stop": {"required": false, "kind": "NONE", "reason": "Signer-compatible final build is installed and target migration/UI evidence is captured; only strict Pocket source-continuity semantics remain inconclusive."},

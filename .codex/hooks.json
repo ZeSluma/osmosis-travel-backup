@@ -1,0 +1,13 @@
+{
+  "description": "Osmosis continuous-autonomy stop gate",
+  "hooks": {
+    "Stop": [{
+      "hooks": [{
+        "type": "command",
+        "command": "powershell -NoProfile -ExecutionPolicy Bypass -Command \"& (Join-Path (git rev-parse --show-toplevel) '.codex/hooks/stop_gate.ps1')\"",
+        "timeout": 10,
+        "statusMessage": "Checking autonomous continuation"
+      }]
+    }]
+  }
+}
