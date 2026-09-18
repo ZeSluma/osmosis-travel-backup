@@ -23,6 +23,9 @@ Branch: `codex/autonomous-backup-mvp`. Status: **IN PROGRESS; SOFTWARE-ONLY FOUN
 - Scanner, GATT and camera-AP joiner allocation/start now route through the application/service
   façade using application context. The Activity supplies observer callbacks, but no longer
   constructs or starts those camera effects directly.
+- The service callback coordinator is now the sole bridge from AP loss/ready/retry and fresh
+  enumeration facts into durable session state. It fences stale events and preserves user stop;
+  Activity retains camera protocol parsing and UI rendering.
 - The gallery observes a read-only ledger-derived summary for camera sync, redundancy, and
   informational cleanup eligibility. It remains false for incomplete inventory or an
   `UNKNOWN_POTENTIALLY_REQUIRED` blocker and has no cleanup action.

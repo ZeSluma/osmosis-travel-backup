@@ -419,8 +419,8 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
         if (isFinishing) {
             transferActivityClosed = true
             connectionResources.transferNetwork = null
-            CameraConnectionService.runtime(applicationContext).callback(cameraEpoch, ConnectionEvent.LOST, ConnectionReason.SESSION_DESYNC)
-            CameraConnectionService.runtime(applicationContext).stop()
+            CameraConnectionService.coordinator(applicationContext).transportLost(cameraEpoch, ConnectionReason.SESSION_DESYNC)
+            CameraConnectionService.coordinator(applicationContext).stop()
             CameraConnectionService.stopHost(this)
         }
         credentialRequest.incrementAndGet()
@@ -649,7 +649,7 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
     /** Drop any live WiFi-offload session (BLE GATT + datalink + WiFi request) so the R-SDK GPS flow
      *  can take the camera's single BLE link without contention. Safe to call when nothing is active. */
     private fun teardownOffload() {
-        CameraConnectionService.runtime(applicationContext).stop()
+        CameraConnectionService.coordinator(applicationContext).stop()
         CameraConnectionService.backupRuntime(applicationContext).stop()
         CameraConnectionService.stopHost(this)
         stopKeepalive()
@@ -1007,8 +1007,7 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
     }
 
     private fun startWifiFlow(ssid: String, pass: String) {
-        val runtime = CameraConnectionService.runtime(applicationContext)
-        cameraEpoch = runtime.start().epoch
+        cameraEpoch = CameraConnectionService.coordinator(applicationContext).begin().epoch
         val callbackEpoch = cameraEpoch
         CameraConnectionService.host(this)
         connectionResources.transferNetwork = null
@@ -1022,7 +1021,7 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
             // AP-loss flags stay single-threaded and the check-and-set in onDownloadClicked is safe.
             override fun onNetwork(network: Network, link: LinkProperties?) {
                 connectionResources.transferNetwork = network
-                CameraConnectionService.runtime(applicationContext).callback(callbackEpoch, ConnectionEvent.TRANSPORT_READY)
+                CameraConnectionService.coordinator(applicationContext).transportReady(callbackEpoch)
                 val ip4 = link?.linkAddresses?.map { it.address }
                     ?.firstOrNull { it is java.net.Inet4Address }
                 main.post {
@@ -1044,7 +1043,7 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
             }
             override fun onLost() {
                 connectionResources.transferNetwork = null
-                CameraConnectionService.runtime(applicationContext).callback(callbackEpoch, ConnectionEvent.LOST, ConnectionReason.NETWORK_LOSS)
+                CameraConnectionService.coordinator(applicationContext).transportLost(callbackEpoch, ConnectionReason.NETWORK_LOSS)
                 main.post {
                     connectionResources.wifiUp = false
                     if (!offloadMode) return@post
@@ -1059,7 +1058,7 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
                     }
                     connectionResources.wifiRejoins++
                     logLine("WiFi: AP gone — rejoining (attempt ${connectionResources.wifiRejoins}/$MAX_WIFI_REJOINS)")
-                    CameraConnectionService.runtime(applicationContext).callback(callbackEpoch, ConnectionEvent.RETRY_TIMER)
+                    CameraConnectionService.coordinator(applicationContext).retryTimer(callbackEpoch)
                     if (connectionResources.apJoiner?.rejoin() != true) logLine("WiFi: nothing to rejoin")
                 }
             }
@@ -1140,8 +1139,8 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
                     currentAddress?.let { ledger.observe(it, ledgerToken, fixed, !dl.moreAvailable, ledgerEnumerationFailed || !dl.handshakeOk, ledgerEnumerationStarted) }
                     // Reconnect never makes a source ready by itself. An empty/partial/failed listing
                     // remains untrusted, leaving existing ledger assets intact and transfer fenced.
-                    CameraConnectionService.runtime(applicationContext).revalidated(sessionEpoch,
-                        dev.konraditurbe.osmosis.connection.SourceObservation(!dl.moreAvailable, ledgerEnumerationFailed || !dl.handshakeOk))
+                    CameraConnectionService.coordinator(applicationContext).revalidate(
+                        sessionEpoch, !dl.moreAvailable, ledgerEnumerationFailed || !dl.handshakeOk)
                     logLine("MANIFEST: ${fixed.size} files — " +
                         fixed.groupBy { it.storage }.entries.sortedBy { it.key }
                             .joinToString(", ") { (s, list) -> "storage=$s (${list.size} files)" } +

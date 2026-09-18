@@ -8,7 +8,7 @@ scope; Pocket/S25/hub/SSD behavior remains in the consolidated hardware queue.
 | Known camera automatic availability; explicit stop terminal | `AutomaticCameraAvailabilityTest`; advertisement-gated wiring | SOFTWARE_PROVEN; hardware pending |
 | Complete inventory-only planning; incomplete/unknown fail closed | Ledger planner/reconciliation tests; G7 revalidation tests | SOFTWARE_PROVEN |
 | Automatic camera transfer initiation | `AutonomousBackupRuntime`, trusted plan wiring and recovery scenario | SOFTWARE_PROVEN at scheduler boundary |
-| Camera effect/session ownership outside Activity | Service façade owns scanner/GATT/AP allocation and effect initiation; durable truth/resources remain service-owned. Activity still hosts protocol/UI callback orchestration. | **PARTIALLY SOFTWARE_PROVEN: callback-coordinator extraction remains** |
+| Camera effect/session ownership outside Activity | Service façade owns scanner/GATT/AP allocation/start and a callback coordinator owns durable transport/revalidation transitions. Activity retains protocol parsing and rendering only. | **PARTIALLY SOFTWARE_PROVEN: protocol-I/O coordinator extraction remains** |
 | Source continuity and phone integrity | Existing G3 strict transfer/receipt evidence; no source-equivalence overclaim | SOFTWARE_PROVEN / Pocket semantics pending |
 | SAF destination, capacity/grant failure, capture-day staging | Policy tests and SAF adapter | SOFTWARE_PROVEN; real provider pending |
 | Phone→SSD checksum/readback and no partial promotion | Replica verification/fault tests | SOFTWARE_PROVEN |
@@ -19,6 +19,6 @@ scope; Pocket/S25/hub/SSD behavior remains in the consolidated hardware queue.
 
 ## Required next software work
 
-Extract the remaining protocol callback/revalidation orchestration from `MainActivity` into the
-service coordinator, preserving the existing epoch fence and keeping UI as an observer/command
-surface. Expand deterministic provider fault coverage, then repeat the completion audit.
+Extract the remaining protocol-I/O orchestration from `MainActivity` into the service coordinator,
+preserving the existing epoch fence and keeping UI as an observer/command surface. Expand
+deterministic provider fault coverage, then repeat the completion audit.

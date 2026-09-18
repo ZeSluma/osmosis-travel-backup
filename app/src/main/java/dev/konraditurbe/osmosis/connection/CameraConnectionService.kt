@@ -47,10 +47,14 @@ class CameraConnectionService : Service() {
         const val ACTION_START = "dev.konraditurbe.osmosis.connection.START"
         const val ACTION_STOP = "dev.konraditurbe.osmosis.connection.STOP"
         @Volatile private var instance: DurableSessionRuntime? = null
+        @Volatile private var coordinatorInstance: CameraSessionEffectCoordinator? = null
         @Volatile private var resourcesInstance: CameraSessionResources? = null
         @Volatile private var backupRuntimeInstance: AutonomousBackupRuntime? = null
         fun runtime(context: Context): DurableSessionRuntime = instance ?: synchronized(this) {
             instance ?: DurableSessionRuntime(PreferenceSessionStore(context)).also { instance = it }
+        }
+        fun coordinator(context: Context): CameraSessionEffectCoordinator = coordinatorInstance ?: synchronized(this) {
+            coordinatorInstance ?: CameraSessionEffectCoordinator(runtime(context)).also { coordinatorInstance = it }
         }
         fun resources(context: Context): CameraSessionResources = resourcesInstance ?: synchronized(this) {
             resourcesInstance ?: CameraSessionResources().also { resourcesInstance = it }
