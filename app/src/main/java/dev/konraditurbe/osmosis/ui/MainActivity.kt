@@ -55,6 +55,7 @@ import dev.konraditurbe.osmosis.rsdk.GpsSyncState
 import dev.konraditurbe.osmosis.connection.CameraConnectionService
 import dev.konraditurbe.osmosis.connection.ConnectionEvent
 import dev.konraditurbe.osmosis.connection.ConnectionReason
+import dev.konraditurbe.osmosis.connection.CameraRecoveryScanPolicy
 import dev.konraditurbe.osmosis.connection.SessionLease
 import dev.konraditurbe.osmosis.backup.ExternalDestinationManager
 import dev.konraditurbe.osmosis.backup.BackupProductStatus
@@ -109,6 +110,8 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
 
     private var btAdapter: BluetoothAdapter? = null
     private val connectionResources by lazy { CameraConnectionService.resources(applicationContext) }
+    private var recoveryScanEpoch:Long? = null
+    private var recoveryScanAttempts = 0
     private val externalDestination by lazy { ExternalDestinationManager(applicationContext) }
     private val externalStorageLauncher = registerForActivityResult(ActivityResultContracts.OpenDocumentTree()) { tree ->
         if (tree == null) return@registerForActivityResult
@@ -557,7 +560,7 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
     private var autoPickMac: String? = null
 
     /** Scan ~4s for DJI/Xtra cameras (bonds aren't reliable for these), then feed the selector list. */
-    private fun startCameraScan(select: Boolean, pick: String? = null) {
+    private fun startCameraScan(select: Boolean, pick: String? = null, recovery: Boolean = false) {
         val adapter = btAdapter ?: run { logLine("No Bluetooth adapter."); toast(getString(R.string.no_bluetooth)); return }
         if (!adapter.isEnabled) { promptEnableBluetooth(select, pick); return }
         val missing = requiredPerms().filter {
@@ -587,9 +590,39 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
             // connection was started, terminate that provisional state honestly rather than
             // presenting a non-advertising camera as indefinitely connecting.
             if (!connectionResources.connecting) {
-                CameraConnectionService.coordinator(applicationContext).cameraUnavailable(cameraEpoch)
+                if (recovery && recoveryScanEpoch == cameraEpoch) {
+                    scheduleRecoveryScan()
+                } else {
+                    CameraConnectionService.coordinator(applicationContext).cameraUnavailable(cameraEpoch)
+                }
             }
         }, 4000)
+    }
+
+    /** A GATT loss from a live grid is recoverable, unlike an explicit exit or user stop. */
+    private fun beginBoundedRecovery() {
+        val lost=CameraConnectionService.coordinator(applicationContext)
+            .transportLost(cameraEpoch,ConnectionReason.NETWORK_LOSS)
+        recoveryScanEpoch=lost.epoch
+        recoveryScanAttempts=0
+        scheduleRecoveryScan()
+    }
+
+    private fun scheduleRecoveryScan() {
+        val epoch=recoveryScanEpoch ?: return
+        if(epoch!=cameraEpoch || connectionResources.connecting) return
+        val coordinator=CameraConnectionService.coordinator(applicationContext)
+        val next=CameraRecoveryScanPolicy.nextAttempt(recoveryScanAttempts,coordinator.snapshot())
+        if(next==null) {
+            recoveryScanEpoch=null
+            coordinator.cameraUnavailable(epoch)
+            return
+        }
+        recoveryScanAttempts=next
+        coordinator.retryTimer(epoch)
+        main.postDelayed({
+            if(recoveryScanEpoch==epoch && !connectionResources.connecting) startCameraScan(select=true,recovery=true)
+        },if(next==1) 0L else CameraRecoveryScanPolicy.RETRY_DELAY_MS)
     }
 
     /** Bluetooth is off — scanning would silently find nothing, so ask the user to turn it on and resume
@@ -737,6 +770,10 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
             toast(getString(R.string.gps_stop_before_browse))
             return
         }
+        // Mark selection before credential lookup so the scan timeout cannot publish CAMERA_UNAVAILABLE
+        // between a valid automatic hit and its asynchronous connect continuation.
+        connectionResources.connecting=true
+        recoveryScanEpoch=null
         val cam = discovered[device.address]
         currentBrand = Brand.of(device.address, cam?.name ?: safeName(device), djiCid = cam?.modelId != null)
         currentModel = cam?.model ?: CameraModel.resolve(null, safeName(device), currentBrand)
@@ -1279,8 +1316,8 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
                         dev.konraditurbe.osmosis.ledger.LedgerCoordinator.get(applicationContext)
                             .automaticPlanDiagnostic(session) { diagnostic -> main.post {
                                 if (!transferActivityClosed && session == connectionResources.ledgerSession && adapter === target) {
-                                    automaticScheduleStatus = diagnostic?.let {
-                                        "plan complete=${it.inventoryComplete}; download=${it.downloads}; verify=${it.verifyExisting}; revalidate=${it.revalidate}; review=${it.review}"
+                    automaticScheduleStatus = diagnostic?.let {
+                        "plan complete=${it.inventoryComplete}; reason=${it.completenessReason}; current-unresolved=${it.currentUnresolved}; history-unresolved=${it.historicalUnresolved}; download=${it.downloads}; verify=${it.verifyExisting}; revalidate=${it.revalidate}; review=${it.review}"
                                     } ?: "plan unavailable"
                                     backupProductStatus?.let(::renderBackupSummary)
                                 }
@@ -2115,12 +2152,15 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
             // A drop while the gallery is up (status=19, camera terminated) means the camera is gone:
             // the gallery is now stale, so tear the session down and return to the camera selector.
             if (gridGroup.visibility == View.VISIBLE) {
-                logLine("Camera link lost — returning to camera list.")
-                connectionResources.datalink?.close()
-                connectionResources.apJoiner?.release()
+                logLine("Camera link lost — bounded recovery scan.")
+                // Do not call switchToSelector(): that path is an explicit user exit and stops the
+                // application-owned host, which made a recoverable Pocket power-cycle terminal.
+                connectionResources.releaseTransport()
                 grid.adapter = null
                 adapter = null
-                switchToSelector()
+                gridGroup.visibility = View.GONE
+                selectorGroup.visibility = View.VISIBLE
+                beginBoundedRecovery()
             } else {
                 logLine("Disconnected.")
                 // A drop after pairing is the normal WiFi handoff (keep the progress bar going);

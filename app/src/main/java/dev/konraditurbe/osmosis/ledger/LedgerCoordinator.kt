@@ -54,6 +54,9 @@ class LedgerCoordinator private constructor(context: Context) {
     /** Privacy-safe plan diagnosis: counts and completeness only, never asset identity or paths. */
     data class AutomaticPlanDiagnostic(
         val inventoryComplete: Boolean,
+        val completenessReason: String,
+        val currentUnresolved: Int,
+        val historicalUnresolved: Int,
         val downloads: Int,
         val verifyExisting: Int,
         val revalidate: Int,
@@ -239,8 +242,14 @@ class LedgerCoordinator private constructor(context: Context) {
             val diagnostic = runCatching {
                 check(session == activeSession && session == leaseSession)
                 val plan = checkNotNull(latestPlan)
+                val lease=checkNotNull(latestLease)
+                val snapshot=checkNotNull(database.ledger().snapshot(plan.snapshotId))
+                val unresolved=database.ledger().observations(lease.sourceId).filter { it.status=="UNRESOLVED" }
                 AutomaticPlanDiagnostic(
                     inventoryComplete = plan.enumerationComplete,
+                    completenessReason = snapshot.failure ?: "NONE",
+                    currentUnresolved = unresolved.count { it.snapshotId==plan.snapshotId },
+                    historicalUnresolved = unresolved.count { it.snapshotId!=plan.snapshotId },
                     downloads = plan.items.count { it.action == PlanAction.DOWNLOAD },
                     verifyExisting = plan.items.count { it.action == PlanAction.VERIFY_EXISTING },
                     revalidate = plan.items.count { it.action in setOf(PlanAction.RESUME_REVALIDATE, PlanAction.REVALIDATE_IDENTITY) },
