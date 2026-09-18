@@ -79,6 +79,16 @@ implemented, but the remaining Activity-owned BLE/datalink/AP effect adapters st
 moved behind the service owner and verified by the targeted JVM/emulator suite. No background or
 hardware-survival claim is made.
 
+## Internal MVP closure
+
+**GATE-7 INTERNAL MVP: PASS (software/emulator scope).** Camera transport, BLE control, datalink,
+network, transfer lease and ledger-session ownership are application/service-owned; MainActivity is
+a command surface and persistent-state observer. The epoch/generation, bounded recovery,
+rebuild/revalidation, incomplete-inventory fail-closed rule, durable partial policy, and explicit
+stop rules have deterministic coverage. API 36 recreation/background execution passed. This does
+not establish physical Pocket liveness, Android foreground-service survival under a real S25, or
+firmware-specific recovery behavior; those are consolidated in the hardware queue.
+
 ## Hardware queue boundary
 
 No G7 hardware loop begins at bootstrap. Later consolidated target work must test foreground/background/screen-off separately, saved-entry recovery, network loss/reacquisition, accurate reason states and no duplicate writers. Source-continuity remains unavailable, so any partial continuation must preserve the G3 refusal unless independently justified.
