@@ -26,6 +26,9 @@ Branch: `codex/autonomous-backup-mvp`. Status: **IN PROGRESS; SOFTWARE-ONLY FOUN
 - The service callback coordinator is now the sole bridge from AP loss/ready/retry and fresh
   enumeration facts into durable session state. It fences stale events and preserves user stop;
   Activity retains camera protocol parsing and UI rendering.
+- Datalink socket/thread ownership now also resides in the service layer. Its completion callback
+  carries an immutable observation to the Activity for ledger/UI projection; the prior
+  Activity-local socket implementation has been removed.
 - The gallery observes a read-only ledger-derived summary for camera sync, redundancy, and
   informational cleanup eligibility. It remains false for incomplete inventory or an
   `UNKNOWN_POTENTIALLY_REQUIRED` blocker and has no cleanup action.
