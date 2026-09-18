@@ -36,3 +36,7 @@ Human stop: target disconnected. Next bounded check is install this tested build
 ## 2026-09-18 prototype checkpoint
 
 The current prototype checkpoint is documented in `PROTOTYPE_SPRINT.md`. Full unit/build and synthetic emulator coverage passed after the cancellation-after-blocking-read fix. This preserves the strict fail-closed publication boundary: receipt-before-publication crash recovery remains review-required because a durable complete-file digest is not yet stored for a new-process readback. GATE-3 remains `NOT_TESTED`; no result in this software checkpoint constitutes target-hardware proof.
+
+## 2026-09-18 final MVP installation boundary
+
+The final requested APK (`1C087E…B860`) cannot be installed over the currently installed debug package because Android reports a signing mismatch. The planned `-r` install was refused before any application lifecycle or media operation. An uninstall would erase the private database required for the migration/history-preservation check, so it is not authorized and was not attempted. The consolidated target session is **BLOCKED** before its remaining checks; no existing result is changed. See `TARGET_SESSION.md`.

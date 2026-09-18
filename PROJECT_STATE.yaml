@@ -25,7 +25,7 @@ current_gate: GATE-3
 gate_status: NOT_TESTED
 gate_0_status: PASS
 gate_0_completed_date: "2026-09-17"
-hardware_session_status: SOFTWARE_WINDOW_NO_ROUTINE_HARDWARE_REQUESTS
+hardware_session_status: G3_PROTOTYPE_TOMORROW_BLOCKED_SIGNING_CONTINUITY
 hardware_resume_requires_explicit_return: true
 intent_rebase_status: ACCEPTED_IN_PRINCIPLE_RECONCILED
 intent_rebase_evidence: docs/evidence/GATE-1/2026-09-17_intent-rebase/INTENT_AUDIT.md
@@ -230,7 +230,7 @@ gate_2_empty_enumeration: CONNECTED_BUT_MEDIA_ENUMERATION_EMPTY; snapshot3 INCOM
 gate_2_camera_recovery: CAMERA_UNREACHABLE_UNTIL_POWER_CYCLE; user power cycle and fresh rescan restored two videos; snapshot4 contains same two asset identities; root cause UNCONFIRMED; separate G7 wake/recovery investigation
 build_tool_dependency_debt: 44 OSV advisory IDs on 11 unchanged G1 build-classpath coordinates; no returned new/runtime advisory; reviewed build/CI remediation before release
 next_action: >-
-  Autonomous software window until approximately2026-09-17T22:40:37Z; implement and test G3 recovery/resume contracts, queue hardware assumptions, no routine device requests. ADB unavailability is not a stop condition.
+  Human decision required: final MVP APK SHA-256 1C087E4B5F93840EF9CD583FAFE573A2CF163C4B6A22ACC7D6E952CDDDE1B860 cannot replace the installed debug package because signatures differ. Do not uninstall or clear data; preserve G3 target history until a reviewed signing-continuity route is chosen.
 
 gate_2_identity_decision: docs/decisions/0012-incomplete-identity-observations.md
 gate_2_identity_evidence: docs/evidence/GATE-2/2026-09-17_identity-observations/REPORT.md
