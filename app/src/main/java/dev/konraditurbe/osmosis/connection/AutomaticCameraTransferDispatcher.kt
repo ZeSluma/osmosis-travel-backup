@@ -28,16 +28,23 @@ class AutomaticCameraTransferDispatcher(
             if (jobs.isEmpty()) { runtime.complete(backupLease); return@automaticDownloadPaths }
             val transferLease = sessions.acquireTransfer(lease.epoch) ?: run { runtime.fail(backupLease, "TRANSFER_BUSY_OR_UNTRUSTED"); return@automaticDownloadPaths }
             Thread {
-                val result = try {
-                    StrictTransferBatch.run(jobs, SilentProgress) { job, tick ->
-                        if (resources.ledgerSession != session || resources.transferNetwork != network ||
-                            sessions.snapshot().epoch != lease.epoch || sessions.activeTransfer() != transferLease ||
-                            !runtime.accepts(backupLease) || !CameraSessionCoordinator.mayUseCameraTraffic(sessions.snapshot()))
+                var failed = true
+                try {
+                    fun invalid(): Boolean = resources.ledgerSession != session || resources.transferNetwork != network ||
+                        sessions.snapshot().epoch != lease.epoch || sessions.activeTransfer() != transferLease ||
+                        !runtime.accepts(backupLease) || !CameraSessionCoordinator.mayUseCameraTraffic(sessions.snapshot())
+                    val result = StrictTransferBatch.run(jobs, SilentProgress) { job, tick ->
+                        if (invalid())
                             LedgerCoordinator.TransferResult.REVIEW_REQUIRED
-                        else ledger.transferOriginal(session, job.file, network, { false }, tick)
+                        else ledger.transferOriginal(session, job.file, network, ::invalid, tick)
                     }
-                } finally { sessions.releaseTransfer(transferLease) }
-                if (result.failed == 0) runtime.complete(backupLease) else runtime.fail(backupLease, "TRANSFER_REVIEW_REQUIRED")
+                    failed = result.failed != 0
+                } catch (_: Exception) {
+                    failed = true
+                } finally {
+                    sessions.releaseTransfer(transferLease)
+                    if (!failed) runtime.complete(backupLease) else runtime.fail(backupLease, "TRANSFER_REVIEW_REQUIRED")
+                }
             }.start()
         }
     }
