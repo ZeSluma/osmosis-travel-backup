@@ -41,6 +41,14 @@ class ReplicaEvidenceRepository(private val db: LedgerDatabase) {
         check(db.ledger().sourceById(lease.sourceId)?.ownerEpoch == lease.epoch) { "STALE_REPLICA_OWNER" }
         require(checkNotNull(db.ledger().asset(assetId)).lastEpoch == lease.epoch)
         require(checkNotNull(db.ledger().storageDestination(destinationId)).state == "AVAILABLE")
+        // Candidate selection is advisory; this transaction is the authoritative allocation fence.
+        // It blocks a second .part document even if two schedulers observed the same candidate.
+        check(ExternalReplicaRecoveryPolicy.mayAllocate(
+            db.ledger().replicaOperations(assetId, destinationId).map { it.state }
+        )) { "OUTSTANDING_REPLICA_OPERATION" }
+        check(db.ledger().replicaProofs(assetId, destinationId).none { it.state == ReplicaState.VERIFIED.name }) {
+            "REPLICA_ALREADY_VERIFIED"
+        }
         val id=UUID.randomUUID().toString()
         db.ledger().replicaOperation(ReplicaOperationRow(id,assetId,destinationId,null,phoneProof.bytes,phoneProof.sha256,"INTENT",0,lease.epoch))
         id

@@ -33,8 +33,9 @@ Branch: `codex/autonomous-backup-mvp`. Status: **IN PROGRESS; SOFTWARE-ONLY FOUN
   after it advertises through the normal permission-gated scan. It is suppressed by explicit user
   stop or an in-flight connection. Real Pocket wake/advertisement behavior is not claimed.
 - A retained external-replica `INTENT`, `COPYING` or `PARTIAL` operation suppresses new allocation
-  for that asset/destination. Provider-specific append recovery remains unavailable until it can
-  be safely reconciled; the system chooses durable review over duplicate output.
+  for that asset/destination both during scheduling and transactionally at allocation. Provider-
+  specific append recovery remains unavailable until it can be safely reconciled; the system
+  chooses durable review over duplicate output.
 - External allocation now checks persisted read/write grant and the matching SAF provider root's
   advertised available bytes before it stages a document. Permission loss, unknown capacity and
   insufficient capacity record an unavailable reason and allocate nothing.
@@ -69,6 +70,8 @@ The replica fixture now also re-enumerates under a fresh ledger lease after rest
 that a retained `PARTIAL` staged operation can become `MISSING` only through explicit inspection.
 That makes a later allocation eligible without falsely verifying either the staged object or SSD
 redundancy. This is a deterministic synthetic provider outcome, not a real-SSD reconnect claim.
+It additionally proves that the retained partial is rejected transactionally before reconciliation,
+so duplicate scheduler observations cannot create a second staging object.
 
 ### Consolidated focused JVM checkpoint
 

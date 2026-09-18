@@ -214,7 +214,7 @@ autonomous_backup_checkpoint: >-
 autonomous_backup_remaining_software:
   - extract remaining protocol callback/revalidation orchestration from MainActivity into the service-owned connection coordinator; scanner/GATT/AP effect initiation now routes through its façade
   - deterministic SAF/provider fault injection for permission loss, low space, rename/write failure and destination reappearance
-  - end-to-end durable orchestration recovery/reconciliation after a retained external partial
+  - end-to-end service-coordinator orchestration recovery/reconciliation after a retained external partial
   - automatic known-camera startup observation through the service coordinator once protocol callbacks are extracted
   - final targeted/broad regression and requirement-by-requirement closure audit
 autonomous_backup_hardware_queue: docs/hardware/VALIDATION_QUEUE.json#MVP-SSD-BATCH

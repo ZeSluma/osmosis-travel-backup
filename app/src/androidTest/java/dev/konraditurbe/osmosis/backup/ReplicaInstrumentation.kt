@@ -43,9 +43,15 @@ object ReplicaInstrumentation {
             stage="reconcile"
             val fresh=LedgerRepository(db).begin("synthetic-replica","two","fake",now)
             LedgerRepository(db).reconcile(fresh,listOf(RemoteAsset("fake","one.MP4",10,classification=AssetClass.KNOWN_REQUIRED)),now,ZoneId.of("UTC"))
+            stage="duplicateFence";check(runCatching {
+                ReplicaEvidenceRepository(db).beginOperation(fresh,asset.id,"ssd-test",ReplicaProof(10,"a".repeat(64)))
+            }.isFailure)
             ReplicaEvidenceRepository(db).reconcileOperation(fresh,operation,StagedReplicaObservation.MISSING)
             check(db.ledger().replicaOperation(operation)?.state=="MISSING")
-            return "PASS: replica migration, destination persistence, partial restart and missing reconciliation"
+            stage="reallocateAfterMissing";check(runCatching {
+                ReplicaEvidenceRepository(db).beginOperation(fresh,asset.id,"ssd-test",ReplicaProof(10,"a".repeat(64)))
+            }.isSuccess)
+            return "PASS: replica migration, durable duplicate fence, partial restart and missing reconciliation"
         } catch(error:Throwable) { throw IllegalStateException("REPLICA_MIGRATION_$stage",error) }
         finally { db.close(); context.deleteDatabase(name) }
     }
