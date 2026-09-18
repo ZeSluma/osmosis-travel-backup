@@ -25,4 +25,18 @@ class AutomaticTransferDispatchPolicyTest {
         assertTrue(AutomaticTransferDispatchPolicy.shouldRefuse("ledger", "ledger", network, network, 7,
             ready().copy(recovery = RecoverySnapshot(ConnectionState.REVALIDATING)), true, true))
     }
+    @Test fun restoredOrRecoveringSessionCannotDispatchUntilFreshRevalidation() {
+        var session = CameraSessionCoordinator.begin(SessionLease())
+        val epoch = session.epoch
+        session = CameraSessionCoordinator.event(session, epoch, ConnectionEvent.TRANSPORT_READY)
+        session = CameraSessionCoordinator.event(session, epoch, ConnectionEvent.REVALIDATED)
+        assertTrue(AutomaticTransferDispatchPolicy.mayStart(true, "ledger", true, session))
+        session = CameraSessionCoordinator.event(session, epoch, ConnectionEvent.LOST, ConnectionReason.NETWORK_LOSS)
+        session = CameraSessionCoordinator.event(session, epoch, ConnectionEvent.RETRY_TIMER)
+        assertFalse(AutomaticTransferDispatchPolicy.mayStart(true, "ledger", true, session))
+        session = CameraSessionCoordinator.event(session, epoch, ConnectionEvent.TRANSPORT_READY)
+        assertFalse(AutomaticTransferDispatchPolicy.mayStart(true, "ledger", true, session))
+        session = CameraSessionCoordinator.event(session, epoch, ConnectionEvent.REVALIDATED)
+        assertTrue(AutomaticTransferDispatchPolicy.mayStart(true, "ledger", true, session))
+    }
 }
