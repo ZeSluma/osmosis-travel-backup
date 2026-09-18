@@ -6,7 +6,7 @@
   "items": [
     {
       "id": "G7-LIFECYCLE-RECOVERY",
-      "state": "WAITING_HARDWARE_RETEST_AFTER_SOFTWARE_REPAIR",
+      "state": "WAITING_HARDWARE",
       "question": "On the S25/Pocket4P, does the connectedDevice host preserve truthful session/transfer state through background/screen-off and recover a controlled AP/session loss only after source revalidation?",
       "why_hardware": "Android foreground-service policy, Pocket AP/BLE/datalink behavior and firmware-specific liveness cannot be established by synthetic emulation.",
       "software_evidence": ["GATE-7 focused unit suite 13 PASS", "API36 synthetic process restoration PASS", "post-connect empty-inventory bounded-retry JVM regression PASS", "GATE-7 bootstrap report"],
