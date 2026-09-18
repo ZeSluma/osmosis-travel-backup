@@ -48,6 +48,9 @@ Branch: `codex/autonomous-backup-mvp`. Status: **IN PROGRESS; SOFTWARE-ONLY FOUN
 - Deterministic replica fault injection covers truncated/corrupted content, cancellation, durable
   sync failure, and finalization/rename failure. Every such path remains incomplete or rejected
   and never sets external verification.
+- The deterministic provider-fault scenario combines permission denial, unknown/insufficient
+  capacity, failed finalization, unavailable retained state, and explicitly observed reappearance.
+  It is software simulation only; real SAF-provider behavior remains hardware pending.
 
 Early focused JVM checkpoint: backup package, connection package and automatic-plan tests passed
 with zero failures/errors. `assembleDebug` passed before the final bridge correction; the current
@@ -82,7 +85,7 @@ so duplicate scheduler observations cannot create a second staging object.
 ### Consolidated focused JVM checkpoint
 
 `testDebugUnitTest` selecting the backup package, connection package and
-`AutomaticBackupPlanTest` passed **37 tests, zero failures/errors** across 15 result files. This
+`AutomaticBackupPlanTest` passed **38 tests, zero failures/errors** across 16 result files. This
 is the current autonomous-backup/lifecycle/planner regression scope; it deliberately does not
 reclassify the repository-wide CRLF-sensitive golden-test baseline.
 
