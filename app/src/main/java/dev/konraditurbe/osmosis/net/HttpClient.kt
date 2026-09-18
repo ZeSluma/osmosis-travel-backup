@@ -33,7 +33,7 @@ class HttpClient(
         return try {
             c.responseCode
         } catch (e: Exception) {
-            log("HEAD $path ERR ${e.javaClass.simpleName}: ${e.message}"); -1
+            log("HEAD request failed: ${e.javaClass.simpleName}"); -1
         } finally {
             c.disconnect()
         }
@@ -108,14 +108,14 @@ class HttpClient(
         return try {
             val code = c.responseCode
             if (code !in 200..299) {
-                log("download $path -> HTTP $code")
+                log("download request -> HTTP $code")
                 return Fetch.FAILED
             }
             // A range was asked for and the server answered with the whole file. Writing this body at
             // the resume offset would splice the file's opening bytes into its middle, producing a
             // plausible-sized but corrupt video — so report it and let the caller start over.
             if (rangeStart > 0 && code != 206) {
-                log("download $path -> HTTP $code for a ranged request (Range ignored) — restarting at 0")
+                log("download request -> HTTP $code for ranged request (range ignored) — restarting at 0")
                 return Fetch.RANGE_IGNORED
             }
             val buf = ByteArray(65536)
@@ -133,7 +133,7 @@ class HttpClient(
             Fetch.DONE
         } catch (e: Exception) {
             runCatching { out.flush() }   // keep whatever arrived, so the resume starts from it
-            log("download $path ERR ${e.javaClass.simpleName}: ${e.message}")
+            log("download interrupted: ${e.javaClass.simpleName}")
             Fetch.INTERRUPTED
         } finally {
             c.disconnect()
