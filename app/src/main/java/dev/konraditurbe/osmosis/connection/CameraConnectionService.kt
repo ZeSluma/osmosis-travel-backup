@@ -41,8 +41,12 @@ class CameraConnectionService : Service() {
         const val ACTION_START = "dev.konraditurbe.osmosis.connection.START"
         const val ACTION_STOP = "dev.konraditurbe.osmosis.connection.STOP"
         @Volatile private var instance: DurableSessionRuntime? = null
+        @Volatile private var resourcesInstance: CameraSessionResources? = null
         fun runtime(context: Context): DurableSessionRuntime = instance ?: synchronized(this) {
             instance ?: DurableSessionRuntime(PreferenceSessionStore(context)).also { instance = it }
+        }
+        fun resources(context: Context): CameraSessionResources = resourcesInstance ?: synchronized(this) {
+            resourcesInstance ?: CameraSessionResources().also { resourcesInstance = it }
         }
         fun host(context: Context) {
             ContextCompat.startForegroundService(context, Intent(context, CameraConnectionService::class.java).setAction(ACTION_START))

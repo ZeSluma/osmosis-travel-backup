@@ -104,7 +104,7 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
     private var btAdapter: BluetoothAdapter? = null
     private var scanner: OsmoScanner? = null
     private var gattClient: GattClient? = null
-    private var apJoiner: ApJoiner? = null
+    private val connectionResources by lazy { CameraConnectionService.resources(applicationContext) }
     private var connecting = false
 
     // ---- download / AP-loss state (all main-thread confined) ----------------
@@ -113,11 +113,7 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
     // SAME MediaStore URI "rw", each seeking to the shared statSize — three writers racing on one
     // file and three transfers competing for the camera's AP, for one file's worth of progress.
     private var downloadRunning = false
-    private var wifiUp = false
     /** True once the first join has kicked off [startDatalink]; a later join is a rejoin, not a start. */
-    private var datalinkStarted = false
-    private var wifiRejoins = 0
-    private var resumeDownloadOnRejoin = false
 
     /**
      * Generation stamp for the datalink worker, bumped on every start and every teardown.
@@ -133,10 +129,6 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
      * A worker compares this on completion and drops its result if it has been superseded. Atomic
      * because it is touched from the main thread and the ConnectivityManager callback.
      */
-    private val datalinkGen = java.util.concurrent.atomic.AtomicInteger(0)
-
-    /** The session a worker is building. Published *before* the fetch so teardown can close it. */
-    @Volatile private var pendingSession: dev.konraditurbe.osmosis.core.MediaSession? = null
 
     private val http = HttpClient("192.168.2.1") { s -> logLine(s) }
     private var imageLoader: ImageLoader? = null
@@ -181,7 +173,6 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
 
     // The datalink session keeps the camera AP alive (the Action 5 sleeps its AP the moment the
     // datalink goes idle). Held open during browse/download; closed on a new offload / exit.
-    private var datalink: MediaSession? = null
 
     // EVERY camera write goes through this one worker. They can each fall back to tearing the keep-alive
     // down and re-handshaking, so two running at once fight over the socket. Observed on an Xtra Edge Pro:
@@ -217,7 +208,6 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
     /** Durable service-owner epoch; UI work is fenced if a later session supersedes it. */
     private var cameraEpoch: Long = 0L
     private var removeSessionObserver: (() -> Unit)? = null
-    @Volatile private var transferNetwork: Network? = null
     @Volatile private var transferActivityClosed = false
     private val credentialRequest = java.util.concurrent.atomic.AtomicLong()
     private val credentialCache = java.util.concurrent.ConcurrentHashMap<String, String>()
@@ -416,7 +406,7 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
 
     override fun onDestroy() {
         transferActivityClosed = true
-        transferNetwork = null
+        connectionResources.transferNetwork = null
         // Current adapters are still being migrated into the service. Until that move is complete,
         // an Activity teardown must at least invalidate camera IO rather than leave a false READY
         // projection that could accept an old worker after recreation.
@@ -433,11 +423,11 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
         // user is usually out with the Activity long gone, so the file has to stay open for it. Every
         // line is flushed, so nothing is lost if the process dies; the toggle closes it explicitly.
         stopKeepalive()
-        datalink?.close()
+        connectionResources.datalink?.close()
         scanner?.stop()
         gattClient?.disconnect()
         gattClient?.close()
-        apJoiner?.release()
+        connectionResources.apJoiner?.release()
         imageLoader?.shutdown()
         metaLoader?.shutdown()
     }
@@ -658,15 +648,11 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
         // Bumping the generation alone is not enough — that only stops it *publishing* its result,
         // while its socket would keep holding udp/9004 against a camera the next connect is about to
         // handshake with. Closing it here is what actually frees the port.
-        datalinkGen.incrementAndGet()
-        runCatching { pendingSession?.close() }; pendingSession = null
-        datalink?.close(); datalink = null
-        apJoiner?.release(); apJoiner = null
+        connectionResources.releaseTransport()
         gattClient?.disconnect(); gattClient?.close(); gattClient = null
         offloadMode = false; offloadTriggered = false; connecting = false
         // A stale datalinkStarted would make the next session's first join look like a rejoin and skip
         // startDatalink entirely, leaving the camera connected with no grid.
-        wifiUp = false; datalinkStarted = false; wifiRejoins = 0; resumeDownloadOnRejoin = false
         // close() above cancels the gatt callback, so onDisconnected won't fire to reset these — do it
         // here, or the next camera's pairing/REQ replies get mis-deduped against the last camera's state.
         lastPairStatus = -99; credsRequested = false; activateState = -1; reqSeen.clear()
@@ -1016,62 +1002,61 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
         cameraEpoch = runtime.start().epoch
         val callbackEpoch = cameraEpoch
         CameraConnectionService.host(this)
-        transferNetwork = null
-        apJoiner?.release() // release any prior request so only one WiFi specifier is pending
+        connectionResources.transferNetwork = null
+        connectionResources.apJoiner?.release() // release any prior request so only one WiFi specifier is pending
         setConnectProgress(35) // requesting the WiFi join
         logLine("WiFi flow: ssid=\"$ssid\" passLen=${pass.length}")
-        datalinkStarted = false; wifiRejoins = 0; resumeDownloadOnRejoin = false
+        connectionResources.datalinkStarted = false; connectionResources.wifiRejoins = 0; connectionResources.resumeDownloadOnRejoin = false
         val joiner = ApJoiner(this, object : ApJoiner.Listener {
             override fun onLog(s: String) = logLine(s)
             override fun onFailed(reason: String) { logLine(reason); main.post { onWifiJoinFailed() } }
             // Both callbacks arrive on a ConnectivityManager thread; hop to main so the download /
             // AP-loss flags stay single-threaded and the check-and-set in onDownloadClicked is safe.
             override fun onNetwork(network: Network, link: LinkProperties?) {
-                transferNetwork = network
+                connectionResources.transferNetwork = network
                 CameraConnectionService.runtime(applicationContext).callback(callbackEpoch, ConnectionEvent.TRANSPORT_READY)
                 val ip4 = link?.linkAddresses?.map { it.address }
                     ?.firstOrNull { it is java.net.Inet4Address }
                 main.post {
-                    wifiUp = true
-                    // A second onAvailable is a rejoin. Do NOT re-run startDatalink: it would re-fetch
-                    // the whole manifest and rebuild the grid, throwing away the user's queue and
-                    // scroll position mid-transfer. Downloads only need HTTP, which the rebind in
-                    // onAvailable has just restored.
-                    if (datalinkStarted) {
-                        logLine("WiFi: rejoined (ip=${ip4?.hostAddress}) — grid kept; " +
-                            "list/delete/paging may need a fresh Offload")
-                        maybeResumeAfterRejoin()
+                    connectionResources.wifiUp = true
+                    // A second onAvailable is a recovered transport, not a recovered camera session.
+                    // Rebuild the datalink and enumerate again under the same fenced epoch before any
+                    // transfer can use the camera. This deliberately favors source truth over retaining
+                    // a stale grid/queue after AP or protocol loss.
+                    if (connectionResources.datalinkStarted) {
+                        logLine("WiFi: rejoined (ip=${ip4?.hostAddress}) — rebuilding camera session and revalidating source")
+                        startDatalink(callbackEpoch)
                         return@post
                     }
-                    datalinkStarted = true
+                    connectionResources.datalinkStarted = true
                     setConnectProgress(58) // WiFi joined + bound
                     logLine("WiFi link: ip=${ip4?.hostAddress}")
                     startDatalink(callbackEpoch)
                 }
             }
             override fun onLost() {
-                transferNetwork = null
+                connectionResources.transferNetwork = null
                 CameraConnectionService.runtime(applicationContext).callback(callbackEpoch, ConnectionEvent.LOST, ConnectionReason.NETWORK_LOSS)
                 main.post {
-                    wifiUp = false
+                    connectionResources.wifiUp = false
                     if (!offloadMode) return@post
                     // Remember to pick the transfer back up: the in-flight run is about to fail out
                     // with ENONET and its own resume loop can't help — with no network it moves zero
                     // bytes, trips the "no progress" guard, and pauses on the first attempt.
-                    if (downloadRunning) resumeDownloadOnRejoin = true
-                    if (wifiRejoins >= MAX_WIFI_REJOINS) {
+                    if (downloadRunning) connectionResources.resumeDownloadOnRejoin = true
+                    if (connectionResources.wifiRejoins >= MAX_WIFI_REJOINS) {
                         logLine("WiFi: AP gone and $MAX_WIFI_REJOINS rejoin attempts used — " +
                             "giving up, tap Offload to restart")
                         return@post
                     }
-                    wifiRejoins++
-                    logLine("WiFi: AP gone — rejoining (attempt $wifiRejoins/$MAX_WIFI_REJOINS)")
+                    connectionResources.wifiRejoins++
+                    logLine("WiFi: AP gone — rejoining (attempt ${connectionResources.wifiRejoins}/$MAX_WIFI_REJOINS)")
                     CameraConnectionService.runtime(applicationContext).callback(callbackEpoch, ConnectionEvent.RETRY_TIMER)
-                    if (apJoiner?.rejoin() != true) logLine("WiFi: nothing to rejoin")
+                    if (connectionResources.apJoiner?.rejoin() != true) logLine("WiFi: nothing to rejoin")
                 }
             }
         })
-        apJoiner = joiner
+        connectionResources.apJoiner = joiner
         val useWpa3 = currentModel.wpa3 && !wpa3FallbackDone
         joiner.join(ssid, pass, useWpa3)
     }
@@ -1079,7 +1064,7 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
     /** Open the datalink and fetch the media list. Split out of the join callback so the `nojoin`
      *  debug path can run it against whatever network is already current. */
     private fun startDatalink(sessionEpoch: Long) {
-                val gen = datalinkGen.incrementAndGet()
+                val gen = connectionResources.datalinkGeneration.incrementAndGet()
                 Thread {
                     // Datalink port + poke come from the model AND brand: 10004/no-poke was only ever
                     // confirmed on the Xtra rebrand (own OUI EC:9E:EA), so a genuine DJI unit gets the
@@ -1099,7 +1084,7 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
                         c.onFetchProgress = { fp -> setConnectProgress(60 + fp * 38 / 100) } // 60→98
                         // Publish before the fetch, not after: fetchFileList owns the next 10-20 s and
                         // teardown has to be able to close this socket during it.
-                        pendingSession = c
+                        connectionResources.pendingSession = c
                         ledgerEnumerationStarted = java.time.Instant.now()
                         val enumeration = dev.konraditurbe.osmosis.ledger.LedgerEnumerator.enumerate(c)
                         ledgerEnumerationFailed = enumeration.failed
@@ -1109,13 +1094,13 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
 
                     /** Abandon this worker's session if a newer connect has replaced it. */
                     fun superseded(dl: dev.konraditurbe.osmosis.core.MediaSession): Boolean {
-                        if (gen == datalinkGen.get()) return false
+                        if (gen == connectionResources.datalinkGeneration.get()) return false
                         logLine("datalink: this connect was superseded by a newer one — dropping its session")
                         runCatching { dl.close() }
                         return true
                     }
 
-                    datalink?.close()
+                    connectionResources.datalink?.close()
                     var (dl, files) = open(currentModel)
                     if (superseded(dl)) return@Thread
                     if (!dl.handshakeOk) {
@@ -1130,8 +1115,8 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
                         )
                     }
                     if (superseded(dl)) return@Thread
-                    pendingSession = null
-                    datalink = dl
+                    connectionResources.pendingSession = null
+                    connectionResources.datalink = dl
                     dev.konraditurbe.osmosis.net.Highlights.provider = { h -> dl.getHighlights(h) }
                     // Always: it holds the AP up, polls status for the pill, and holds playback (#12).
                     // Gating on files.isNotEmpty() left an empty camera (e.g. an Action 6 with no media)
@@ -1478,7 +1463,7 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
                 android.view.MotionEvent.ACTION_DOWN -> { lastY = ev.y; pull = 0f }
                 android.view.MotionEvent.ACTION_MOVE -> {
                     val dy = lastY - ev.y; lastY = ev.y
-                    val more = datalink?.moreAvailable == true
+                    val more = connectionResources.datalink?.moreAvailable == true
                     if (!loadingMore && more && !grid.canScrollVertically(1) && dy > 0f)
                         pull = (pull + dy).coerceAtMost(armPx * 1.4f)
                     else if (pull > 0f && dy < 0f)
@@ -1498,7 +1483,7 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
 
     /** Fetch + append the next older page (guarded against re-entrancy); spinner spins meanwhile. */
     private fun loadMorePages() {
-        val dl = datalink ?: return
+        val dl = connectionResources.datalink ?: return
         if (loadingMore || !dl.moreAvailable) return
         loadingMore = true
         findViewById<View>(R.id.loadMoreSpinner)?.apply {
@@ -1562,7 +1547,7 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
      *  burst/interval group, first enumerate its frames off-UI (DUML group-expand, no probing) so the
      *  viewer opens with the thumbnail strip ready. */
     private fun openPreview(f: CameraFile) {
-        val dl = datalink
+        val dl = connectionResources.datalink
         if (f.isBurst && dl != null) {
             toast(getString(R.string.loading_burst))
             Thread {
@@ -1587,7 +1572,7 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
      * these on the grid (not the preview) means the preview never touches the datalink.
      */
     private fun onGridLongPress(f: CameraFile) {
-        val dl = datalink ?: run { logLine("Long-press: no live datalink session."); toast(getString(R.string.not_connected)); return }
+        val dl = connectionResources.datalink ?: run { logLine("Long-press: no live datalink session."); toast(getString(R.string.not_connected)); return }
         val fav = getString(if (f.starred) R.string.unfavorite else R.string.favorite)
         val del = getString(R.string.delete)
         val actions = if (f.deletable) arrayOf(fav, del) else arrayOf(fav)
@@ -1663,7 +1648,7 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
      */
     private fun onBulkDeleteClicked() {
         val ad = adapter ?: return
-        val dl = datalink ?: return
+        val dl = connectionResources.datalink ?: return
         val picked = ad.selectedEntries().map { it.first }
         if (picked.isEmpty()) return
         val (deletable, skipped) = picked.partition { it.deletable }
@@ -1747,8 +1732,8 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
     private fun maybeResumeAfterRejoin() {
         // GATE-3 never retries an unproven partial through the legacy download path.
         if (currentModelId == 0x0022 || currentModel.name == "Osmo Pocket 4 Pro") return
-        if (!resumeDownloadOnRejoin || downloadRunning || !wifiUp) return
-        resumeDownloadOnRejoin = false
+        if (!connectionResources.resumeDownloadOnRejoin || downloadRunning || !connectionResources.wifiUp) return
+        connectionResources.resumeDownloadOnRejoin = false
         if ((adapter?.selectedCount() ?: 0) == 0) return
         logLine("resuming interrupted download after the WiFi rejoin")
         onDownloadClicked()
@@ -1764,7 +1749,7 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
         val jobs = ad.selectedEntries().map { MediaDownloader.Job(it.first, it.second) }
         val strictPocket = currentModelId == 0x0022 || currentModel.name == "Osmo Pocket 4 Pro"
         val transferSession = ledgerSession
-        val capturedNetwork = transferNetwork
+        val capturedNetwork = connectionResources.transferNetwork
         val capturedCameraEpoch = cameraEpoch
         // Queue keys parallel to [jobs] — used to drop each cell from the queue once it lands. Bursts queue
         // under the lead's path (the map key), which is NOT job.file.path, so we map by index, not by file.
@@ -1847,7 +1832,7 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
                             dev.konraditurbe.osmosis.ledger.LedgerCoordinator.TransferResult.REVIEW_REQUIRED
                         else dev.konraditurbe.osmosis.ledger.LedgerCoordinator.get(applicationContext)
                             .transferOriginal(transferSession,job.file,capturedNetwork,
-                                { transferActivityClosed || transferNetwork!=capturedNetwork ||
+                                { transferActivityClosed || connectionResources.transferNetwork!=capturedNetwork ||
                                     CameraConnectionService.runtime(applicationContext).snapshot().epoch != capturedCameraEpoch ||
                                     CameraConnectionService.runtime(applicationContext).activeTransfer() != transferLease ||
                                     !dev.konraditurbe.osmosis.connection.CameraSessionCoordinator.mayUseCameraTraffic(
@@ -2057,8 +2042,8 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
             // the gallery is now stale, so tear the session down and return to the camera selector.
             if (gridGroup.visibility == View.VISIBLE) {
                 logLine("Camera link lost — returning to camera list.")
-                datalink?.close()
-                apJoiner?.release()
+                connectionResources.datalink?.close()
+                connectionResources.apJoiner?.release()
                 grid.adapter = null
                 adapter = null
                 switchToSelector()

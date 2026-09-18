@@ -36,6 +36,10 @@ release a successor; and process replacement discards only that in-memory writer
 ledger's durable PARTIAL evidence remains for later revalidation. This adds deterministic coverage
 for duplicate allocation, stale transfer completion and process-death transfer recovery boundaries.
 
+The recovered-AP path now rebuilds the datalink and performs a new enumeration under its captured
+epoch. It no longer regards a new `Network` callback as proof that the prior protocol session or
+source listing remains valid; automatic transfer use stays fenced until this revalidation succeeds.
+
 Verification attempt: `gradlew.bat testDebugUnitTest --tests
 dev.konraditurbe.osmosis.connection.*` could not configure because this host exposes Java 11 and
 Room 2.8.5 requires Java 17+ (the project targets Java 21). This is `NOT_TESTED`, not a test pass;
