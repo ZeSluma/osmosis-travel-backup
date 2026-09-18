@@ -93,20 +93,20 @@ class MediaDownloader(
         val tracked = u
         if (tracked != null && runCatching { resolver.openFileDescriptor(tracked, "rw")?.close() }.isFailure) u = null
         if (u == null) {
-            if (isAlreadyDownloaded(f)) { log("skip ${f.name} (already saved)"); return Result.SKIPPED }
-            u = createPending(f, f.name) ?: run { log("insert failed: ${f.name}"); return Result.FAILED }
+            if (isAlreadyDownloaded(f)) { log("transfer: skip already-saved asset"); return Result.SKIPPED }
+            u = createPending(f, f.name) ?: run { log("transfer: MediaStore insert failed"); return Result.FAILED }
             prefs.edit().putString(key, u.toString()).apply()
         }
         val uri: Uri = u!!
 
         val pfd = runCatching { resolver.openFileDescriptor(uri, "rw") }.getOrNull()
-            ?: run { log("open failed: ${f.name}"); prefs.edit().remove(key).apply(); return Result.FAILED }
+            ?: run { log("transfer: pending destination open failed"); prefs.edit().remove(key).apply(); return Result.FAILED }
         val startOffset = pfd.statSize.coerceAtLeast(0L)
 
         if (remote > 0 && startOffset >= remote) {
             pfd.close(); markComplete(uri); prefs.edit().remove(key).apply(); return Result.SAVED
         }
-        if (startOffset > 0) log("resuming ${f.name} at ${startOffset / 1_000_000} MB")
+        if (startOffset > 0) log("transfer: resuming at ${startOffset / 1_000_000} MB")
 
         // Resume in a loop rather than handing the user a failure to tap through.
         //
@@ -136,7 +136,7 @@ class MediaDownloader(
         var barren = 0                    // consecutive attempts that moved no bytes at all
         while (true) {
             val pfdN = if (attempt == 0) pfd else runCatching { resolver.openFileDescriptor(uri, "rw") }.getOrNull()
-                ?: run { log("reopen failed: ${f.name}"); return Result.FAILED }
+                ?: run { log("transfer: pending destination reopen failed"); return Result.FAILED }
             if (attempt > 0) offset = pfdN.statSize.coerceAtLeast(0L)
 
             val fos = FileOutputStream(pfdN.fileDescriptor)
@@ -150,7 +150,7 @@ class MediaDownloader(
                 // than write a corrupt one; the next pass runs with offset 0.
                 runCatching { FileOutputStream(pfdN.fileDescriptor).channel.use { it.truncate(0L) } }
                 after = 0L
-                log("camera ignored the resume range — restarting ${f.name} from 0")
+                log("transfer: source ignored resume range — restarting from 0")
             }
             pfdN.close()
 
@@ -163,7 +163,7 @@ class MediaDownloader(
 
             if (after > offset) barren = 0 else barren++
             if (barren >= MAX_BARREN || attempt >= MAX_RESUMES) {
-                log("paused ${f.name} at ${after / 1_000_000} MB (will resume on next Download)")
+                log("transfer: paused at ${after / 1_000_000} MB")
                 return Result.FAILED
             }
             attempt++
@@ -171,7 +171,7 @@ class MediaDownloader(
             // "dropped" vs "refused" matters when reading a log: a mid-stream cut is the camera pacing a
             // long read, whereas a refusal is it declining to start one. Both recover the same way.
             val what = if (outcome == HttpClient.Fetch.INTERRUPTED) "link dropped" else "camera refused"
-            log("$what at ${after / 1_000_000} MB — resuming ${f.name} in $backoff ms (attempt ${attempt + 1})")
+            log("transfer: $what at ${after / 1_000_000} MB — retry in $backoff ms (attempt ${attempt + 1})")
             runCatching { Thread.sleep(backoff) }
         }
     }
@@ -179,7 +179,7 @@ class MediaDownloader(
     // ---- trimmed download (MediaExtractor → MediaMuxer stream copy) ----------
 
     private fun downloadTrimmed(f: CameraFile, trim: TrimRange, tick: (Long) -> Unit): Result {
-        if (!trim.isValid) { log("bad trim range: ${f.name}"); return Result.FAILED }
+        if (!trim.isValid) { log("transfer: invalid trim range"); return Result.FAILED }
         val resolver = context.contentResolver
         val name = trimmedName(f, trim)
         val uri = createPending(f, name) ?: run { log("insert failed: $name"); return Result.FAILED }
