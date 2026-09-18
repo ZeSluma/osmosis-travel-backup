@@ -79,7 +79,7 @@ so duplicate scheduler observations cannot create a second staging object.
 ### Consolidated focused JVM checkpoint
 
 `testDebugUnitTest` selecting the backup package, connection package and
-`AutomaticBackupPlanTest` passed **36 tests, zero failures/errors** across 14 result files. This
+`AutomaticBackupPlanTest` passed **37 tests, zero failures/errors** across 15 result files. This
 is the current autonomous-backup/lifecycle/planner regression scope; it deliberately does not
 reclassify the repository-wide CRLF-sensitive golden-test baseline.
 
