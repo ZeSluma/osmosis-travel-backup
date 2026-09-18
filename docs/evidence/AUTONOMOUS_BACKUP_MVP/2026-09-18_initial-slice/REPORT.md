@@ -1,6 +1,6 @@
 # Autonomous backup MVP — initial software slice
 
-Branch: `codex/autonomous-backup-mvp`. Status: **IN PROGRESS; SOFTWARE-ONLY FOUNDATION**.
+Branch: `codex/autonomous-backup-mvp`. Status: **INTERNAL MVP PASS; HARDWARE VALIDATION PENDING**.
 
 ## Implemented and checked
 
@@ -88,6 +88,21 @@ so duplicate scheduler observations cannot create a second staging object.
 `AutomaticBackupPlanTest` passed **38 tests, zero failures/errors** across 16 result files. This
 is the current autonomous-backup/lifecycle/planner regression scope; it deliberately does not
 reclassify the repository-wide CRLF-sensitive golden-test baseline.
+
+### Broad JVM checkpoint
+
+The broad `testDebugUnitTest` checkpoint ran 445 tests. Its only 14 failures were the established
+CRLF-sensitive `ManifestGoldenTest` assertions at line 54; no autonomous backup, lifecycle,
+replica, or planner test failed. This remains a baseline environmental failure, not a PASS claim
+for the broad suite.
+
+## Internal MVP conclusion
+
+The software-implementable autonomous camera → phone → SSD path is internally PASS: service-owned
+camera/session/datalink effects, durable session and replica fencing, fail-closed revalidation,
+independent replica verification, restart recovery, and UI projection are integrated and tested.
+The remaining boundary is the single consolidated non-destructive S25/Pocket/hub/SSD batch in
+`docs/hardware/VALIDATION_QUEUE.json`; no physical behavior is claimed here.
 
 ## Next software work
 

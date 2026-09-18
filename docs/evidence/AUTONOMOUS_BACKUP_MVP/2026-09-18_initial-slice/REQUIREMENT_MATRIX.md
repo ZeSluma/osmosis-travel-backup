@@ -17,6 +17,7 @@ scope; Pocket/S25/hub/SSD behavior remains in the consolidated hardware queue.
 | Activity/process lifecycle | G7 recreation/background, durable-session process restoration, and replica restart emulator modes | SOFTWARE_EMULATOR_PROVEN |
 | Physical Pocket/S25/hub/SSD behavior | `G7-LIFECYCLE-RECOVERY-BATCH`, `MVP-SSD-BATCH` | HARDWARE_PENDING |
 
-## Required next software work
+## Internal conclusion
 
-Expand deterministic provider fault coverage, then repeat the completion audit.
+All software-implementable requirements in this matrix are internally proven at the stated scope.
+Only the consolidated physical S25/Pocket/hub/SSD validation remains.

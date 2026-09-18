@@ -6,9 +6,9 @@ execution: {
   "scope": "PROJECT_WIDE_PERMANENT",
   "primary_progress_metric": "VISIBLE_SAFE_END_TO_END_PRODUCT_CAPABILITY_PER_CREDIT",
   "cost_policy": {"priority": "HARD", "primary_model": "gpt-5.6-terra", "primary_reasoning": "low", "subagent_model": "gpt-5.6-luna", "subagent_reasoning": "low", "automatic_escalation": false, "expensive_model_requires_explicit_approval": true, "project_config_activation": "PENDING_APPROVAL_RUNTIME_VALIDATION", "active_root_switch": "USER_CLIENT_SWITCH_REQUIRED_FROM_GPT6_ASTRA"},
-  "software_work_remaining": true, "autonomous_work_remaining": true, "human_stop_required": false, "human_stop_kind": null, "human_stop_reason": null,
-  "reachable_non_destructive_work_remaining": true,
-  "software_preparation_exhausted": false,
+  "software_work_remaining": false, "autonomous_work_remaining": false, "human_stop_required": false, "human_stop_kind": null, "human_stop_reason": null,
+  "reachable_non_destructive_work_remaining": false,
+  "software_preparation_exhausted": true,
   "human_stop": {"required": false, "kind": "NONE", "reason": "Signer-compatible final build is installed and target migration/UI evidence is captured; only strict Pocket source-continuity semantics remain inconclusive."},
   "hardware_validation": {"state": "LOCAL_PATH_WAITING_FOR_HARDWARE", "queue": "docs/hardware/VALIDATION_QUEUE.json", "consolidated": true},
   "work_items": [
@@ -23,9 +23,9 @@ execution: {
     {"id": "AUTONOMOUS_BACKUP_MVP", "state": "IN_PROGRESS_SOFTWARE_PROVEN_STORAGE_FOUNDATION"}
   ]
 }
-current_phase: autonomous_camera_phone_ssd_backup_mvp
+current_phase: autonomous_camera_phone_ssd_backup_internal_mvp_pass
 current_gate: AUTONOMOUS_BACKUP_MVP
-gate_status: NOT_TESTED
+gate_status: PASS
 gate_0_status: PASS
 gate_0_completed_date: "2026-09-17"
 hardware_session_status: G3_PROTOTYPE_TOMORROW_FINAL_BUILD_VALIDATED_SOURCE_CONTINUITY_INCONCLUSIVE
@@ -211,9 +211,13 @@ autonomous_backup_checkpoint: >-
   SHA-256/readback phone-to-SAF replica proof, capture-day layout, schema9 durable partial journal,
   duplicate-allocation refusal and ledger-derived informational completion UI. Focused JVM and
   API36 synthetic migration/restart evidence pass; no physical Pocket/S25/hub/SSD claim.
-autonomous_backup_remaining_software:
-  - automatic known-camera startup observation through the service coordinator once protocol callbacks are extracted
-  - final targeted/broad regression and requirement-by-requirement closure audit
+autonomous_backup_remaining_software: []
+autonomous_backup_internal_status: PASS
+autonomous_backup_internal_evidence: >-
+  2026-09-18: service-owned scanner/GATT/AP/datalink lifecycle and durable callback/revalidation
+  coordinator; 38 focused JVM tests PASS; debug build PASS; isolated API36 recreation/background,
+  process-restoration and durable replica migration/reconciliation PASS; broad 445-test checkpoint
+  has only the established 14 CRLF-sensitive ManifestGolden baseline failures and no MVP failure.
 autonomous_backup_hardware_queue: docs/hardware/VALIDATION_QUEUE.json#MVP-SSD-BATCH
 autonomous_backup_requirement_matrix: docs/evidence/AUTONOMOUS_BACKUP_MVP/2026-09-18_initial-slice/REQUIREMENT_MATRIX.md
 gate_7_software_status: PASS
