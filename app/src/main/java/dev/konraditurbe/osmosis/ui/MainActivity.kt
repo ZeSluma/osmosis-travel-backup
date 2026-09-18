@@ -52,6 +52,10 @@ import dev.konraditurbe.osmosis.net.MetaLoader
 import com.google.android.material.button.MaterialButton
 import dev.konraditurbe.osmosis.rsdk.GpsService
 import dev.konraditurbe.osmosis.rsdk.GpsSyncState
+import dev.konraditurbe.osmosis.connection.CameraConnectionService
+import dev.konraditurbe.osmosis.connection.ConnectionEvent
+import dev.konraditurbe.osmosis.connection.ConnectionReason
+import dev.konraditurbe.osmosis.connection.SessionLease
 import com.google.android.material.progressindicator.LinearProgressIndicator
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -210,6 +214,9 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
     private var currentModelId: Int? = null
     private var currentAddress: String? = null
     private var ledgerSession: String? = null
+    /** Durable service-owner epoch; UI work is fenced if a later session supersedes it. */
+    private var cameraEpoch: Long = 0L
+    private var removeSessionObserver: (() -> Unit)? = null
     @Volatile private var transferNetwork: Network? = null
     @Volatile private var transferActivityClosed = false
     private val credentialRequest = java.util.concurrent.atomic.AtomicLong()
@@ -410,6 +417,14 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
     override fun onDestroy() {
         transferActivityClosed = true
         transferNetwork = null
+        // Current adapters are still being migrated into the service. Until that move is complete,
+        // an Activity teardown must at least invalidate camera IO rather than leave a false READY
+        // projection that could accept an old worker after recreation.
+        CameraConnectionService.runtime(applicationContext).callback(cameraEpoch, ConnectionEvent.LOST, ConnectionReason.SESSION_DESYNC)
+        if (isFinishing) {
+            CameraConnectionService.runtime(applicationContext).stop()
+            CameraConnectionService.stopHost(this)
+        }
         credentialRequest.incrementAndGet()
         credentialCache.clear()
         shortcutConfirmation?.dismiss()
@@ -429,12 +444,17 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
 
     override fun onStart() {
         super.onStart()
+        // Presentation is an observer of durable service truth; it never owns session lifetime.
+        removeSessionObserver = CameraConnectionService.runtime(applicationContext).observe { lease ->
+            main.post { renderSessionProjection(lease) }
+        }
         // Registering re-delivers the current phase immediately, so returning to the app restores the
         // lockout if a GPS link is still bound.
         dev.konraditurbe.osmosis.rsdk.GpsSyncState.addListener(gpsStateListener)
     }
 
     override fun onStop() {
+        removeSessionObserver?.invoke(); removeSessionObserver = null
         super.onStop()
         dev.konraditurbe.osmosis.rsdk.GpsSyncState.removeListener(gpsStateListener)
     }
@@ -629,6 +649,8 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
     /** Drop any live WiFi-offload session (BLE GATT + datalink + WiFi request) so the R-SDK GPS flow
      *  can take the camera's single BLE link without contention. Safe to call when nothing is active. */
     private fun teardownOffload() {
+        CameraConnectionService.runtime(applicationContext).stop()
+        CameraConnectionService.stopHost(this)
         stopKeepalive()
         dev.konraditurbe.osmosis.net.Highlights.provider = null
         dev.konraditurbe.osmosis.net.PreviewNav.clear()
@@ -990,6 +1012,10 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
     }
 
     private fun startWifiFlow(ssid: String, pass: String) {
+        val runtime = CameraConnectionService.runtime(applicationContext)
+        cameraEpoch = runtime.start().epoch
+        val callbackEpoch = cameraEpoch
+        CameraConnectionService.host(this)
         transferNetwork = null
         apJoiner?.release() // release any prior request so only one WiFi specifier is pending
         setConnectProgress(35) // requesting the WiFi join
@@ -1002,6 +1028,7 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
             // AP-loss flags stay single-threaded and the check-and-set in onDownloadClicked is safe.
             override fun onNetwork(network: Network, link: LinkProperties?) {
                 transferNetwork = network
+                CameraConnectionService.runtime(applicationContext).callback(callbackEpoch, ConnectionEvent.TRANSPORT_READY)
                 val ip4 = link?.linkAddresses?.map { it.address }
                     ?.firstOrNull { it is java.net.Inet4Address }
                 main.post {
@@ -1019,11 +1046,12 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
                     datalinkStarted = true
                     setConnectProgress(58) // WiFi joined + bound
                     logLine("WiFi link: ip=${ip4?.hostAddress}")
-                    startDatalink()
+                    startDatalink(callbackEpoch)
                 }
             }
             override fun onLost() {
                 transferNetwork = null
+                CameraConnectionService.runtime(applicationContext).callback(callbackEpoch, ConnectionEvent.LOST, ConnectionReason.NETWORK_LOSS)
                 main.post {
                     wifiUp = false
                     if (!offloadMode) return@post
@@ -1038,6 +1066,7 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
                     }
                     wifiRejoins++
                     logLine("WiFi: AP gone — rejoining (attempt $wifiRejoins/$MAX_WIFI_REJOINS)")
+                    CameraConnectionService.runtime(applicationContext).callback(callbackEpoch, ConnectionEvent.RETRY_TIMER)
                     if (apJoiner?.rejoin() != true) logLine("WiFi: nothing to rejoin")
                 }
             }
@@ -1049,7 +1078,7 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
 
     /** Open the datalink and fetch the media list. Split out of the join callback so the `nojoin`
      *  debug path can run it against whatever network is already current. */
-    private fun startDatalink() {
+    private fun startDatalink(sessionEpoch: Long) {
                 val gen = datalinkGen.incrementAndGet()
                 Thread {
                     // Datalink port + poke come from the model AND brand: 10004/no-poke was only ever
@@ -1117,6 +1146,10 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
                     val ledgerToken = ledger.newSession()
                     ledgerSession = ledgerToken
                     currentAddress?.let { ledger.observe(it, ledgerToken, fixed, !dl.moreAvailable, ledgerEnumerationFailed || !dl.handshakeOk, ledgerEnumerationStarted) }
+                    // Reconnect never makes a source ready by itself. An empty/partial/failed listing
+                    // remains untrusted, leaving existing ledger assets intact and transfer fenced.
+                    CameraConnectionService.runtime(applicationContext).revalidated(sessionEpoch,
+                        dev.konraditurbe.osmosis.connection.SourceObservation(!dl.moreAvailable, ledgerEnumerationFailed || !dl.handshakeOk))
                     logLine("MANIFEST: ${fixed.size} files — " +
                         fixed.groupBy { it.storage }.entries.sortedBy { it.key }
                             .joinToString(", ") { (s, list) -> "storage=$s (${list.size} files)" } +
@@ -1258,6 +1291,14 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
                     target.queueWholePaths(paths);logLine("Backup plan ready: ${paths.size} new original(s) queued.")
                 }
             }}
+    }
+
+    private fun renderSessionProjection(lease: SessionLease) {
+        // Do not turn a reconnect into a successful gallery/transfer display. The existing detailed
+        // protocol status can supplement this, but durable state wins after recreation.
+        if (lease.recovery.state != dev.konraditurbe.osmosis.connection.ConnectionState.READY) {
+            selectorHint.text = "Camera session: ${lease.recovery.state.name.lowercase().replace('_', ' ')}"
+        }
     }
 
     /** 3 columns portrait, 6 landscape — matches the old GridView numColumns. */
@@ -1724,6 +1765,7 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
         val strictPocket = currentModelId == 0x0022 || currentModel.name == "Osmo Pocket 4 Pro"
         val transferSession = ledgerSession
         val capturedNetwork = transferNetwork
+        val capturedCameraEpoch = cameraEpoch
         // Queue keys parallel to [jobs] — used to drop each cell from the queue once it lands. Bursts queue
         // under the lead's path (the map key), which is NOT job.file.path, so we map by index, not by file.
         val keys = ad.selectedKeys()
@@ -1731,6 +1773,11 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
             logLine("No files queued (tap a cell to preview + queue).")
             return
         }
+        val transferLease = if (strictPocket) CameraConnectionService.runtime(applicationContext)
+            .acquireTransfer(capturedCameraEpoch) ?: run {
+                logLine("Transfer already active or camera source is not revalidated — preserving partial state.")
+                return
+            } else null
         val trimmed = jobs.count { it.trim != null }
         logLine("Downloading ${jobs.size} item(s)${if (trimmed > 0) " ($trimmed trimmed)" else ""} to gallery...")
         val doneKeys = java.util.Collections.synchronizedList(mutableListOf<String>())
@@ -1800,10 +1847,15 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
                             dev.konraditurbe.osmosis.ledger.LedgerCoordinator.TransferResult.REVIEW_REQUIRED
                         else dev.konraditurbe.osmosis.ledger.LedgerCoordinator.get(applicationContext)
                             .transferOriginal(transferSession,job.file,capturedNetwork,
-                                {transferActivityClosed || transferNetwork!=capturedNetwork},tick)
+                                { transferActivityClosed || transferNetwork!=capturedNetwork ||
+                                    CameraConnectionService.runtime(applicationContext).snapshot().epoch != capturedCameraEpoch ||
+                                    CameraConnectionService.runtime(applicationContext).activeTransfer() != transferLease ||
+                                    !dev.konraditurbe.osmosis.connection.CameraSessionCoordinator.mayUseCameraTraffic(
+                                        CameraConnectionService.runtime(applicationContext).snapshot()) },tick)
                     }
                 } else MediaDownloader(this, http, ::logLine).run(jobs, listener)
             } finally {
+                transferLease?.let { CameraConnectionService.runtime(applicationContext).releaseTransfer(it) }
                 // In a finally, not in onComplete: a throw anywhere in the run would otherwise wedge
                 // the guard on and leave Download dead for the rest of the session.
                 main.post {

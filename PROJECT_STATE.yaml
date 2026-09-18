@@ -18,7 +18,8 @@ execution: {
     {"id": "HTTP_LOOPBACK_REGRESSION", "state": "SYNTHETIC_PROVEN_TARGET_CONTRACT_PENDING"},
     {"id": "FULL_G3_CHECKPOINT", "state": "SOFTWARE_PROVEN_HARDWARE_PENDING"},
     {"id": "HOOK_RUNTIME_ACTIVATION", "state": "LOCAL_PATH_WAITING_FOR_APPROVAL"},
-    {"id": "CLOUD_HANDOFF", "state": "PUBLISHED_VERIFIED_450eaf8531fa173c6c8fa0d23ac7b3f37a035f5d"}
+    {"id": "CLOUD_HANDOFF", "state": "PUBLISHED_VERIFIED_450eaf8531fa173c6c8fa0d23ac7b3f37a035f5d"},
+    {"id": "GATE_7_SERVICE_RUNTIME", "state": "IN_PROGRESS_UNVERIFIED"}
   ]
 }
 current_phase: gate_7_lifecycle_recovery_software_bootstrap
@@ -203,6 +204,8 @@ execution_policy: CONTINUOUS_DEFINED_NONDESTRUCTIVE_GATES
 cost_policy: AGENTS.md cost-aware execution; targeted iterations, batched evidence, full verification at meaningful checkpoints
 execution_policy_source: AGENTS.md
 current_implementation_scope: GATE-7 lifecycle-safe camera-session ownership, bounded recovery and truth-preserving UI; no camera deletion, release, main modification or untrusted append/resume
+gate_7_software_status: IN_PROGRESS_UNVERIFIED
+gate_7_checkpoint: Durable epoch/recovery runtime, connectedDevice host declaration, observer projection and strict-transfer epoch fence implemented; authoritative JVM/emulator verification blocked on this host because only Java11 is available and the attempted Temurin21 installation did not complete. Activity-owned BLE/datalink/AP effect adapters remain to migrate; no G7 PASS claim.
 ledger_branch_parent: a58d858ecfd404579960d9a32960e151071f9fd3
 gate_1_status: PASS
 gate_2_status: PASS

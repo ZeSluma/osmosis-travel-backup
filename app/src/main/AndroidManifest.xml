@@ -14,6 +14,7 @@
 
     <!-- R-SDK GPS sync: a location-typed foreground service streams phone GPS into the camera. -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CONNECTED_DEVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
@@ -60,6 +61,10 @@
             android:name=".rsdk.GpsService"
             android:exported="false"
             android:foregroundServiceType="location" />
+        <service
+            android:name=".connection.CameraConnectionService"
+            android:exported="false"
+            android:foregroundServiceType="connectedDevice" />
 
         <!-- Serves gzipped "Save logs" files to the share sheet via content:// URIs. -->
         <provider

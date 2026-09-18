@@ -2,6 +2,7 @@ package dev.konraditurbe.osmosis
 
 import android.app.Application
 import com.google.android.material.color.DynamicColors
+import dev.konraditurbe.osmosis.connection.CameraConnectionService
 
 /**
  * Applies Material You **dynamic color** to every Activity on Android 12+ (API 31), so the app's accent,
@@ -13,5 +14,7 @@ class OsmosisApp : Application() {
     override fun onCreate() {
         super.onCreate()
         DynamicColors.applyToActivitiesIfAvailable(this)
+        // Restore the application-owned, fenced session projection before an Activity can observe it.
+        CameraConnectionService.runtime(this)
     }
 }
