@@ -12,7 +12,8 @@ Scope: local Pocket-to-phone backup prototype. Evidence labels retain their scop
 | Transfer integrity / source equivalence / overall verification | PASS — emulator/simulation | Orthogonal evidence tests retain transfer confirmation while overall remains `UNVERIFIED` without source equivalence. |
 | Restart/process death/migrations | PASS — emulator/simulation | Ledger, integrity and resume process fixtures cover retained partial/evidence through schema 7. Target migration/UI binding remains hardware pending. |
 | UI product state | PASS — software/emulator | Ledger badges distinguish new, partial-review, transferred-unverified, existing-unverified and review-required. Final S25 rendering is hardware pending. |
-| Lifecycle/background reconnect and camera sleep recovery | DEFERRED | GATE-7 architecture/product work; baseline target observations show failures and no hardware claim is made. |
+| Connection/recovery state model | PASS — software | Pure bounded recovery reducer covers loss, reconnect, revalidation and user-action escalation. Android/BLE/Wi-Fi ownership and foreground-service hosting remain hardware confirmation pending in GATE-7. |
+| Lifecycle/background connected-device service | DEFERRED | Defined GATE-7 architecture; no service integration is claimed by this local MVP checkpoint. |
 | SSD/cloud redundancy and camera cleanup | DEFERRED | Later gates. Phone-only evidence cannot satisfy redundancy or safe-to-clear predicates. |
 
 The only hardware batch is `G3-PROTOTYPE-TOMORROW` in `docs/hardware/VALIDATION_QUEUE.json`.

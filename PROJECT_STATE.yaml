@@ -93,9 +93,9 @@ day_checkpoint:
   branch: codex/gate-3-transfer-integrity
   published_checkpoint: "b946b4fef3cd6bd51cbb427202816b07ba7f7bc8"
   main_verified_unchanged: "2fcdbc97e6dbefc875d425368be67cf32b50bb06"
-  debug_apk: "Current source compilation and unit tests PASS; final APK packaging locally blocked by temporary debug-keystore/SDK file locks. Prior checksum is not a current-artifact claim."
+  debug_apk: "isolated LF current-MVP app-debug.apk; SHA-256 1C087E4B5F93840EF9CD583FAFE573A2CF163C4B6A22ACC7D6E952CDDDE1B860"
   product_capability: "Safe strict Pocket planning/transfer boundaries, automatic complete-inventory worklist planning, persisted partials, local transfer-integrity evidence, guarded simulated resume, and explicit unverified UI state."
-  software_proven: "Range/body validation, cancellation-after-read safety, source-continuity classification, guarded resume state machine, identity/reconciliation, restart semantics, and complete-inventory-only automatic worklist planning."
+  software_proven: "Range/body validation, cancellation-after-read safety, source-continuity classification, guarded resume state machine, identity/reconciliation, restart semantics, complete-inventory-only automatic worklist planning, and bounded connection recovery transitions."
   emulator_proven: "Synthetic ledger/integrity/migration/process-persistence suite at the prior compatible checkpoint; current planner has unit evidence and awaits clean Android-test rebuild."
   hardware_pending: "One consolidated G3-PROTOTYPE-TOMORROW session in docs/hardware/VALIDATION_QUEUE.json."
   safety_limitations: "Pocket immutable source-version contract unproven; no production append/resume; overall verification remains UNVERIFIED; incomplete enumeration is untrusted; receipt-publication gap fails closed."
