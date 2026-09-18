@@ -40,7 +40,12 @@ def work_remains(state):
 
 
 def batch_ready(state, queue):
-    if work_remains(state) or state["software_preparation_exhausted"] is not True:
+    # Green task lists are not completion. A persisted full-product closure audit is required
+    # separately, so a local hardware queue can never end software work by itself.
+    closure_audit = state.get("closure_audit", {})
+    if (work_remains(state) or state["software_preparation_exhausted"] is not True or
+            closure_audit.get("full_software_scope_complete") is not True or
+            not closure_audit.get("evidence")):
         return False
     if state["hardware_validation"]["consolidated"] is not True or queue.get("consolidated") is not True:
         return False

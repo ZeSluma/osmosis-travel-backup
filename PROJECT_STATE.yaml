@@ -6,10 +6,11 @@ execution: {
   "scope": "PROJECT_WIDE_PERMANENT",
   "primary_progress_metric": "VISIBLE_SAFE_END_TO_END_PRODUCT_CAPABILITY_PER_CREDIT",
   "cost_policy": {"priority": "HARD", "primary_model": "gpt-5.6-terra", "primary_reasoning": "low", "subagent_model": "gpt-5.6-luna", "subagent_reasoning": "low", "automatic_escalation": false, "expensive_model_requires_explicit_approval": true, "project_config_activation": "PENDING_APPROVAL_RUNTIME_VALIDATION", "active_root_switch": "USER_CLIENT_SWITCH_REQUIRED_FROM_GPT6_ASTRA"},
-  "software_work_remaining": false, "autonomous_work_remaining": false, "human_stop_required": true, "human_stop_kind": "HARDWARE_BATCH", "human_stop_reason": "Recovery repair and privacy-safe plan diagnosis have a passing 460-test debug checkpoint; the integrated S25/Pocket retest is required before the current completion chain can pass.",
-  "reachable_non_destructive_work_remaining": false,
-  "software_preparation_exhausted": true,
-  "human_stop": {"required": true, "kind": "HARDWARE_BATCH", "reason": "The final signer-compatible debug APK is prepared; Pocket radio/protocol and S25 USB/SAF provider behavior require the single consolidated physical session."},
+  "software_work_remaining": true, "autonomous_work_remaining": true, "human_stop_required": false, "human_stop_kind": null, "human_stop_reason": "A closure-audit correction found a stale-GATT callback fence gap; the repair is tested, but the mandatory integrated closure audit remains in progress before any hardware boundary.",
+  "reachable_non_destructive_work_remaining": true,
+  "software_preparation_exhausted": false,
+  "closure_audit": {"full_software_scope_complete": false, "evidence": "2026-09-19 audit in progress: stale-GATT callback fence was missing and has been repaired; complete product-scope audit remains required."},
+  "human_stop": {"required": false, "kind": null, "reason": "Autonomous closure audit and any resulting safe software repairs must finish before the consolidated physical session."},
   "hardware_validation": {"state": "LOCAL_PATH_WAITING_FOR_HARDWARE", "queue": "docs/hardware/VALIDATION_QUEUE.json", "consolidated": true},
   "work_items": [
     {"id": "AUTONOMY_CONTROL", "state": "IMPLEMENTED_SOFTWARE_PROVEN"},
@@ -20,7 +21,7 @@ execution: {
     {"id": "HOOK_RUNTIME_ACTIVATION", "state": "LOCAL_PATH_WAITING_FOR_APPROVAL"},
     {"id": "CLOUD_HANDOFF", "state": "PUBLISHED_VERIFIED_450eaf8531fa173c6c8fa0d23ac7b3f37a035f5d"},
     {"id": "GATE_7_SERVICE_RUNTIME", "state": "IMPLEMENTED_SOFTWARE_EMULATOR_PROVEN"},
-    {"id": "AUTONOMOUS_BACKUP_MVP", "state": "RECOVERY_REPAIR_SOFTWARE_PROVEN_HARDWARE_RETEST_PENDING"}
+    {"id": "AUTONOMOUS_BACKUP_MVP", "state": "CLOSURE_AUDIT_ACTIVE_STALE_GATT_FENCE_REPAIRED_461_TESTS"}
   ]
 }
 current_phase: autonomous_backup_mvp_recovery_repair_hardware_retest_pending

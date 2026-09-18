@@ -19,4 +19,15 @@ class CameraSessionResourcesTest {
         assertFalse(resources.resumeDownloadOnRejoin)
         assertTrue(resources.wifiRejoins == 0)
     }
+
+    @Test fun replacingOrReleasingGattInvalidatesEveryPriorCallbackGeneration() {
+        val resources = CameraSessionResources()
+        val first = resources.nextGattCallbackGeneration()
+        assertTrue(resources.acceptsGattCallback(first))
+        val second = resources.nextGattCallbackGeneration()
+        assertFalse(resources.acceptsGattCallback(first))
+        assertTrue(resources.acceptsGattCallback(second))
+        resources.releaseGatt()
+        assertFalse(resources.acceptsGattCallback(second))
+    }
 }

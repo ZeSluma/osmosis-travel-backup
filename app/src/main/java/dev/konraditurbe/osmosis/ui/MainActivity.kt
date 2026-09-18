@@ -718,7 +718,6 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
         // while its socket would keep holding udp/9004 against a camera the next connect is about to
         // handshake with. Closing it here is what actually frees the port.
         connectionResources.releaseTransport()
-        connectionResources.gattClient?.disconnect(); connectionResources.gattClient?.close(); connectionResources.gattClient = null
         offloadMode = false; offloadTriggered = false; connectionResources.connecting = false
         // A stale datalinkStarted would make the next session's first join look like a rejoin and skip
         // startDatalink entirely, leaving the camera connected with no grid.

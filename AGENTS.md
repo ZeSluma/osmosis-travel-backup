@@ -35,6 +35,12 @@ Default: implement → test/emulate/simulate → analyze/fix/regress → continu
 
 Before any user interaction, check existing evidence, whether the physical fact is necessary now, remaining software/follow-on work, batching, and whether a new discriminating hypothesis justifies repeating an observation. A hardware **GLOBAL_HUMAN_STOP_REQUIRED** requires ALL: genuinely necessary physical evidence; useful software preparation exhausted; no useful reachable non-destructive work; all pending checks consolidated with purpose and PASS/FAIL/INCONCLUSIVE criteria. ADB absence, a completed task/commit/test or gate boundary is insufficient.
 
+Before declaring useful software preparation exhausted, perform and persist the Mandatory Closure
+Audit in `docs/EXECUTION_POLICY.md`: actively inspect the integrated acceptance chain for missing
+integration coverage, unfenced platform callbacks and ownership leaks. Completion-plan PASS labels
+are evidence inputs, never the audit itself. A discovered software-testable gap revokes a proposed
+hardware stop until it is implemented, tested and the audit is repeated.
+
 Maintain the machine-readable `execution` section in PROJECT_STATE.yaml. Run `tools/autonomy/control.py --check` before proposing a stop. Safety/security/data-integrity, destructive authorization, credentials, unavoidable external approval, unresolved Source-of-Truth conflict and explicit user pause remain genuine boundaries; never force work through them. No main/upstream mutation, merge, release or protected-media changes. Hooks reinforce this contract but do not replace judgment or override higher-priority instructions. Their activation/trust status is documented, never assumed.
 
 ## Product capability first — permanent

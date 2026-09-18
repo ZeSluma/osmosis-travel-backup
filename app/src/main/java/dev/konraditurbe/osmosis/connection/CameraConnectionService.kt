@@ -98,14 +98,22 @@ class CameraConnectionService : Service() {
             listener: GattClient.Listener,
         ): GattClient {
             val owned = resources(context)
-            owned.gattClient?.let { previous ->
-                runCatching { previous.disconnect() }
-                runCatching { previous.close() }
+            owned.releaseGatt()
+            val callbackGeneration = owned.nextGattCallbackGeneration()
+            lateinit var client: GattClient
+            val fencedListener = object : GattClient.Listener {
+                private fun current() = owned.acceptsGattCallback(callbackGeneration) && owned.gattClient === client
+                override fun onLog(s: String) { if (current()) listener.onLog(s) }
+                override fun onReady(gatt: GattClient) { if (current()) listener.onReady(gatt) }
+                override fun onNotification(sourceChar: java.util.UUID, raw: ByteArray, parsed: dev.konraditurbe.osmosis.duml.DjiMessage?) {
+                    if (current()) listener.onNotification(sourceChar, raw, parsed)
+                }
+                override fun onDisconnected() { if (current()) listener.onDisconnected() }
             }
-            return GattClient(context.applicationContext, listener).also { client ->
-                owned.gattClient = client
-                client.connect(device)
-            }
+            client = GattClient(context.applicationContext, fencedListener)
+            owned.gattClient = client
+            client.connect(device)
+            return client
         }
 
         fun newApJoiner(context: Context, listener: ApJoiner.Listener): ApJoiner {

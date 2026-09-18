@@ -32,6 +32,24 @@ Batch all currently useful hardware facts into one session with separate PASS/FA
 
 ## Human stop conditions
 
+### Mandatory closure audit — corrective rule (2026-09-18)
+
+A `PASS` table, a successful build, an empty superficial TODO search, an ADB/device absence, or a
+queued hardware batch is **not** proof that software preparation is exhausted. Before proposing
+hardware or a human stop, the active agent must record a fresh closure audit covering the
+end-to-end acceptance chain and all of the following: service/resource ownership; callback and
+generation fencing; recovery/replacement and explicit-stop paths; durable inventory/plan/transfer
+state; process recreation; replica independence; integrity and derived-status safety; and focused
+fault tests. The audit must actively look for a missing integration test or an unfenced platform
+callback, not merely reread PASS labels.
+
+If the audit finds a safe software-testable gap, it is an open implementation item. Implement and
+test it, update the completion plan and repeat the audit. Hardware is permissible only when this
+fresh audit records `full_software_scope_complete: true` with evidence in `PROJECT_STATE.yaml` and
+`tools/autonomy/control.py --check` independently permits the boundary. This rule exists because a premature 2026-09-18 stop was disproved immediately by an
+unfenced stale-GATT-callback path; it is a process control, not evidence that hardware behavior was
+already proven.
+
 Repeated camera display states (including Playback running via DJI Mimo with Back to Live View) are recurrence evidence, not new standalone tests. Request the same observation again only when a new software change/build creates a specific hypothesis, it distinguishes concrete competing explanations, AND the answer changes the next engineering action. Otherwise reuse existing evidence and continue software work.
 
 Stop only when hardware evidence is the actual remaining blocker; a product decision cannot be derived safely; credentials/authentication or Windows/Android/GitHub approval is required; an actual destructive action is required; a source-of-truth conflict remains unresolved; safety/security/data integrity requires human judgment; or a blocker has not converged after approximately three substantively different evidence-based attempts. Continue unaffected useful work first. At a hardware stop, provide one consolidated validation session, not an isolated micro-test unless necessary for safety/evidence isolation.
