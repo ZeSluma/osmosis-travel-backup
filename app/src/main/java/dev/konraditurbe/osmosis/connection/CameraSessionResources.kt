@@ -18,6 +18,7 @@ class CameraSessionResources {
     var gattClient: GattClient? = null
     var connecting = false
     var ledgerSession: String? = null
+    @Volatile var sourceAssociation: String? = null
     @Volatile var trustedFilesByPath: Map<String, CameraFile> = emptyMap()
     @Volatile var automaticStrictTransferSupported = false
     var apJoiner: ApJoiner? = null
@@ -78,6 +79,7 @@ class CameraSessionResources {
         releaseApJoiner()
         transferNetwork = null
         ledgerSession = null
+        sourceAssociation = null
         trustedFilesByPath = emptyMap()
         automaticStrictTransferSupported = false
         wifiUp = false; datalinkStarted = false; wifiRejoins = 0; resumeDownloadOnRejoin = false

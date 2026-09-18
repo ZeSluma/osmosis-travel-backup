@@ -11,6 +11,7 @@ import java.time.Instant
 class CameraDatalinkCoordinator(
     private val resources: CameraSessionResources,
     private val sessions: CameraSessionEffectCoordinator,
+    private val onTrustedObservation: ((List<CameraFile>, Boolean, Boolean, Instant) -> Unit)? = null,
 ) {
     data class Observation(
         val session: MediaSession,
@@ -90,6 +91,7 @@ class CameraDatalinkCoordinator(
                 runCatching { datalink.close() }
                 return@Thread
             }
+            onTrustedObservation?.invoke(enumeration.files, enumeration.pagesEnded, trusted, started)
             onReady(Observation(datalink, enumeration.files, enumeration.pagesEnded, enumeration.failed, trusted, started))
         }.start()
     }

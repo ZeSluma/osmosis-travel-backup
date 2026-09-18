@@ -89,4 +89,17 @@ class CameraDatalinkCoordinatorTest {
         assertEquals(current, runtime.snapshot().epoch)
         assertEquals(ConnectionState.REVALIDATING, runtime.snapshot().recovery.state)
     }
+
+    @Test fun onlyCurrentTrustedObservationReachesServiceOwnedPlanBridge() {
+        val runtime = CameraSessionEffectCoordinator(DurableSessionRuntime(Store()))
+        val epoch = runtime.begin().epoch
+        runtime.transportReady(epoch)
+        val file = CameraFile(path = "/DCIM/test.mp4", thumbPath = "/MISC/test.thm", sizeBytes = 100)
+        val delivered = CountDownLatch(1)
+        CameraDatalinkCoordinator(CameraSessionResources(), runtime, onTrustedObservation = { files, _, trusted, _ ->
+            assertTrue(trusted); assertEquals(listOf(file), files); delivered.countDown()
+        }).start(epoch, CameraModel.DEFAULT, openSession = { FakeSession(listOf(listOf(file))) },
+            onLog = {}, onStatus = {}, onProgress = {}, onReady = {})
+        assertTrue(delivered.await(2, TimeUnit.SECONDS))
+    }
 }

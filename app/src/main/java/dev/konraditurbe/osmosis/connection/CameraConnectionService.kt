@@ -62,7 +62,10 @@ class CameraConnectionService : Service() {
             coordinatorInstance ?: CameraSessionEffectCoordinator(runtime(context)).also { coordinatorInstance = it }
         }
         fun datalinkCoordinator(context: Context): CameraDatalinkCoordinator = datalinkCoordinatorInstance ?: synchronized(this) {
-            datalinkCoordinatorInstance ?: CameraDatalinkCoordinator(resources(context), coordinator(context)).also { datalinkCoordinatorInstance = it }
+            datalinkCoordinatorInstance ?: CameraDatalinkCoordinator(resources(context), coordinator(context)) { files, complete, trusted, started ->
+                val owned = resources(context)
+                owned.sourceAssociation?.let { association -> backupPlanCoordinator(context).publish(association, files, complete, trusted, started) {} }
+            }.also { datalinkCoordinatorInstance = it }
         }
         fun resources(context: Context): CameraSessionResources = resourcesInstance ?: synchronized(this) {
             resourcesInstance ?: CameraSessionResources().also { resourcesInstance = it }

@@ -776,6 +776,7 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
         currentModel = cam?.model ?: CameraModel.resolve(null, safeName(device), currentBrand)
         currentModelId = cam?.modelId
         currentAddress = device.address
+        connectionResources.sourceAssociation = device.address
         offloadSsid = cam?.name ?: safeName(device) ?: "camera"
         // Pairing token is per-device: a drone only releases its WiFi creds to "DJI FLY", cameras to
         // "osmo". External launches cannot override the model token.
@@ -1151,9 +1152,6 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
                 dev.konraditurbe.osmosis.net.Highlights.provider = { h -> dl.getHighlights(h) }
                 storageForBit.clear()
                 val fixed = applyStorageAndSort(observation.files)
-                currentAddress?.let { address -> CameraConnectionService.backupPlanCoordinator(applicationContext).publish(
-                    address, fixed, observation.enumerationComplete, observation.sourceTrusted, observation.enumerationStarted,
-                ) { main.post { if (!transferActivityClosed) refreshBackupLabels() } } }
                 logLine("MANIFEST: ${fixed.size} files — " + fixed.groupBy { it.storage }.entries.sortedBy { it.key }
                     .joinToString(", ") { (storage, files) -> "storage=$storage (${files.size} files)" } +
                     (if (dl.moreAvailable) " · more on scroll" else ""))
