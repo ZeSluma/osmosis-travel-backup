@@ -56,6 +56,15 @@ data class StorageDestinationRow(@PrimaryKey val id: String, val treeUri: String
 data class ReplicaIntegrityRow(@PrimaryKey val id: String, val assetId: String, val destinationId: String,
     val locator: String, val bytes: Long, val sha256: String, val state: String, val ownerEpoch: Long)
 
+/** Durable replica-operation journal. Partial SAF objects are retained for review, never adopted or hidden. */
+@Entity(tableName = "replica_operations", foreignKeys = [
+    ForeignKey(entity = AssetRow::class, parentColumns = ["id"], childColumns = ["assetId"]),
+    ForeignKey(entity = StorageDestinationRow::class, parentColumns = ["id"], childColumns = ["destinationId"])
+], indices = [Index("assetId"), Index("destinationId")])
+data class ReplicaOperationRow(@PrimaryKey val id: String, val assetId: String, val destinationId: String,
+    val locator: String?, val expectedBytes: Long, val phoneSha256: String, val state: String,
+    val checkpoint: Long, val ownerEpoch: Long)
+
 @Entity(tableName = "local_candidates", primaryKeys = ["assetId", "locator"], foreignKeys = [
     ForeignKey(entity = AssetRow::class, parentColumns = ["id"], childColumns = ["assetId"])], indices = [Index("locator")])
 data class LocalCandidateRow(val assetId: String, val locator: String, val displayName: String,
@@ -91,6 +100,9 @@ interface LedgerDao {
     @Upsert fun storageDestination(row: StorageDestinationRow)
     @Query("SELECT * FROM replica_integrity WHERE assetId=:asset AND destinationId=:destination ORDER BY id") fun replicaProofs(asset: String, destination: String): List<ReplicaIntegrityRow>
     @Insert fun replicaProof(row: ReplicaIntegrityRow)
+    @Insert fun replicaOperation(row: ReplicaOperationRow)
+    @Update fun updateReplicaOperation(row: ReplicaOperationRow)
+    @Query("SELECT * FROM replica_operations WHERE id=:id") fun replicaOperation(id: String): ReplicaOperationRow?
     @Query("SELECT * FROM local_candidates WHERE assetId=:asset ORDER BY locator") fun localCandidates(asset: String): List<LocalCandidateRow>
     @Query("SELECT COUNT(DISTINCT lc.assetId) FROM local_candidates lc JOIN assets a ON a.id=lc.assetId WHERE lc.locator=:locator AND lc.assetId!=:asset AND a.size>0 AND lc.status NOT IN ('MISSING','UNAVAILABLE')")
     fun otherCandidateOwners(locator: String, asset: String): Int

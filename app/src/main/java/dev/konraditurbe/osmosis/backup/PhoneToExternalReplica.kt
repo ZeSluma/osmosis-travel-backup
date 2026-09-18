@@ -17,13 +17,23 @@ class PhoneToExternalReplica(private val resolver: ContentResolver, private val 
             ?: return ReplicaVerification.Result.Rejected("SSD_NOT_CONFIGURED")
         if (destination.state != "AVAILABLE" || destination.treeUri != treeUri.toString())
             return ReplicaVerification.Result.Rejected("SSD_UNAVAILABLE_OR_CHANGED")
+        val evidence=ReplicaEvidenceRepository(database)
+        val operation=try { evidence.beginOperation(lease,assetId,destinationId,phoneProof) }
+        catch (_: Exception) { return ReplicaVerification.Result.Incomplete(0,"STALE_OR_UNAVAILABLE") }
         val pending = try { SafPendingReplica.create(resolver, treeUri, finalName, mime) }
-        catch (_: Exception) { return ReplicaVerification.Result.Incomplete(0, "SSD_ALLOCATION_UNAVAILABLE") }
+        catch (_: Exception) { evidence.finishOperation(lease,operation,false);return ReplicaVerification.Result.Incomplete(0, "SSD_ALLOCATION_UNAVAILABLE") }
+        try { evidence.attachOperation(lease,operation,pending.locator) }
+        catch (_: Exception) { return ReplicaVerification.Result.Incomplete(0,"STALE_OR_UNAVAILABLE") }
         val result = ReplicaVerification.copy(phoneProof,
-            { resolver.openInputStream(phoneUri) ?: throw java.io.FileNotFoundException("PHONE_SOURCE_UNAVAILABLE") }, pending, cancelled)
+            { resolver.openInputStream(phoneUri) ?: throw java.io.FileNotFoundException("PHONE_SOURCE_UNAVAILABLE") }, pending, cancelled) { bytes ->
+                evidence.checkpointOperation(lease,operation,bytes)
+            }
         if (result is ReplicaVerification.Result.Verified) {
             // The repository repeats epoch/destination validation in one transaction before evidence append.
-            ReplicaEvidenceRepository(database).recordVerified(lease, assetId, destinationId, pending.locator, result.proof)
+            evidence.recordVerified(lease, assetId, destinationId, pending.locator, result.proof)
+            evidence.finishOperation(lease,operation,true)
+        } else {
+            evidence.finishOperation(lease,operation,false)
         }
         return result
     }

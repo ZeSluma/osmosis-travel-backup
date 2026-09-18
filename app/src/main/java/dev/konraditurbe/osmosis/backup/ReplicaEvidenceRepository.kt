@@ -36,4 +36,27 @@ class ReplicaEvidenceRepository(private val db: LedgerDatabase) {
             assetId, destinationId, locator, proof.bytes, proof.sha256, ReplicaState.VERIFIED.name, lease.epoch)
         if (db.ledger().replicaProofs(assetId, destinationId).none { it.id == row.id }) db.ledger().replicaProof(row)
     }
+
+    fun beginOperation(lease: EnumerationLease, assetId: String, destinationId: String, phoneProof: ReplicaProof): String = tx {
+        check(db.ledger().sourceById(lease.sourceId)?.ownerEpoch == lease.epoch) { "STALE_REPLICA_OWNER" }
+        require(checkNotNull(db.ledger().asset(assetId)).lastEpoch == lease.epoch)
+        require(checkNotNull(db.ledger().storageDestination(destinationId)).state == "AVAILABLE")
+        val id=UUID.randomUUID().toString()
+        db.ledger().replicaOperation(ReplicaOperationRow(id,assetId,destinationId,null,phoneProof.bytes,phoneProof.sha256,"INTENT",0,lease.epoch))
+        id
+    }
+    fun attachOperation(lease: EnumerationLease, id: String, locator: String) = updateOperation(lease,id) {
+        require(it.state=="INTENT" && locator.startsWith("content://")); it.copy(locator=locator,state="COPYING")
+    }
+    fun checkpointOperation(lease: EnumerationLease, id: String, bytes: Long) = updateOperation(lease,id) {
+        require(it.state=="COPYING" && bytes>=it.checkpoint && bytes<=it.expectedBytes);it.copy(checkpoint=bytes)
+    }
+    fun finishOperation(lease: EnumerationLease, id: String, verified: Boolean) = updateOperation(lease,id) {
+        it.copy(state=if(verified)"VERIFIED" else "PARTIAL")
+    }
+    private fun updateOperation(lease: EnumerationLease,id:String, update:(ReplicaOperationRow)->ReplicaOperationRow)=tx {
+        val current=checkNotNull(db.ledger().replicaOperation(id))
+        check(current.ownerEpoch==lease.epoch && db.ledger().sourceById(lease.sourceId)?.ownerEpoch==lease.epoch){"STALE_REPLICA_OPERATION"}
+        db.ledger().updateReplicaOperation(update(current))
+    }
 }

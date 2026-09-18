@@ -20,7 +20,9 @@ Branch: `codex/autonomous-backup-mvp`. Status: **IN PROGRESS; SOFTWARE-ONLY FOUN
 
 Focused JVM checkpoint: backup package (9), connection package (13), and automatic-plan (2):
 **24 tests, zero failures/errors**. `assembleDebug` passed before the final bridge correction;
-the final focused compile/test checkpoint passed after it. This evidence does not prove real
+the final focused compile/test checkpoint passed after it. The API 36 isolated emulator also
+passed the deterministic Room schema 8→9 migration/restart test: replica-operation journal
+creation and destination identity persistence survive reopen. This evidence does not prove real
 Pocket discovery, S25 external-host behavior, hub/SSD behavior, SAF-provider rename semantics or
 real-media copy/recovery.
 

@@ -11,12 +11,14 @@ import dev.konraditurbe.osmosis.ui.MainActivity
 class LauncherSecurityInstrumentation : Instrumentation() {
     private var ledgerPhase: String? = null
     private var lifecyclePhase: String? = null
+    private var backupPhase: String? = null
     private var readOnlyHardwareAudit = false
     private var timestampEvidence = false
     override fun onCreate(arguments: Bundle?) {
         super.onCreate(arguments)
         ledgerPhase = arguments?.getString("ledgerPhase")
         lifecyclePhase = arguments?.getString("lifecyclePhase")
+        backupPhase = arguments?.getString("backupPhase")
         readOnlyHardwareAudit = arguments?.getString("hardwareAudit") == "read-only"
         timestampEvidence = arguments?.getString("timestampEvidence") == "read-only"
         start()
@@ -48,6 +50,18 @@ class LauncherSecurityInstrumentation : Instrumentation() {
                 finish(Activity.RESULT_OK, results)
             } catch (_: Throwable) {
                 results.putString("stream", "FAIL: synthetic GATE7 lifecycle assertion")
+                finish(Activity.RESULT_CANCELED, results)
+            }
+            return
+        }
+        backupPhase?.let { phase ->
+            try {
+                check(phase=="replicaMigration")
+                results.putString("stream", dev.konraditurbe.osmosis.backup.ReplicaInstrumentation.verify(this))
+                finish(Activity.RESULT_OK, results)
+            } catch (error: Throwable) {
+                val marker=(error as? IllegalStateException)?.message?.takeIf { it.startsWith("REPLICA_MIGRATION_") }
+                results.putString("stream", marker ?: "FAIL: synthetic replica migration assertion")
                 finish(Activity.RESULT_CANCELED, results)
             }
             return
