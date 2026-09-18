@@ -74,7 +74,7 @@ class LedgerCoordinator private constructor(context: Context) {
         }
     }
     enum class TransferResult { TRANSFERRED_UNVERIFIED, EXISTING_UNVERIFIED, REVIEW_REQUIRED }
-    data class PhoneReplicaCandidate(val assetId:String,val locator:String,val proof:ReplicaProof,val finalName:String,val mime:String)
+    data class PhoneReplicaCandidate(val assetId:String,val locator:String,val proof:ReplicaProof,val relativePath:String,val mime:String)
 
     /** Only an owned, published, independently read-back phone receipt becomes SSD replication work. */
     fun phoneReplicaCandidates(session:String,destinationId:String,result:(List<PhoneReplicaCandidate>)->Unit) {
@@ -90,8 +90,9 @@ class LedgerCoordinator private constructor(context: Context) {
                     val published=database.attempts().forAsset(asset.id).any { it.state=="PUBLISHED" && it.locator==replica.localLocator && it.checkpoint==asset.size }
                     if(!published) return@mapNotNull null
                     if(database.ledger().replicaProofs(asset.id,destinationId).any { it.state=="VERIFIED" && it.bytes==asset.size && it.sha256==receipt.localRevision }) return@mapNotNull null
-                    val leaf=replica.relativePath.substringAfterLast('/').replace(Regex("[^A-Za-z0-9._-]"),"_")
-                    PhoneReplicaCandidate(asset.id,replica.localLocator,ReplicaProof(asset.size,receipt.localRevision),leaf,
+                    val relative=replica.relativePath
+                    val leaf=relative.substringAfterLast('/')
+                    PhoneReplicaCandidate(asset.id,replica.localLocator,ReplicaProof(asset.size,receipt.localRevision),relative,
                         if(leaf.endsWith(".mov",true))"video/quicktime" else "video/mp4")
                 }
             }.getOrDefault(emptyList())
@@ -104,7 +105,7 @@ class LedgerCoordinator private constructor(context: Context) {
         if(session!=activeSession || session!=leaseSession || cancelled()) return@submit ReplicaVerification.Result.Incomplete(0,"STALE_SESSION")
         val lease=latestLease ?: return@submit ReplicaVerification.Result.Incomplete(0,"NO_LEASE")
         PhoneToExternalReplica(appContext.contentResolver,database).replicate(lease,candidate.assetId,Uri.parse(candidate.locator),
-            candidate.proof,destinationId,tree,candidate.finalName,candidate.mime,cancelled)
+            candidate.proof,destinationId,tree,candidate.relativePath,candidate.mime,cancelled)
     }.get()
 
     /** Refresh from durable exact-identity rows after observation/transfer; never read media. */

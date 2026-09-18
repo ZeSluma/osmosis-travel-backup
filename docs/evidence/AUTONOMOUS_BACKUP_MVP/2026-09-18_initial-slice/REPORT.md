@@ -14,6 +14,9 @@ Branch: `codex/autonomous-backup-mvp`. Status: **IN PROGRESS; SOFTWARE-ONLY FOUN
   Missing permission/provider capability/collision leaves destination or replica unavailable and
   records no verified external proof. Destination state and append-only replica integrity evidence
   are persisted in Room schema 8.
+- External replica allocation retains the ledger capture-day path as a strict `YYYY-MM-DD/file`
+  SAF directory layout. Malformed calendar/path input and either file/directory collision are
+  refused rather than flattened or overwritten.
 - Existing GATE-7 service ownership provides a second opaque scheduler generation; old callback
   completion cannot release/complete a replacement operation. User stop fences both camera and
   replica scheduling.

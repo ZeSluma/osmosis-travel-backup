@@ -12,7 +12,7 @@ import dev.konraditurbe.osmosis.ledger.LedgerDatabase
  */
 class PhoneToExternalReplica(private val resolver: ContentResolver, private val database: LedgerDatabase) {
     fun replicate(lease: EnumerationLease, assetId: String, phoneUri: Uri, phoneProof: ReplicaProof,
-        destinationId: String, treeUri: Uri, finalName: String, mime: String, cancelled: () -> Boolean = { false }): ReplicaVerification.Result {
+        destinationId: String, treeUri: Uri, relativePath: String, mime: String, cancelled: () -> Boolean = { false }): ReplicaVerification.Result {
         val destination = database.ledger().storageDestination(destinationId)
             ?: return ReplicaVerification.Result.Rejected("SSD_NOT_CONFIGURED")
         if (destination.state != "AVAILABLE" || destination.treeUri != treeUri.toString())
@@ -20,7 +20,7 @@ class PhoneToExternalReplica(private val resolver: ContentResolver, private val 
         val evidence=ReplicaEvidenceRepository(database)
         val operation=try { evidence.beginOperation(lease,assetId,destinationId,phoneProof) }
         catch (_: Exception) { return ReplicaVerification.Result.Incomplete(0,"STALE_OR_UNAVAILABLE") }
-        val pending = try { SafPendingReplica.create(resolver, treeUri, finalName, mime) }
+        val pending = try { SafPendingReplica.create(resolver, treeUri, relativePath, mime) }
         catch (_: Exception) { evidence.finishOperation(lease,operation,false);return ReplicaVerification.Result.Incomplete(0, "SSD_ALLOCATION_UNAVAILABLE") }
         try { evidence.attachOperation(lease,operation,pending.locator) }
         catch (_: Exception) { return ReplicaVerification.Result.Incomplete(0,"STALE_OR_UNAVAILABLE") }
