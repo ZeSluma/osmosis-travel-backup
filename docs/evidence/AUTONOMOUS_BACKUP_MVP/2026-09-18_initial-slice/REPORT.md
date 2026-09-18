@@ -42,6 +42,15 @@ operation survive reopen without promotion. This evidence does not prove real
 Pocket discovery, S25 external-host behavior, hub/SSD behavior, SAF-provider rename semantics or
 real-media copy/recovery.
 
+### Current integrated emulator checkpoint
+
+After the automatic availability, capture-day and derived-status changes, the current debug and
+instrumentation APKs passed on the same isolated API 36 emulator: `lifecyclePhase=recreate`
+reported `PASS: G7 recreation/background retained fenced session and single writer`; and
+`backupPhase=replicaMigration` reported `PASS: replica schema migration, destination persistence
+and partial-operation restart`. The emulator was granted only synthetic BLE permissions to avoid
+the platform dialog; it used no camera, hub or SSD.
+
 ## Next software work
 
 Exercise the Room migration and Android SAF provider with deterministic instrumentation/fakes,
