@@ -39,4 +39,10 @@ class ReplicaVerificationTest {
         assertFalse(BackupCompletion.redundancyComplete(listOf(ok),listOf(missing),true,false))
         assertFalse(BackupCompletion.safeToClearCamera(true,false,false))
     }
+    @Test fun backendProjectionFailsClosedForUnknownOrIncompleteInventory(){
+        val verified=ReplicaStatus(ReplicaState.VERIFIED,proof)
+        assertFalse(BackupStatusProjection.derive(false,false,listOf(verified),listOf(verified),true).cameraSyncComplete)
+        val unknown=BackupStatusProjection.derive(true,true,listOf(verified),listOf(verified),true)
+        assertFalse(unknown.cameraSyncComplete);assertFalse(unknown.redundancyComplete);assertFalse(unknown.safeToClearCamera)
+    }
 }

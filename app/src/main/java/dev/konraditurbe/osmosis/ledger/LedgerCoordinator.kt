@@ -11,6 +11,10 @@ import android.net.Uri
 import dev.konraditurbe.osmosis.backup.PhoneToExternalReplica
 import dev.konraditurbe.osmosis.backup.ReplicaProof
 import dev.konraditurbe.osmosis.backup.ReplicaVerification
+import dev.konraditurbe.osmosis.backup.ReplicaStatus
+import dev.konraditurbe.osmosis.backup.ReplicaState
+import dev.konraditurbe.osmosis.backup.BackupProductStatus
+import dev.konraditurbe.osmosis.backup.BackupStatusProjection
 import dev.konraditurbe.osmosis.integrity.EvidenceResult
 
 /** No UI, sockets, credentials or media payloads belong to this adapter. */
@@ -107,6 +111,35 @@ class LedgerCoordinator private constructor(context: Context) {
         PhoneToExternalReplica(appContext.contentResolver,database).replicate(lease,candidate.assetId,Uri.parse(candidate.locator),
             candidate.proof,destinationId,tree,candidate.relativePath,candidate.mime,cancelled)
     }.get()
+
+    /** Durable, derived state only: neither UI callbacks nor filename matches can promote it. */
+    fun backupProductStatus(session:String,destinationId:String?,freshSourceRevalidation:Boolean,result:(BackupProductStatus)->Unit) {
+        writer.execute {
+            val status=runCatching {
+                val lease=checkNotNull(latestLease);check(session==activeSession && session==leaseSession)
+                val plan=checkNotNull(latestPlan);val unknown=plan.items.any { it.action==PlanAction.REVIEW_UNKNOWN }
+                val required=database.ledger().assets(lease.snapshotId).filter { it.classification==AssetClass.KNOWN_REQUIRED.name }
+                val phone=required.map { asset -> phoneStatus(asset) }
+                val external=required.map { asset -> externalStatus(asset,destinationId) }
+                BackupStatusProjection.derive(plan.enumerationComplete,unknown,phone,external,freshSourceRevalidation)
+            }.getOrElse { BackupStatusProjection.derive(false,true,emptyList(),emptyList(),false) }
+            result(status)
+        }
+    }
+    private fun phoneStatus(asset:AssetRow):ReplicaStatus {
+        val replica=database.ledger().replica(asset.id) ?: return ReplicaStatus(ReplicaState.NOT_PRESENT)
+        val verified=asset.size!=null && replica.localLocator!=null && database.integrity().transfers(asset.id).any {
+            it.locator==replica.localLocator && it.expectedBytes==asset.size && it.result==EvidenceResult.CONFIRMED.name
+        } && database.attempts().forAsset(asset.id).any { it.state=="PUBLISHED" && it.locator==replica.localLocator && it.checkpoint==asset.size }
+        return if(verified) ReplicaStatus(ReplicaState.VERIFIED) else ReplicaStatus(ReplicaState.NOT_PRESENT)
+    }
+    private fun externalStatus(asset:AssetRow,destinationId:String?):ReplicaStatus {
+        if(destinationId==null)return ReplicaStatus(ReplicaState.NOT_PRESENT)
+        val phone=phoneStatus(asset);if(phone.state!=ReplicaState.VERIFIED)return ReplicaStatus(ReplicaState.NOT_PRESENT)
+        val receipt=database.integrity().transfers(asset.id).lastOrNull { it.result==EvidenceResult.CONFIRMED.name } ?: return ReplicaStatus(ReplicaState.NOT_PRESENT)
+        val verified=database.ledger().replicaProofs(asset.id,destinationId).any { it.state=="VERIFIED" && it.bytes==asset.size && it.sha256==receipt.localRevision }
+        return if(verified) ReplicaStatus(ReplicaState.VERIFIED) else ReplicaStatus(ReplicaState.NOT_PRESENT)
+    }
 
     /** Refresh from durable exact-identity rows after observation/transfer; never read media. */
     fun displayStates(session:String,files:List<CameraFile>,result:(Map<String,BackupDisplay>)->Unit) {

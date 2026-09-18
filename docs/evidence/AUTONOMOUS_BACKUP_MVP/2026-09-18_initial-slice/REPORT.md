@@ -20,6 +20,9 @@ Branch: `codex/autonomous-backup-mvp`. Status: **IN PROGRESS; SOFTWARE-ONLY FOUN
 - Existing GATE-7 service ownership provides a second opaque scheduler generation; old callback
   completion cannot release/complete a replacement operation. User stop fences both camera and
   replica scheduling.
+- The gallery observes a read-only ledger-derived summary for camera sync, redundancy, and
+  informational cleanup eligibility. It remains false for incomplete inventory or an
+  `UNKNOWN_POTENTIALLY_REQUIRED` blocker and has no cleanup action.
 
 Focused JVM checkpoint: backup package (9), connection package (13), and automatic-plan (2):
 **24 tests, zero failures/errors**. `assembleDebug` passed before the final bridge correction;

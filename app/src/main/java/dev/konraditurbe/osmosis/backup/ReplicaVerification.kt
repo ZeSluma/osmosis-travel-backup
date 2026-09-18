@@ -110,3 +110,19 @@ object BackupCompletion {
     fun safeToClearCamera(redundancyComplete: Boolean, freshSourceRevalidation: Boolean, unknownRequired: Boolean): Boolean =
         redundancyComplete && freshSourceRevalidation && !unknownRequired
 }
+
+/** Read-only product projection from backend evidence. It has no setters and cannot trigger cleanup. */
+data class BackupProductStatus(
+    val inventoryTrusted:Boolean, val unknownRequired:Boolean, val cameraSyncComplete:Boolean,
+    val redundancyComplete:Boolean, val safeToClearCamera:Boolean, val phoneVerified:Int, val externalVerified:Int
+)
+
+object BackupStatusProjection {
+    fun derive(inventoryTrusted:Boolean, unknownRequired:Boolean, phone:Collection<ReplicaStatus>, external:Collection<ReplicaStatus>, freshSourceRevalidation:Boolean):BackupProductStatus {
+        val sync=BackupCompletion.cameraSyncComplete(phone,inventoryTrusted,unknownRequired)
+        val redundancy=BackupCompletion.redundancyComplete(phone,external,inventoryTrusted,unknownRequired)
+        return BackupProductStatus(inventoryTrusted,unknownRequired,sync,redundancy,
+            BackupCompletion.safeToClearCamera(redundancy,freshSourceRevalidation,unknownRequired),
+            phone.count{it.state==ReplicaState.VERIFIED},external.count{it.state==ReplicaState.VERIFIED})
+    }
+}

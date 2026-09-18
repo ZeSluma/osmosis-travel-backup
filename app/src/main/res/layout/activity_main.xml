@@ -156,6 +156,16 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="12dp" />
 
+            <TextView
+                android:id="@+id/backupSummary"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="14dp"
+                android:layout_marginBottom="6dp"
+                android:textColor="@color/osmo_muted"
+                android:textSize="12sp"
+                tools:text="Camera sync: pending · Redundancy: pending · Safe to clear: no" />
+
             <!-- Gallery toolbar: type/faved filter chips + a Select-mode toggle (long-press = all/none). -->
             <HorizontalScrollView
                 android:layout_width="match_parent"

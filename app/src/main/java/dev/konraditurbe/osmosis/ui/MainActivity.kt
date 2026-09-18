@@ -88,6 +88,7 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
     private lateinit var connectBar: LinearProgressIndicator
     private lateinit var savedCameras: SavedCameras
     private lateinit var statusPill: StatusPillView
+    private lateinit var backupSummary: TextView
     private lateinit var btnGps: MaterialButton
     private lateinit var gpsBanner: TextView
     private var pendingGpsTarget: Pair<String, String>? = null // (mac, name) awaiting location perms
@@ -325,6 +326,7 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
         selectorHint = findViewById(R.id.selectorHint)
         connectBar = findViewById(R.id.connectBar)
         statusPill = findViewById(R.id.statusPill)
+        backupSummary = findViewById(R.id.backupSummary)
         savedCameras = SavedCameras(getSharedPreferences("osmosis", MODE_PRIVATE))
         findViewById<View>(R.id.btnRescan).setOnClickListener { startCameraScan(select = true) }
         findViewById<View>(R.id.btnExternalStorage).setOnClickListener { externalStorageLauncher.launch(null) }
@@ -1296,6 +1298,14 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
                 }
             }}
         scheduleExternalReplication(session)
+        val sourceReady=dev.konraditurbe.osmosis.connection.CameraSessionCoordinator.mayUseCameraTraffic(
+            CameraConnectionService.runtime(applicationContext).snapshot())
+        dev.konraditurbe.osmosis.ledger.LedgerCoordinator.get(applicationContext)
+            .backupProductStatus(session,externalDestination.destinationId(),sourceReady) { status -> main.post {
+                if(session==connectionResources.ledgerSession) backupSummary.text = "Camera sync: ${if(status.cameraSyncComplete) "complete" else "pending"} · " +
+                    "Redundancy: ${if(status.redundancyComplete) "complete" else "pending"} · " +
+                    "Safe to clear: ${if(status.safeToClearCamera) "eligible (informational)" else "no"}"
+            }}
     }
 
     /** Sequentially replicate only read-back-confirmed phone receipts to the configured SAF tree. */
