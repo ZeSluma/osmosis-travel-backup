@@ -60,6 +60,11 @@ reported `PASS: G7 recreation/background retained fenced session and single writ
 restart and missing reconciliation`. The emulator was granted only synthetic BLE permissions to avoid
 the platform dialog; it used no camera, hub or SSD.
 
+The same isolated emulator also ran `lifecyclePhase=processRestore`: a replacement durable runtime
+restored the epoch/recovery fence, rejected incomplete revalidation, admitted camera traffic only
+after a fresh complete observation, and retained explicit user stop. This models process replacement
+state only; it does not claim a live camera socket can survive process death.
+
 The replica fixture now also re-enumerates under a fresh ledger lease after restart and confirms
 that a retained `PARTIAL` staged operation can become `MISSING` only through explicit inspection.
 That makes a later allocation eligible without falsely verifying either the staged object or SSD

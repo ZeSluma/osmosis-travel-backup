@@ -14,7 +14,7 @@ scope; Pocket/S25/hub/SSD behavior remains in the consolidated hardware queue.
 | Phone→SSD checksum/readback and no partial promotion | Replica verification/fault tests | SOFTWARE_PROVEN |
 | SSD partial/restart/reconciliation/no duplicate allocation | Schema-9 emulator fixture; reconciliation policy | SOFTWARE_EMULATOR_PROVEN |
 | Derived camera-sync/redundancy/cleanup status | Ledger-derived projection tests/UI observer | SOFTWARE_PROVEN; cleanup informational only |
-| Activity/process lifecycle | G7 recreation/background and replica restart emulator modes | SOFTWARE_EMULATOR_PROVEN |
+| Activity/process lifecycle | G7 recreation/background, durable-session process restoration, and replica restart emulator modes | SOFTWARE_EMULATOR_PROVEN |
 | Physical Pocket/S25/hub/SSD behavior | `G7-LIFECYCLE-RECOVERY-BATCH`, `MVP-SSD-BATCH` | HARDWARE_PENDING |
 
 ## Required next software work
