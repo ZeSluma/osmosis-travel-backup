@@ -20,6 +20,9 @@ Branch: `codex/autonomous-backup-mvp`. Status: **IN PROGRESS; SOFTWARE-ONLY FOUN
 - Existing GATE-7 service ownership provides a second opaque scheduler generation; old callback
   completion cannot release/complete a replacement operation. User stop fences both camera and
   replica scheduling.
+- Scanner, GATT and camera-AP joiner allocation/start now route through the application/service
+  façade using application context. The Activity supplies observer callbacks, but no longer
+  constructs or starts those camera effects directly.
 - The gallery observes a read-only ledger-derived summary for camera sync, redundancy, and
   informational cleanup eligibility. It remains false for incomplete inventory or an
   `UNKNOWN_POTENTIALLY_REQUIRED` blocker and has no cleanup action.
@@ -50,11 +53,11 @@ real-media copy/recovery.
 
 ### Current integrated emulator checkpoint
 
-After the automatic availability, capture-day and derived-status changes, the current debug and
-instrumentation APKs passed on the same isolated API 36 emulator: `lifecyclePhase=recreate`
+After the service-effect ownership refactor, the current debug and instrumentation APKs passed on
+the same isolated API 36 emulator: `lifecyclePhase=recreate`
 reported `PASS: G7 recreation/background retained fenced session and single writer`; and
-`backupPhase=replicaMigration` reported `PASS: replica schema migration, destination persistence
-and partial-operation restart`. The emulator was granted only synthetic BLE permissions to avoid
+`backupPhase=replicaMigration` reported `PASS: replica migration, destination persistence, partial
+restart and missing reconciliation`. The emulator was granted only synthetic BLE permissions to avoid
 the platform dialog; it used no camera, hub or SSD.
 
 The replica fixture now also re-enumerates under a fresh ledger lease after restart and confirms
@@ -71,6 +74,6 @@ reclassify the repository-wide CRLF-sensitive golden-test baseline.
 
 ## Next software work
 
-Exercise the Room migration and Android SAF provider with deterministic instrumentation/fakes,
-persist replica operation progress/recovery, surface derived backend completion state, and add an
-end-to-end fault matrix. Queue physical uncertainty only after those software paths are exhausted.
+Extract the remaining protocol callback/revalidation coordinator from the Activity, expand
+deterministic SAF/provider fault injection, and complete a requirement-by-requirement closure
+audit. Queue physical uncertainty only after those software paths are exhausted.

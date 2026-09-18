@@ -553,9 +553,9 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
         connectionResources.connecting = false
         selectorHint.text = getString(R.string.scanning)
         rebuildCameraList()
-        val s = OsmoScanner(adapter, this); connectionResources.scanner = s; s.start()
+        val s = CameraConnectionService.startCameraScan(applicationContext, adapter, this)
         main.postDelayed({
-            s.stop()
+            CameraConnectionService.stopCameraScan(applicationContext, s)
             if (connectionResources.connecting) return@postDelayed // auto-pick already connected
             rebuildCameraList()
             // Test-hook auto-pick (`--es pick <name|brand>`) connects without a tap.
@@ -751,9 +751,7 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
         // and drives it with DUML (0x00/0x2b -> pair -> 0x53/0x10). That's the sequence we follow in
         // onReady/onPaired. (DJI also documents a 'WKP' wake *broadcast*; an HCI snoop proved Mimo
         // never advertises, so it isn't used here — see MEDIA_PROTOCOL.md § "Waking a sleeping camera".)
-        val gc = GattClient(this, this)
-        connectionResources.gattClient = gc
-        gc.connect(device)
+        CameraConnectionService.connectCameraGatt(applicationContext, device, this)
     }
 
     /** Password is stored per-camera (by MAC). No global fallback — that would leak one camera's
@@ -1014,11 +1012,10 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
         val callbackEpoch = cameraEpoch
         CameraConnectionService.host(this)
         connectionResources.transferNetwork = null
-        connectionResources.apJoiner?.release() // release any prior request so only one WiFi specifier is pending
         setConnectProgress(35) // requesting the WiFi join
         logLine("WiFi flow: ssid=\"$ssid\" passLen=${pass.length}")
         connectionResources.datalinkStarted = false; connectionResources.wifiRejoins = 0; connectionResources.resumeDownloadOnRejoin = false
-        val joiner = ApJoiner(this, object : ApJoiner.Listener {
+        val joiner = CameraConnectionService.newApJoiner(applicationContext, object : ApJoiner.Listener {
             override fun onLog(s: String) = logLine(s)
             override fun onFailed(reason: String) { logLine(reason); main.post { onWifiJoinFailed() } }
             // Both callbacks arrive on a ConnectivityManager thread; hop to main so the download /
@@ -1067,7 +1064,6 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
                 }
             }
         })
-        connectionResources.apJoiner = joiner
         val useWpa3 = currentModel.wpa3 && !wpa3FallbackDone
         joiner.join(ssid, pass, useWpa3)
     }

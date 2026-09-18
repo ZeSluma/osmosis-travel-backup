@@ -3,6 +3,8 @@ package dev.konraditurbe.osmosis.connection
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.Service
+import android.bluetooth.BluetoothAdapter
+import android.bluetooth.BluetoothDevice
 import android.content.Context
 import android.content.Intent
 import android.os.IBinder
@@ -10,6 +12,9 @@ import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import dev.konraditurbe.osmosis.R
 import dev.konraditurbe.osmosis.backup.AutonomousBackupRuntime
+import dev.konraditurbe.osmosis.ble.GattClient
+import dev.konraditurbe.osmosis.ble.OsmoScanner
+import dev.konraditurbe.osmosis.net.ApJoiner
 
 /**
  * Lifecycle-safe host for future camera-only BLE/AP/datalink effect adapters. It owns persistent
@@ -54,6 +59,53 @@ class CameraConnectionService : Service() {
         fun backupRuntime(context: Context): AutonomousBackupRuntime = backupRuntimeInstance ?: synchronized(this) {
             backupRuntimeInstance ?: AutonomousBackupRuntime().also { backupRuntimeInstance = it }
         }
+
+        /**
+         * Camera transport effects are allocated and started by the application/service owner,
+         * rather than by an Activity instance. The listener is deliberately supplied by the
+         * caller: it is an observer only and must still fence every asynchronous result.
+         */
+        fun startCameraScan(
+            context: Context,
+            adapter: BluetoothAdapter,
+            listener: OsmoScanner.Listener,
+        ): OsmoScanner {
+            val owned = resources(context)
+            owned.scanner?.stop()
+            return OsmoScanner(adapter, listener).also { scanner ->
+                owned.scanner = scanner
+                scanner.start()
+            }
+        }
+
+        fun stopCameraScan(context: Context, scanner: OsmoScanner) {
+            scanner.stop()
+            val owned = resources(context)
+            if (owned.scanner === scanner) owned.scanner = null
+        }
+
+        fun connectCameraGatt(
+            context: Context,
+            device: BluetoothDevice,
+            listener: GattClient.Listener,
+        ): GattClient {
+            val owned = resources(context)
+            owned.gattClient?.let { previous ->
+                runCatching { previous.disconnect() }
+                runCatching { previous.close() }
+            }
+            return GattClient(context.applicationContext, listener).also { client ->
+                owned.gattClient = client
+                client.connect(device)
+            }
+        }
+
+        fun newApJoiner(context: Context, listener: ApJoiner.Listener): ApJoiner {
+            val owned = resources(context)
+            owned.apJoiner?.release()
+            return ApJoiner(context.applicationContext, listener).also { joiner -> owned.apJoiner = joiner }
+        }
+
         fun host(context: Context) {
             ContextCompat.startForegroundService(context, Intent(context, CameraConnectionService::class.java).setAction(ACTION_START))
         }
