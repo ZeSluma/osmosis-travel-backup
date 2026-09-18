@@ -781,7 +781,6 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
         currentModel = cam?.model ?: CameraModel.resolve(null, safeName(device), currentBrand)
         currentModelId = cam?.modelId
         currentAddress = device.address
-        connectionResources.sourceAssociation = device.address
         offloadSsid = cam?.name ?: safeName(device) ?: "camera"
         // Pairing token is per-device: a drone only releases its WiFi creds to "DJI FLY", cameras to
         // "osmo". External launches cannot override the model token.
@@ -802,6 +801,14 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
     private fun connectAndOffload(device: BluetoothDevice) {
         teardownOffload()   // fully release any prior camera (GATT, datalink, WiFi, keepalive) first —
                             // a leaked GATT/keepalive from the last camera otherwise stalls this connect
+        // releaseTransport intentionally clears the former source association and transfer
+        // capability.  Reinstall them only for this freshly selected camera, before any GATT or
+        // datalink callback can publish trusted inventory to the service-owned planner.
+        CameraConnectionService.configureSelectedCamera(
+            applicationContext,
+            device.address,
+            currentModelId == 0x0022 || currentModel.name == "Osmo Pocket 4 Pro",
+        )
         offloadPass = savedPassFor(device.address)
         offloadMode = true
         offloadTriggered = false
@@ -1133,6 +1140,11 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
     /** Open the datalink and fetch the media list. Split out of the join callback so the `nojoin`
      *  debug path can run it against whatever network is already current. */
     private fun startDatalink(sessionEpoch: Long) {
+        // The datalink coordinator publishes a trusted observation before the UI observer's
+        // onReady callback.  Configure the service writer before starting it; doing this in
+        // onReady would reject the first otherwise-safe automatic plan.
+        connectionResources.automaticStrictTransferSupported =
+            currentModelId == 0x0022 || currentModel.name == "Osmo Pocket 4 Pro"
         fun currentDatalinkEpoch(): Boolean = sessionEpoch == cameraEpoch &&
             CameraConnectionService.runtime(applicationContext).snapshot().epoch == sessionEpoch
         CameraConnectionService.datalinkCoordinator(applicationContext).start(
@@ -1151,7 +1163,6 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
                     return@start
                 }
                 val dl = observation.session
-                connectionResources.automaticStrictTransferSupported = currentModelId == 0x0022 || currentModel.name == "Osmo Pocket 4 Pro"
                 dev.konraditurbe.osmosis.net.Highlights.provider = { h -> dl.getHighlights(h) }
                 storageForBit.clear()
                 val fixed = applyStorageAndSort(observation.files)
@@ -1302,7 +1313,12 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
     private fun refreshBackupLabels() {
         if(currentModelId!=0x0022 && currentModel.name!="Osmo Pocket 4 Pro")return
         val target=adapter ?: return
-        val session=connectionResources.ledgerSession ?: return
+        val session=connectionResources.ledgerSession ?: run {
+            // A connected grid may precede the asynchronous durable projection. Never leave a
+            // user with a blank safety/status surface during that interval.
+            backupSummary.text = "Camera sync: pending · Redundancy: pending · Safe to clear: no · Auto: awaiting trusted inventory"
+            return
+        }
         dev.konraditurbe.osmosis.ledger.LedgerCoordinator.get(applicationContext)
             .displayStates(session,target.filesForBackupDisplay()){states->main.post {
                 if(!transferActivityClosed && session==connectionResources.ledgerSession && adapter===target)target.setBackupStates(states)

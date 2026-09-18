@@ -84,4 +84,15 @@ class CameraSessionResources {
         automaticStrictTransferSupported = false
         wifiUp = false; datalinkStarted = false; wifiRejoins = 0; resumeDownloadOnRejoin = false
     }
+
+    /**
+     * Establish the source association only after a replacement transport has been released.
+     * `releaseTransport` deliberately clears it so callbacks from the former camera cannot
+     * publish into a new ledger session.  Reinstalling it is therefore an explicit boundary of
+     * a new selected-camera attempt, never a best-effort UI hint.
+     */
+    fun configureSelectedCamera(association: String, strictTransferSupported: Boolean) {
+        sourceAssociation = association
+        automaticStrictTransferSupported = strictTransferSupported
+    }
 }

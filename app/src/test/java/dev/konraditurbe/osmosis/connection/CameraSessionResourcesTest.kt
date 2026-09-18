@@ -20,6 +20,18 @@ class CameraSessionResourcesTest {
         assertTrue(resources.wifiRejoins == 0)
     }
 
+    @Test fun selectedCameraConfigurationMustFollowTransportReleaseToPublishAFreshPlan() {
+        val resources = CameraSessionResources()
+        resources.configureSelectedCamera("AA:BB", strictTransferSupported = true)
+        resources.releaseTransport()
+        assertTrue(resources.sourceAssociation == null)
+        assertFalse(resources.automaticStrictTransferSupported)
+
+        resources.configureSelectedCamera("CC:DD", strictTransferSupported = true)
+        assertTrue(resources.sourceAssociation == "CC:DD")
+        assertTrue(resources.automaticStrictTransferSupported)
+    }
+
     @Test fun replacingOrReleasingGattInvalidatesEveryPriorCallbackGeneration() {
         val resources = CameraSessionResources()
         val first = resources.nextGattCallbackGeneration()

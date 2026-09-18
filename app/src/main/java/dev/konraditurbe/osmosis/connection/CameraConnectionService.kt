@@ -74,6 +74,15 @@ class CameraConnectionService : Service() {
         fun resources(context: Context): CameraSessionResources = resourcesInstance ?: synchronized(this) {
             resourcesInstance ?: CameraSessionResources().also { resourcesInstance = it }
         }
+
+        /**
+         * Bind an explicit new camera selection to the freshly released transport.  The service
+         * owns this bridge because trusted inventory publication must not depend on an Activity
+         * retaining transient selection state.
+         */
+        fun configureSelectedCamera(context: Context, association: String, strictTransferSupported: Boolean) {
+            resources(context).configureSelectedCamera(association, strictTransferSupported)
+        }
         /** Camera and local-replica scheduling belongs to the application owner, never an Activity. */
         fun backupRuntime(context: Context): AutonomousBackupRuntime = backupRuntimeInstance ?: synchronized(this) {
             backupRuntimeInstance ?: AutonomousBackupRuntime().also { backupRuntimeInstance = it }
