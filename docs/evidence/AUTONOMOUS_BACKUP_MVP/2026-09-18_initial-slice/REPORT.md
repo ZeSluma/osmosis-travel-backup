@@ -26,6 +26,9 @@ Branch: `codex/autonomous-backup-mvp`. Status: **IN PROGRESS; SOFTWARE-ONLY FOUN
 - A cross-layer deterministic recovery scenario exercises active loss, replacement session,
   stale completion rejection, incomplete revalidation, unavailable SSD and explicit stop. It
   proves the software-state interaction only, not the physical radio or USB behavior.
+- A known-camera availability policy automatically selects the most-recent configured camera only
+  after it advertises through the normal permission-gated scan. It is suppressed by explicit user
+  stop or an in-flight connection. Real Pocket wake/advertisement behavior is not claimed.
 
 Focused JVM checkpoint: backup package (9), connection package (13), and automatic-plan (2):
 **24 tests, zero failures/errors**. `assembleDebug` passed before the final bridge correction;
