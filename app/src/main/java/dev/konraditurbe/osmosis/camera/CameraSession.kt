@@ -410,7 +410,7 @@ class CameraSession(
         Thread.sleep(600)                 // let the keep-alive loop finish its current recv and exit
         tx.close()                        // free udp/$port for the fresh session
         val fresh = runCatching { freshSessionPage(ip) }
-            .getOrElse { log("datalink: next-page session error: ${it.message}"); emptyList() }
+            .getOrElse { log("datalink: next-page session error"); emptyList() }
         if (tx.isOpen) runCatching { startKeepAlive() }
         return fresh
     }
@@ -476,7 +476,7 @@ class CameraSession(
         Thread.sleep(600)                 // let the keep-alive loop exit before we take the socket
         tx.close()
         val frames = runCatching { freshSessionExpand(ip, handle, base) }
-            .getOrElse { log("datalink: group-expand error: ${it.message}"); emptyList() }
+            .getOrElse { log("datalink: group-expand error"); emptyList() }
         if (tx.isOpen) runCatching { startKeepAlive() }
         return frames.takeIf { it.size > 1 } ?: listOf(lead)
     }
@@ -618,7 +618,7 @@ class CameraSession(
         Thread.sleep(600)                // let the keep-alive loop finish its recv and exit
         tx.close()                       // free udp/$port for the fresh session
         val marks = runCatching { freshSessionHighlights(ip, handle) }
-            .getOrElse { log("datalink: highlights session error: ${it.message}"); emptyList() }
+            .getOrElse { log("datalink: highlights session error"); emptyList() }
         if (tx.isOpen) runCatching { startKeepAlive() }
         return marks
     }
@@ -1184,7 +1184,7 @@ class CameraSession(
         Thread.sleep(600)                // let the keep-alive loop finish its current recv and exit
         tx.close()                       // free udp/$port for the fresh session
         val status = runCatching { freshSessionDelete(ip, payload) }
-            .getOrElse { log("datalink: delete session error: ${it.message}"); null }
+            .getOrElse { log("datalink: delete session error"); null }
         if (tx.isOpen) runCatching { startKeepAlive() }
         return status
     }
@@ -1205,7 +1205,7 @@ class CameraSession(
         Thread.sleep(600)
         tx.close()
         val files = runCatching { fetchFileList(ip) }.getOrElse {
-            log("datalink: delete verify — listing failed: ${it.message}"); emptyList()
+            log("datalink: delete verify — listing failed"); emptyList()
         }
         if (tx.isOpen) runCatching { startKeepAlive() }
         if (files.isEmpty()) { log("datalink: delete verify — no list, cannot confirm"); return null }
@@ -1305,7 +1305,7 @@ class CameraSession(
         Thread.sleep(600)                // let the keep-alive loop finish its recv and exit
         tx.close()                       // free udp/$port for the fresh session
         val ok = runCatching { freshSessionFavorite(ip, handle, on) }
-            .getOrElse { log("datalink: favorite session error: ${it.message}"); false }
+            .getOrElse { log("datalink: favorite session error"); false }
         if (tx.isOpen) runCatching { startKeepAlive() }
         return ok
     }
@@ -1606,7 +1606,7 @@ class CameraSession(
                 .format(h, group.joinToString { it.name }))
         }
         if (files.size <= 12) {
-            for (f in files) log("datalink:   %-44s handle=0x%08x".format(f.name.take(44), f.handle))
+            log("datalink: handle collision across ${files.size} assets — deletion disabled")
         }
         if (dupes.isEmpty()) return files
         val shared = dupes.keys

@@ -747,7 +747,7 @@ class MediaPreviewActivity : AppCompatActivity() {
             startScrubFrames(path)   // the candidate that actually opened, so previews match the stream
         }
         videoView.setOnErrorListener { _, what, extra ->
-            Log.i("Osmosis", "preview ERROR what=$what extra=$extra (candidate ${streamIdx + 1}/${streamCandidates.size}: $path)")
+            Log.i("Osmosis", "preview error what=$what extra=$extra candidate ${streamIdx + 1}/${streamCandidates.size}")
             if (streamIdx < streamCandidates.size - 1) {
                 streamIdx++
                 Log.i("Osmosis", "preview falling back to ${streamCandidates[streamIdx]}")

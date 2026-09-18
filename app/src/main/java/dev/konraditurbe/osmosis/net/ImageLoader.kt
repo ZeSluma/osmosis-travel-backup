@@ -48,7 +48,7 @@ class ImageLoader(private val http: HttpClient, private val log: (String) -> Uni
             if (bmp == null && bytes != null && !loggedFailure) {
                 loggedFailure = true
                 val head = bytes.take(16).joinToString("") { "%02x".format(it) }
-                log("thumb: ${bytes.size}B did not decode; head=$head (path=$thumbUrlPath)")
+                log("thumb: ${bytes.size}B did not decode; header=$head")
             }
             if (bmp != null) {
                 cache.put(thumbUrlPath, bmp)

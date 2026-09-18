@@ -1015,7 +1015,7 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
         CameraConnectionService.host(this)
         connectionResources.transferNetwork = null
         setConnectProgress(35) // requesting the WiFi join
-        logLine("WiFi flow: ssid=\"$ssid\" passLen=${pass.length}")
+        logLine("WiFi flow: credentials supplied (password length=${pass.length})")
         connectionResources.datalinkStarted = false; connectionResources.wifiRejoins = 0; connectionResources.resumeDownloadOnRejoin = false
         val joiner = CameraConnectionService.newApJoiner(applicationContext, object : ApJoiner.Listener {
             override fun onLog(s: String) = logLine(s)

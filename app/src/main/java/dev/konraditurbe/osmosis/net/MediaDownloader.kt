@@ -182,9 +182,9 @@ class MediaDownloader(
         if (!trim.isValid) { log("transfer: invalid trim range"); return Result.FAILED }
         val resolver = context.contentResolver
         val name = trimmedName(f, trim)
-        val uri = createPending(f, name) ?: run { log("insert failed: $name"); return Result.FAILED }
+        val uri = createPending(f, name) ?: run { log("trim: MediaStore insert failed"); return Result.FAILED }
         val pfd = runCatching { resolver.openFileDescriptor(uri, "rw") }.getOrNull()
-            ?: run { log("open failed: $name"); runCatching { resolver.delete(uri, null, null) }; return Result.FAILED }
+            ?: run { log("trim: pending destination open failed"); runCatching { resolver.delete(uri, null, null) }; return Result.FAILED }
 
         val extractor = MediaExtractor()
         var muxer: MediaMuxer? = null
@@ -204,7 +204,7 @@ class MediaDownloader(
                 if (mime.startsWith("video/") && fmt.containsKey(MediaFormat.KEY_ROTATION))
                     muxer.setOrientationHint(fmt.getInteger(MediaFormat.KEY_ROTATION))
             }
-            if (trackMap.isEmpty()) { log("no A/V tracks: $name"); resolver.delete(uri, null, null); return Result.FAILED }
+            if (trackMap.isEmpty()) { log("trim: no A/V tracks"); resolver.delete(uri, null, null); return Result.FAILED }
 
             val endUs = trim.endMs * 1000
             muxer.start()
@@ -235,10 +235,10 @@ class MediaDownloader(
             }
             muxer.stop()
             markComplete(uri)
-            log("trimmed ${f.name} → $name (${written / 1_000_000} MB of ${trim.durationMs} ms)")
+            log("trim: completed ${written / 1_000_000} MB of ${trim.durationMs} ms")
             return Result.SAVED
         } catch (e: Exception) {
-            log("trim FAILED ${f.name}: ${e.javaClass.simpleName} ${e.message}")
+            log("trim failed: ${e.javaClass.simpleName}")
             runCatching { resolver.delete(uri, null, null) }
             return Result.FAILED
         } finally {
