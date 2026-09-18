@@ -57,5 +57,17 @@ class AutonomousBackupRuntime {
 /** SAF append/resume is provider-dependent; unresolved staged objects must never trigger a second allocation. */
 object ExternalReplicaRecoveryPolicy {
     fun mayAllocate(existingOperationStates:Collection<String>):Boolean =
-        existingOperationStates.none { it in setOf("INTENT","COPYING","PARTIAL") }
+        existingOperationStates.none { it in setOf("INTENT","COPYING","PARTIAL","CORRUPT","COMPLETE_UNFINALIZED","UNAVAILABLE") }
+}
+
+enum class StagedReplicaObservation { MISSING, PARTIAL, COMPLETE_UNFINALIZED, CORRUPT, UNAVAILABLE }
+object ExternalReplicaReconciliation {
+    fun classify(expected:ReplicaProof, observedBytes:Long?, observedSha256:String?):StagedReplicaObservation = when {
+        observedBytes==null || observedSha256==null -> StagedReplicaObservation.UNAVAILABLE
+        observedBytes==0L -> StagedReplicaObservation.PARTIAL
+        observedBytes<expected.bytes -> StagedReplicaObservation.PARTIAL
+        observedBytes>expected.bytes -> StagedReplicaObservation.CORRUPT
+        observedSha256!=expected.sha256 -> StagedReplicaObservation.CORRUPT
+        else -> StagedReplicaObservation.COMPLETE_UNFINALIZED
+    }
 }

@@ -27,7 +27,7 @@ class PhoneToExternalReplica(private val resolver: ContentResolver, private val 
         val operation=try { evidence.beginOperation(lease,assetId,destinationId,phoneProof) }
         catch (_: Exception) { return ReplicaVerification.Result.Incomplete(0,"STALE_OR_UNAVAILABLE") }
         val pending = try { SafPendingReplica.create(resolver, treeUri, relativePath, mime) }
-        catch (_: Exception) { evidence.finishOperation(lease,operation,false);return ReplicaVerification.Result.Incomplete(0, "SSD_ALLOCATION_UNAVAILABLE") }
+        catch (_: Exception) { evidence.allocationFailed(lease,operation);return ReplicaVerification.Result.Incomplete(0, "SSD_ALLOCATION_UNAVAILABLE") }
         try { evidence.attachOperation(lease,operation,pending.locator) }
         catch (_: Exception) { return ReplicaVerification.Result.Incomplete(0,"STALE_OR_UNAVAILABLE") }
         val result = ReplicaVerification.copy(phoneProof,

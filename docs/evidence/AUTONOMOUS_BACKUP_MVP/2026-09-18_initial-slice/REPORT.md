@@ -54,6 +54,11 @@ reported `PASS: G7 recreation/background retained fenced session and single writ
 and partial-operation restart`. The emulator was granted only synthetic BLE permissions to avoid
 the platform dialog; it used no camera, hub or SSD.
 
+The replica fixture now also re-enumerates under a fresh ledger lease after restart and confirms
+that a retained `PARTIAL` staged operation can become `MISSING` only through explicit inspection.
+That makes a later allocation eligible without falsely verifying either the staged object or SSD
+redundancy. This is a deterministic synthetic provider outcome, not a real-SSD reconnect claim.
+
 ## Next software work
 
 Exercise the Room migration and Android SAF provider with deterministic instrumentation/fakes,

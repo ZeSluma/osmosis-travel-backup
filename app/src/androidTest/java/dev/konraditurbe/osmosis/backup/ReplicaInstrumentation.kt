@@ -40,7 +40,12 @@ object ReplicaInstrumentation {
             stage="partialRestart";db.close();db=LedgerDatabase.open(context,name)
             val retained=checkNotNull(db.ledger().replicaOperation(operation))
             check(retained.state=="PARTIAL" && retained.checkpoint==4L && retained.locator=="content://synthetic/part")
-            return "PASS: replica schema migration, destination persistence and partial-operation restart"
+            stage="reconcile"
+            val fresh=LedgerRepository(db).begin("synthetic-replica","two","fake",now)
+            LedgerRepository(db).reconcile(fresh,listOf(RemoteAsset("fake","one.MP4",10,classification=AssetClass.KNOWN_REQUIRED)),now,ZoneId.of("UTC"))
+            ReplicaEvidenceRepository(db).reconcileOperation(fresh,operation,StagedReplicaObservation.MISSING)
+            check(db.ledger().replicaOperation(operation)?.state=="MISSING")
+            return "PASS: replica migration, destination persistence, partial restart and missing reconciliation"
         } catch(error:Throwable) { throw IllegalStateException("REPLICA_MIGRATION_$stage",error) }
         finally { db.close(); context.deleteDatabase(name) }
     }

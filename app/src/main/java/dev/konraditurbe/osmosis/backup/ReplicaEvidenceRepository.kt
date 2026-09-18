@@ -54,6 +54,22 @@ class ReplicaEvidenceRepository(private val db: LedgerDatabase) {
     fun finishOperation(lease: EnumerationLease, id: String, verified: Boolean) = updateOperation(lease,id) {
         it.copy(state=if(verified)"VERIFIED" else "PARTIAL")
     }
+    fun allocationFailed(lease:EnumerationLease,id:String)=updateOperation(lease,id) {
+        require(it.state=="INTENT");it.copy(state="ALLOCATION_FAILED")
+    }
+    /** New post-revalidation owner may classify an old staged object but cannot promote it. */
+    fun reconcileOperation(lease:EnumerationLease,id:String,observation:StagedReplicaObservation)=tx {
+        val current=checkNotNull(db.ledger().replicaOperation(id));val asset=checkNotNull(db.ledger().asset(current.assetId))
+        check(asset.sourceId==lease.sourceId && asset.lastEpoch==lease.epoch && db.ledger().sourceById(lease.sourceId)?.ownerEpoch==lease.epoch){"STALE_RECONCILIATION_OWNER"}
+        val next=when(observation) {
+            StagedReplicaObservation.MISSING -> current.copy(state="MISSING",checkpoint=0,ownerEpoch=lease.epoch)
+            StagedReplicaObservation.PARTIAL -> current.copy(state="PARTIAL",ownerEpoch=lease.epoch)
+            StagedReplicaObservation.COMPLETE_UNFINALIZED -> current.copy(state="COMPLETE_UNFINALIZED",ownerEpoch=lease.epoch)
+            StagedReplicaObservation.CORRUPT -> current.copy(state="CORRUPT",ownerEpoch=lease.epoch)
+            StagedReplicaObservation.UNAVAILABLE -> current.copy(state="UNAVAILABLE",ownerEpoch=lease.epoch)
+        }
+        db.ledger().updateReplicaOperation(next)
+    }
     private fun updateOperation(lease: EnumerationLease,id:String, update:(ReplicaOperationRow)->ReplicaOperationRow)=tx {
         val current=checkNotNull(db.ledger().replicaOperation(id))
         check(current.ownerEpoch==lease.epoch && db.ledger().sourceById(lease.sourceId)?.ownerEpoch==lease.epoch){"STALE_REPLICA_OPERATION"}

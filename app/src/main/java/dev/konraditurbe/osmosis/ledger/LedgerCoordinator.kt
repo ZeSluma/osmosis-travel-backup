@@ -15,6 +15,8 @@ import dev.konraditurbe.osmosis.backup.ReplicaStatus
 import dev.konraditurbe.osmosis.backup.ReplicaState
 import dev.konraditurbe.osmosis.backup.BackupProductStatus
 import dev.konraditurbe.osmosis.backup.BackupStatusProjection
+import dev.konraditurbe.osmosis.backup.ReplicaEvidenceRepository
+import dev.konraditurbe.osmosis.backup.SafStagedReplicaProbe
 import dev.konraditurbe.osmosis.integrity.EvidenceResult
 
 /** No UI, sockets, credentials or media payloads belong to this adapter. */
@@ -113,6 +115,26 @@ class LedgerCoordinator private constructor(context: Context) {
         PhoneToExternalReplica(appContext.contentResolver,database).replicate(lease,candidate.assetId,Uri.parse(candidate.locator),
             candidate.proof,destinationId,tree,candidate.relativePath,candidate.mime,cancelled)
     }.get()
+
+    /** Revalidated session owner inspects retained owned staging objects before considering new work. */
+    fun reconcileExternalReplicas(session:String,destinationId:String,result:()->Unit) {
+        writer.execute {
+            runCatching {
+                val lease=checkNotNull(latestLease);check(session==activeSession && session==leaseSession)
+                val evidence=ReplicaEvidenceRepository(database)
+                database.ledger().assets(lease.snapshotId).forEach { asset ->
+                    database.ledger().replicaOperations(asset.id,destinationId)
+                        .filter { it.state in setOf("INTENT","COPYING","PARTIAL","UNAVAILABLE","CORRUPT","COMPLETE_UNFINALIZED") }
+                        .forEach { operation ->
+                            val observed=operation.locator?.let { SafStagedReplicaProbe.observe(appContext.contentResolver,it,
+                                ReplicaProof(operation.expectedBytes,operation.phoneSha256)) } ?: dev.konraditurbe.osmosis.backup.StagedReplicaObservation.MISSING
+                            evidence.reconcileOperation(lease,operation.id,observed)
+                        }
+                }
+            }
+            result()
+        }
+    }
 
     /** Durable, derived state only: neither UI callbacks nor filename matches can promote it. */
     fun backupProductStatus(session:String,destinationId:String?,freshSourceRevalidation:Boolean,result:(BackupProductStatus)->Unit) {

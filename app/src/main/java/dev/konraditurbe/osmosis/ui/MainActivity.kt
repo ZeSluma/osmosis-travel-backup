@@ -1314,6 +1314,7 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
         val destinationId=externalDestination.destinationId() ?: return
         if(!externalDestination.availability()) return
         val ledger=dev.konraditurbe.osmosis.ledger.LedgerCoordinator.get(applicationContext)
+        ledger.reconcileExternalReplicas(session,destinationId) {
         ledger.phoneReplicaCandidates(session,destinationId) { candidates -> main.post {
             if(session!=connectionResources.ledgerSession || candidates.isEmpty()) return@post
             val camera=CameraConnectionService.runtime(applicationContext).snapshot()
@@ -1336,6 +1337,7 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
                 }
             }.start()
         }}
+        }
     }
 
     private fun renderSessionProjection(lease: SessionLease) {
