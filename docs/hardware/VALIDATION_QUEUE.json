@@ -6,7 +6,7 @@
   "items": [
     {
       "id": "G7-LIFECYCLE-RECOVERY",
-      "state": "FAIL_HARDWARE_REPRODUCED_SOFTWARE_REPAIR_REQUIRED",
+      "state": "WAITING_HARDWARE_RETEST_AFTER_SOFTWARE_REPAIR",
       "question": "On the S25/Pocket4P, does the connectedDevice host preserve truthful session/transfer state through background/screen-off and recover a controlled AP/session loss only after source revalidation?",
       "why_hardware": "Android foreground-service policy, Pocket AP/BLE/datalink behavior and firmware-specific liveness cannot be established by synthetic emulation.",
       "software_evidence": ["GATE-7 focused unit suite 13 PASS", "API36 synthetic process restoration PASS", "post-connect empty-inventory bounded-retry JVM regression PASS", "GATE-7 bootstrap report"],
@@ -18,7 +18,7 @@
       "batch_with": ["G7-REASON-DIAGNOSTICS"],
       "new_hypothesis": "The service-owned fenced runtime survives UI lifecycle changes and fails closed on real transport loss.",
       "competing_explanations": ["Android stops the service", "Pocket firmware/AP behavior prevents recovery", "protocol session requires user action"],
-      "latest_attempt": "2026-09-18 final artifact on SM-S938B: normal restart auto-connected and restored six-item grid; background/screen-off/foreground preserved session. Controlled Pocket power-cycle then stopped CameraConnectionService with no automatic rebuild. One permitted Rescan showed 1/1 saved camera in range but did not auto-select; manual selection restored grid. Plan stayed complete=false/download=2/verify=3/revalidate=1/review=0, with no transfer. Reproducible recovery and auto-select defects require software repair; no destructive action occurred."
+      "latest_attempt": "2026-09-18 prior artifact: normal restart auto-connected and restored six-item grid; background/screen-off/foreground preserved session. Controlled Pocket power-cycle then stopped CameraConnectionService with no automatic rebuild. One permitted Rescan showed 1/1 saved camera in range but did not auto-select; manual selection restored grid. Plan stayed complete=false/download=2/verify=3/revalidate=1/review=0, with no transfer. Repair build now preserves host on unexpected live-grid GATT loss, performs at most three fenced recovery scans, closes scan-timeout selection race, and exposes privacy-safe plan completeness counts. Retest the entire chain with the new build; no destructive action occurred."
     },
     {
       "id": "G7-REASON-DIAGNOSTICS",
