@@ -454,11 +454,9 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
         // line is flushed, so nothing is lost if the process dies; the toggle closes it explicitly.
         if (isFinishing) {
             stopKeepalive()
-            connectionResources.datalink?.close()
-            connectionResources.scanner?.stop()
-            connectionResources.gattClient?.disconnect()
-            connectionResources.gattClient?.close()
-            connectionResources.apJoiner?.release()
+            // Invalidate every effect callback before releasing platform resources; a late BLE/scan
+            // callback must not outlive this explicit terminal session.
+            connectionResources.releaseTransport()
         }
         imageLoader?.shutdown()
         metaLoader?.shutdown()
@@ -1131,6 +1129,8 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
     /** Open the datalink and fetch the media list. Split out of the join callback so the `nojoin`
      *  debug path can run it against whatever network is already current. */
     private fun startDatalink(sessionEpoch: Long) {
+        fun currentDatalinkEpoch(): Boolean = sessionEpoch == cameraEpoch &&
+            CameraConnectionService.runtime(applicationContext).snapshot().epoch == sessionEpoch
         CameraConnectionService.datalinkCoordinator(applicationContext).start(
             epoch = sessionEpoch,
             model = currentModel,
@@ -1139,9 +1139,13 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
                 else CameraSession(::logLine, model.datalinkPort, model.tcpPoke)
             },
             onLog = ::logLine,
-            onStatus = { status -> main.post { onCameraStatus(status) } },
-            onProgress = ::setConnectProgress,
+            onStatus = { status -> main.post { if (currentDatalinkEpoch()) onCameraStatus(status) } },
+            onProgress = { progress -> main.post { if (currentDatalinkEpoch()) setConnectProgress(progress) } },
             onReady = { observation ->
+                if (!currentDatalinkEpoch()) {
+                    runCatching { observation.session.close() }
+                    return@start
+                }
                 val dl = observation.session
                 dev.konraditurbe.osmosis.net.Highlights.provider = { h -> dl.getHighlights(h) }
                 storageForBit.clear()
@@ -1160,8 +1164,10 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
                     .joinToString(", ") { (storage, files) -> "storage=$storage (${files.size} files)" } +
                     (if (dl.moreAvailable) " · more on scroll" else ""))
                 main.post {
-                    if (observation.sourceTrusted) showGrid(fixed)
-                    else showUntrustedInventory()
+                    if (currentDatalinkEpoch()) {
+                        if (observation.sourceTrusted) showGrid(fixed)
+                        else showUntrustedInventory()
+                    }
                 }
             },
         )

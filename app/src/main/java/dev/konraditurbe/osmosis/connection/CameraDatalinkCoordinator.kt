@@ -34,18 +34,22 @@ class CameraDatalinkCoordinator(
         val generation = resources.datalinkGeneration.incrementAndGet()
         Thread {
             var started = Instant.now()
+            fun current(): Boolean = generation == resources.datalinkGeneration.get() &&
+                sessions.snapshot().epoch == epoch && !sessions.snapshot().userStopped
             fun open(candidate: CameraModel): Pair<MediaSession, dev.konraditurbe.osmosis.ledger.EnumerationBatch> {
                 onLog("=== media list [${candidate.name}] via udp/${candidate.datalinkPort} (poke=${candidate.tcpPoke}) ===")
                 val session = openSession(candidate)
-                session.onStatus = onStatus
-                session.onFetchProgress = { progress -> onProgress(60 + progress * 38 / 100) }
+                // Protocol callbacks are emitted from socket threads and can outlive close().
+                // Never let a stale session repaint a replacement Activity or its ledger projection.
+                session.onStatus = { status -> if (current()) onStatus(status) }
+                session.onFetchProgress = { progress -> if (current()) onProgress(60 + progress * 38 / 100) }
                 resources.pendingSession = session
                 started = Instant.now()
                 val enumeration = LedgerEnumerator.enumerate(session)
                 return session to enumeration
             }
             fun superseded(session: MediaSession): Boolean {
-                if (generation == resources.datalinkGeneration.get()) return false
+                if (current()) return false
                 onLog("datalink: superseded by a newer connection — dropping its session")
                 runCatching { session.close() }
                 return true
@@ -82,6 +86,10 @@ class CameraDatalinkCoordinator(
             // The durable owner has the final word. A callback from a superseded epoch must not
             // publish a locally plausible inventory to a replacement UI/ledger session.
             val trusted = sessions.revalidate(epoch, candidateTrusted, !candidateTrusted) == SourceTrust.TRUSTED
+            if (!current()) {
+                runCatching { datalink.close() }
+                return@Thread
+            }
             onReady(Observation(datalink, enumeration.files, enumeration.pagesEnded, enumeration.failed, trusted, started))
         }.start()
     }

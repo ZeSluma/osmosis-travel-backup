@@ -82,8 +82,10 @@ class CameraDatalinkCoordinatorTest {
         CameraDatalinkCoordinator(CameraSessionResources(), runtime).start(stale, CameraModel.DEFAULT,
             openSession = { FakeSession(listOf(listOf(file))) }, onLog = {}, onStatus = {}, onProgress = {},
             onReady = { observation = it; done.countDown() })
-        assertTrue(done.await(2, TimeUnit.SECONDS))
-        assertFalse(checkNotNull(observation).sourceTrusted)
+        // A superseded observation is not merely marked untrusted: it is never delivered to a
+        // caller that could repaint a replacement UI or attach it to a replacement ledger session.
+        assertFalse(done.await(250, TimeUnit.MILLISECONDS))
+        assertEquals(null, observation)
         assertEquals(current, runtime.snapshot().epoch)
         assertEquals(ConnectionState.REVALIDATING, runtime.snapshot().recovery.state)
     }

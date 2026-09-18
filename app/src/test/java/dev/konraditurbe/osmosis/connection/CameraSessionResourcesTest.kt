@@ -30,4 +30,26 @@ class CameraSessionResourcesTest {
         resources.releaseGatt()
         assertFalse(resources.acceptsGattCallback(second))
     }
+
+    @Test fun replacingOrReleasingScannerInvalidatesEveryPriorCallbackGeneration() {
+        val resources = CameraSessionResources()
+        val first = resources.nextScannerCallbackGeneration()
+        assertTrue(resources.acceptsScannerCallback(first))
+        val second = resources.nextScannerCallbackGeneration()
+        assertFalse(resources.acceptsScannerCallback(first))
+        assertTrue(resources.acceptsScannerCallback(second))
+        resources.releaseScanner()
+        assertFalse(resources.acceptsScannerCallback(second))
+    }
+
+    @Test fun replacingOrReleasingApJoinerInvalidatesEveryPriorCallbackGeneration() {
+        val resources = CameraSessionResources()
+        val first = resources.nextApJoinerCallbackGeneration()
+        assertTrue(resources.acceptsApJoinerCallback(first))
+        val second = resources.nextApJoinerCallbackGeneration()
+        assertFalse(resources.acceptsApJoinerCallback(first))
+        assertTrue(resources.acceptsApJoinerCallback(second))
+        resources.releaseApJoiner()
+        assertFalse(resources.acceptsApJoinerCallback(second))
+    }
 }

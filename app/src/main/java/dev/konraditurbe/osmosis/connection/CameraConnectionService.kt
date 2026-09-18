@@ -7,6 +7,8 @@ import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.content.Context
 import android.content.Intent
+import android.net.LinkProperties
+import android.net.Network
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
@@ -79,17 +81,26 @@ class CameraConnectionService : Service() {
             listener: OsmoScanner.Listener,
         ): OsmoScanner {
             val owned = resources(context)
-            owned.scanner?.stop()
-            return OsmoScanner(adapter, listener).also { scanner ->
-                owned.scanner = scanner
-                scanner.start()
+            owned.releaseScanner()
+            val callbackGeneration = owned.nextScannerCallbackGeneration()
+            lateinit var scanner: OsmoScanner
+            val fencedListener = object : OsmoScanner.Listener {
+                private fun current() = owned.acceptsScannerCallback(callbackGeneration) && owned.scanner === scanner
+                override fun onLog(s: String) { if (current()) listener.onLog(s) }
+                override fun onHit(device: BluetoothDevice, rssi: Int, name: String?, modelGuess: String?, modelId: Int?) {
+                    if (current()) listener.onHit(device, rssi, name, modelGuess, modelId)
+                }
             }
+            scanner = OsmoScanner(adapter, fencedListener)
+            owned.scanner = scanner
+            scanner.start()
+            return scanner
         }
 
         fun stopCameraScan(context: Context, scanner: OsmoScanner) {
-            scanner.stop()
             val owned = resources(context)
-            if (owned.scanner === scanner) owned.scanner = null
+            if (owned.scanner === scanner) owned.releaseScanner()
+            else scanner.stop()
         }
 
         fun connectCameraGatt(
@@ -118,8 +129,19 @@ class CameraConnectionService : Service() {
 
         fun newApJoiner(context: Context, listener: ApJoiner.Listener): ApJoiner {
             val owned = resources(context)
-            owned.apJoiner?.release()
-            return ApJoiner(context.applicationContext, listener).also { joiner -> owned.apJoiner = joiner }
+            owned.releaseApJoiner()
+            val callbackGeneration = owned.nextApJoinerCallbackGeneration()
+            lateinit var joiner: ApJoiner
+            val fencedListener = object : ApJoiner.Listener {
+                private fun current() = owned.acceptsApJoinerCallback(callbackGeneration) && owned.apJoiner === joiner
+                override fun onLog(s: String) { if (current()) listener.onLog(s) }
+                override fun onNetwork(network: Network, link: LinkProperties?) { if (current()) listener.onNetwork(network, link) }
+                override fun onFailed(reason: String) { if (current()) listener.onFailed(reason) }
+                override fun onLost() { if (current()) listener.onLost() }
+            }
+            joiner = ApJoiner(context.applicationContext, fencedListener)
+            owned.apJoiner = joiner
+            return joiner
         }
 
         /** Saved cameras are hints only; durable explicit stop always wins over auto-connect. */

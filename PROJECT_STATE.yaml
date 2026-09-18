@@ -6,10 +6,10 @@ execution: {
   "scope": "PROJECT_WIDE_PERMANENT",
   "primary_progress_metric": "VISIBLE_SAFE_END_TO_END_PRODUCT_CAPABILITY_PER_CREDIT",
   "cost_policy": {"priority": "HARD", "primary_model": "gpt-5.6-terra", "primary_reasoning": "low", "subagent_model": "gpt-5.6-luna", "subagent_reasoning": "low", "automatic_escalation": false, "expensive_model_requires_explicit_approval": true, "project_config_activation": "PENDING_APPROVAL_RUNTIME_VALIDATION", "active_root_switch": "USER_CLIENT_SWITCH_REQUIRED_FROM_GPT6_ASTRA"},
-  "software_work_remaining": true, "autonomous_work_remaining": true, "human_stop_required": false, "human_stop_kind": null, "human_stop_reason": "A closure-audit correction found a stale-GATT callback fence gap; the repair is tested, but the mandatory integrated closure audit remains in progress before any hardware boundary.",
+  "software_work_remaining": true, "autonomous_work_remaining": true, "human_stop_required": false, "human_stop_kind": null, "human_stop_reason": "Closure audit repaired Scan/GATT/AP/datalink stale callback fencing and found a further software product gap: automatic camera-transfer dispatch is still Activity-bridged. Service-owned dispatch and lifecycle/process coverage remain required before any hardware boundary.",
   "reachable_non_destructive_work_remaining": true,
   "software_preparation_exhausted": false,
-  "closure_audit": {"full_software_scope_complete": false, "evidence": "2026-09-19 audit in progress: stale-GATT callback fence was missing and has been repaired; complete product-scope audit remains required."},
+  "closure_audit": {"full_software_scope_complete": false, "evidence": "2026-09-19 closure audit: Scan/GATT/AP/datalink stale callback fences repaired and tested; PC18 service-owned automatic camera-transfer dispatch remains IN_PROGRESS. See docs/evidence/AUTONOMOUS_BACKUP_MVP/2026-09-19_closure-audit/REPORT.md."},
   "human_stop": {"required": false, "kind": null, "reason": "Autonomous closure audit and any resulting safe software repairs must finish before the consolidated physical session."},
   "hardware_validation": {"state": "LOCAL_PATH_WAITING_FOR_HARDWARE", "queue": "docs/hardware/VALIDATION_QUEUE.json", "consolidated": true},
   "work_items": [

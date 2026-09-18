@@ -26,7 +26,8 @@ reproducible software evidence exists; it never substitutes for a physical Pocke
 | PC13 | Privacy-safe diagnostics expose state/reason/counts without credentials, GPS or media content. | 2026-09-18 static log-sink audit; focused net/integrity/backup tests and debug build PASS | PASS |
 | PC14 | JVM integrated fault checkpoint and debug build pass on the final source state. | 2026-09-18: `:app:testDebugUnitTest :app:assembleDebug` — **461 tests, 0 failures/errors, BUILD SUCCESSFUL**; `ManifestGoldenTest` normalizes CRLF fixture input only | PASS |
 | PC15 | Emulator lifecycle harness is either PASS or explicitly bounded with reproducible failure evidence and alternative lifecycle coverage. | `Gate7LifecycleInstrumentation`; hardware-session report records two bounded no-stacktrace harness attempts and passing durable process-restoration coverage | PASS |
-| PC17 | A stale BLE callback from a released or superseded GATT client cannot mutate a replacement connection/session or tear down its UI/ledger path. | `CameraSessionResourcesTest`; service-level callback-generation fence; focused recovery/plan/integrity suite and final 461-test debug build | PASS |
+| PC17 | A stale BLE scan/GATT, AP-network, or datalink callback from a released or superseded platform client cannot mutate a replacement connection/session or tear down its UI/ledger path. | `CameraSessionResourcesTest`, `CameraDatalinkCoordinatorTest`; service-level callback-generation and epoch fences; full JVM/debug-build checkpoint | PASS |
+| PC18 | Automatic camera-transfer dispatch is owned by the service/coordinator rather than the Activity; UI only observes durable progress and cannot be required to remain alive for a trusted automatic plan to execute. | Closure audit found the current `MainActivity.refreshBackupLabels → onDownloadClicked` bridge; implementation and deterministic lifecycle/process tests required. | IN_PROGRESS |
 
 ## Hardware deferred
 
