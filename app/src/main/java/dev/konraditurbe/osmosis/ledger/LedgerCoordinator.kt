@@ -94,6 +94,8 @@ class LedgerCoordinator private constructor(context: Context) {
                     val published=database.attempts().forAsset(asset.id).any { it.state=="PUBLISHED" && it.locator==replica.localLocator && it.checkpoint==asset.size }
                     if(!published) return@mapNotNull null
                     if(database.ledger().replicaProofs(asset.id,destinationId).any { it.state=="VERIFIED" && it.bytes==asset.size && it.sha256==receipt.localRevision }) return@mapNotNull null
+                    if(!dev.konraditurbe.osmosis.backup.ExternalReplicaRecoveryPolicy.mayAllocate(
+                        database.ledger().replicaOperations(asset.id,destinationId).map { it.state })) return@mapNotNull null
                     val relative=replica.relativePath
                     val leaf=relative.substringAfterLast('/')
                     PhoneReplicaCandidate(asset.id,replica.localLocator,ReplicaProof(asset.size,receipt.localRevision),relative,

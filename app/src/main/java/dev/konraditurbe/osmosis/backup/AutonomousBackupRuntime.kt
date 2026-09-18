@@ -53,3 +53,9 @@ class AutonomousBackupRuntime {
     private fun publish(lease: BackupLease?, phase: BackupPhase, reason: String? = null): BackupSnapshot =
         BackupSnapshot(lease, phase, reason).also { current = it }
 }
+
+/** SAF append/resume is provider-dependent; unresolved staged objects must never trigger a second allocation. */
+object ExternalReplicaRecoveryPolicy {
+    fun mayAllocate(existingOperationStates:Collection<String>):Boolean =
+        existingOperationStates.none { it in setOf("INTENT","COPYING","PARTIAL") }
+}

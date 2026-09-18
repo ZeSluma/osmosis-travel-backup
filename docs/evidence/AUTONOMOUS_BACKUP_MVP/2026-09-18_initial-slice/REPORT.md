@@ -29,6 +29,9 @@ Branch: `codex/autonomous-backup-mvp`. Status: **IN PROGRESS; SOFTWARE-ONLY FOUN
 - A known-camera availability policy automatically selects the most-recent configured camera only
   after it advertises through the normal permission-gated scan. It is suppressed by explicit user
   stop or an in-flight connection. Real Pocket wake/advertisement behavior is not claimed.
+- A retained external-replica `INTENT`, `COPYING` or `PARTIAL` operation suppresses new allocation
+  for that asset/destination. Provider-specific append recovery remains unavailable until it can
+  be safely reconciled; the system chooses durable review over duplicate output.
 
 Focused JVM checkpoint: backup package (9), connection package (13), and automatic-plan (2):
 **24 tests, zero failures/errors**. `assembleDebug` passed before the final bridge correction;

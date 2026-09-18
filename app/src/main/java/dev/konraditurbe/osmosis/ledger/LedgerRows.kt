@@ -103,6 +103,7 @@ interface LedgerDao {
     @Insert fun replicaOperation(row: ReplicaOperationRow)
     @Update fun updateReplicaOperation(row: ReplicaOperationRow)
     @Query("SELECT * FROM replica_operations WHERE id=:id") fun replicaOperation(id: String): ReplicaOperationRow?
+    @Query("SELECT * FROM replica_operations WHERE assetId=:asset AND destinationId=:destination ORDER BY id") fun replicaOperations(asset: String, destination: String): List<ReplicaOperationRow>
     @Query("SELECT * FROM local_candidates WHERE assetId=:asset ORDER BY locator") fun localCandidates(asset: String): List<LocalCandidateRow>
     @Query("SELECT COUNT(DISTINCT lc.assetId) FROM local_candidates lc JOIN assets a ON a.id=lc.assetId WHERE lc.locator=:locator AND lc.assetId!=:asset AND a.size>0 AND lc.status NOT IN ('MISSING','UNAVAILABLE')")
     fun otherCandidateOwners(locator: String, asset: String): Int
