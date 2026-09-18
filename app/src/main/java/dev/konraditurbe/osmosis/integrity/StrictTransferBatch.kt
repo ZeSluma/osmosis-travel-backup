@@ -5,8 +5,9 @@ import dev.konraditurbe.osmosis.net.MediaDownloader
 
 /** Explicit UI jobs only; no legacy fallback or autonomous retries for the strict Pocket path. */
 object StrictTransferBatch {
+    data class Result(val saved:Int,val existing:Int,val failed:Int)
     fun run(jobs:List<MediaDownloader.Job>, progress:MediaDownloader.Progress,
-        transfer:(MediaDownloader.Job,(Long)->Unit)->TransferResult) {
+        transfer:(MediaDownloader.Job,(Long)->Unit)->TransferResult): Result {
         progress.onStart(jobs.size,jobs.sumOf{it.file.sizeBytes.coerceAtLeast(0)})
         var saved=0;var existing=0;var failed=0;var completedBytes=0L
         jobs.forEachIndexed { index,job ->
@@ -24,5 +25,6 @@ object StrictTransferBatch {
             progress.onFileDone(index,result==TransferResult.TRANSFERRED_UNVERIFIED)
         }
         progress.onComplete(saved,existing,failed)
+        return Result(saved,existing,failed)
     }
 }

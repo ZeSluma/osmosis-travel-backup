@@ -26,6 +26,11 @@ class StrictTransferBatchTest {
         StrictTransferBatch.run(listOf(job(),job()),p){_,_->throw IllegalStateException()}
         assertEquals(listOf(false,false),p.done);assertEquals(Triple(0,0,2),p.counts)
     }
+    @Test fun returnedSummaryLetsSchedulerKeepPartialWorkActionable(){
+        val p=Events()
+        val result=StrictTransferBatch.run(listOf(job(),job()),p){_,_->TransferResult.REVIEW_REQUIRED}
+        assertEquals(0,result.saved);assertEquals(0,result.existing);assertEquals(2,result.failed)
+    }
     @Test fun unsupportedAssetNeverReachesTransferAdapter(){
         val p=Events()
         StrictTransferBatch.run(listOf(job("test.DNG")),p){_,_->error("must not call")}

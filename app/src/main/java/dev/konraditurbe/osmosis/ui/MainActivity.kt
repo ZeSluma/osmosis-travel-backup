@@ -1860,9 +1860,10 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
         downloadRunning = true
         updateDownloadFab()
         Thread {
+            var strictResult: dev.konraditurbe.osmosis.integrity.StrictTransferBatch.Result? = null
             try {
                 if (strictPocket) {
-                    dev.konraditurbe.osmosis.integrity.StrictTransferBatch.run(jobs,listener) { job,tick ->
+                    strictResult = dev.konraditurbe.osmosis.integrity.StrictTransferBatch.run(jobs,listener) { job,tick ->
                         if (transferSession==null || capturedNetwork==null)
                             dev.konraditurbe.osmosis.ledger.LedgerCoordinator.TransferResult.REVIEW_REQUIRED
                         else dev.konraditurbe.osmosis.ledger.LedgerCoordinator.get(applicationContext)
@@ -1878,8 +1879,14 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
             } finally {
                 transferLease?.let { CameraConnectionService.runtime(applicationContext).releaseTransfer(it) }
                 // A stale/failed run cannot promote media state; this only releases the scheduler's
-                // ephemeral generation after the ledger has retained any PARTIAL evidence.
-                autonomousLease?.let { CameraConnectionService.backupRuntime(applicationContext).complete(it) }
+                // ephemeral generation after the ledger has retained any PARTIAL evidence.  A
+                // scheduler lease is completed only when every submitted strict job reached its
+                // durable outcome; partial/review work remains explicitly actionable.
+                autonomousLease?.let {
+                    val result = strictResult
+                    if (result != null && result.failed == 0) CameraConnectionService.backupRuntime(applicationContext).complete(it)
+                    else CameraConnectionService.backupRuntime(applicationContext).fail(it, "TRANSFER_REVIEW_REQUIRED")
+                }
                 // In a finally, not in onComplete: a throw anywhere in the run would otherwise wedge
                 // the guard on and leave Download dead for the rest of the session.
                 main.post {
