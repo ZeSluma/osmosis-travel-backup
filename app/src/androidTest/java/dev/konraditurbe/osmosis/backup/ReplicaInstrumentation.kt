@@ -2,6 +2,11 @@ package dev.konraditurbe.osmosis.backup
 
 import android.app.Instrumentation
 import dev.konraditurbe.osmosis.ledger.LedgerDatabase
+import dev.konraditurbe.osmosis.ledger.LedgerRepository
+import dev.konraditurbe.osmosis.ledger.RemoteAsset
+import dev.konraditurbe.osmosis.ledger.AssetClass
+import java.time.Instant
+import java.time.ZoneId
 
 /** Emulator-only migration/restart proof; it does not represent a USB SSD provider. */
 object ReplicaInstrumentation {
@@ -23,7 +28,19 @@ object ReplicaInstrumentation {
             stage="restart";db.close(); db=LedgerDatabase.open(context,name)
             stage="persisted";check(db.ledger().storageDestination("ssd-test")?.treeUri=="content://synthetic/tree/test")
             stage="identity";check(runCatching { ReplicaEvidenceRepository(db).registerDestination("ssd-test","content://synthetic/tree/replaced",true) }.isFailure)
-            return "PASS: replica schema migration and destination restart persistence"
+            val restarted=ReplicaEvidenceRepository(db)
+            stage="partialBegin";val ledger=LedgerRepository(db);val now=Instant.parse("2026-09-18T12:00:00Z")
+            val lease=ledger.begin("synthetic-replica","one","fake",now)
+            stage="partialReconcile";ledger.reconcile(lease,listOf(RemoteAsset("fake","one.MP4",10,classification=AssetClass.KNOWN_REQUIRED)),now,ZoneId.of("UTC"))
+            stage="partialAsset";val asset=db.ledger().assets(lease.snapshotId).single()
+            stage="partialOperation";val operation=restarted.beginOperation(lease,asset.id,"ssd-test",ReplicaProof(10,"a".repeat(64)))
+            stage="partialAttach";restarted.attachOperation(lease,operation,"content://synthetic/part")
+            stage="partialCheckpoint";restarted.checkpointOperation(lease,operation,4)
+            stage="partialFinish";restarted.finishOperation(lease,operation,false)
+            stage="partialRestart";db.close();db=LedgerDatabase.open(context,name)
+            val retained=checkNotNull(db.ledger().replicaOperation(operation))
+            check(retained.state=="PARTIAL" && retained.checkpoint==4L && retained.locator=="content://synthetic/part")
+            return "PASS: replica schema migration, destination persistence and partial-operation restart"
         } catch(error:Throwable) { throw IllegalStateException("REPLICA_MIGRATION_$stage",error) }
         finally { db.close(); context.deleteDatabase(name) }
     }
