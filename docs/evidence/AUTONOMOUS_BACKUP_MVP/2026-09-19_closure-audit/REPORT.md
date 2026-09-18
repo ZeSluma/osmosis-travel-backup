@@ -23,6 +23,7 @@ hardware-validation request; it does not substitute synthetic proof for Pocket, 
 
 ## Decision
 
-`full_software_scope_complete` remains false. PC18 is now closed, but no Pocket, S25 or SSD action
-is requested: the final repository-wide closure audit must still search for further safe
-software-testable product gaps before it may permit the consolidated hardware session.
+`full_software_scope_complete` is true. PC01–PC19 are PASS with the full JVM/debug checkpoint
+green. Static closure checks found no remaining process-wide camera-network binding, raw catalogue
+dump, Activity-owned automatic dispatch bridge, or product-critical TODO in the backup/recovery
+modules. The only remaining validation is the already-consolidated physical Pocket/S25/SSD batch.
