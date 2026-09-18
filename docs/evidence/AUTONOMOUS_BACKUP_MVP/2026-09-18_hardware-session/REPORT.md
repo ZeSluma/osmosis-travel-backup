@@ -99,7 +99,11 @@ untrusted state instead of "no media"; only a non-empty, complete, non-failed re
 session and durable plan trusted. The repair is software-proven by targeted JVM source-session,
 recovery, enumerator, planner, and backup tests; API-36 process-restoration remains PASS. The
 recreation/background harness was updated to establish its synthetic live session after the
-intentional launcher epoch and is pending its final rerun.
+intentional launcher epoch and to grant declared Bluetooth runtime prerequisites on its
+emulator-only path. Its direct instrumentation process still exits before the assertion with only
+`Process crashed` and no usable stacktrace after two distinct harness repairs; retain this as an
+isolated emulator-harness investigation, not a product or hardware claim. The focused JVM
+recreation/observer and process-restoration contracts remain passing.
 
 APK SHA-256 `E137FE19F67444BDC69894E90BC401B28FEB07EBB142803213C1BF262D72B0C6` was built
 signer-compatible for an in-place S25 update. The S25 became unavailable to ADB before installation,

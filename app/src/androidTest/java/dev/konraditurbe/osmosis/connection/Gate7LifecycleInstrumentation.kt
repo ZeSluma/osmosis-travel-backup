@@ -1,6 +1,7 @@
 package dev.konraditurbe.osmosis.connection
 
 import android.app.Instrumentation
+import android.Manifest
 import android.content.Intent
 import dev.konraditurbe.osmosis.ui.MainActivity
 
@@ -19,6 +20,11 @@ object Gate7LifecycleInstrumentation {
 
     private fun recreationAndBackground(instrumentation: Instrumentation, context: android.content.Context): String {
         val runtime = CameraConnectionService.runtime(context)
+        // The harness starts the real Activity only to exercise observer recreation. Grant its
+        // declared Bluetooth runtime prerequisites on this explicitly emulator-only path so a
+        // clean AVD cannot crash before the lifecycle assertion starts.
+        instrumentation.uiAutomation.grantRuntimePermission(context.packageName, Manifest.permission.BLUETOOTH_SCAN)
+        instrumentation.uiAutomation.grantRuntimePermission(context.packageName, Manifest.permission.BLUETOOTH_CONNECT)
         // A fresh launcher command intentionally begins a replacement epoch.  Establish the
         // synthetic live session *after* that command, then prove recreation/background only
         // observe the service-owned owner rather than replacing it.
