@@ -48,6 +48,7 @@ class CameraConnectionService : Service() {
         const val ACTION_STOP = "dev.konraditurbe.osmosis.connection.STOP"
         @Volatile private var instance: DurableSessionRuntime? = null
         @Volatile private var coordinatorInstance: CameraSessionEffectCoordinator? = null
+        @Volatile private var datalinkCoordinatorInstance: CameraDatalinkCoordinator? = null
         @Volatile private var resourcesInstance: CameraSessionResources? = null
         @Volatile private var backupRuntimeInstance: AutonomousBackupRuntime? = null
         fun runtime(context: Context): DurableSessionRuntime = instance ?: synchronized(this) {
@@ -55,6 +56,9 @@ class CameraConnectionService : Service() {
         }
         fun coordinator(context: Context): CameraSessionEffectCoordinator = coordinatorInstance ?: synchronized(this) {
             coordinatorInstance ?: CameraSessionEffectCoordinator(runtime(context)).also { coordinatorInstance = it }
+        }
+        fun datalinkCoordinator(context: Context): CameraDatalinkCoordinator = datalinkCoordinatorInstance ?: synchronized(this) {
+            datalinkCoordinatorInstance ?: CameraDatalinkCoordinator(resources(context), coordinator(context)).also { datalinkCoordinatorInstance = it }
         }
         fun resources(context: Context): CameraSessionResources = resourcesInstance ?: synchronized(this) {
             resourcesInstance ?: CameraSessionResources().also { resourcesInstance = it }

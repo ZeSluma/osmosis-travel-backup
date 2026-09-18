@@ -1070,6 +1070,37 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
     /** Open the datalink and fetch the media list. Split out of the join callback so the `nojoin`
      *  debug path can run it against whatever network is already current. */
     private fun startDatalink(sessionEpoch: Long) {
+        CameraConnectionService.datalinkCoordinator(applicationContext).start(
+            epoch = sessionEpoch,
+            model = currentModel,
+            openSession = { model ->
+                if (model.isDrone) DroneSession(::logLine, model.datalinkPort, bleDroneSerial)
+                else CameraSession(::logLine, model.datalinkPort, model.tcpPoke)
+            },
+            onLog = ::logLine,
+            onStatus = { status -> main.post { onCameraStatus(status) } },
+            onProgress = ::setConnectProgress,
+            onReady = { observation ->
+                val dl = observation.session
+                dev.konraditurbe.osmosis.net.Highlights.provider = { h -> dl.getHighlights(h) }
+                storageForBit.clear()
+                val fixed = applyStorageAndSort(observation.files)
+                val ledger = dev.konraditurbe.osmosis.ledger.LedgerCoordinator.get(applicationContext)
+                val ledgerToken = ledger.newSession()
+                connectionResources.ledgerSession = ledgerToken
+                currentAddress?.let { ledger.observe(it, ledgerToken, fixed, !dl.moreAvailable,
+                    observation.enumerationFailed || !dl.handshakeOk, observation.enumerationStarted) }
+                logLine("MANIFEST: ${fixed.size} files — " + fixed.groupBy { it.storage }.entries.sortedBy { it.key }
+                    .joinToString(", ") { (storage, files) -> "storage=$storage (${files.size} files)" } +
+                    (if (dl.moreAvailable) " · more on scroll" else ""))
+                main.post { showGrid(fixed) }
+            },
+        )
+    }
+
+    /** Retained temporarily for comparison while service-owned datalink coordination is verified. */
+    @Suppress("unused")
+    private fun legacyStartDatalink(sessionEpoch: Long) {
                 val gen = connectionResources.datalinkGeneration.incrementAndGet()
                 Thread {
                     // Datalink port + poke come from the model AND brand: 10004/no-poke was only ever
