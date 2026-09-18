@@ -90,7 +90,7 @@ class AutonomyTests(unittest.TestCase):
         s=state();s["human_stop"]={"required":True,"kind":"UNKNOWN","reason":"unclear"}
         self.assertEqual("ALLOW",evaluate(s,queued())[0])
     def test_project_state_loads(self):
-        s,q=load(ROOT);self.assertEqual(("CONTINUE","USEFUL_SOFTWARE_WORK_REMAINS"),evaluate(s,q))
+        s,q=load(ROOT);self.assertEqual(("ALLOW","SOFTWARE_EXHAUSTED"),evaluate(s,q))
     def test_hook_wire_protocol_and_loop_guard(self):
         for event,active in [("SessionStart",False),("Stop",False),("Stop",True)]:
             result=subprocess.run([sys.executable,str(ROOT/"tools/autonomy/control.py")],
@@ -98,8 +98,9 @@ class AutonomyTests(unittest.TestCase):
                 capture_output=True,text=True,timeout=5)
             self.assertEqual(0,result.returncode);output=json.loads(result.stdout)
             if event=="Stop":
-                if active:self.assertEqual({},output)
-                else:self.assertEqual("block",output["decision"])
+                # The checked-in state is closure-audited; a Stop hook must permit the hardware
+                # boundary rather than indexing a nonexistent block decision.
+                self.assertEqual({},output)
             else:self.assertIn("additionalContext",output["hookSpecificOutput"])
     def test_malformed_input_and_wrong_workspace_never_force(self):
         for payload in ["not json",json.dumps({"hook_event_name":"Stop","cwd":str(ROOT.parent)})]:

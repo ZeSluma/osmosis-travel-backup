@@ -207,7 +207,7 @@
                         android:background="?android:attr/selectableItemBackgroundBorderless"
                         android:contentDescription="@string/cd_rewind"
                         android:src="@android:drawable/ic_media_rew"
-                        android:tint="#FFFFFF" />
+                        app:tint="#FFFFFF" />
 
                     <ImageButton
                         android:id="@+id/btnPlay"
@@ -216,7 +216,7 @@
                         android:background="?android:attr/selectableItemBackgroundBorderless"
                         android:contentDescription="@string/cd_play_pause"
                         android:src="@android:drawable/ic_media_pause"
-                        android:tint="#FFFFFF" />
+                        app:tint="#FFFFFF" />
 
                     <ImageButton
                         android:id="@+id/btnFf"
@@ -226,7 +226,7 @@
                         android:background="?android:attr/selectableItemBackgroundBorderless"
                         android:contentDescription="@string/cd_fast_forward"
                         android:src="@android:drawable/ic_media_ff"
-                        android:tint="#FFFFFF" />
+                        app:tint="#FFFFFF" />
 
                     <Button
                         android:id="@+id/btnMarkOut"

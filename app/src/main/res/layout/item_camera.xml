@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:paddingVertical="5dp">
@@ -57,6 +58,6 @@
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:contentDescription="@string/cd_camera_status"
-            android:tint="@color/osmo_ink" />
+            app:tint="@color/osmo_ink" />
     </LinearLayout>
 </FrameLayout>

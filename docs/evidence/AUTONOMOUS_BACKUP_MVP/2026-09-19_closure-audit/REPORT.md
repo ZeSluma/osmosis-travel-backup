@@ -27,3 +27,18 @@ hardware-validation request; it does not substitute synthetic proof for Pocket, 
 green. Static closure checks found no remaining process-wide camera-network binding, raw catalogue
 dump, Activity-owned automatic dispatch bridge, or product-critical TODO in the backup/recovery
 modules. The only remaining validation is the already-consolidated physical Pocket/S25/SSD batch.
+
+## Independent quality-control rerun
+
+2026-09-19: an independent product-quality rerun rechecked the requirements against the current
+code and ran `:app:testDebugUnitTest :app:assembleDebug :app:lintDebug`. It found and repaired:
+
+- stale autonomy-control expectations for the legitimate software-exhausted outcome;
+- Android 12+ coarse-location declaration required alongside the existing fine-location GPS feature;
+- AppCompat tint attributes in the preview/camera rows; and
+- a missing-translation error for the invariant `SSD` device label.
+
+The rerun completed with JVM tests, debug APK build, Android lint, and all 18 autonomy-control tests
+passing. Remaining lint output is warning-only and was reviewed as non-blocking (durable synchronous
+ledger/SAF preference writes, redundant view lookup, guarded API constant, drawable compatibility,
+and dependency-update notices). No new software product gap was found.

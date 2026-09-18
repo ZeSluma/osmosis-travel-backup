@@ -9,7 +9,7 @@ execution: {
   "software_work_remaining": false, "autonomous_work_remaining": false, "human_stop_required": false, "human_stop_kind": null, "human_stop_reason": "All current software-testable completion-plan items PASS; only consolidated physical Pocket/S25/SSD validation remains.",
   "reachable_non_destructive_work_remaining": false,
   "software_preparation_exhausted": true,
-  "closure_audit": {"full_software_scope_complete": true, "evidence": "2026-09-19 final closure audit: all PC01-PC19 PASS; no remaining Activity auto-dispatch bridge, global process network binding, raw catalogue dump, or product-critical TODO. Full JVM/debug checkpoint PASS and autonomy controls PASS. See docs/evidence/AUTONOMOUS_BACKUP_MVP/2026-09-19_closure-audit/REPORT.md."},
+  "closure_audit": {"full_software_scope_complete": true, "evidence": "2026-09-19 final closure audit and independent quality-control rerun: all PC01-PC19 PASS; no remaining Activity auto-dispatch bridge, global process network binding, raw catalogue dump, or product-critical TODO. Full JVM/debug/lint checkpoint and 18 autonomy controls PASS. See docs/evidence/AUTONOMOUS_BACKUP_MVP/2026-09-19_closure-audit/REPORT.md."},
   "human_stop": {"required": false, "kind": null, "reason": "Autonomous closure audit and any resulting safe software repairs must finish before the consolidated physical session."},
   "hardware_validation": {"state": "LOCAL_PATH_WAITING_FOR_HARDWARE", "queue": "docs/hardware/VALIDATION_QUEUE.json", "consolidated": true},
   "work_items": [
