@@ -35,6 +35,32 @@
       "competing_explanations": ["AP loss", "BLE loss", "camera standby/power state", "protocol desynchronization"]
     },
     {
+      "id": "MVP-SSD-SAF-HOST",
+      "state": "WAITING_HARDWARE",
+      "question": "Can the S25 persist and later reacquire read/write SAF access to the approved USB SSD through the target hub, while correctly reporting unavailable, revoked or insufficient-capacity storage?",
+      "why_hardware": "Real USB host power, hub enumeration, filesystem/provider behavior and Android permission lifecycle cannot be established by an emulator or fake provider.",
+      "software_evidence": ["SAF destination identity persistence", "API36 schema8-to9 destination/partial-operation restart PASS", "capture-day SAF allocation and collision refusal tests"],
+      "software_preparation_complete": false,
+      "prerequisites": ["No camera deletion", "Use a disposable SSD test directory", "Protect existing SSD content", "Record no paths/media names in exported diagnostics"],
+      "observation": "Select an empty SSD directory, disconnect/reconnect the SSD and hub, then observe availability/permission state before and after app restart. Do not overwrite existing files.",
+      "criteria": {"PASS": "Configured destination identity is reacquired only with valid grant/access; absence, revocation or low capacity remains unavailable/user-action-required.", "FAIL": "A stale destination is treated as writable, a grant is bypassed, or unrelated content is overwritten.", "INCONCLUSIVE": "Hub/SSD/permission UI is unavailable; preserve destination state and record no stronger claim."},
+      "engineering_decision": "Qualify target-host/SAF assumptions only; never count SSD redundancy without separate verified replica evidence.",
+      "batch_with": ["MVP-SSD-REPLICA-RECOVERY"]
+    },
+    {
+      "id": "MVP-SSD-REPLICA-RECOVERY",
+      "state": "WAITING_HARDWARE",
+      "question": "Does a real phone-to-SSD copy retain partial state on disconnect/process restart, avoid duplicate final allocation, and become verified only after independent readback checksum?",
+      "why_hardware": "Provider rename/write durability, physical cable removal and real S25/SSD I/O failure modes require the target configuration.",
+      "software_evidence": ["ReplicaVerification corruption/truncation tests", "durable replica operation journal", "API36 partial-operation restart PASS"],
+      "software_preparation_complete": false,
+      "prerequisites": ["One newly created non-sensitive test asset", "Empty dedicated SSD test directory", "No camera-original operation", "Checksum test asset before/after"],
+      "observation": "Replicate a verified phone test asset, induce one controlled SSD removal during a second copy, restart once, reconnect, and inspect ledger/UI state plus final checksum only.",
+      "criteria": {"PASS": "Completed replica checksum matches phone proof; interrupted copy stays PARTIAL/review-required and does not duplicate or count toward redundancy.", "FAIL": "Partial/final confusion, duplicate allocation, checksum mismatch promoted, or camera sync truth is damaged by SSD loss.", "INCONCLUSIVE": "Safe interruption cannot be induced; retain PARTIAL/unknown behavior and record reason."},
+      "engineering_decision": "Qualify real external-replica recovery or retain hardware-pending status; no cleanup eligibility follows automatically.",
+      "batch_with": ["MVP-SSD-SAF-HOST"]
+    },
+    {
       "id": "G3-MIGRATION-UI",
       "state": "PASS",
       "question": "Does the final bundled build retain all schema6 history/local references and display A/B independently after migration?",
@@ -77,6 +103,13 @@
       "purpose": "One installable build, one connection, two non-critical new-transfer observations and one shared restart; no repeated playback/rescan probes.",
       "order": ["protect existing references and install", "normal connection and trustworthy enumeration", "observe status labels", "new complete transfer", "new interrupted transfer", "one reconnect only if required", "restart and metadata-only comparison"],
       "decision_rule": "A missing immutable source-version contract yields safe resume refusal and UNVERIFIED, never a false failure of file-integrity evidence."
+    },
+    {
+      "id": "MVP-SSD-BATCH",
+      "purpose": "One non-destructive S25 + hub + approved SSD session after remaining software fault coverage is complete.",
+      "items": ["MVP-SSD-SAF-HOST", "MVP-SSD-REPLICA-RECOVERY"],
+      "order": ["protect existing SSD content", "select empty test directory", "restart and reconnect availability check", "one normal replica checksum", "one controlled interrupted replica", "restart/reconnect and inspect partial", "export sanitized evidence"],
+      "decision_rule": "No unverified or interrupted replica counts as redundancy; SSD absence never changes camera-to-phone truth or authorizes cleanup."
     }
   ],
   "excluded_redundant_observations": [
