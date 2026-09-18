@@ -12,8 +12,8 @@ Branch: `codex/autonomous-backup-mvp`. Status: **IN PROGRESS; SOFTWARE-ONLY FOUN
   It does not claim Pocket source equivalence.
 - Android external storage is selected with a persistable SAF tree grant, not a raw mount path.
   Missing permission/provider capability/collision leaves destination or replica unavailable and
-  records no verified external proof. Destination state and append-only replica integrity evidence
-  are persisted in Room schema 8.
+  records no verified external proof. Destination state, append-only replica integrity evidence,
+  and durable staged-operation state are persisted through Room schema 9.
 - External replica allocation retains the ledger capture-day path as a strict `YYYY-MM-DD/file`
   SAF directory layout. Malformed calendar/path input and either file/directory collision are
   refused rather than flattened or overwritten.
@@ -39,9 +39,9 @@ Branch: `codex/autonomous-backup-mvp`. Status: **IN PROGRESS; SOFTWARE-ONLY FOUN
   sync failure, and finalization/rename failure. Every such path remains incomplete or rejected
   and never sets external verification.
 
-Focused JVM checkpoint: backup package (9), connection package (13), and automatic-plan (2):
-**24 tests, zero failures/errors**. `assembleDebug` passed before the final bridge correction;
-the final focused compile/test checkpoint passed after it. The API 36 isolated emulator also
+Early focused JVM checkpoint: backup package, connection package and automatic-plan tests passed
+with zero failures/errors. `assembleDebug` passed before the final bridge correction; the current
+focused checkpoint is recorded below. The API 36 isolated emulator also
 passed the deterministic Room schema 8→9 migration/restart test: replica-operation journal
 creation, destination identity persistence, and an explicitly PARTIAL checkpointed replica
 operation survive reopen without promotion. This evidence does not prove real
