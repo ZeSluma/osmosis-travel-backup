@@ -1,5 +1,9 @@
 package dev.konraditurbe.osmosis.connection
 
+import dev.konraditurbe.osmosis.backup.AutonomousBackupRuntime
+import dev.konraditurbe.osmosis.ledger.PlanAction
+import dev.konraditurbe.osmosis.ledger.PlanItem
+import dev.konraditurbe.osmosis.ledger.PlanResult
 import org.junit.Assert.*
 import org.junit.Test
 
@@ -38,5 +42,15 @@ class AutomaticTransferDispatchPolicyTest {
         assertFalse(AutomaticTransferDispatchPolicy.mayStart(true, "ledger", true, session))
         session = CameraSessionCoordinator.event(session, epoch, ConnectionEvent.REVALIDATED)
         assertTrue(AutomaticTransferDispatchPolicy.mayStart(true, "ledger", true, session))
+    }
+    @Test fun duplicatePlanPublicationDoesNotAllocateOrCompleteTheCurrentWriter() {
+        val plan = PlanResult("snapshot", listOf(PlanItem("asset", PlanAction.DOWNLOAD, "day/asset.mp4")),
+            enumerationComplete = true, recordingComplete = true, localComplete = true)
+        val runtime = AutonomousBackupRuntime()
+        val first = runtime.plan(7, SourceTrust.TRUSTED, plan, userStopped = false)
+        val second = runtime.plan(7, SourceTrust.TRUSTED, plan, userStopped = false)
+        assertEquals(first.first.lease, second.first.lease)
+        assertTrue(second.second.isEmpty())
+        assertTrue(runtime.accepts(checkNotNull(first.first.lease)))
     }
 }

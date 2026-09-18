@@ -11,15 +11,17 @@ hardware-validation request; it does not substitute synthetic proof for Pocket, 
 | Explicit stop / replacement epoch | PASS for current pure runtime | `DurableSessionRuntimeTest`, `SessionRecoveryScenarioTest`. |
 | Trusted inventory and fail-closed planning | PASS for current coordinator/ledger contract | `CameraDatalinkCoordinatorTest`, `AutomaticBackupPlanTest`. |
 | Transfer integrity and replica truth | PASS for current strict local/SAF contracts | Existing integrity, replica and restart tests. |
-| Activity-independent automatic camera transfer dispatch | **IN PROGRESS** | The audit found that trusted automatic download scheduling currently reaches `MainActivity.onDownloadClicked`. This is a product-capability ownership gap, not a hardware-only question. Move the dispatch/executor boundary to the service/coordinator and add deterministic lifecycle/process coverage before reconsidering hardware. |
+| Activity-independent automatic camera transfer dispatch | PASS for the current service/coordinator path | Trusted observations now publish through `CameraBackupPlanCoordinator` into the durable ledger, then `AutomaticCameraTransferDispatcher`; `MainActivity` receives only removable projection notifications and re-reads the ledger. Duplicate callbacks neither allocate nor complete a writer; source replacement and unverified existing copies fail to review. `AutomaticTransferDispatchPolicyTest`, `CameraDatalinkCoordinatorTest`, `BackupProjectionNotifierTest`, `EndToEndBackupRecoveryScenarioTest`. |
+| Privacy-safe normal diagnostics | PASS for audited sinks | Source/sink audit removed camera MAC/name, SSID, IP, serial, raw BLE/R-SDK payload, thumbnail bytes and preview path output. `PrivacySafeDiagnostics` is a last-line guard for logcat/file sinks; `PrivacySafeDiagnosticsTest` covers identifiers, credentials and media URIs. |
 
 ## Current verification
 
-- Focused platform-callback, recovery and end-to-end fault regressions: PASS.
-- Full `:app:testDebugUnitTest :app:assembleDebug`: PASS after the callback-chain repair.
-- Autonomy-control tests: PASS; the control rejects a hardware boundary while this audit or PC18 is open.
+- Focused platform-callback, recovery, duplicate-dispatch, projection-observer, privacy and end-to-end fault regressions: PASS.
+- Full `:app:testDebugUnitTest :app:assembleDebug`: PASS, **471 tests, 0 failures/errors**.
+- Autonomy-control tests: PASS; the control rejects a hardware boundary while the full closure audit remains open.
 
 ## Decision
 
-`full_software_scope_complete` remains false. No Pocket, S25 or SSD action is requested. The next
-software work item is PC18.
+`full_software_scope_complete` remains false. PC18 is now closed, but no Pocket, S25 or SSD action
+is requested: the final repository-wide closure audit must still search for further safe
+software-testable product gaps before it may permit the consolidated hardware session.

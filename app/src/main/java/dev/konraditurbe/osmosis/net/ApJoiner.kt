@@ -66,7 +66,7 @@ class ApJoiner(context: Context, private val listener: Listener) {
             }
         }
         cb = callback
-        listener.onLog("WiFi: requesting \"$ssid\" (${if (wpa3) "WPA3" else "WPA2"}, no-internet)...")
+        listener.onLog("WiFi: requesting secured camera network (${if (wpa3) "WPA3" else "WPA2"}, no-internet)...")
         cm.requestNetwork(request, callback)
     }
 

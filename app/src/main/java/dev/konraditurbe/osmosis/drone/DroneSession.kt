@@ -467,8 +467,8 @@ class DroneSession(
             parseDroneSerial(body)?.let { (serial, tag) ->
                 droneSerial = serial
                 serialTag = tag
-                log("datalink: drone serial ${String(serial, Charsets.US_ASCII)} " +
-                    "(${serial.size} chars, tag 0x%02x, from 0x51/0x%02x)".format(tag, inner))
+                log("datalink: drone identity beacon received " +
+                    "(${serial.size} bytes, tag 0x%02x, from 0x51/0x%02x)".format(tag, inner))
             }
         }
     }
@@ -558,8 +558,8 @@ class DroneSession(
         // whole datagrams concatenated *with their headers*, so a beacon spanning a packet boundary
         // failed CRC and vanished, exactly as documented for manifest chunks.
         bleSerial?.let { (s, tag) ->
-            log("datalink: drone serial ${String(s, Charsets.US_ASCII)} (${s.size} chars, " +
-                "tag 0x%02x) — already known from BLE, no datalink beacon needed".format(tag))
+            log("datalink: drone identity already known from BLE (${s.size} bytes, " +
+                "tag 0x%02x); no datalink beacon needed".format(tag))
         }
         val waitUntil = System.currentTimeMillis() + 3000
         while (droneSerial == null && System.currentTimeMillis() < waitUntil) dronePump(200)

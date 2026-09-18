@@ -110,6 +110,7 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
 
     private var btAdapter: BluetoothAdapter? = null
     private val connectionResources by lazy { CameraConnectionService.resources(applicationContext) }
+    private var removeBackupProjectionObserver: (() -> Unit)? = null
     private var recoveryScanEpoch:Long? = null
     private var recoveryScanAttempts = 0
     private val externalDestination by lazy { ExternalDestinationManager(applicationContext) }
@@ -468,6 +469,9 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
         removeSessionObserver = CameraConnectionService.runtime(applicationContext).observe { lease ->
             main.post { renderSessionProjection(lease) }
         }
+        removeBackupProjectionObserver = CameraConnectionService.backupProjectionNotifier(applicationContext).observe {
+            main.post { refreshBackupLabels() }
+        }
         // Registering re-delivers the current phase immediately, so returning to the app restores the
         // lockout if a GPS link is still bound.
         dev.konraditurbe.osmosis.rsdk.GpsSyncState.addListener(gpsStateListener)
@@ -475,6 +479,7 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
 
     override fun onStop() {
         removeSessionObserver?.invoke(); removeSessionObserver = null
+        removeBackupProjectionObserver?.invoke(); removeBackupProjectionObserver = null
         super.onStop()
         dev.konraditurbe.osmosis.rsdk.GpsSyncState.removeListener(gpsStateListener)
     }
@@ -805,7 +810,7 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
         wpa3FallbackDone = false
         connectionResources.connecting = true
         setConnectProgress(3) // tap → connecting
-        logLine("OFFLOAD [$currentBrand] $offloadSsid (${device.address})")
+        logLine("OFFLOAD: connecting selected $currentBrand camera")
         // No wake broadcast here: an HCI snoop of Mimo waking a sleeping Nano showed it never
         // advertises. The sleeping camera keeps advertising ADV_IND itself, and Mimo simply connects
         // and drives it with DUML (0x00/0x2b -> pair -> 0x53/0x10). That's the sequence we follow in
@@ -1072,7 +1077,7 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
         CameraConnectionService.host(this)
         connectionResources.transferNetwork = null
         setConnectProgress(35) // requesting the WiFi join
-        logLine("WiFi flow: credentials supplied (password length=${pass.length})")
+        logLine("WiFi flow: credentials supplied")
         connectionResources.datalinkStarted = false; connectionResources.wifiRejoins = 0; connectionResources.resumeDownloadOnRejoin = false
         val joiner = CameraConnectionService.newApJoiner(applicationContext, object : ApJoiner.Listener {
             override fun onLog(s: String) = logLine(s)
@@ -1082,8 +1087,6 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
             override fun onNetwork(network: Network, link: LinkProperties?) {
                 connectionResources.transferNetwork = network
                 CameraConnectionService.coordinator(applicationContext).transportReady(callbackEpoch)
-                val ip4 = link?.linkAddresses?.map { it.address }
-                    ?.firstOrNull { it is java.net.Inet4Address }
                 main.post {
                     connectionResources.wifiUp = true
                     // A second onAvailable is a recovered transport, not a recovered camera session.
@@ -1091,13 +1094,13 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
                     // transfer can use the camera. This deliberately favors source truth over retaining
                     // a stale grid/queue after AP or protocol loss.
                     if (connectionResources.datalinkStarted) {
-                        logLine("WiFi: rejoined (ip=${ip4?.hostAddress}) — rebuilding camera session and revalidating source")
+                        logLine("WiFi: rejoined — rebuilding camera session and revalidating source")
                         startDatalink(callbackEpoch)
                         return@post
                     }
                     connectionResources.datalinkStarted = true
                     setConnectProgress(58) // WiFi joined + bound
-                    logLine("WiFi link: ip=${ip4?.hostAddress}")
+                    logLine("WiFi link available")
                     startDatalink(callbackEpoch)
                 }
             }
@@ -1195,7 +1198,7 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
         // also self-corrects the model table's guess.
         if (currentModel.wpa3 && !wpa3FallbackDone) {
             wpa3FallbackDone = true
-            logLine("WiFi: WPA3 join failed — retrying \"$offloadSsid\" as WPA2")
+            logLine("WiFi: WPA3 join failed — retrying secured camera network as WPA2")
             startWifiFlow(offloadSsid, offloadPass)
             return
         }
@@ -1988,7 +1991,7 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
         main.postDelayed({
             val frame = dev.konraditurbe.osmosis.duml.OsmoCommands.setPairingPin(pairPin, identifier = pairIdentity())
             val ok = connectionResources.gattClient?.writeCommand(frame) ?: false
-            logLine("sent SetPairingPIN(pin=\"$pairPin\" id=\"${pairIdentity().take(8)}…\") ok=$ok")
+            logLine("sent pairing request ok=$ok")
         }, 120)
         // The keepalive used to re-send SetPairingPIN every 2 s, which doubled as a retry if the
         // first write dropped (fff5 is write-without-response). Now that it pings 0x00/0x2b instead,
@@ -2028,13 +2031,13 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
             // above), then start offload exactly like the already-paired 0x45=0x01 path; otherwise a
             // fresh camera pairs but never proceeds to WiFi/grid. (maybeStartOffload is idempotent.)
             if (parsed.cmdSet == 0x07 && parsed.cmdId == 0x46) {
-                logLine("PAIRING <- 0x07/46 APPROVED (req)  [${parsed.payload.toHex()}]")
+                logLine("PAIRING <- 0x07/46 APPROVED (request)")
                 onPaired()
             }
             return
         }
 
-        // Pairing/WiFi responses (CmdSet 0x07) are load-bearing — always log them in full.
+        // Pairing/WiFi responses (CmdSet 0x07) are load-bearing — log only their safe state.
         if (parsed != null && parsed.cmdSet == 0x07) {
             val p = parsed.payload
             when (parsed.cmdId) {
@@ -2047,7 +2050,7 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
                             0x02 -> "APPROVAL REQUIRED — approve on the camera / press the drone button 2s"
                             else -> "status=0x%02x".format(status)
                         }
-                        logLine("PAIRING <- 0x07/45 $meaning  [${p.toHex()}]")
+                        logLine("PAIRING <- 0x07/45 $meaning")
                         if (status == 0x02) main.post { showPairingApproval() }
                     }
                     // onPaired() is load-bearing and idempotent (guarded by credsRequested) — call it on
@@ -2058,13 +2061,13 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
                     if (status == 0x01) onPaired()
                 }
                 0x46 -> {
-                    logLine("PAIRING <- 0x07/46 APPROVED  [${p.toHex()}]")
+                    logLine("PAIRING <- 0x07/46 APPROVED")
                     onPaired()
                 }
-                0x47 -> logLine("WIFI <- 0x07/47 result  [${p.toHex()}]")
+                0x47 -> logLine("WIFI <- 0x07/47 result received")
                 0x07 -> parseStatusPackString(p)?.takeIf { it.isNotEmpty() }?.let { // GetWifiSsid reply
                     offloadSsid = it
-                    logLine("WIFI <- 0x07/07 SSID = \"$it\"")
+                    logLine("WIFI <- 0x07/07 network identity received")
                 }
                 0x0E -> { // GetWifiPassword reply — never log the value, only its length
                     val pass = parseStatusPackString(p)
@@ -2074,11 +2077,11 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
                             credentialCache[address] = pass
                             credentialWorker.execute { credentialStore.save(address, pass) }
                         }
-                        logLine("WIFI <- 0x07/0e password retrieved over BLE (${pass.length} chars)")
+                        logLine("WIFI <- 0x07/0e credentials retrieved over BLE")
                         maybeStartOffload()
                     } else logLine("WIFI <- 0x07/0e no password in reply")
                 }
-                else -> logLine("CMD07 <- 0x07/%02x  [%s]".format(parsed.cmdId, p.toHex()))
+                else -> logLine("CMD07 <- 0x07/%02x response (%dB)".format(parsed.cmdId, p.size))
             }
             return
         }
@@ -2103,8 +2106,7 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
         if (parsed != null && parsed.cmdSet == 0x51 && parsed.cmdId == 0x01 && bleDroneSerial == null) {
             dev.konraditurbe.osmosis.drone.DroneSerial.inTunnelFrame(parsed.payload)?.let { (s, tag) ->
                 bleDroneSerial = s to tag
-                logLine("drone serial over BLE: ${String(s, Charsets.US_ASCII)} " +
-                    "(${s.size} chars, tag 0x%02x)".format(tag))
+                logLine("drone identity beacon received (${s.size} bytes, tag 0x%02x)".format(tag))
             }
         }
 
@@ -2112,8 +2114,8 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
         val n = (typeCounts[key] ?: 0) + 1
         typeCounts[key] = n
         if (n == 1) {
-            if (parsed != null) logLine("NOTIFY ${parsed.format().truncatePayload()}")
-            else logLine("NOTIFY[${short(sourceChar)}] raw ${raw.toHex()}")
+            if (parsed != null) logLine("NOTIFY set=0x%02x cmd=0x%02x (%dB)".format(parsed.cmdSet, parsed.cmdId, parsed.payload.size))
+            else logLine("NOTIFY unparsed (%dB)".format(raw.size))
         } else if (n % 25 == 0) {
             val label = if (parsed != null)
                 "set=0x%02x cmd=0x%02x".format(parsed.cmdSet, parsed.cmdId) else "unparsed"
@@ -2155,8 +2157,9 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
     override fun onLog(s: String) = logLine(s)
 
     private fun logLine(s: String) {
-        android.util.Log.i("Osmosis", s) // always to logcat (adb logcat)
-        FileLog.write(s)                 // ...and to the file when "Save logs" is on
+        val safe = dev.konraditurbe.osmosis.core.PrivacySafeDiagnostics.sanitize(s)
+        android.util.Log.i("Osmosis", safe) // always to logcat (adb logcat)
+        FileLog.write(safe)                 // ...and to the file when "Save logs" is on
     }
 
     /** Open a session log file. Shared with the background services via [FileLog], so GPS-sync lines
@@ -2214,16 +2217,4 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
         /** How many filenames the bulk-delete confirmation names before it says "…and N more". */
         private const val BULK_DELETE_NAMES_SHOWN = 6
     }
-}
-
-private fun ByteArray.toHex(): String = joinToString(" ") { "%02X".format(it) }
-
-/** Trim the "payload=<hex>" tail of DjiMessage.format() to keep telemetry lines short. */
-private fun String.truncatePayload(): String {
-    val idx = indexOf("payload=")
-    if (idx < 0) return this
-    val head = substring(0, idx)
-    val hex = substring(idx + 8)
-    val shown = if (hex.length > 64) hex.substring(0, 64) + "…(${hex.length / 2}B)" else hex
-    return head + "payload=" + shown
 }

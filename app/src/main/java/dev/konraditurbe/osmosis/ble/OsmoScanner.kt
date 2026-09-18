@@ -10,8 +10,7 @@ import android.bluetooth.le.ScanSettings
 /**
  * BLE scanner for DJI Osmo cameras. Scans with NO hardware filter (the Pocket 3 omits
  * manufacturer data, so a filter could hide the Nano) and classifies in software:
- *  - DJI manufacturer id present -> parse model id, log raw payload (this is how we learn
- *    the Nano's model byte);
+ *  - DJI manufacturer id present -> parse model id without logging its raw payload;
  *  - name contains "osmo"/"nano" -> treat as a camera hit;
  *  - anything else -> counted, never named. See below.
  *
@@ -73,14 +72,14 @@ class OsmoScanner(
 
             var modelGuess: String? = null
             var modelId: Int? = null
-            var mfrHex: String? = null
+            var hasDjiManufacturerData = false
             val msd = rec?.manufacturerSpecificData
             if (msd != null) {
                 for (i in 0 until msd.size()) {
                     val cid = msd.keyAt(i)
                     val data = msd.valueAt(i) ?: continue
                     if (BleConstants.isDjiCompanyId(cid)) {
-                        mfrHex = "cid=%04x %s".format(cid, data.joinToString("") { "%02x".format(it) })
+                        hasDjiManufacturerData = true
                         val d = BleAdvert.decode(data)
                         modelId = d.modelId
                         modelGuess = when {
@@ -97,8 +96,8 @@ class OsmoScanner(
             }
 
             // Recognize DJI *and* Xtra (rebrand): by OUI (EC:9E:EA)/name via Brand, or — most robustly
-            // — the DJI company id in the mfr data (mfrHex is only set when that cid matched).
-            val brand = Brand.of(dev.address, name, djiCid = mfrHex != null)
+            // — the DJI company id in the manufacturer data.
+            val brand = Brand.of(dev.address, name, djiCid = hasDjiManufacturerData)
             val looksCamera = brand != Brand.UNKNOWN || modelGuess != null
 
             val key = dev.address
@@ -106,10 +105,7 @@ class OsmoScanner(
 
             if (looksCamera) {
                 listener.onLog(
-                    "HIT [%s] %s rssi=%d name=%s model=%s%s".format(
-                        brand, dev.address, result.rssi, name ?: "?", modelGuess ?: "?",
-                        mfrHex?.let { "  mfr[$it]" } ?: ""
-                    )
+                    "HIT brand=%s rssi=%d model=%s".format(brand, result.rssi, modelGuess ?: "?")
                 )
                 listener.onHit(dev, result.rssi, name, modelGuess, modelId)
             } else {

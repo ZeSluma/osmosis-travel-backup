@@ -45,7 +45,7 @@ class GattClient(
         private set
 
     fun connect(device: BluetoothDevice) {
-        listener.onLog("GATT: connecting to ${device.address} ...")
+        listener.onLog("GATT: connecting to selected camera ...")
         gatt = device.connectGatt(context, false, callback, BluetoothDevice.TRANSPORT_LE)
     }
 

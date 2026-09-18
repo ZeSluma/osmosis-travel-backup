@@ -16,7 +16,8 @@ import java.util.concurrent.Executors
  *    own; marked with [EXIF_THUMB][dev.konraditurbe.osmosis.core.CameraFile.EXIF_THUMB] and read from a
  *    ranged request for the file's first 64 kB.
  *
- * On the first decode failure it logs the leading bytes so an unknown format can be identified.
+ * On the first decode failure it logs only a size/status diagnostic; thumbnail bytes are media
+ * content and must never reach shareable logs.
  */
 class ImageLoader(private val http: HttpClient, private val log: (String) -> Unit) {
     private val exec = Executors.newFixedThreadPool(4)
@@ -47,8 +48,7 @@ class ImageLoader(private val http: HttpClient, private val log: (String) -> Uni
             val bmp = bytes?.let { runCatching { BitmapFactory.decodeByteArray(it, 0, it.size) }.getOrNull() }
             if (bmp == null && bytes != null && !loggedFailure) {
                 loggedFailure = true
-                val head = bytes.take(16).joinToString("") { "%02x".format(it) }
-                log("thumb: ${bytes.size}B did not decode; header=$head")
+                log("thumb: ${bytes.size}B did not decode")
             }
             if (bmp != null) {
                 cache.put(thumbUrlPath, bmp)

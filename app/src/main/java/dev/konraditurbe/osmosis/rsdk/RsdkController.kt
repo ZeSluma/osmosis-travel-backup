@@ -48,7 +48,7 @@ class RsdkController(private val context: Context, private val listener: Listene
     }
 
     fun connect(device: BluetoothDevice) {
-        listener.onLog("R-SDK: connecting to ${device.address}")
+        listener.onLog("R-SDK: connecting to selected camera")
         val gc = GattClient(context, this, armPairing = false)
         gatt = gc
         gc.connect(device)
@@ -103,7 +103,7 @@ class RsdkController(private val context: Context, private val listener: Listene
             if (raw.isNotEmpty() && (raw[0].toInt() and 0xFF) == 0xAA && unparsed++ < 20) {
                 val len = if (raw.size >= 3) ((raw[1].toInt() and 0xFF) or ((raw[2].toInt() and 0xFF) shl 8)) and 0x03FF else -1
                 listener.onLog("R-SDK: unparsed frame, ${raw.size}B on the wire, header says ${len}B" +
-                    (if (len > raw.size) " (fragmented)" else "") + " — ${raw.take(16).joinToString("") { "%02x".format(it) }}")
+                    if (len > raw.size) " (fragmented)" else "")
             }
             return
         }
@@ -118,18 +118,12 @@ class RsdkController(private val context: Context, private val listener: Listene
             f.cmdSet == RsdkProtocol.SET_CAMERA && f.cmdId == RsdkProtocol.ID_STATUS_PUSH_NEW ->
                 RsdkProtocol.parseNewCameraStatus(f.payload)?.also { lastStatusMs = System.currentTimeMillis() }
                     ?.let { main.post { listener.onModeInfo(it) } }
-                    ?: listener.onLog("R-SDK: new status push not in the documented shape " +
-                        "(${f.payload.size}B) — ${f.payload.take(8).joinToString("") { "%02x".format(it) }}")
+                    ?: listener.onLog("R-SDK: new status push not in the documented shape (${f.payload.size}B)")
             // Anything else the camera volunteers: we asked for a subscription and this is what came
             // back, so name it rather than discard it.
             else -> if (unhandled++ < 20)
-                listener.onLog("R-SDK: unhandled %02x/%02x type=0x%02x %dB payload=%s  ascii=%s"
-                    .format(f.cmdSet, f.cmdId, f.cmdType, f.payload.size,
-                        f.payload.joinToString("") { "%02x".format(it) },
-                        f.payload.joinToString("") { b ->
-                            val c = b.toInt() and 0xFF
-                            if (c in 0x20..0x7E) c.toChar().toString() else "."
-                        }))
+                listener.onLog("R-SDK: unhandled %02x/%02x type=0x%02x %dB"
+                    .format(f.cmdSet, f.cmdId, f.cmdType, f.payload.size))
         }
     }
 

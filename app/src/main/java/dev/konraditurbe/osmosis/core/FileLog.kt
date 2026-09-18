@@ -71,7 +71,7 @@ object FileLog {
     }
 
     /** Append a timestamped line; no-op when logging is off. Safe from any thread. */
-    fun write(s: String) = synchronized(lock) { writeLocked(s) }
+    fun write(s: String) = synchronized(lock) { writeLocked(PrivacySafeDiagnostics.sanitize(s)) }
 
     private fun writeLocked(s: String) {
         val w = writer ?: return

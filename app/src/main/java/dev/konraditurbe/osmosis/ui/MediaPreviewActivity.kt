@@ -28,6 +28,7 @@ import androidx.core.content.ContextCompat
 import dev.konraditurbe.osmosis.R
 import dev.konraditurbe.osmosis.camera.PathAddressing
 import dev.konraditurbe.osmosis.core.CameraFile
+import dev.konraditurbe.osmosis.core.PrivacySafeDiagnostics
 import dev.konraditurbe.osmosis.core.TrimRange
 import dev.konraditurbe.osmosis.core.previewCandidates
 import dev.konraditurbe.osmosis.core.urlPath
@@ -49,7 +50,7 @@ import dev.konraditurbe.osmosis.net.ImageLoader
 class MediaPreviewActivity : AppCompatActivity() {
 
     private val main = Handler(Looper.getMainLooper())
-    private val http by lazy { HttpClient(ip) { Log.i("Osmosis", it) } }
+    private val http by lazy { HttpClient(ip) { diagnosticLog(it) } }
 
     private lateinit var videoView: VideoView
     private lateinit var photoView: ImageView
@@ -77,7 +78,7 @@ class MediaPreviewActivity : AppCompatActivity() {
     private lateinit var btnCapture: ImageButton
     private lateinit var captureSpinner: ProgressBar
     private var capturing = false
-    private val frameCapture by lazy { FrameCapture(this, http) { Log.i("Osmosis", it) } }
+    private val frameCapture by lazy { FrameCapture(this, http) { diagnosticLog(it) } }
 
     private lateinit var file: CameraFile
     private var ip = "192.168.2.1"
@@ -98,14 +99,14 @@ class MediaPreviewActivity : AppCompatActivity() {
     private var selectedFrame = 0
     private lateinit var burstRow: LinearLayout
     private lateinit var burstStrip: View
-    private val imageLoader by lazy { ImageLoader(http) { Log.i("Osmosis", it) } }
+    private val imageLoader by lazy { ImageLoader(http) { diagnosticLog(it) } }
 
     // Scrub preview: the frame under the thumb, floated above the seek bar during a drag.
     private lateinit var previewRoot: View
     private lateinit var scrubPreview: View
     private lateinit var scrubImage: ImageView
     private lateinit var scrubTime: TextView
-    private val scrubFrames by lazy { ScrubFrames { Log.i("Osmosis", it) } }
+    private val scrubFrames by lazy { ScrubFrames { diagnosticLog(it) } }
 
     /** Newest status-bar/cutout inset, kept so the floating scrub bubble can clamp against it. */
     private var topInsetPx = 0
@@ -730,7 +731,7 @@ class MediaPreviewActivity : AppCompatActivity() {
      */
     private fun startStream(path: String) {
         val uri = Uri.parse("http://$ip$path")
-        Log.i("Osmosis", "preview stream $uri")
+        Log.i("Osmosis", "preview stream requested")
         videoView.visibility = VideoView.VISIBLE
         videoView.setVideoURI(uri)
         videoView.setOnPreparedListener { mp ->
@@ -750,13 +751,17 @@ class MediaPreviewActivity : AppCompatActivity() {
             Log.i("Osmosis", "preview error what=$what extra=$extra candidate ${streamIdx + 1}/${streamCandidates.size}")
             if (streamIdx < streamCandidates.size - 1) {
                 streamIdx++
-                Log.i("Osmosis", "preview falling back to ${streamCandidates[streamIdx]}")
+                Log.i("Osmosis", "preview falling back to alternate stream candidate")
                 startStream(streamCandidates[streamIdx])
                 return@setOnErrorListener true
             }
             showStatus(getString(R.string.cant_play_clip, what, extra))
             true
         }
+    }
+
+    private fun diagnosticLog(message: String) {
+        Log.i("Osmosis", PrivacySafeDiagnostics.sanitize(message))
     }
 
     private fun loadPhoto() {

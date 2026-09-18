@@ -24,8 +24,17 @@ class AutomaticCameraTransferDispatcher(
             if (current.epoch != lease.epoch || !CameraSessionCoordinator.mayUseCameraTraffic(current)) return@automaticDownloadPaths
             val scheduled = runtime.plan(lease.epoch, SourceTrust.TRUSTED, ledger.latestPlan, current.userStopped)
             val backupLease = scheduled.first.lease ?: return@automaticDownloadPaths
-            val jobs = paths.intersect(scheduled.second).mapNotNull { resources.trustedFilesByPath[it] }.map { MediaDownloader.Job(it) }
-            if (jobs.isEmpty()) { runtime.complete(backupLease); return@automaticDownloadPaths }
+            // A duplicate plan callback deliberately returns the already-current writer with no new
+            // paths. Do nothing: completing it here would let the duplicate observer declare an
+            // in-flight batch finished. Conversely, selected paths that no longer map to this
+            // trusted observation are unsafe, not an empty successful batch.
+            if (scheduled.second.isEmpty()) return@automaticDownloadPaths
+            val selected = paths.intersect(scheduled.second)
+            val jobs = selected.mapNotNull { resources.trustedFilesByPath[it] }.map { MediaDownloader.Job(it) }
+            if (jobs.size != selected.size) {
+                runtime.fail(backupLease, "TRANSFER_SOURCE_CHANGED")
+                return@automaticDownloadPaths
+            }
             val transferLease = sessions.acquireTransfer(lease.epoch) ?: run { runtime.fail(backupLease, "TRANSFER_BUSY_OR_UNTRUSTED"); return@automaticDownloadPaths }
             Thread {
                 var failed = true
@@ -39,7 +48,9 @@ class AutomaticCameraTransferDispatcher(
                             LedgerCoordinator.TransferResult.REVIEW_REQUIRED
                         else ledger.transferOriginal(session, job.file, network, ::invalid, tick)
                     }
-                    failed = result.failed != 0
+                    // A pre-existing but unverified copy remains review-required. It cannot turn a
+                    // durable automatic plan into a completed scheduler state.
+                    failed = result.failed != 0 || result.existing != 0
                 } catch (_: Exception) {
                     failed = true
                 } finally {

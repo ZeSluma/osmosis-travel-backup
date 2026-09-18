@@ -120,8 +120,9 @@ class GpsService : Service(), RsdkController.Listener {
      * coordinates (see [buildGpsFrame]); these files get shared around.
      */
     private fun log(s: String) {
-        Log.i("Osmosis", s)
-        FileLog.write(s)
+        val safe = dev.konraditurbe.osmosis.core.PrivacySafeDiagnostics.sanitize(s)
+        Log.i("Osmosis", safe)
+        FileLog.write(safe)
     }
 
     override fun onCreate() {

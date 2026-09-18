@@ -55,6 +55,7 @@ class CameraConnectionService : Service() {
         @Volatile private var backupRuntimeInstance: AutonomousBackupRuntime? = null
         @Volatile private var automaticTransferDispatcherInstance: AutomaticCameraTransferDispatcher? = null
         @Volatile private var backupPlanCoordinatorInstance: CameraBackupPlanCoordinator? = null
+        @Volatile private var backupProjectionNotifierInstance: BackupProjectionNotifier? = null
         fun runtime(context: Context): DurableSessionRuntime = instance ?: synchronized(this) {
             instance ?: DurableSessionRuntime(PreferenceSessionStore(context)).also { instance = it }
         }
@@ -64,7 +65,10 @@ class CameraConnectionService : Service() {
         fun datalinkCoordinator(context: Context): CameraDatalinkCoordinator = datalinkCoordinatorInstance ?: synchronized(this) {
             datalinkCoordinatorInstance ?: CameraDatalinkCoordinator(resources(context), coordinator(context)) { files, complete, trusted, started ->
                 val owned = resources(context)
-                owned.sourceAssociation?.let { association -> backupPlanCoordinator(context).publish(association, files, complete, trusted, started) {} }
+                owned.sourceAssociation?.let { association ->
+                    backupPlanCoordinator(context).publish(association, files, complete, trusted, started,
+                        backupProjectionNotifier(context)::publish)
+                }
             }.also { datalinkCoordinatorInstance = it }
         }
         fun resources(context: Context): CameraSessionResources = resourcesInstance ?: synchronized(this) {
@@ -79,6 +83,10 @@ class CameraConnectionService : Service() {
         }
         fun backupPlanCoordinator(context: Context): CameraBackupPlanCoordinator = backupPlanCoordinatorInstance ?: synchronized(this) {
             backupPlanCoordinatorInstance ?: CameraBackupPlanCoordinator(resources(context), dev.konraditurbe.osmosis.ledger.LedgerCoordinator.get(context), automaticTransferDispatcher(context)).also { backupPlanCoordinatorInstance = it }
+        }
+        /** UI may observe this signal, but must derive its display from the durable ledger. */
+        fun backupProjectionNotifier(context: Context): BackupProjectionNotifier = backupProjectionNotifierInstance ?: synchronized(this) {
+            backupProjectionNotifierInstance ?: BackupProjectionNotifier().also { backupProjectionNotifierInstance = it }
         }
 
         /**
