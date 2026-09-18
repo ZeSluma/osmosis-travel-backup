@@ -6,7 +6,7 @@
   "items": [
     {
       "id": "G7-LIFECYCLE-RECOVERY",
-      "state": "WAITING_HARDWARE",
+      "state": "BLOCKED_DEFERRED_EXTERNAL_HARDWARE_TOPOLOGY",
       "question": "On the S25/Pocket4P, does the connectedDevice host preserve truthful session/transfer state through background/screen-off and recover a controlled AP/session loss only after source revalidation?",
       "why_hardware": "Android foreground-service policy, Pocket AP/BLE/datalink behavior and firmware-specific liveness cannot be established by synthetic emulation.",
       "software_evidence": ["GATE-7 focused unit suite 13 PASS", "API36 synthetic recreation/background PASS", "GATE-7 bootstrap report"],
@@ -46,10 +46,11 @@
       "criteria": {"PASS": "Configured destination identity is reacquired only with valid grant/access; absence, revocation or low capacity remains unavailable/user-action-required.", "FAIL": "A stale destination is treated as writable, a grant is bypassed, or unrelated content is overwritten.", "INCONCLUSIVE": "Hub/SSD/permission UI is unavailable; preserve destination state and record no stronger claim."},
       "engineering_decision": "Qualify target-host/SAF assumptions only; never count SSD redundancy without separate verified replica evidence.",
       "batch_with": ["MVP-SSD-REPLICA-RECOVERY"]
+      ,"deferred_reason": "The intended USB dongle/hub currently provides no usable SSD validation path with either the S25 or PC. This is not an Osmosis, SAF, or SSD failure claim."
     },
     {
       "id": "MVP-SSD-REPLICA-RECOVERY",
-      "state": "WAITING_HARDWARE",
+      "state": "BLOCKED_DEFERRED_EXTERNAL_HARDWARE_TOPOLOGY",
       "question": "Does a real phone-to-SSD copy retain partial state on disconnect/process restart, avoid duplicate final allocation, and become verified only after independent readback checksum?",
       "why_hardware": "Provider rename/write durability, physical cable removal and real S25/SSD I/O failure modes require the target configuration.",
       "software_evidence": ["ReplicaVerification corruption/truncation tests", "durable replica operation journal", "API36 partial-operation restart PASS"],
@@ -59,6 +60,7 @@
       "criteria": {"PASS": "Completed replica checksum matches phone proof; interrupted copy stays PARTIAL/review-required and does not duplicate or count toward redundancy.", "FAIL": "Partial/final confusion, duplicate allocation, checksum mismatch promoted, or camera sync truth is damaged by SSD loss.", "INCONCLUSIVE": "Safe interruption cannot be induced; retain PARTIAL/unknown behavior and record reason."},
       "engineering_decision": "Qualify real external-replica recovery or retain hardware-pending status; no cleanup eligibility follows automatically.",
       "batch_with": ["MVP-SSD-SAF-HOST"]
+      ,"deferred_reason": "The intended USB dongle/hub currently provides no usable SSD validation path with either the S25 or PC. This is not an Osmosis, SAF, or SSD failure claim."
     },
     {
       "id": "G3-MIGRATION-UI",
@@ -106,10 +108,11 @@
     },
     {
       "id": "MVP-SSD-BATCH",
-      "purpose": "One non-destructive S25 + hub + approved SSD session after remaining software fault coverage is complete.",
+      "purpose": "DEFERRED: one non-destructive S25 + hub + approved SSD session when the external hardware topology is usable again.",
       "items": ["MVP-SSD-SAF-HOST", "MVP-SSD-REPLICA-RECOVERY"],
       "order": ["protect existing SSD content", "select empty test directory", "restart and reconnect availability check", "one normal replica checksum", "one controlled interrupted replica", "restart/reconnect and inspect partial", "export sanitized evidence"],
       "decision_rule": "No unverified or interrupted replica counts as redundancy; SSD absence never changes camera-to-phone truth or authorizes cleanup."
+      ,"state": "BLOCKED_DEFERRED_EXTERNAL_HARDWARE_TOPOLOGY"
     }
   ],
   "excluded_redundant_observations": [

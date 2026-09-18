@@ -20,3 +20,11 @@ and no SSD content has been created, changed, or enumerated.
 Obtain non-destructive access to the physical S25, retain the currently connected SSD, then use an
 empty dedicated Osmosis test directory to establish the configured SAF destination before any
 disconnect/reconnect action.
+
+## Scope update — SSD deferred
+
+The user reports that the intended dongle/hub currently provides no usable SSD path with either
+the S25 or PC. `MVP-SSD-BATCH` is therefore deferred as an external hardware-topology blocker.
+This is not evidence of an Osmosis, Android SAF, SSD, or specific-dongle defect. Camera/S25
+validation remains active; `BACKUP_REDUNDANCY_COMPLETE` and `SAFE_TO_CLEAR_CAMERA` remain
+unpromoted.
