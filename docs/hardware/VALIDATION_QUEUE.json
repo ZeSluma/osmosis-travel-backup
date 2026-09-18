@@ -6,7 +6,7 @@
   "items": [
     {
       "id": "G7-LIFECYCLE-RECOVERY",
-      "state": "BLOCKED_DEFERRED_EXTERNAL_HARDWARE_TOPOLOGY",
+      "state": "WAITING_HARDWARE",
       "question": "On the S25/Pocket4P, does the connectedDevice host preserve truthful session/transfer state through background/screen-off and recover a controlled AP/session loss only after source revalidation?",
       "why_hardware": "Android foreground-service policy, Pocket AP/BLE/datalink behavior and firmware-specific liveness cannot be established by synthetic emulation.",
       "software_evidence": ["GATE-7 focused unit suite 13 PASS", "API36 synthetic recreation/background PASS", "GATE-7 bootstrap report"],
@@ -36,7 +36,7 @@
     },
     {
       "id": "MVP-SSD-SAF-HOST",
-      "state": "WAITING_HARDWARE",
+      "state": "BLOCKED_DEFERRED_EXTERNAL_HARDWARE_TOPOLOGY",
       "question": "Can the S25 persist and later reacquire read/write SAF access to the approved USB SSD through the target hub, while correctly reporting unavailable, revoked or insufficient-capacity storage?",
       "why_hardware": "Real USB host power, hub enumeration, filesystem/provider behavior and Android permission lifecycle cannot be established by an emulator or fake provider.",
       "software_evidence": ["SAF destination identity persistence", "API36 schema8-to9 destination/partial-operation restart PASS", "capture-day SAF allocation and collision refusal tests"],

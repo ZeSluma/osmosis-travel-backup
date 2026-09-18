@@ -11,4 +11,7 @@ class AutomaticCameraAvailabilityTest {
         assertNull(AutomaticCameraAvailability.select(listOf("A"),setOf("A"),true,false))
         assertNull(AutomaticCameraAvailability.select(listOf("A"),setOf("A"),false,true))
     }
+    @Test fun savedMacCasingCannotSuppressLiveKnownCameraSelection(){
+        assertEquals("AA:BB:CC",AutomaticCameraAvailability.select(listOf("aa:bb:cc"),setOf("AA:BB:CC"),false,false))
+    }
 }

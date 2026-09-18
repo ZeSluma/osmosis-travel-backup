@@ -29,5 +29,7 @@ class CameraSessionEffectCoordinatorTest {
         coordinator.stop()
         coordinator.transportLost(current.epoch, ConnectionReason.NETWORK_LOSS)
         assertTrue(coordinator.snapshot().userStopped)
+        // A subsequent launcher-originated begin is explicit user intent, not an automatic retry.
+        assertFalse(coordinator.begin().userStopped)
     }
 }

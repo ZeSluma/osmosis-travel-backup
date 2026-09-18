@@ -4,6 +4,10 @@ package dev.konraditurbe.osmosis.connection
 object AutomaticCameraAvailability {
     fun select(recentSavedMacs:List<String>,advertisedMacs:Set<String>,userStopped:Boolean,alreadyConnecting:Boolean):String? {
         if(userStopped || alreadyConnecting)return null
-        return recentSavedMacs.firstOrNull { it in advertisedMacs }
+        // Android adapters and persisted records do not promise MAC letter casing. Return the
+        // advertised value so the caller always connects through the live BluetoothDevice.
+        return recentSavedMacs.firstNotNullOfOrNull { saved ->
+            advertisedMacs.firstOrNull { advertised -> advertised.equals(saved, ignoreCase = true) }
+        }
     }
 }

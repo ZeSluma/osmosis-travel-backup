@@ -375,6 +375,9 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
         // External launches cannot supply test commands. Normal selector scanning is unchanged.
         rebuildCameraList()
         CameraShortcuts.refresh(this)
+        // A launcher open is explicit user intent to begin a new discovery session. It may clear a
+        // previous explicit stop by allocating a fresh epoch; configuration/recreation does not.
+        if (savedInstanceState == null) cameraEpoch = CameraConnectionService.coordinator(applicationContext).begin().epoch
         startCameraScan(select = true)
         confirmShortcut(launchIntent)
     }
@@ -1088,8 +1091,12 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
                 val ledger = dev.konraditurbe.osmosis.ledger.LedgerCoordinator.get(applicationContext)
                 val ledgerToken = ledger.newSession()
                 connectionResources.ledgerSession = ledgerToken
-                currentAddress?.let { ledger.observe(it, ledgerToken, fixed, !dl.moreAvailable,
-                    observation.enumerationFailed || !dl.handshakeOk, observation.enumerationStarted) }
+                currentAddress?.let { address -> ledger.observe(address, ledgerToken, fixed, !dl.moreAvailable,
+                    observation.enumerationFailed || !dl.handshakeOk, observation.enumerationStarted) { planned ->
+                    // The ledger writer creates the trusted plan asynchronously. Schedule only after
+                    // that durable plan exists; the initial projection otherwise sees no work.
+                    if (planned) main.post { if (ledgerToken == connectionResources.ledgerSession) refreshBackupLabels() }
+                } }
                 logLine("MANIFEST: ${fixed.size} files — " + fixed.groupBy { it.storage }.entries.sortedBy { it.key }
                     .joinToString(", ") { (storage, files) -> "storage=$storage (${files.size} files)" } +
                     (if (dl.moreAvailable) " · more on scroll" else ""))
@@ -1508,8 +1515,9 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
                 val address = pageLedgerAddress
                 if (token != null && address != null) {
                     dev.konraditurbe.osmosis.ledger.LedgerCoordinator.get(applicationContext)
-                        .observe(address, token, more, !dl.moreAvailable, fetched.isFailure)
-                    refreshBackupLabels()
+                        .observe(address, token, more, !dl.moreAvailable, fetched.isFailure) { planned ->
+                            if (planned) main.post { if (token == connectionResources.ledgerSession) refreshBackupLabels() }
+                        }
                 }
                 findViewById<View>(R.id.loadMoreSpinner)?.animate()?.alpha(0f)?.setDuration(180)
                     ?.withEndAction { findViewById<View>(R.id.loadMoreSpinner)?.visibility = View.GONE }?.start()

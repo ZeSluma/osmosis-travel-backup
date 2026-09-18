@@ -52,10 +52,12 @@ class LedgerCoordinator private constructor(context: Context) {
     @Volatile var status: String = "NOT_TESTED"
         private set
 
-    fun observe(association: String, session: String, files: List<CameraFile>, pagesEnded: Boolean, failed: Boolean, startedAt: Instant = Instant.now()) {
+    fun observe(association: String, session: String, files: List<CameraFile>, pagesEnded: Boolean, failed: Boolean,
+        startedAt: Instant = Instant.now(), onPlanReady: (Boolean) -> Unit = {}) {
         val captured = files.toList()
         val endedAt = Instant.now()
         writer.execute {
+            var planned = false
             try {
                 if (session != activeSession) return@execute
                 val enumerationStart = enumerationStarts.getOrPut(session) { startedAt }
@@ -69,6 +71,7 @@ class LedgerCoordinator private constructor(context: Context) {
                 latestLease = lease
                 leaseSession = session
                 status = if(pagesEnded && !failed) "PLANNED_COMPLETE_INVENTORY" else "PLANNED_INCOMPLETE_INVENTORY"
+                planned = pagesEnded && !failed
                 // Bound in-memory sessions; durable generations and assets remain in Room.
                 if (inventories.size > 4) inventories.keys.firstOrNull { it != session }?.let { inventories.remove(it); enumerationStarts.remove(it) }
             } catch (_: Exception) {
@@ -77,6 +80,7 @@ class LedgerCoordinator private constructor(context: Context) {
                 status = "LEDGER_REVIEW_REQUIRED"
                 // Never emit SQL, operational paths or arbitrary exception text to diagnostics.
             }
+            onPlanReady(planned)
         }
     }
     enum class TransferResult { TRANSFERRED_UNVERIFIED, EXISTING_UNVERIFIED, REVIEW_REQUIRED }

@@ -29,6 +29,17 @@ gate_status: PASS
 gate_0_status: PASS
 gate_0_completed_date: "2026-09-17"
 hardware_session_status: CAMERA_S25_VALIDATION_ACTIVE_SSD_BATCH_DEFERRED_EXTERNAL_DONGLE_TOPOLOGY
+camera_hardware_observation: >-
+  User reports: current unidentified build manually reused known Pocket without rescan; five-video
+  inventory and new 151MB asset visible; no automatic connection/download observed. Current-build
+  attribution remains UNCONFIRMED because the S25 is not visible to ADB. Current repository fixes
+  durable-plan projection race, explicit launcher-start epoch and MAC casing; target APK prepared
+  but not installed, and persistent S25 data has not been touched.
+camera_hardware_build: >-
+  S25 package versionCode29/versionName1.4.4 prior APK SHA256 8E82875415F53B10713F39A3310CA6A753B69C2CCC2AAE81CC10946285A4EF3A;
+  current SHA256 36A30E81E77D315A05101F4F098E4D3FD67711874FE20823D16289D9208B4C3E
+  installed in place successfully at 14:32 with identical debug signing certificate. No Room ledger
+  file existed before or after, so persistence cannot be inferred either way.
 hardware_resume_requires_explicit_return: true
 intent_rebase_status: ACCEPTED_IN_PRINCIPLE_RECONCILED
 intent_rebase_evidence: docs/evidence/GATE-1/2026-09-17_intent-rebase/INTENT_AUDIT.md
