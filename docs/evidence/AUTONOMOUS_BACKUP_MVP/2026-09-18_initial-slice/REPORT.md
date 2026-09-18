@@ -23,6 +23,9 @@ Branch: `codex/autonomous-backup-mvp`. Status: **IN PROGRESS; SOFTWARE-ONLY FOUN
 - The gallery observes a read-only ledger-derived summary for camera sync, redundancy, and
   informational cleanup eligibility. It remains false for incomplete inventory or an
   `UNKNOWN_POTENTIALLY_REQUIRED` blocker and has no cleanup action.
+- A cross-layer deterministic recovery scenario exercises active loss, replacement session,
+  stale completion rejection, incomplete revalidation, unavailable SSD and explicit stop. It
+  proves the software-state interaction only, not the physical radio or USB behavior.
 
 Focused JVM checkpoint: backup package (9), connection package (13), and automatic-plan (2):
 **24 tests, zero failures/errors**. `assembleDebug` passed before the final bridge correction;
