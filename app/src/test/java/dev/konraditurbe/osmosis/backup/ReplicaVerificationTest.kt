@@ -8,13 +8,14 @@ class ReplicaVerificationTest {
     private val source = ByteArray(140_000) { (it % 251).toByte() }
     private val proof = ReplicaProof(source.size.toLong(), ReplicaVerification.hex(java.security.MessageDigest.getInstance("SHA-256").digest(source)))
 
-    private class FakePending(private val corruptReadback:Boolean=false, private val failAfter:Int?=null):PendingReplica {
+    private class FakePending(private val corruptReadback:Boolean=false, private val failAfter:Int?=null,
+        private val failSync:Boolean=false, private val failFinalize:Boolean=false):PendingReplica {
         private val bytes=ByteArrayOutputStream(); var final=false; var syncs=0
         override val locator="fake:pending"
         override fun output()=object:OutputStream(){override fun write(b:Int){ bytes.write(b) }
-            override fun write(b:ByteArray,off:Int,len:Int){if(failAfter!=null && bytes.size()+len>failAfter!!)throw IOException();bytes.write(b,off,len)}}
+            override fun write(b:ByteArray,off:Int,len:Int){val limit=failAfter;if(limit!=null && bytes.size()+len>limit)throw IOException();bytes.write(b,off,len)}}
         override fun input():InputStream { val v=bytes.toByteArray();if(corruptReadback && v.isNotEmpty())v[0]=(v[0]+1).toByte();return v.inputStream() }
-        override fun sync(){syncs++};override fun bytes()=bytes.size().toLong();override fun finalizeReplica(){final=true}
+        override fun sync(){syncs++;if(failSync)throw IOException()};override fun bytes()=bytes.size().toLong();override fun finalizeReplica(){if(failFinalize)throw IOException();final=true}
     }
 
     @Test fun verifiedReplicaRequiresIndependentReadbackBeforeFinalization(){
@@ -30,6 +31,12 @@ class ReplicaVerificationTest {
         assertTrue(result is ReplicaVerification.Result.Incomplete);assertFalse(pending.final)
         val stopped=FakePending(); val cancelled=ReplicaVerification.copy(proof,{source.inputStream()},stopped,{stopped.bytes()>0})
         assertTrue(cancelled is ReplicaVerification.Result.Incomplete);assertFalse(stopped.final)
+    }
+    @Test fun syncOrFinalizationFailureNeverYieldsVerifiedReplica(){
+        listOf(FakePending(failSync=true),FakePending(failFinalize=true)).forEach { pending ->
+            assertTrue(ReplicaVerification.copy(proof,{source.inputStream()},pending) is ReplicaVerification.Result.Incomplete)
+            assertFalse(pending.final)
+        }
     }
     @Test fun completenessRequiresTrustedInventoryAndBothIndependentDomains(){
         val ok=ReplicaStatus(ReplicaState.VERIFIED,proof); val missing=ReplicaStatus(ReplicaState.NOT_PRESENT)

@@ -35,6 +35,9 @@ Branch: `codex/autonomous-backup-mvp`. Status: **IN PROGRESS; SOFTWARE-ONLY FOUN
 - External allocation now checks persisted read/write grant and the matching SAF provider root's
   advertised available bytes before it stages a document. Permission loss, unknown capacity and
   insufficient capacity record an unavailable reason and allocate nothing.
+- Deterministic replica fault injection covers truncated/corrupted content, cancellation, durable
+  sync failure, and finalization/rename failure. Every such path remains incomplete or rejected
+  and never sets external verification.
 
 Focused JVM checkpoint: backup package (9), connection package (13), and automatic-plan (2):
 **24 tests, zero failures/errors**. `assembleDebug` passed before the final bridge correction;
