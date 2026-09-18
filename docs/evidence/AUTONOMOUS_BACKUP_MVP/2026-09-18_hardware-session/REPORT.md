@@ -157,3 +157,52 @@ BUILD SUCCESSFUL**. The Android-test restart source for latest-complete-snapshot
 The resulting debug APK SHA-256 is
 `27C877C412EFAF673AEE3788CE1874A1FD644293DB9FA04936267D20177CD600`.
 Physical USB/provider behavior remains explicitly deferred to `MVP-SSD-INDEPENDENT-CATCHUP`.
+
+## Final consolidated session — lifecycle observation
+
+On the final signer-compatible artifact (`27C877…77CD600`), a normal app restart with the Pocket
+left powered on automatically began connection and restored a six-item grid. The privacy-safe plan
+projection reported `complete=false`, `download=2`, `verify=3`, `revalidate=1`, `review=0`; Camera
+Sync and Redundancy both remained pending and Safe-to-Clear remained no. This is fail-closed: no
+automatic download was started from the incomplete durable plan.
+
+The user then backgrounded the app, turned the S25 screen off/on, and returned to Osmosis. The
+camera remained connected, the grid remained visible, and the same fail-closed plan/status was
+observed. No duplicate writer, false completion, app-data clear, camera deletion, or storage
+operation was performed. This is a scoped PASS for the foreground-service lifecycle preservation
+portion of `G7-LIFECYCLE-RECOVERY`; recovery and SSD portions remain pending in this same session.
+
+## Final consolidated session — controlled camera power-cycle
+
+With the app foregrounded after the lifecycle observation, the user powered the Pocket off once,
+waited approximately ten seconds, then powered it on once. No automatic connection rebuild began.
+The app left the Camera Session view entirely; `dumpsys activity services` showed no active
+`CameraConnectionService`, while Android Bluetooth remained enabled. This is a scoped **FAIL** for
+automatic power-cycle recovery: the service owner was not retained/restarted to perform bounded
+revalidation. No Rescan, manual connection, deletion, transfer, or storage operation had occurred
+before this observation. One Rescan is now permitted solely to restore the non-destructive session
+and continue the remaining consolidated checks.
+
+## Final consolidated session — post-Rescan and manual-recovery observation
+
+The one permitted Rescan changed the saved Pocket from disabled to `1/1 saved in range`, proving
+BLE visibility after restart. It did not automatically select/connect the now-visible saved camera.
+Manual selection of `Osmo Pocket 4 Pro` then connected successfully and restored the same six-item
+grid. The resulting plan remained `complete=false`, `download=2`, `verify=3`, `revalidate=1`,
+`review=0`; Camera Sync and Redundancy remained pending and Safe-to-Clear remained no. No automatic
+transfer, manual Download, deletion, or external-storage write was performed.
+
+This separates three reproducible product findings for the next software pass:
+
+1. Camera power-cycle can terminate `CameraConnectionService` without bounded automatic recovery.
+2. Rescan can discover a saved in-range camera without automatically selecting it.
+3. A non-empty six-item source view with no review work still produces a durable incomplete plan,
+   blocking automatic transfer. Its source-completeness/identity reason must be diagnosed from
+   aggregate evidence; do not weaken the fail-closed rule merely to schedule work.
+
+## Deferred SSD disposition
+
+The SSD was not connected because the S25 USB link was needed for the controlled session and no
+new verified-phone test receipt existed while the plan was fail-closed. `MVP-SSD-SAF-HOST` and
+`MVP-SSD-REPLICA-RECOVERY` are **HARDWARE_DEFERRED**, not an Osmosis or SSD failure. No USB/SSD
+change, storage selection, write, readback, or interruption test was attempted.

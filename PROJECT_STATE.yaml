@@ -28,7 +28,7 @@ current_gate: AUTONOMOUS_BACKUP_MVP
 gate_status: PASS
 gate_0_status: PASS
 gate_0_completed_date: "2026-09-17"
-hardware_session_status: FINAL_CONSOLIDATED_NON_DESTRUCTIVE_S25_POCKET_SSD_SESSION_READY
+hardware_session_status: FINAL_SESSION_PARTIAL_PASS_WITH_REPRODUCED_RECOVERY_AND_AUTOSELECT_DEFECTS
 camera_hardware_observation: >-
   User reports: current unidentified build manually reused known Pocket without rescan; five-video
   inventory and new 151MB asset visible; no automatic connection/download observed. Current-build
