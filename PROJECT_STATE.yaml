@@ -205,6 +205,18 @@ execution_policy: CONTINUOUS_DEFINED_NONDESTRUCTIVE_GATES
 cost_policy: AGENTS.md cost-aware execution; targeted iterations, batched evidence, full verification at meaningful checkpoints
 execution_policy_source: AGENTS.md
 current_implementation_scope: Autonomous camera-to-phone-to-SSD MVP on top of closed GATE-7: trusted automatic planning, strict phone receipt integrity, SAF destination identity and independently verified external replicas; no camera deletion, release, main modification or untrusted append/resume
+autonomous_backup_checkpoint: >-
+  2026-09-18 published f7c1f72716ba9d5d3ca45cbefe36572cb747ca04: trusted automatic
+  known-camera selection, complete-inventory-only planning, fenced camera/replica scheduling,
+  SHA-256/readback phone-to-SAF replica proof, capture-day layout, schema9 durable partial journal,
+  duplicate-allocation refusal and ledger-derived informational completion UI. Focused JVM and
+  API36 synthetic migration/restart evidence pass; no physical Pocket/S25/hub/SSD claim.
+autonomous_backup_remaining_software:
+  - deterministic SAF/provider fault injection for permission loss, low space, rename/write failure and destination reappearance
+  - end-to-end durable orchestration recovery/reconciliation after a retained external partial
+  - broader emulator lifecycle/process-restoration matrix including automatic known-camera startup observation
+  - final targeted/broad regression and requirement-by-requirement closure audit
+autonomous_backup_hardware_queue: docs/hardware/VALIDATION_QUEUE.json#MVP-SSD-BATCH
 gate_7_software_status: PASS
 gate_7_checkpoint: GATE-7 INTERNAL MVP PASS. Durable runtime, connectedDevice host, observer projection, strict-transfer epoch/generation fence and service-owned AP/network/datalink/BLE/ledger-session resource holder published through c71ffdd5c3e602017f1a21fd28f9763c1d3c8d83. Temporary Java21/API36 verification: focused G7 unit suite13 PASS; assembleDebug PASS; synthetic lifecycle instrumentation compile and API36 emulator recreation/background PASS; full unit checkpoint421 ran with only14 known CRLF-sensitive ManifestGolden baseline failures, no G7 failure. Only the consolidated physical liveness/recovery batch remains; no hardware PASS is fabricated.
 ledger_branch_parent: a58d858ecfd404579960d9a32960e151071f9fd3
