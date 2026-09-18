@@ -1940,9 +1940,8 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
                 autoPickMac = null
                 main.post { onCameraChosen(device) }
             } else {
-                val runtime=CameraConnectionService.runtime(applicationContext).snapshot()
-                val selected=dev.konraditurbe.osmosis.connection.AutomaticCameraAvailability.select(
-                    savedCameras.recent().map { it.mac },discovered.keys,runtime.userStopped,connectionResources.connecting)
+                val selected=CameraConnectionService.automaticCameraSelection(
+                    applicationContext, savedCameras.recent().map { it.mac }, discovered.keys)
                 if (!btnGps.isChecked && addr.equals(selected,ignoreCase=true)) {
                     main.post { if (!connectionResources.connecting && !CameraConnectionService.runtime(applicationContext).snapshot().userStopped) onCameraChosen(device) }
                 }

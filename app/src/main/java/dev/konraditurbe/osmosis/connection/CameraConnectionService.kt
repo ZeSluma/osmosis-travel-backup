@@ -106,6 +106,21 @@ class CameraConnectionService : Service() {
             return ApJoiner(context.applicationContext, listener).also { joiner -> owned.apJoiner = joiner }
         }
 
+        /** Saved cameras are hints only; durable explicit stop always wins over auto-connect. */
+        fun automaticCameraSelection(
+            context: Context,
+            recentSavedMacs: List<String>,
+            advertisedMacs: Set<String>,
+        ): String? {
+            val session = runtime(context).snapshot()
+            return AutomaticCameraAvailability.select(
+                recentSavedMacs,
+                advertisedMacs,
+                userStopped = session.userStopped,
+                alreadyConnecting = resources(context).connecting,
+            )
+        }
+
         fun host(context: Context) {
             ContextCompat.startForegroundService(context, Intent(context, CameraConnectionService::class.java).setAction(ACTION_START))
         }
