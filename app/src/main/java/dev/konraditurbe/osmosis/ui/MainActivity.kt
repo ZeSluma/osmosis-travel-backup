@@ -1147,24 +1147,13 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
                     return@start
                 }
                 val dl = observation.session
-                connectionResources.trustedFilesByPath = if (observation.sourceTrusted) observation.files.associateBy { it.path } else emptyMap()
                 connectionResources.automaticStrictTransferSupported = currentModelId == 0x0022 || currentModel.name == "Osmo Pocket 4 Pro"
                 dev.konraditurbe.osmosis.net.Highlights.provider = { h -> dl.getHighlights(h) }
                 storageForBit.clear()
                 val fixed = applyStorageAndSort(observation.files)
-                val ledger = dev.konraditurbe.osmosis.ledger.LedgerCoordinator.get(applicationContext)
-                val ledgerToken = ledger.newSession()
-                connectionResources.ledgerSession = ledgerToken
-                currentAddress?.let { address -> ledger.observe(address, ledgerToken, fixed, observation.enumerationComplete,
-                    !observation.sourceTrusted, observation.sourceTrusted, observation.sourceTrusted, observation.sourceTrusted,
-                    observation.enumerationStarted) { planned ->
-                    // The ledger writer creates the trusted plan asynchronously. Schedule only after
-                    // that durable plan exists; the initial projection otherwise sees no work.
-                    if (planned) {
-                        CameraConnectionService.automaticTransferDispatcher(applicationContext).dispatch()
-                        main.post { if (ledgerToken == connectionResources.ledgerSession) refreshBackupLabels() }
-                    }
-                } }
+                currentAddress?.let { address -> CameraConnectionService.backupPlanCoordinator(applicationContext).publish(
+                    address, fixed, observation.enumerationComplete, observation.sourceTrusted, observation.enumerationStarted,
+                ) { main.post { if (!transferActivityClosed) refreshBackupLabels() } } }
                 logLine("MANIFEST: ${fixed.size} files — " + fixed.groupBy { it.storage }.entries.sortedBy { it.key }
                     .joinToString(", ") { (storage, files) -> "storage=$storage (${files.size} files)" } +
                     (if (dl.moreAvailable) " · more on scroll" else ""))

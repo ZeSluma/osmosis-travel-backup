@@ -54,6 +54,7 @@ class CameraConnectionService : Service() {
         @Volatile private var resourcesInstance: CameraSessionResources? = null
         @Volatile private var backupRuntimeInstance: AutonomousBackupRuntime? = null
         @Volatile private var automaticTransferDispatcherInstance: AutomaticCameraTransferDispatcher? = null
+        @Volatile private var backupPlanCoordinatorInstance: CameraBackupPlanCoordinator? = null
         fun runtime(context: Context): DurableSessionRuntime = instance ?: synchronized(this) {
             instance ?: DurableSessionRuntime(PreferenceSessionStore(context)).also { instance = it }
         }
@@ -72,6 +73,9 @@ class CameraConnectionService : Service() {
         }
         fun automaticTransferDispatcher(context: Context): AutomaticCameraTransferDispatcher = automaticTransferDispatcherInstance ?: synchronized(this) {
             automaticTransferDispatcherInstance ?: AutomaticCameraTransferDispatcher(context.applicationContext, resources(context), runtime(context), backupRuntime(context), dev.konraditurbe.osmosis.ledger.LedgerCoordinator.get(context)).also { automaticTransferDispatcherInstance = it }
+        }
+        fun backupPlanCoordinator(context: Context): CameraBackupPlanCoordinator = backupPlanCoordinatorInstance ?: synchronized(this) {
+            backupPlanCoordinatorInstance ?: CameraBackupPlanCoordinator(resources(context), dev.konraditurbe.osmosis.ledger.LedgerCoordinator.get(context), automaticTransferDispatcher(context)).also { backupPlanCoordinatorInstance = it }
         }
 
         /**
