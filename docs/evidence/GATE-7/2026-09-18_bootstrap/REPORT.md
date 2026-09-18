@@ -27,6 +27,9 @@ historical assets and does not infer deletion.
 stop, bounded repeated loss, and incomplete-versus-complete post-reconnect revalidation. It is a
 deterministic unit seam: no S25/Pocket conclusion is drawn from it.
 
+The observer seam also has a recreation scenario: a detached first UI observer cannot mutate the
+runtime, while a replacement observer immediately receives the persisted current recovery state.
+
 The same runtime now owns strict-transfer allocation with an opaque epoch/generation token. A
 second Activity click/recreation cannot allocate a second writer; an old worker's `finally` cannot
 release a successor; and process replacement discards only that in-memory writer lock while the

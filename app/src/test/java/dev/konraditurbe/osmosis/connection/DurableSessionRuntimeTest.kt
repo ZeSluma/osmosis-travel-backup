@@ -87,4 +87,17 @@ class DurableSessionRuntimeTest {
         assertEquals(null, replacement.activeTransfer())
         assertEquals(null, store.readTransfer())
     }
+
+    @Test fun recreatedUiObserverReceivesCurrentPersistentProjectionWithoutOwningIt() {
+        val runtime = DurableSessionRuntime(MemoryStore())
+        val seenByFirst = mutableListOf<SessionLease>()
+        val detach = runtime.observe { seenByFirst += it }
+        val first = runtime.start()
+        detach()
+        runtime.callback(first.epoch, ConnectionEvent.LOST, ConnectionReason.NETWORK_LOSS)
+        val seenByReplacement = mutableListOf<SessionLease>()
+        runtime.observe { seenByReplacement += it }
+        assertEquals(ConnectionState.RECONNECT_WAIT, seenByReplacement.single().recovery.state)
+        assertEquals(ConnectionState.CONNECTING, seenByFirst.last().recovery.state)
+    }
 }
