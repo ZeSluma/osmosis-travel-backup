@@ -62,6 +62,13 @@ that a retained `PARTIAL` staged operation can become `MISSING` only through exp
 That makes a later allocation eligible without falsely verifying either the staged object or SSD
 redundancy. This is a deterministic synthetic provider outcome, not a real-SSD reconnect claim.
 
+### Consolidated focused JVM checkpoint
+
+`testDebugUnitTest` selecting the backup package, connection package and
+`AutomaticBackupPlanTest` passed **36 tests, zero failures/errors** across 14 result files. This
+is the current autonomous-backup/lifecycle/planner regression scope; it deliberately does not
+reclassify the repository-wide CRLF-sensitive golden-test baseline.
+
 ## Next software work
 
 Exercise the Room migration and Android SAF provider with deterministic instrumentation/fakes,
