@@ -53,6 +53,7 @@ class CameraConnectionService : Service() {
         @Volatile private var datalinkCoordinatorInstance: CameraDatalinkCoordinator? = null
         @Volatile private var resourcesInstance: CameraSessionResources? = null
         @Volatile private var backupRuntimeInstance: AutonomousBackupRuntime? = null
+        @Volatile private var automaticTransferDispatcherInstance: AutomaticCameraTransferDispatcher? = null
         fun runtime(context: Context): DurableSessionRuntime = instance ?: synchronized(this) {
             instance ?: DurableSessionRuntime(PreferenceSessionStore(context)).also { instance = it }
         }
@@ -68,6 +69,9 @@ class CameraConnectionService : Service() {
         /** Camera and local-replica scheduling belongs to the application owner, never an Activity. */
         fun backupRuntime(context: Context): AutonomousBackupRuntime = backupRuntimeInstance ?: synchronized(this) {
             backupRuntimeInstance ?: AutonomousBackupRuntime().also { backupRuntimeInstance = it }
+        }
+        fun automaticTransferDispatcher(context: Context): AutomaticCameraTransferDispatcher = automaticTransferDispatcherInstance ?: synchronized(this) {
+            automaticTransferDispatcherInstance ?: AutomaticCameraTransferDispatcher(context.applicationContext, resources(context), runtime(context), backupRuntime(context), dev.konraditurbe.osmosis.ledger.LedgerCoordinator.get(context)).also { automaticTransferDispatcherInstance = it }
         }
 
         /**

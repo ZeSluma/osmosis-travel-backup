@@ -2,6 +2,7 @@ package dev.konraditurbe.osmosis.connection
 
 import android.net.Network
 import dev.konraditurbe.osmosis.core.MediaSession
+import dev.konraditurbe.osmosis.core.CameraFile
 import dev.konraditurbe.osmosis.ble.GattClient
 import dev.konraditurbe.osmosis.ble.OsmoScanner
 import dev.konraditurbe.osmosis.net.ApJoiner
@@ -17,6 +18,8 @@ class CameraSessionResources {
     var gattClient: GattClient? = null
     var connecting = false
     var ledgerSession: String? = null
+    @Volatile var trustedFilesByPath: Map<String, CameraFile> = emptyMap()
+    @Volatile var automaticStrictTransferSupported = false
     var apJoiner: ApJoiner? = null
     @Volatile var transferNetwork: Network? = null
     var wifiUp = false
@@ -75,6 +78,8 @@ class CameraSessionResources {
         releaseApJoiner()
         transferNetwork = null
         ledgerSession = null
+        trustedFilesByPath = emptyMap()
+        automaticStrictTransferSupported = false
         wifiUp = false; datalinkStarted = false; wifiRejoins = 0; resumeDownloadOnRejoin = false
     }
 }

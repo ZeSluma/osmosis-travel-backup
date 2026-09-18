@@ -1147,6 +1147,8 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
                     return@start
                 }
                 val dl = observation.session
+                connectionResources.trustedFilesByPath = if (observation.sourceTrusted) observation.files.associateBy { it.path } else emptyMap()
+                connectionResources.automaticStrictTransferSupported = currentModelId == 0x0022 || currentModel.name == "Osmo Pocket 4 Pro"
                 dev.konraditurbe.osmosis.net.Highlights.provider = { h -> dl.getHighlights(h) }
                 storageForBit.clear()
                 val fixed = applyStorageAndSort(observation.files)
@@ -1158,7 +1160,10 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
                     observation.enumerationStarted) { planned ->
                     // The ledger writer creates the trusted plan asynchronously. Schedule only after
                     // that durable plan exists; the initial projection otherwise sees no work.
-                    if (planned) main.post { if (ledgerToken == connectionResources.ledgerSession) refreshBackupLabels() }
+                    if (planned) {
+                        CameraConnectionService.automaticTransferDispatcher(applicationContext).dispatch()
+                        main.post { if (ledgerToken == connectionResources.ledgerSession) refreshBackupLabels() }
+                    }
                 } }
                 logLine("MANIFEST: ${fixed.size} files — " + fixed.groupBy { it.storage }.entries.sortedBy { it.key }
                     .joinToString(", ") { (storage, files) -> "storage=$storage (${files.size} files)" } +
@@ -1329,28 +1334,11 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
                             }}
                         return@post
                     }
-                    val cameraRuntime=CameraConnectionService.runtime(applicationContext)
-                    val lease=cameraRuntime.snapshot()
-                    val trust=if(dev.konraditurbe.osmosis.connection.CameraSessionCoordinator.mayUseCameraTraffic(lease))
-                        dev.konraditurbe.osmosis.connection.SourceTrust.TRUSTED else dev.konraditurbe.osmosis.connection.SourceTrust.INCOMPLETE_UNTRUSTED
-                    val scheduled=CameraConnectionService.backupRuntime(applicationContext)
-                        .plan(lease.epoch,trust,dev.konraditurbe.osmosis.ledger.LedgerCoordinator.get(applicationContext).latestPlan,lease.userStopped)
-                    if(scheduled.second.isNotEmpty() && scheduled.first.lease!=null) {
-                        target.queueWholePaths(paths.intersect(scheduled.second))
-                        automaticScheduleStatus = "transfer queued (${scheduled.second.size})"
-                        backupProductStatus?.let(::renderBackupSummary)
-                        logLine("Automatic backup started for ${scheduled.second.size} trusted new original(s).")
-                        onDownloadClicked(scheduled.first.lease)
-                    } else {
-                        automaticScheduleStatus = when(scheduled.first.phase) {
-                            dev.konraditurbe.osmosis.backup.BackupPhase.WAITING_FOR_TRUSTED_INVENTORY -> "waiting for trusted session"
-                            dev.konraditurbe.osmosis.backup.BackupPhase.CAMERA_TRANSFER -> "transfer already scheduled"
-                            dev.konraditurbe.osmosis.backup.BackupPhase.USER_ACTION_REQUIRED -> "user action required"
-                            dev.konraditurbe.osmosis.backup.BackupPhase.STOPPED -> "stopped"
-                            else -> "no schedulable download"
-                        }
-                        backupProductStatus?.let(::renderBackupSummary)
-                    }
+                    // Automatic camera IO is dispatched by the service-owned executor when the
+                    // durable ledger plan is published.  The Activity only projects its state.
+                    automaticScheduleStatus = "service dispatch pending (${paths.size})"
+                    backupProductStatus?.let(::renderBackupSummary)
+                    return@post
                 }
             }}
         dev.konraditurbe.osmosis.backup.ExternalReplicaCoordinator.get(applicationContext).refreshAndReplicate()
