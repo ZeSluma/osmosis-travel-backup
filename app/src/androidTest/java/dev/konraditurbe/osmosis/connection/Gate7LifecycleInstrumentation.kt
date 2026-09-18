@@ -25,9 +25,13 @@ object Gate7LifecycleInstrumentation {
         // Recreate must attach to, not replace, the service-owned active session/writer.
         check(runtime.snapshot().epoch == lease.epoch)
         check(runtime.activeTransfer() == transfer)
+        instrumentation.runOnMainSync { activity.moveTaskToBack(true) }
+        instrumentation.waitForIdleSync()
+        check(runtime.snapshot().epoch == lease.epoch)
+        check(runtime.activeTransfer() == transfer)
         runtime.releaseTransfer(transfer)
         runtime.stop()
         instrumentation.runOnMainSync { activity.finish() }
-        return "PASS: G7 activity recreation retained fenced session and single writer"
+        return "PASS: G7 recreation/background retained fenced session and single writer"
     }
 }

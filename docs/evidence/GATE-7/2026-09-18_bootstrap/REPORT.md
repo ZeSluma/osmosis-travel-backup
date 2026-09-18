@@ -51,6 +51,14 @@ compiled successfully. The temporary AVD creation tool could not be normalized a
 archive's nested layout, so execution remains `EMULATOR_NOT_RUN`; this is not represented as a
 lifecycle pass.
 
+### API 36 emulator lifecycle execution
+
+2026-09-18: an isolated API 36 Google APIs x86_64 AVD installed the debug and instrumentation APKs.
+`am instrument -w -e lifecyclePhase recreate` passed twice: first for Activity recreation, then
+after adding `moveTaskToBack(true)` for recreation plus background. Both runs prove the same
+service-owned epoch and opaque transfer lease remain active. The fixture never requests BLE,
+Wi-Fi, camera media or a physical device; it proves Android lifecycle ownership only.
+
 Verification attempt: `gradlew.bat testDebugUnitTest --tests
 dev.konraditurbe.osmosis.connection.*` could not configure because this host exposes Java 11 and
 Room 2.8.5 requires Java 17+ (the project targets Java 21). This is `NOT_TESTED`, not a test pass;

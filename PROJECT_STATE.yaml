@@ -205,7 +205,7 @@ cost_policy: AGENTS.md cost-aware execution; targeted iterations, batched eviden
 execution_policy_source: AGENTS.md
 current_implementation_scope: GATE-7 lifecycle-safe camera-session ownership, bounded recovery and truth-preserving UI; no camera deletion, release, main modification or untrusted append/resume
 gate_7_software_status: IN_PROGRESS_UNVERIFIED
-gate_7_checkpoint: Durable runtime, connectedDevice host, observer projection, strict-transfer epoch/generation fence and service-owned AP/network/datalink/BLE resource holder published through b68f759987b666a4d8f3c0c2731f8b34a74b74bd. Temporary Java21/API36 verification: focused G7 unit suite13 PASS; assembleDebug and lifecycle instrumentation APK PASS; full unit checkpoint421 ran with only14 known CRLF-sensitive ManifestGolden baseline failures, no G7 failure. Lifecycle emulator execution, remaining service effect-callback migration and HIL remain; no G7 PASS claim.
+gate_7_checkpoint: Durable runtime, connectedDevice host, observer projection, strict-transfer epoch/generation fence and service-owned AP/network/datalink/BLE resource holder published through b68f759987b666a4d8f3c0c2731f8b34a74b74bd. Temporary Java21/API36 verification: focused G7 unit suite13 PASS; assembleDebug PASS; synthetic lifecycle instrumentation compile and API36 emulator recreation/background PASS; full unit checkpoint421 ran with only14 known CRLF-sensitive ManifestGolden baseline failures, no G7 failure. Remaining service effect-callback migration and HIL remain; no G7 PASS claim.
 ledger_branch_parent: a58d858ecfd404579960d9a32960e151071f9fd3
 gate_1_status: PASS
 gate_2_status: PASS
