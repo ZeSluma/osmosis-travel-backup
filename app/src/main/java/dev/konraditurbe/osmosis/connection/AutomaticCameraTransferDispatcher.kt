@@ -18,7 +18,7 @@ class AutomaticCameraTransferDispatcher(
         val session = resources.ledgerSession ?: return
         val network = resources.transferNetwork ?: return
         val lease = sessions.snapshot()
-        if (!resources.automaticStrictTransferSupported || !CameraSessionCoordinator.mayUseCameraTraffic(lease)) return
+        if (!AutomaticTransferDispatchPolicy.mayStart(resources.automaticStrictTransferSupported, session, true, lease)) return
         ledger.automaticDownloadPaths(session, resources.trustedFilesByPath.values.toList()) { paths ->
             val current = sessions.snapshot()
             if (current.epoch != lease.epoch || !CameraSessionCoordinator.mayUseCameraTraffic(current)) return@automaticDownloadPaths
@@ -30,9 +30,10 @@ class AutomaticCameraTransferDispatcher(
             Thread {
                 var failed = true
                 try {
-                    fun invalid(): Boolean = resources.ledgerSession != session || resources.transferNetwork != network ||
-                        sessions.snapshot().epoch != lease.epoch || sessions.activeTransfer() != transferLease ||
-                        !runtime.accepts(backupLease) || !CameraSessionCoordinator.mayUseCameraTraffic(sessions.snapshot())
+                    fun invalid(): Boolean = AutomaticTransferDispatchPolicy.shouldRefuse(
+                        session, resources.ledgerSession, network, resources.transferNetwork, lease.epoch,
+                        sessions.snapshot(), sessions.activeTransfer() == transferLease, runtime.accepts(backupLease),
+                    )
                     val result = StrictTransferBatch.run(jobs, SilentProgress) { job, tick ->
                         if (invalid())
                             LedgerCoordinator.TransferResult.REVIEW_REQUIRED
