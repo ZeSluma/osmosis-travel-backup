@@ -23,12 +23,12 @@ execution: {
     {"id": "AUTONOMOUS_BACKUP_MVP", "state": "IN_PROGRESS_SOFTWARE_PROVEN_STORAGE_FOUNDATION"}
   ]
 }
-current_phase: autonomous_camera_phone_ssd_backup_internal_mvp_pass
+current_phase: autonomous_camera_phone_ssd_backup_hardware_validation
 current_gate: AUTONOMOUS_BACKUP_MVP
 gate_status: PASS
 gate_0_status: PASS
 gate_0_completed_date: "2026-09-17"
-hardware_session_status: G3_PROTOTYPE_TOMORROW_FINAL_BUILD_VALIDATED_SOURCE_CONTINUITY_INCONCLUSIVE
+hardware_session_status: AUTONOMOUS_BACKUP_HARDWARE_SESSION_IN_PROGRESS_S25_NOT_VISIBLE_TO_ADB
 hardware_resume_requires_explicit_return: true
 intent_rebase_status: ACCEPTED_IN_PRINCIPLE_RECONCILED
 intent_rebase_evidence: docs/evidence/GATE-1/2026-09-17_intent-rebase/INTENT_AUDIT.md
