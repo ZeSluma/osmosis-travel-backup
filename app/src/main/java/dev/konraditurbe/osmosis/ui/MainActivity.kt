@@ -402,13 +402,10 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
     }
 
     override fun onDestroy() {
-        transferActivityClosed = true
-        connectionResources.transferNetwork = null
-        // Current adapters are still being migrated into the service. Until that move is complete,
-        // an Activity teardown must at least invalidate camera IO rather than leave a false READY
-        // projection that could accept an old worker after recreation.
-        CameraConnectionService.runtime(applicationContext).callback(cameraEpoch, ConnectionEvent.LOST, ConnectionReason.SESSION_DESYNC)
         if (isFinishing) {
+            transferActivityClosed = true
+            connectionResources.transferNetwork = null
+            CameraConnectionService.runtime(applicationContext).callback(cameraEpoch, ConnectionEvent.LOST, ConnectionReason.SESSION_DESYNC)
             CameraConnectionService.runtime(applicationContext).stop()
             CameraConnectionService.stopHost(this)
         }
@@ -419,12 +416,14 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
         // Deliberately NOT closing the log file here: GPS sync runs as a foreground service and the
         // user is usually out with the Activity long gone, so the file has to stay open for it. Every
         // line is flushed, so nothing is lost if the process dies; the toggle closes it explicitly.
-        stopKeepalive()
-        connectionResources.datalink?.close()
-        connectionResources.scanner?.stop()
-        connectionResources.gattClient?.disconnect()
-        connectionResources.gattClient?.close()
-        connectionResources.apJoiner?.release()
+        if (isFinishing) {
+            stopKeepalive()
+            connectionResources.datalink?.close()
+            connectionResources.scanner?.stop()
+            connectionResources.gattClient?.disconnect()
+            connectionResources.gattClient?.close()
+            connectionResources.apJoiner?.release()
+        }
         imageLoader?.shutdown()
         metaLoader?.shutdown()
     }
