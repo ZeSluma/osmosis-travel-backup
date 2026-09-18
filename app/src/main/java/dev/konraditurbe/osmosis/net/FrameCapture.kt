@@ -52,12 +52,12 @@ class FrameCapture(
         val name = captureName(f, offsetMs)
         val started = System.currentTimeMillis()
         val jpeg = decodeFrame(http.url(f.urlPath()), offsetMs) ?: run {
-            log("capture FAILED ${f.name} @${offsetMs} ms: no frame decoded")
+            log("capture failed @${offsetMs} ms: no frame decoded")
             return null
         }
-        log("capture ${f.name} @${offsetMs} ms → ${jpeg.size / 1000} kB JPEG in ${System.currentTimeMillis() - started} ms")
+        log("capture @${offsetMs} ms → ${jpeg.size / 1000} kB JPEG in ${System.currentTimeMillis() - started} ms")
         val uri = save(jpeg, name)
-        if (uri == null) log("capture FAILED $name: MediaStore write failed") else log("capture saved $name")
+        if (uri == null) log("capture failed: MediaStore write failed") else log("capture saved")
         return uri
     }
 
@@ -74,7 +74,7 @@ class FrameCapture(
                 val tf = extractor.getTrackFormat(t)
                 if (tf.getString(MediaFormat.KEY_MIME)?.startsWith("video/") == true) { track = t; fmt = tf; break }
             }
-            if (track < 0 || fmt == null) { log("capture: no video track in $url"); return null }
+            if (track < 0 || fmt == null) { log("capture: no video track"); return null }
             val mime = fmt.getString(MediaFormat.KEY_MIME)!!
             log("capture: track $mime ${fmt.getInteger(MediaFormat.KEY_WIDTH)}x${fmt.getInteger(MediaFormat.KEY_HEIGHT)}" +
                 " profile=${fmt.intOrNull(MediaFormat.KEY_PROFILE)} level=${fmt.intOrNull(MediaFormat.KEY_LEVEL)}" +
@@ -94,18 +94,18 @@ class FrameCapture(
                 val started = System.currentTimeMillis()
                 extractor.seekTo(targetUs, MediaExtractor.SEEK_TO_PREVIOUS_SYNC)
                 val img = runCatching { decodeWith(info, fmt, extractor, targetUs, halfFrameUs) }
-                    .onFailure { log("capture: ${info.name} threw ${it.javaClass.simpleName} ${it.message}") }
+                    .onFailure { log("capture: decoder threw ${it.javaClass.simpleName}") }
                     .getOrNull()
                 if (img != null) {
-                    log("capture: ${info.name} decoded frame @${img.ptsUs / 1000} ms" +
+                    log("capture: decoder decoded frame @${img.ptsUs / 1000} ms" +
                         " (${img.width}x${img.height}) in ${System.currentTimeMillis() - started} ms")
                     return toJpeg(img, rotation)
                 }
-                log("capture: ${info.name} produced no frame, trying next decoder")
+                log("capture: decoder produced no frame, trying next decoder")
             }
             return null
         } catch (e: Exception) {
-            log("capture: can't open $url — ${e.javaClass.simpleName} ${e.message}")
+            log("capture: open failed — ${e.javaClass.simpleName}")
             return null
         } finally {
             runCatching { extractor.release() }
@@ -162,20 +162,20 @@ class FrameCapture(
                         if (hit || (eos && bufInfo.size > 0)) {
                             val image = codec.getOutputImage(outIdx)
                             val frame = image?.let { toNv21(it, bufInfo.presentationTimeUs) }
-                            if (image == null) log("capture: ${info.name} output is not a flexible YUV image" +
+                            if (image == null) log("capture: decoder output is not a flexible YUV image" +
                                 " (format ${codec.outputFormat.intOrNull(MediaFormat.KEY_COLOR_FORMAT)})")
                             image?.close()
                             codec.releaseOutputBuffer(outIdx, false)
                             return frame
                         }
                         codec.releaseOutputBuffer(outIdx, false)
-                        if (eos) { log("capture: ${info.name} hit EOS before the target after $fed samples"); return null }
+                        if (eos) { log("capture: decoder hit EOS before target after $fed samples samples"); return null }
                     }
                     outIdx == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED ->
-                        log("capture: ${info.name} output format ${codec.outputFormat}")
+                        log("capture: decoder output format changed")
                 }
                 if (System.currentTimeMillis() - lastProgress > STALL_MS) {
-                    log("capture: ${info.name} stalled after $fed samples"); return null
+                    log("capture: decoder stalled after $fed samples samples"); return null
                 }
             }
         } finally {

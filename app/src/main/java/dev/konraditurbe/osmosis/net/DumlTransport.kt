@@ -103,7 +103,7 @@ class DumlTransport(
         peer = InetAddress.getByName(ip)
         sock = if (bindLocalPort) {
             runCatching { DatagramSocket(port) }
-                .onFailure { log("datalink: local udp/$port unavailable (${it.message}) — falling back") }
+                .onFailure { log("datalink: local udp/$port unavailable — falling back") }
                 .getOrElse { DatagramSocket() }
         } else DatagramSocket()
         sock.soTimeout = 200

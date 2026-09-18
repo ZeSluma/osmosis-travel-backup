@@ -527,7 +527,7 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
             val decoded = DjiMessage.fromBytes(bytes)
             logLine("DUML self-test ok (${bytes.size} B): ${decoded.format()}")
         } catch (t: Throwable) {
-            logLine("DUML self-test FAILED: ${t.message}")
+            logLine("DUML self-test failed")
         }
     }
 

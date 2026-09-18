@@ -22,7 +22,7 @@ reproducible software evidence exists; it never substitutes for a physical Pocke
 | PC10 | SAF replica allocation/recovery uses durable staging, rejects collisions/corruption, and verifies independent readback. | `ReplicaVerificationTest`, `PhoneToExternalReplicaPolicyTest`, replica migration instrumentation | PASS |
 | PC11 | Product status derives Camera Sync, redundancy and informational Safe-to-Clear only from trusted inventory and verified independent evidence. | `ReplicaVerificationTest`, `BackupStatusProjection` | PASS |
 | PC12 | UI is an observer: stale session/adapter callbacks cannot repaint a replacement grid; untrusted inventory is not rendered as confirmed empty. | `CameraDatalinkCoordinatorTest`, MainActivity fences | PASS |
-| PC13 | Privacy-safe diagnostics expose state/reason/counts without credentials, GPS or media content. | code review plus sanitized runtime evidence | IN_PROGRESS |
+| PC13 | Privacy-safe diagnostics expose state/reason/counts without credentials, GPS or media content. | 2026-09-18 static log-sink audit; focused net/integrity/backup tests and debug build PASS | PASS |
 | PC14 | JVM integrated fault checkpoint and debug build pass on the final source state. | final command evidence required | IN_PROGRESS |
 | PC15 | Emulator lifecycle harness is either PASS or explicitly bounded with reproducible failure evidence and alternative lifecycle coverage. | `Gate7LifecycleInstrumentation` / report | IN_PROGRESS |
 

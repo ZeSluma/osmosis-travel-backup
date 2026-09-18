@@ -76,7 +76,7 @@ class ScrubFrames(private val log: (String) -> Unit) {
                     main.post { if (!closed) onFrame(job.ms, bmp) }
                 }
             } catch (e: Exception) {
-                log("scrub: ${if (opened) "decode stopped" else "can't open"} $url — " +
+                log("scrub: ${if (opened) "decode stopped" else "can't open source"} — " +
                     "${e.javaClass.simpleName} ${e.message}")
             } finally {
                 runCatching { mmr.release() }

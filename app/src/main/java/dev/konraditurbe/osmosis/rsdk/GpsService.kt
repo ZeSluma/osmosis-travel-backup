@@ -163,7 +163,7 @@ class GpsService : Service(), RsdkController.Listener {
             }
             val live = wanted.filter { p ->
                 runCatching { lm.requestLocationUpdates(p, 1000L, 0f, locListener, mainLooper); true }
-                    .getOrElse { log("GPS: provider '$p' unavailable: ${it.message}"); false }
+                    .getOrElse { log("GPS: provider unavailable"); false }
             }
             log("GPS: subscribed to providers=$live")
             runCatching { lm.registerGnssStatusCallback(gnssCallback, main) }
