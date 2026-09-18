@@ -1,5 +1,6 @@
 package dev.konraditurbe.osmosis.camera
 
+import android.net.Network
 import dev.konraditurbe.osmosis.core.CameraFile
 import dev.konraditurbe.osmosis.core.StorageRules
 import dev.konraditurbe.osmosis.duml.DjiCrc
@@ -26,7 +27,8 @@ class CameraSession(
     log: (String) -> Unit,
     port: Int = 9004,
     tcpPoke: Boolean = true,
-) : DumlSession(log, port, tcpPoke, isDrone = false) {
+    network: Network? = null,
+) : DumlSession(log, port, tcpPoke, isDrone = false, network = network) {
 
     /**
      * Remaining hex-dump budget for this session, in bytes of manifest.

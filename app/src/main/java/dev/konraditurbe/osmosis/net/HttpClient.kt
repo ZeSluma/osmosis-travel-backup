@@ -1,19 +1,21 @@
 package dev.konraditurbe.osmosis.net
 
+import android.net.Network
 import java.io.OutputStream
 import java.net.HttpURLConnection
 import java.net.URL
 
-/** Thin client for the camera's lighttpd /v2 file API. Process must be bound to the camera net. */
+/** Thin client for the camera's lighttpd /v2 file API, pinned to camera [network] when supplied. */
 class HttpClient(
     private val ip: String = "192.168.2.1",
     private val log: (String) -> Unit = {},
+    private val network: Network? = null,
 ) {
     /** Absolute URL for a camera path, e.g. for MediaExtractor/MediaPlayer data sources. */
     fun url(path: String): String = "http://$ip$path"
 
     private fun open(path: String, method: String, rangeStart: Long = -1): HttpURLConnection =
-        (URL("http://$ip$path").openConnection() as HttpURLConnection).apply {
+        (openConnection(path)).apply {
             connectTimeout = 5000
             readTimeout = 20000
             requestMethod = method
@@ -54,7 +56,7 @@ class HttpClient(
 
     /** Fetch an inclusive byte range from start to end. Null on error. */
     fun getRange(path: String, start: Long, end: Long): ByteArray? {
-        val c = (URL("http://$ip$path").openConnection() as HttpURLConnection).apply {
+        val c = openConnection(path).apply {
             connectTimeout = 5000
             readTimeout = 20000
             requestMethod = "GET"
@@ -68,6 +70,9 @@ class HttpClient(
             c.disconnect()
         }
     }
+
+    private fun openConnection(path: String): HttpURLConnection =
+        (network?.openConnection(URL("http://$ip$path")) ?: URL("http://$ip$path").openConnection()) as HttpURLConnection
 
     /** Fetch a whole (small) file, e.g. a thumbnail. Null on error. */
     fun getBytes(path: String): ByteArray? {

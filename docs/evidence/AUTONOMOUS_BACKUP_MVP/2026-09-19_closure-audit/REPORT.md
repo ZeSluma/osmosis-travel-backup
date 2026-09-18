@@ -13,6 +13,7 @@ hardware-validation request; it does not substitute synthetic proof for Pocket, 
 | Transfer integrity and replica truth | PASS for current strict local/SAF contracts | Existing integrity, replica and restart tests. |
 | Activity-independent automatic camera transfer dispatch | PASS for the current service/coordinator path | Trusted observations now publish through `CameraBackupPlanCoordinator` into the durable ledger, then `AutomaticCameraTransferDispatcher`; `MainActivity` receives only removable projection notifications and re-reads the ledger. Duplicate callbacks neither allocate nor complete a writer; source replacement and unverified existing copies fail to review. `AutomaticTransferDispatchPolicyTest`, `CameraDatalinkCoordinatorTest`, `BackupProjectionNotifierTest`, `EndToEndBackupRecoveryScenarioTest`. |
 | Privacy-safe normal diagnostics | PASS for audited sinks | Source/sink audit removed camera MAC/name, SSID, IP, serial, raw BLE/R-SDK payload, thumbnail bytes and preview path output. `PrivacySafeDiagnostics` is a last-line guard for logcat/file sinks; `PrivacySafeDiagnosticsTest` covers identifiers, credentials and media URIs. |
+| Camera network isolation | PASS for code-level routing | `ApJoiner` no longer globally binds the process. Camera UDP/TCP/HTTP consumers use the selected `Network` directly, leaving the default network available for future independent cloud traffic. Full JVM/debug checkpoint is green; physical AP routing remains separately hardware-deferred. |
 
 ## Current verification
 

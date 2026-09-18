@@ -5,6 +5,7 @@ import dev.konraditurbe.osmosis.core.MediaSession
 import dev.konraditurbe.osmosis.duml.OsmoCommands
 import java.net.InetSocketAddress
 import java.net.Socket
+import android.net.Network
 
 /**
  * What an Osmo camera session and a DJI drone session genuinely share: bringing the datalink up, and
@@ -24,9 +25,10 @@ abstract class DumlSession(
     /** TCP-7001 poke to arm the datalink — the Osmo 360 / Nano / Pocket 3 need it, nothing else does. */
     private val tcpPoke: Boolean,
     isDrone: Boolean,
+    private val network: Network? = null,
 ) : MediaSession {
 
-    protected val tx = DumlTransport(log, port, bindLocalPort = isDrone, droneRouting = isDrone)
+    protected val tx = DumlTransport(log, port, bindLocalPort = isDrone, droneRouting = isDrone, network = network)
 
     /** Kept because [sequenceSpaceMismatched] has never been checked on a drone. */
     private val isDroneLink = isDrone
@@ -96,7 +98,7 @@ abstract class DumlSession(
 
         if (tcpPoke) {
             runCatching {
-                Socket().use { s ->
+                (network?.socketFactory?.createSocket() ?: Socket()).use { s ->
                     s.connect(InetSocketAddress(tx.peerAddress, 7001), 1200)
                     s.getOutputStream().write(OsmoCommands.setPairingPin("osmo"))
                     s.getOutputStream().flush()

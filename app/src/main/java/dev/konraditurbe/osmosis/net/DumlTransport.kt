@@ -2,6 +2,7 @@ package dev.konraditurbe.osmosis.net
 
 import dev.konraditurbe.osmosis.duml.DjiCrc
 import dev.konraditurbe.osmosis.duml.DjiMessage
+import android.net.Network
 import java.net.DatagramPacket
 import java.net.DatagramSocket
 import java.net.InetAddress
@@ -33,6 +34,7 @@ class DumlTransport(
     private val bindLocalPort: Boolean = false,
     /** Byte 10 of the routing header is `0x60` on the commands DJI Fly sends a Mavic, `0x00` for a camera. */
     private val droneRouting: Boolean = false,
+    private val network: Network? = null,
 ) {
 
     var sessionId = 0
@@ -106,6 +108,7 @@ class DumlTransport(
                 .onFailure { log("datalink: local udp/$port unavailable — falling back") }
                 .getOrElse { DatagramSocket() }
         } else DatagramSocket()
+        network?.bindSocket(sock)
         sock.soTimeout = 200
         sessionId = Random.nextInt(0x1000, 0xFFFE)
         // Fresh base per connect, 8-aligned — see [baseSeq]. camChannel starts here because until the

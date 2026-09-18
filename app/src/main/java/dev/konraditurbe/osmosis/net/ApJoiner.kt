@@ -50,9 +50,8 @@ class ApJoiner(context: Context, private val listener: Listener) {
 
         val callback = object : ConnectivityManager.NetworkCallback() {
             override fun onAvailable(network: Network) {
-                val bound = cm.bindProcessToNetwork(network)
                 val link = runCatching { cm.getLinkProperties(network) }.getOrNull()
-                listener.onLog("WiFi: onAvailable, bindProcessToNetwork=$bound")
+                listener.onLog("WiFi: camera network available")
                 listener.onNetwork(network, link)
             }
 
@@ -90,7 +89,6 @@ class ApJoiner(context: Context, private val listener: Listener) {
 
     fun release() {
         cb?.let { runCatching { cm.unregisterNetworkCallback(it) } }
-        runCatching { cm.bindProcessToNetwork(null) }
         cb = null
     }
 }

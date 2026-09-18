@@ -150,7 +150,7 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
      * because it is touched from the main thread and the ConnectivityManager callback.
      */
 
-    private val http = HttpClient("192.168.2.1") { s -> logLine(s) }
+    private val http get() = HttpClient("192.168.2.1", ::logLine, connectionResources.transferNetwork)
     private var imageLoader: ImageLoader? = null
     private var metaLoader: MetaLoader? = null
     private var adapter: MediaGridAdapter? = null
@@ -1140,7 +1140,7 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
             model = currentModel,
             openSession = { model ->
                 if (model.isDrone) DroneSession(::logLine, model.datalinkPort, bleDroneSerial)
-                else CameraSession(::logLine, model.datalinkPort, model.tcpPoke)
+                else CameraSession(::logLine, model.datalinkPort, model.tcpPoke, connectionResources.transferNetwork)
             },
             onLog = ::logLine,
             onStatus = { status -> main.post { if (currentDatalinkEpoch()) onCameraStatus(status) } },
@@ -1816,7 +1816,8 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
         onDownloadClicked()
     }
 
-    private fun onDownloadClicked(autonomousLease: dev.konraditurbe.osmosis.backup.BackupLease? = null) {
+    /** Explicit user queue only. Trusted automatic camera work is dispatched by the service layer. */
+    private fun onDownloadClicked() {
         // Re-entrancy guard. Main-thread confined, so a plain read/write is enough.
         if (downloadRunning) {
             logLine("Download already running — ignoring the extra tap.")
@@ -1902,10 +1903,9 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
         downloadRunning = true
         updateDownloadFab()
         Thread {
-            var strictResult: dev.konraditurbe.osmosis.integrity.StrictTransferBatch.Result? = null
             try {
                 if (strictPocket) {
-                    strictResult = dev.konraditurbe.osmosis.integrity.StrictTransferBatch.run(jobs,listener) { job,tick ->
+                    dev.konraditurbe.osmosis.integrity.StrictTransferBatch.run(jobs,listener) { job,tick ->
                         if (transferSession==null || capturedNetwork==null)
                             dev.konraditurbe.osmosis.ledger.LedgerCoordinator.TransferResult.REVIEW_REQUIRED
                         else dev.konraditurbe.osmosis.ledger.LedgerCoordinator.get(applicationContext)
@@ -1913,22 +1913,12 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
                                 { transferActivityClosed || connectionResources.transferNetwork!=capturedNetwork ||
                                     CameraConnectionService.runtime(applicationContext).snapshot().epoch != capturedCameraEpoch ||
                                     CameraConnectionService.runtime(applicationContext).activeTransfer() != transferLease ||
-                                    (autonomousLease != null && !CameraConnectionService.backupRuntime(applicationContext).accepts(autonomousLease)) ||
                                     !dev.konraditurbe.osmosis.connection.CameraSessionCoordinator.mayUseCameraTraffic(
                                         CameraConnectionService.runtime(applicationContext).snapshot()) },tick)
                     }
-                } else MediaDownloader(this, http, ::logLine).run(jobs, listener)
+                } else MediaDownloader(this, HttpClient("192.168.2.1", ::logLine, capturedNetwork), ::logLine).run(jobs, listener)
             } finally {
                 transferLease?.let { CameraConnectionService.runtime(applicationContext).releaseTransfer(it) }
-                // A stale/failed run cannot promote media state; this only releases the scheduler's
-                // ephemeral generation after the ledger has retained any PARTIAL evidence.  A
-                // scheduler lease is completed only when every submitted strict job reached its
-                // durable outcome; partial/review work remains explicitly actionable.
-                autonomousLease?.let {
-                    val result = strictResult
-                    if (result != null && result.failed == 0) CameraConnectionService.backupRuntime(applicationContext).complete(it)
-                    else CameraConnectionService.backupRuntime(applicationContext).fail(it, "TRANSFER_REVIEW_REQUIRED")
-                }
                 // In a finally, not in onComplete: a throw anywhere in the run would otherwise wedge
                 // the guard on and leave Download dead for the rest of the session.
                 main.post {

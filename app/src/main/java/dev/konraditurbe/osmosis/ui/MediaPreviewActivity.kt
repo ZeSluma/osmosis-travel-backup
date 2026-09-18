@@ -32,6 +32,7 @@ import dev.konraditurbe.osmosis.core.PrivacySafeDiagnostics
 import dev.konraditurbe.osmosis.core.TrimRange
 import dev.konraditurbe.osmosis.core.previewCandidates
 import dev.konraditurbe.osmosis.core.urlPath
+import dev.konraditurbe.osmosis.connection.CameraConnectionService
 import dev.konraditurbe.osmosis.net.FrameCapture
 import dev.konraditurbe.osmosis.net.Highlights
 import dev.konraditurbe.osmosis.net.HttpClient
@@ -50,7 +51,7 @@ import dev.konraditurbe.osmosis.net.ImageLoader
 class MediaPreviewActivity : AppCompatActivity() {
 
     private val main = Handler(Looper.getMainLooper())
-    private val http by lazy { HttpClient(ip) { diagnosticLog(it) } }
+    private val http by lazy { HttpClient(ip, { diagnosticLog(it) }, CameraConnectionService.resources(applicationContext).transferNetwork) }
 
     private lateinit var videoView: VideoView
     private lateinit var photoView: ImageView
