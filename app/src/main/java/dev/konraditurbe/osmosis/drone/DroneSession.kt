@@ -222,26 +222,10 @@ class DroneSession(
         return files
     }
 
-    /**
-     * Dump an undecodable catalogue in the format `tools/hexdump_to_bin.py` turns back into a fixture.
-     *
-     * File-only and gated on "Save logs", like the camera's: a dump in logcat evicts the session that
-     * explains it. Capped, because the tail of an unparsed blob is a transcript of the aircraft talking
-     * to itself, and a log too big to send is a log nobody sends.
-     */
+    /** Drone catalogue bytes can contain paths/metadata and are never written to normal diagnostics. */
     private fun dumpCatalogue(blob: ByteArray) {
-        if (!dev.konraditurbe.osmosis.core.FileLog.isOn()) {
-            log("datalink: turn on \"Save logs\" and reconnect to capture the layout")
-            return
-        }
-        dev.konraditurbe.osmosis.core.ManifestHex.dump(log, blob, CATALOGUE_DUMP_MAX_BYTES, "CATALOGUE")
+        log("datalink: drone catalogue content suppressed (${blob.size}B)")
     }
-
-    /**
-     * Cap on an undecodable-catalogue dump. A page is ~45 records; at any plausible record size 64 kB
-     * carries the whole thing, and the layout is legible from the first few in any case.
-     */
-    private val CATALOGUE_DUMP_MAX_BYTES = 64_000
 
     /** True if [pl] is a `0x4a` state frame of [subtype] carrying [seq] — the drone's transfer signal. */
     private fun isState(pl: ByteArray, subtype: Int, seq: Int): Boolean =

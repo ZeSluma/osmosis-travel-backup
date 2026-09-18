@@ -44,11 +44,7 @@ class CameraSession(
      * the log stops being something a tester can send. Lines only reach a file when "Save logs" is
      * on, so an ordinary run pays nothing but logcat.
      */
-    private var dumpBudgetBytes = 80_000
-
     /** Ceiling on a single dump, budgeted or not — the head carries the layout, the tail is noise. */
-    private val DUMP_MAX_BYTES = 64_000
-
     /**
      * The status keys to subscribe to (`0x00/0x99`). Eight, deliberately — NOT Mimo's 54.
      *
@@ -2061,32 +2057,10 @@ class CameraSession(
      * never travel on this datalink, so this is safe for the shared "Save logs" file.
      */
     private fun dumpManifest(bytes: ByteArray, budgeted: Boolean = true) {
-        // File-only. The dump exists to turn a *saved* log into a fixture; sending it to logcat as
-        // well actively destroys the thing it was meant to help with. Measured on a Nano browse: the
-        // 256 KiB ring buffer ended up 61% hex with only 39 of our lines left in it, and the whole
-        // session — connect, storage pushes, the manifest summary — had already been evicted by the
-        // time anyone went looking. Logging off means no dump, which is also the right default.
-        if (!dev.konraditurbe.osmosis.core.FileLog.isOn()) return
-        if (budgeted) {
-            if (dumpBudgetBytes <= 0) return
-            if (bytes.size > dumpBudgetBytes) {
-                log("datalink: manifest hex suppressed (${bytes.size}B, budget ${dumpBudgetBytes}B left) " +
-                    "— earlier pages in this log already carry the layout")
-                dumpBudgetBytes = 0
-                return
-            }
-            dumpBudgetBytes -= bytes.size
-        }
-        // Hard cap even on the unbudgeted failure path. "A decode failure is rare, so dump it all"
-        // was wrong: when reassembly finds no chunks, manifestBytes hands back the whole RAW blob —
-        // every datagram the collect loop hoovered up, telemetry included. A Pocket 3 log did this
-        // twice in 90 s, 541 KB and 878 KB, and 21000 of that log's 44578 lines were the two dumps.
-        // The head is where the layout lives; past that it is a transcript of the camera talking to
-        // itself, and a log too big to send is a log we do not get.
-        val shown = minOf(bytes.size, DUMP_MAX_BYTES)
-        // The declared size must be what is actually dumped: tools/hexdump_to_bin.py verifies the
-        // recovered length against it and drops the block on a mismatch. Total goes after it.
-        dev.konraditurbe.osmosis.core.ManifestHex.dump({ log(it) }, bytes, shown)
+        // Manifest bytes carry filenames and media metadata. Retain only a size/reason diagnostic;
+        // neither saved logs nor logcat may become a source of media-content leakage.
+        log("datalink: manifest content suppressed (${bytes.size}B, " +
+            if (budgeted) "routine decode" else "decode-failure diagnostic")
     }
 
     /** Fallback scrape: whole-blob regex, joining fields by filename base. No per-record structure or
