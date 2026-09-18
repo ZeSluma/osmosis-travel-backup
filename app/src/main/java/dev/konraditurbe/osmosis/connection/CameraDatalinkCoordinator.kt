@@ -78,8 +78,10 @@ class CameraDatalinkCoordinator(
             resources.pendingSession = null
             resources.datalink = datalink
             datalink.startKeepAlive()
-            val trusted = datalink.handshakeOk && enumeration.pagesEnded && !enumeration.failed && enumeration.files.isNotEmpty()
-            sessions.revalidate(epoch, trusted, !trusted)
+            val candidateTrusted = datalink.handshakeOk && enumeration.pagesEnded && !enumeration.failed && enumeration.files.isNotEmpty()
+            // The durable owner has the final word. A callback from a superseded epoch must not
+            // publish a locally plausible inventory to a replacement UI/ledger session.
+            val trusted = sessions.revalidate(epoch, candidateTrusted, !candidateTrusted) == SourceTrust.TRUSTED
             onReady(Observation(datalink, enumeration.files, enumeration.pagesEnded, enumeration.failed, trusted, started))
         }.start()
     }

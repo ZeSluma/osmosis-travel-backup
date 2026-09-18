@@ -70,4 +70,21 @@ class CameraDatalinkCoordinatorTest {
         assertTrue(checkNotNull(observation).enumerationComplete)
         assertEquals(ConnectionState.READY, runtime.snapshot().recovery.state)
     }
+
+    @Test fun nonemptyCallbackFromSupersededEpochCannotPublishTrustedInventory() {
+        val runtime = CameraSessionEffectCoordinator(DurableSessionRuntime(Store()))
+        val stale = runtime.begin().epoch
+        val current = runtime.begin().epoch
+        runtime.transportReady(current)
+        val done = CountDownLatch(1)
+        var observation: CameraDatalinkCoordinator.Observation? = null
+        val file = CameraFile(path = "/DCIM/test.mp4", thumbPath = "/MISC/test.thm", sizeBytes = 100)
+        CameraDatalinkCoordinator(CameraSessionResources(), runtime).start(stale, CameraModel.DEFAULT,
+            openSession = { FakeSession(listOf(listOf(file))) }, onLog = {}, onStatus = {}, onProgress = {},
+            onReady = { observation = it; done.countDown() })
+        assertTrue(done.await(2, TimeUnit.SECONDS))
+        assertFalse(checkNotNull(observation).sourceTrusted)
+        assertEquals(current, runtime.snapshot().epoch)
+        assertEquals(ConnectionState.REVALIDATING, runtime.snapshot().recovery.state)
+    }
 }
