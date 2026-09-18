@@ -641,7 +641,7 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
             ActivityCompat.requestPermissions(this, missing.toTypedArray(), REQ_GPS_PERMS)
             return
         }
-        logLine("GPS sync: connecting R-SDK to $name ($mac)")
+        logLine("GPS sync: connecting R-SDK to selected device")
         // Cross-flow interlock: free the BLE GATT from any offload session first, so the R-SDK link
         // owns it exclusively. Running both at once is what caused the field disconnections.
         teardownOffload()
@@ -685,7 +685,7 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
                         savedCameras.remove(r.mac)
                         credentialCache.remove(r.mac)
                         credentialWorker.execute { credentialStore.forget(r.mac) }
-                        logLine("Forgot ${r.name ?: r.mac}")
+                        logLine("Forgot saved camera association")
                         rebuildCameraList()
                         CameraShortcuts.refresh(this)   // drop it from the launcher shortcuts too
                     }
@@ -1646,20 +1646,20 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
             .setMessage(getString(R.string.delete_from_camera_message, f.name, hx))
             .setNegativeButton(R.string.cancel, null)
             .setPositiveButton(R.string.delete) { _, _ ->
-                logLine("DELETE requested: ${f.name} (handle $hx)")
+                logLine("DELETE requested for selected asset (handle present)")
                 toast(getString(R.string.deleting, f.name))
                 cmdExec.execute {
                     val status: Int? = runCatching { dl.deleteFiles(listOf(f.opHandle)) }.getOrNull()
                     main.post {
                         when (status) {
                             0 -> {
-                                logLine("DELETE OK (status 0x0000): ${f.name}")
+                                logLine("DELETE OK (status 0x0000)")
                                 toast(getString(R.string.deleted, f.name))
                                 removeFromGrid(f.path)
                             }
                             null -> { logLine("DELETE: no response (timeout / no session)."); toast(getString(R.string.delete_no_response)) }
                             else -> {
-                                logLine("DELETE failed: status 0x%04x for %s".format(status, f.name))
+                                logLine("DELETE failed: status 0x%04x".format(status))
                                 toast(getString(R.string.delete_failed, status))
                             }
                         }
@@ -1916,7 +1916,7 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
         val brand = Brand.of(addr, name, djiCid = modelId != null)
         val model = CameraModel.resolve(modelId, name, brand)
         if (discovered.put(addr, Cam(device, name, brand, rssi, modelId, model)) == null) {
-            logLine("found ${model.name} [$brand] (${name ?: addr}) rssi=$rssi" +
+            logLine("found ${model.name} [$brand] rssi=$rssi" +
                 if (!model.verified) "  🧪" else "")
             main.post { rebuildCameraList() }
             // App Shortcut target just appeared — connect immediately, no tap, as onCamRowClick would.
