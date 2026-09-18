@@ -24,6 +24,11 @@ class AutonomousBackupRuntime {
             return publish(null, BackupPhase.WAITING_FOR_TRUSTED_INVENTORY, "INCOMPLETE_UNTRUSTED") to emptySet()
         val downloads = plan.items.filter { it.action == PlanAction.DOWNLOAD }.map { it.assetId }.toSet()
         if (downloads.isEmpty()) return publish(null, BackupPhase.REPLICATION) to emptySet()
+        // Repeated observer/planner callbacks are normal.  They must not allocate a second writer
+        // for the same still-current camera session; a replacement epoch deliberately gets a new
+        // lease so its stale predecessor can no longer complete it.
+        if (current.phase == BackupPhase.CAMERA_TRANSFER && current.lease?.sessionEpoch == sessionEpoch)
+            return current to emptySet()
         val lease = BackupLease(sessionEpoch, ++generation)
         return publish(lease, BackupPhase.CAMERA_TRANSFER) to downloads
     }
@@ -34,6 +39,8 @@ class AutonomousBackupRuntime {
         if (!destinationAvailable) return publish(null, BackupPhase.USER_ACTION_REQUIRED, "SSD_UNAVAILABLE") to emptySet()
         val work = phoneProofs.filterValues { it.state == ReplicaState.VERIFIED }.keys
         if (work.isEmpty()) return publish(null, BackupPhase.IDLE) to emptySet()
+        if (current.phase == BackupPhase.REPLICATION && current.lease?.sessionEpoch == sessionEpoch)
+            return current to emptySet()
         val lease = BackupLease(sessionEpoch, ++generation)
         return publish(lease, BackupPhase.REPLICATION) to work
     }

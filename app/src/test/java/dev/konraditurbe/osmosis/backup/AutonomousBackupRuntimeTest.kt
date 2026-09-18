@@ -18,6 +18,12 @@ class AutonomousBackupRuntimeTest {
         val replacement=runtime.plan(2,SourceTrust.TRUSTED,complete,false).first.lease!!
         assertFalse(runtime.complete(old));assertTrue(runtime.accepts(replacement));assertTrue(runtime.complete(replacement))
     }
+    @Test fun repeatedPlannerCallbackCannotAllocateSecondCameraWriterForSameEpoch(){
+        val runtime=AutonomousBackupRuntime();val first=runtime.plan(7,SourceTrust.TRUSTED,complete,false)
+        val repeated=runtime.plan(7,SourceTrust.TRUSTED,complete,false)
+        assertEquals(first.first.lease,repeated.first.lease);assertTrue(repeated.second.isEmpty())
+        assertTrue(runtime.accepts(checkNotNull(first.first.lease)))
+    }
     @Test fun ssdWorkRequiresPhoneProofAndAvailabilityAndUserStopWins(){
         val runtime=AutonomousBackupRuntime();val good=ReplicaStatus(ReplicaState.VERIFIED,ReplicaProof(1,"a".repeat(64)))
         assertTrue(runtime.replication(4,mapOf("a" to good),false,false).second.isEmpty())
@@ -25,5 +31,11 @@ class AutonomousBackupRuntimeTest {
         assertEquals(BackupPhase.REPLICATION,state.phase);assertEquals(setOf("a"),work)
         assertTrue(runtime.replication(4,mapOf("a" to good),true,true).second.isEmpty())
         assertEquals(BackupPhase.STOPPED,runtime.snapshot().phase)
+    }
+    @Test fun repeatedReplicaSchedulerCallbackCannotAllocateSecondWriterForSameEpoch(){
+        val runtime=AutonomousBackupRuntime();val good=ReplicaStatus(ReplicaState.VERIFIED,ReplicaProof(1,"a".repeat(64)))
+        val first=runtime.replication(8,mapOf("a" to good),true,false)
+        val repeated=runtime.replication(8,mapOf("a" to good),true,false)
+        assertEquals(first.first.lease,repeated.first.lease);assertTrue(repeated.second.isEmpty())
     }
 }
