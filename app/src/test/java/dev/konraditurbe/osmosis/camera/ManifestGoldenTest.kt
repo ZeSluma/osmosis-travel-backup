@@ -33,7 +33,7 @@ class ManifestGoldenTest {
 
     private fun golden(f: String) =
         javaClass.classLoader!!.getResourceAsStream("manifests/golden/$f.golden.txt")!!
-            .readBytes().decodeToString().trimEnd('\n').split("\n")
+            .readBytes().decodeToString().replace("\r\n", "\n").trimEnd('\n').split("\n")
 
     /** One canonical, stable line per record — every field the UI reads, sorted by name. */
     private fun canon(files: List<dev.konraditurbe.osmosis.core.CameraFile>) = files.map {

@@ -108,3 +108,18 @@ recreation/observer and process-restoration contracts remain passing.
 APK SHA-256 `E137FE19F67444BDC69894E90BC401B28FEB07EBB142803213C1BF262D72B0C6` was built
 signer-compatible for an in-place S25 update. The S25 became unavailable to ADB before installation,
 so no update or data change occurred after this build.
+
+## Final software checkpoint and validation artifact
+
+The final software checkpoint ran `:app:testDebugUnitTest :app:assembleDebug` on 2026-09-18 and
+completed with 453 JVM tests, zero failures/errors and `BUILD SUCCESSFUL`. The former Windows-only
+golden failures were caused by CRLF fixture lines retaining `\\r` in the test expectation; the test
+now normalizes fixture line endings before comparison. It does not change manifest decoding or any
+production behavior.
+
+The final signer-compatible debug validation artifact is
+`app/build/outputs/apk/debug/app-debug.apk`, SHA-256
+`544D36B98B308E8DF0A9A6A356D6107FAD55B34FD981E1A2847392909E2FB915`.
+The associated one-session procedure is
+`docs/hardware/FINAL_CONSOLIDATED_VALIDATION_PROCEDURE.md`. This is software evidence only; all
+physical results remain pending or explicitly deferred in the validation queue.

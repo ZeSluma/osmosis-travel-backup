@@ -50,7 +50,14 @@ def batch_ready(state, queue):
     ids = [item["id"] for item in pending]
     if len(set(ids)) != len(ids):
         return False
-    grouped = [key for batch in queue.get("batches", []) for key in batch.get("items", [])]
+    grouped = []
+    for batch in queue.get("batches", []):
+        if batch.get("state") == "BLOCKED_DEFERRED_EXTERNAL_HARDWARE_TOPOLOGY":
+            continue
+        members = batch.get("items", [])
+        if any(key not in ids for key in members):
+            return False
+        grouped.extend(members)
     if sorted(grouped) != sorted(ids):
         return False
     for item in pending:
