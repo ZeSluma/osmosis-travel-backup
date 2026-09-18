@@ -41,6 +41,16 @@ dev.konraditurbe.osmosis.connection.*` could not configure because this host exp
 Room 2.8.5 requires Java 17+ (the project targets Java 21). This is `NOT_TESTED`, not a test pass;
 use the repository's isolated JDK 21 environment for the authoritative checkpoint.
 
+### Supported-toolchain checkpoint
+
+2026-09-18: a temporary, non-project Temurin 21 and Android API 36 SDK allowed a clean build.
+`testDebugUnitTest --tests dev.konraditurbe.osmosis.connection.*` passed **12 tests, zero
+failures/errors** (the durable runtime, coordinator, reducer and fault scenarios). `assembleDebug`
+also passed. One full `testDebugUnitTest` checkpoint executed **421 tests** and reported only the
+known baseline `ManifestGoldenTest` CRLF-sensitive fourteen failures; none is in the GATE-7
+connection/runtime package or caused by the new service/manifest integration. The baseline failure
+is retained, not waived or reclassified as a GATE-7 pass.
+
 Status: **GATE-7 INTERNAL MVP NOT_YET_PASS.** The service/runtime boundary and transfer fence are
 implemented, but the remaining Activity-owned BLE/datalink/AP effect adapters still need to be
 moved behind the service owner and verified by the targeted JVM/emulator suite. No background or

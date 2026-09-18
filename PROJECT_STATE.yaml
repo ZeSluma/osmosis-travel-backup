@@ -205,7 +205,7 @@ cost_policy: AGENTS.md cost-aware execution; targeted iterations, batched eviden
 execution_policy_source: AGENTS.md
 current_implementation_scope: GATE-7 lifecycle-safe camera-session ownership, bounded recovery and truth-preserving UI; no camera deletion, release, main modification or untrusted append/resume
 gate_7_software_status: IN_PROGRESS_UNVERIFIED
-gate_7_checkpoint: Durable epoch/recovery runtime, connectedDevice host declaration, observer projection and strict-transfer epoch/generation fence published at d2da81828561f5f9fe492aa5c0e0b3bb0405672d. Authoritative JVM/emulator verification remains NOT_TESTED: this host only exposes Java11, Temurin21 installation has no applicable installer, and public Actions API returns no run. Activity-owned BLE/datalink/AP effect adapters remain to migrate; no G7 PASS claim.
+gate_7_checkpoint: Durable epoch/recovery runtime, connectedDevice host declaration, observer projection and strict-transfer epoch/generation fence published at d2da81828561f5f9fe492aa5c0e0b3bb0405672d. Temporary Java21/API36 verification: focused G7 unit suite 12 PASS; assembleDebug PASS; full unit checkpoint421 ran with only14 known CRLF-sensitive ManifestGolden baseline failures, no G7 failure. Activity-owned BLE/datalink/AP effect adapters remain to migrate; emulator/HIL and no G7 PASS claim.
 ledger_branch_parent: a58d858ecfd404579960d9a32960e151071f9fd3
 gate_1_status: PASS
 gate_2_status: PASS
