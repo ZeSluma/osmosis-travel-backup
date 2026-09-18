@@ -43,6 +43,19 @@ data class ReplicaRow(val assetId: String, val destination: String, val relative
     val state: String, val committedLength: Long, val ownerEpoch: Long, val localLocator: String? = null,
     @ColumnInfo(defaultValue = "'NOT_SCANNED'") val localPresence: String = "NOT_SCANNED")
 
+/** A user-approved SAF tree. The URI is local durable configuration, never diagnostic output. */
+@Entity(tableName = "storage_destinations", indices = [Index(value = ["treeUri"], unique = true)])
+data class StorageDestinationRow(@PrimaryKey val id: String, val treeUri: String, val domain: String,
+    val state: String, val lastValidatedAt: String?, val failure: String?)
+
+/** Append-only independently read-back replica proof; camera-source equivalence is intentionally absent. */
+@Entity(tableName = "replica_integrity", foreignKeys = [
+    ForeignKey(entity = AssetRow::class, parentColumns = ["id"], childColumns = ["assetId"]),
+    ForeignKey(entity = StorageDestinationRow::class, parentColumns = ["id"], childColumns = ["destinationId"])
+], indices = [Index("assetId"), Index("destinationId")])
+data class ReplicaIntegrityRow(@PrimaryKey val id: String, val assetId: String, val destinationId: String,
+    val locator: String, val bytes: Long, val sha256: String, val state: String, val ownerEpoch: Long)
+
 @Entity(tableName = "local_candidates", primaryKeys = ["assetId", "locator"], foreignKeys = [
     ForeignKey(entity = AssetRow::class, parentColumns = ["id"], childColumns = ["assetId"])], indices = [Index("locator")])
 data class LocalCandidateRow(val assetId: String, val locator: String, val displayName: String,
@@ -74,6 +87,10 @@ interface LedgerDao {
     @Query("SELECT assets.* FROM assets INNER JOIN membership ON assets.id=membership.assetId WHERE membership.snapshotId=:snapshot AND assets.size>0 ORDER BY assets.id") fun assets(snapshot: String): List<AssetRow>
     @Query("SELECT * FROM replicas WHERE assetId=:asset AND destination='PHONE_LOCAL'") fun replica(asset: String): ReplicaRow?
     @Upsert fun replica(row: ReplicaRow)
+    @Query("SELECT * FROM storage_destinations WHERE id=:id") fun storageDestination(id: String): StorageDestinationRow?
+    @Upsert fun storageDestination(row: StorageDestinationRow)
+    @Query("SELECT * FROM replica_integrity WHERE assetId=:asset AND destinationId=:destination ORDER BY id") fun replicaProofs(asset: String, destination: String): List<ReplicaIntegrityRow>
+    @Insert fun replicaProof(row: ReplicaIntegrityRow)
     @Query("SELECT * FROM local_candidates WHERE assetId=:asset ORDER BY locator") fun localCandidates(asset: String): List<LocalCandidateRow>
     @Query("SELECT COUNT(DISTINCT lc.assetId) FROM local_candidates lc JOIN assets a ON a.id=lc.assetId WHERE lc.locator=:locator AND lc.assetId!=:asset AND a.size>0 AND lc.status NOT IN ('MISSING','UNAVAILABLE')")
     fun otherCandidateOwners(locator: String, asset: String): Int

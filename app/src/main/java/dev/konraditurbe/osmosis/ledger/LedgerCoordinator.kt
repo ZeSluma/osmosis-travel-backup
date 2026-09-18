@@ -7,6 +7,11 @@ import java.time.Instant
 import java.time.ZoneId
 import java.util.UUID
 import java.util.concurrent.Executors
+import android.net.Uri
+import dev.konraditurbe.osmosis.backup.PhoneToExternalReplica
+import dev.konraditurbe.osmosis.backup.ReplicaProof
+import dev.konraditurbe.osmosis.backup.ReplicaVerification
+import dev.konraditurbe.osmosis.integrity.EvidenceResult
 
 /** No UI, sockets, credentials or media payloads belong to this adapter. */
 object CameraLedgerAdapter {
@@ -69,6 +74,38 @@ class LedgerCoordinator private constructor(context: Context) {
         }
     }
     enum class TransferResult { TRANSFERRED_UNVERIFIED, EXISTING_UNVERIFIED, REVIEW_REQUIRED }
+    data class PhoneReplicaCandidate(val assetId:String,val locator:String,val proof:ReplicaProof,val finalName:String,val mime:String)
+
+    /** Only an owned, published, independently read-back phone receipt becomes SSD replication work. */
+    fun phoneReplicaCandidates(session:String,destinationId:String,result:(List<PhoneReplicaCandidate>)->Unit) {
+        writer.execute {
+            val candidates=runCatching {
+                val lease=checkNotNull(latestLease);check(session==activeSession && session==leaseSession)
+                database.ledger().assets(lease.snapshotId).mapNotNull { asset ->
+                    val replica=database.ledger().replica(asset.id) ?: return@mapNotNull null
+                    if(replica.localLocator==null || asset.size==null) return@mapNotNull null
+                    val receipt=database.integrity().transfers(asset.id).lastOrNull {
+                        it.locator==replica.localLocator && it.expectedBytes==asset.size && it.result==EvidenceResult.CONFIRMED.name
+                    } ?: return@mapNotNull null
+                    val published=database.attempts().forAsset(asset.id).any { it.state=="PUBLISHED" && it.locator==replica.localLocator && it.checkpoint==asset.size }
+                    if(!published) return@mapNotNull null
+                    if(database.ledger().replicaProofs(asset.id,destinationId).any { it.state=="VERIFIED" && it.bytes==asset.size && it.sha256==receipt.localRevision }) return@mapNotNull null
+                    val leaf=replica.relativePath.substringAfterLast('/').replace(Regex("[^A-Za-z0-9._-]"),"_")
+                    PhoneReplicaCandidate(asset.id,replica.localLocator,ReplicaProof(asset.size,receipt.localRevision),leaf,
+                        if(leaf.endsWith(".mov",true))"video/quicktime" else "video/mp4")
+                }
+            }.getOrDefault(emptyList())
+            result(candidates)
+        }
+    }
+
+    fun replicateToExternal(session:String,candidate:PhoneReplicaCandidate,destinationId:String,tree:Uri,
+        cancelled:()->Boolean):ReplicaVerification.Result = writer.submit<ReplicaVerification.Result> {
+        if(session!=activeSession || session!=leaseSession || cancelled()) return@submit ReplicaVerification.Result.Incomplete(0,"STALE_SESSION")
+        val lease=latestLease ?: return@submit ReplicaVerification.Result.Incomplete(0,"NO_LEASE")
+        PhoneToExternalReplica(appContext.contentResolver,database).replicate(lease,candidate.assetId,Uri.parse(candidate.locator),
+            candidate.proof,destinationId,tree,candidate.finalName,candidate.mime,cancelled)
+    }.get()
 
     /** Refresh from durable exact-identity rows after observation/transfer; never read media. */
     fun displayStates(session:String,files:List<CameraFile>,result:(Map<String,BackupDisplay>)->Unit) {

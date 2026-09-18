@@ -1,0 +1,39 @@
+package dev.konraditurbe.osmosis.backup
+
+import dev.konraditurbe.osmosis.ledger.*
+import java.time.Instant
+import java.util.UUID
+import java.util.concurrent.Callable
+
+/** Durable SSD destination and replica evidence, owned by the ledger transaction boundary. */
+class ReplicaEvidenceRepository(private val db: LedgerDatabase) {
+    private fun <T> tx(block: () -> T): T = db.runInTransaction(Callable(block))
+
+    fun registerDestination(id: String, treeUri: String, available: Boolean, now: Instant = Instant.now()) = tx {
+        require(id.matches(Regex("[A-Za-z0-9._-]{1,120}")))
+        require(treeUri.startsWith("content://") && !treeUri.contains('?') && !treeUri.contains('#'))
+        val next = StorageDestinationRow(id, treeUri, StorageDomain.EXTERNAL_SAF.name,
+            if (available) "AVAILABLE" else "UNAVAILABLE", now.toString(), null)
+        val old = db.ledger().storageDestination(id)
+        if (old == null) db.ledger().storageDestination(next)
+        else require(old.treeUri == treeUri) { "DESTINATION_IDENTITY_CHANGED_REVIEW_REQUIRED" }
+    }
+
+    fun availability(id: String, available: Boolean, reason: String? = null, now: Instant = Instant.now()) = tx {
+        val old = checkNotNull(db.ledger().storageDestination(id))
+        db.ledger().storageDestination(old.copy(state = if (available) "AVAILABLE" else "UNAVAILABLE",
+            lastValidatedAt = now.toString(), failure = if (available) null else reason ?: "UNAVAILABLE"))
+    }
+
+    fun recordVerified(lease: EnumerationLease, assetId: String, destinationId: String, locator: String, proof: ReplicaProof) = tx {
+        check(db.ledger().sourceById(lease.sourceId)?.ownerEpoch == lease.epoch) { "STALE_REPLICA_OWNER" }
+        val asset = checkNotNull(db.ledger().asset(assetId))
+        require(asset.sourceId == lease.sourceId && asset.lastEpoch == lease.epoch)
+        val destination = checkNotNull(db.ledger().storageDestination(destinationId))
+        require(destination.state == "AVAILABLE" && proof.bytes > 0 && proof.sha256.matches(Regex("[0-9a-f]{64}")))
+        require(locator.startsWith("content://") && !locator.contains('?') && !locator.contains('#'))
+        val row = ReplicaIntegrityRow(key(assetId, destinationId, locator, proof.bytes, proof.sha256, lease.epoch),
+            assetId, destinationId, locator, proof.bytes, proof.sha256, ReplicaState.VERIFIED.name, lease.epoch)
+        if (db.ledger().replicaProofs(assetId, destinationId).none { it.id == row.id }) db.ledger().replicaProof(row)
+    }
+}

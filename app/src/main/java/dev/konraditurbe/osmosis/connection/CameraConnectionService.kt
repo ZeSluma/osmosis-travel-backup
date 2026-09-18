@@ -9,6 +9,7 @@ import android.os.IBinder
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import dev.konraditurbe.osmosis.R
+import dev.konraditurbe.osmosis.backup.AutonomousBackupRuntime
 
 /**
  * Lifecycle-safe host for future camera-only BLE/AP/datalink effect adapters. It owns persistent
@@ -25,7 +26,7 @@ class CameraConnectionService : Service() {
             // The explicit UI command has already allocated the epoch before requesting this host.
             // Starting it again here would invalidate callbacks that were queued in that same command.
             ACTION_START -> { ensureChannel(); startForeground(NOTIFICATION_ID, notification()) }
-            ACTION_STOP -> { runtime(this).stop(); stopForeground(STOP_FOREGROUND_REMOVE); stopSelf() }
+            ACTION_STOP -> { runtime(this).stop(); backupRuntime(this).stop(); stopForeground(STOP_FOREGROUND_REMOVE); stopSelf() }
         }
         return START_NOT_STICKY // process restart restores state but never silently resumes user work.
     }
@@ -42,11 +43,16 @@ class CameraConnectionService : Service() {
         const val ACTION_STOP = "dev.konraditurbe.osmosis.connection.STOP"
         @Volatile private var instance: DurableSessionRuntime? = null
         @Volatile private var resourcesInstance: CameraSessionResources? = null
+        @Volatile private var backupRuntimeInstance: AutonomousBackupRuntime? = null
         fun runtime(context: Context): DurableSessionRuntime = instance ?: synchronized(this) {
             instance ?: DurableSessionRuntime(PreferenceSessionStore(context)).also { instance = it }
         }
         fun resources(context: Context): CameraSessionResources = resourcesInstance ?: synchronized(this) {
             resourcesInstance ?: CameraSessionResources().also { resourcesInstance = it }
+        }
+        /** Camera and local-replica scheduling belongs to the application owner, never an Activity. */
+        fun backupRuntime(context: Context): AutonomousBackupRuntime = backupRuntimeInstance ?: synchronized(this) {
+            backupRuntimeInstance ?: AutonomousBackupRuntime().also { backupRuntimeInstance = it }
         }
         fun host(context: Context) {
             ContextCompat.startForegroundService(context, Intent(context, CameraConnectionService::class.java).setAction(ACTION_START))

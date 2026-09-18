@@ -184,6 +184,7 @@
     <string name="sd_card">SD card</string>
     <string name="internal_storage">Internal</string>
     <string name="storage">Storage</string>
+    <string name="external_storage">SSD</string>
     <string name="storage_line_unknown">%1$s · —</string>
     <string name="storage_line_total">%1$s · %2$.1f / %3$.1f GB</string>
     <string name="storage_line_free">%1$s · %2$.1f GB free</string>

@@ -56,6 +56,7 @@ import dev.konraditurbe.osmosis.connection.CameraConnectionService
 import dev.konraditurbe.osmosis.connection.ConnectionEvent
 import dev.konraditurbe.osmosis.connection.ConnectionReason
 import dev.konraditurbe.osmosis.connection.SessionLease
+import dev.konraditurbe.osmosis.backup.ExternalDestinationManager
 import com.google.android.material.progressindicator.LinearProgressIndicator
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -103,6 +104,17 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
 
     private var btAdapter: BluetoothAdapter? = null
     private val connectionResources by lazy { CameraConnectionService.resources(applicationContext) }
+    private val externalDestination by lazy { ExternalDestinationManager(applicationContext) }
+    private val externalStorageLauncher = registerForActivityResult(ActivityResultContracts.OpenDocumentTree()) { tree ->
+        if (tree == null) return@registerForActivityResult
+        Thread {
+            val result = runCatching { externalDestination.configure(tree) }
+            main.post {
+                if (result.isSuccess) Toast.makeText(this, "External backup destination configured", Toast.LENGTH_SHORT).show()
+                else Toast.makeText(this, "External destination unavailable; no backup state changed", Toast.LENGTH_LONG).show()
+            }
+        }.start()
+    }
 
     // ---- download / AP-loss state (all main-thread confined) ----------------
     // One download run at a time. Without this every tap on Download spawned another thread over the
@@ -315,6 +327,7 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
         statusPill = findViewById(R.id.statusPill)
         savedCameras = SavedCameras(getSharedPreferences("osmosis", MODE_PRIVATE))
         findViewById<View>(R.id.btnRescan).setOnClickListener { startCameraScan(select = true) }
+        findViewById<View>(R.id.btnExternalStorage).setOnClickListener { externalStorageLauncher.launch(null) }
         cameraList.setOnItemClickListener { _, _, pos, _ -> onCamRowClick(pos) }
         cameraList.setOnItemLongClickListener { _, _, pos, _ -> onCamRowLongClick(pos) }
         findViewById<View>(R.id.fabDownload).setOnClickListener { onDownloadClicked() }
@@ -635,6 +648,7 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
      *  can take the camera's single BLE link without contention. Safe to call when nothing is active. */
     private fun teardownOffload() {
         CameraConnectionService.runtime(applicationContext).stop()
+        CameraConnectionService.backupRuntime(applicationContext).stop()
         CameraConnectionService.stopHost(this)
         stopKeepalive()
         dev.konraditurbe.osmosis.net.Highlights.provider = null
@@ -1263,14 +1277,55 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
             .displayStates(session,target.filesForBackupDisplay()){states->main.post {
                 if(!transferActivityClosed && session==connectionResources.ledgerSession && adapter===target)target.setBackupStates(states)
             }}
-        // The planner queues only DOWNLOAD actions from a complete enumeration. It never starts a
-        // transfer, revisits partial/ambiguous items, or replaces a user's explicit queue decision.
+        // The service-owned scheduler receives only a complete, revalidated ledger plan. The UI
+        // mirrors the queue/progress but does not decide whether automatic camera IO is permitted.
         dev.konraditurbe.osmosis.ledger.LedgerCoordinator.get(applicationContext)
             .automaticDownloadPaths(session,target.filesForBackupDisplay()){paths->main.post {
                 if(!transferActivityClosed && session==connectionResources.ledgerSession && adapter===target && paths.isNotEmpty()) {
-                    target.queueWholePaths(paths);logLine("Backup plan ready: ${paths.size} new original(s) queued.")
+                    val cameraRuntime=CameraConnectionService.runtime(applicationContext)
+                    val lease=cameraRuntime.snapshot()
+                    val trust=if(dev.konraditurbe.osmosis.connection.CameraSessionCoordinator.mayUseCameraTraffic(lease))
+                        dev.konraditurbe.osmosis.connection.SourceTrust.TRUSTED else dev.konraditurbe.osmosis.connection.SourceTrust.INCOMPLETE_UNTRUSTED
+                    val scheduled=CameraConnectionService.backupRuntime(applicationContext)
+                        .plan(lease.epoch,trust,dev.konraditurbe.osmosis.ledger.LedgerCoordinator.get(applicationContext).latestPlan,lease.userStopped)
+                    if(scheduled.second.isNotEmpty() && scheduled.first.lease!=null) {
+                        target.queueWholePaths(paths.intersect(scheduled.second))
+                        logLine("Automatic backup started for ${scheduled.second.size} trusted new original(s).")
+                        onDownloadClicked(scheduled.first.lease)
+                    }
                 }
             }}
+        scheduleExternalReplication(session)
+    }
+
+    /** Sequentially replicate only read-back-confirmed phone receipts to the configured SAF tree. */
+    private fun scheduleExternalReplication(session:String) {
+        val tree=externalDestination.selectedTree() ?: return
+        val destinationId=externalDestination.destinationId() ?: return
+        if(!externalDestination.availability()) return
+        val ledger=dev.konraditurbe.osmosis.ledger.LedgerCoordinator.get(applicationContext)
+        ledger.phoneReplicaCandidates(session,destinationId) { candidates -> main.post {
+            if(session!=connectionResources.ledgerSession || candidates.isEmpty()) return@post
+            val camera=CameraConnectionService.runtime(applicationContext).snapshot()
+            val statuses=candidates.associate { it.assetId to dev.konraditurbe.osmosis.backup.ReplicaStatus(
+                dev.konraditurbe.osmosis.backup.ReplicaState.VERIFIED,it.proof) }
+            val scheduled=CameraConnectionService.backupRuntime(applicationContext)
+                .replication(camera.epoch,statuses,true,camera.userStopped)
+            val run=scheduled.first.lease ?: return@post
+            val work=candidates.filter { it.assetId in scheduled.second }
+            if(work.isEmpty()) return@post
+            Thread {
+                try {
+                    work.forEach { candidate -> ledger.replicateToExternal(session,candidate,destinationId,tree) {
+                        !CameraConnectionService.backupRuntime(applicationContext).accepts(run) ||
+                            CameraConnectionService.runtime(applicationContext).snapshot().userStopped
+                    } }
+                } finally {
+                    CameraConnectionService.backupRuntime(applicationContext).complete(run)
+                    main.post { if(session==connectionResources.ledgerSession) refreshBackupLabels() }
+                }
+            }.start()
+        }}
     }
 
     private fun renderSessionProjection(lease: SessionLease) {
@@ -1734,7 +1789,7 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
         onDownloadClicked()
     }
 
-    private fun onDownloadClicked() {
+    private fun onDownloadClicked(autonomousLease: dev.konraditurbe.osmosis.backup.BackupLease? = null) {
         // Re-entrancy guard. Main-thread confined, so a plain read/write is enough.
         if (downloadRunning) {
             logLine("Download already running — ignoring the extra tap.")
@@ -1830,12 +1885,16 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
                                 { transferActivityClosed || connectionResources.transferNetwork!=capturedNetwork ||
                                     CameraConnectionService.runtime(applicationContext).snapshot().epoch != capturedCameraEpoch ||
                                     CameraConnectionService.runtime(applicationContext).activeTransfer() != transferLease ||
+                                    (autonomousLease != null && !CameraConnectionService.backupRuntime(applicationContext).accepts(autonomousLease)) ||
                                     !dev.konraditurbe.osmosis.connection.CameraSessionCoordinator.mayUseCameraTraffic(
                                         CameraConnectionService.runtime(applicationContext).snapshot()) },tick)
                     }
                 } else MediaDownloader(this, http, ::logLine).run(jobs, listener)
             } finally {
                 transferLease?.let { CameraConnectionService.runtime(applicationContext).releaseTransfer(it) }
+                // A stale/failed run cannot promote media state; this only releases the scheduler's
+                // ephemeral generation after the ledger has retained any PARTIAL evidence.
+                autonomousLease?.let { CameraConnectionService.backupRuntime(applicationContext).complete(it) }
                 // In a finally, not in onComplete: a throw anywhere in the run would otherwise wedge
                 // the guard on and leave Download dead for the rest of the session.
                 main.post {

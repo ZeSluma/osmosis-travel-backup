@@ -13,7 +13,7 @@ import java.io.File
 @Database(entities = [SourceRow::class, SnapshotRow::class, RecordingRow::class, AssetRow::class,
     MemberRow::class, MembershipRow::class, ReplicaRow::class, LocalCandidateRow::class, CaptureEvidenceRow::class,
     IdentityObservationRow::class, TransferIntegrityRow::class, SourceEquivalenceRow::class, TransferAttemptRow::class,
-    ResumeEvidenceRow::class], version = 7, exportSchema = true)
+    ResumeEvidenceRow::class, StorageDestinationRow::class, ReplicaIntegrityRow::class], version = 8, exportSchema = true)
 abstract class LedgerDatabase : RoomDatabase() {
     abstract fun ledger(): LedgerDao
     abstract fun integrity(): IntegrityDao
@@ -62,12 +62,21 @@ abstract class LedgerDatabase : RoomDatabase() {
                 // Historic partials retain data and journal state but acquire no invented prefix/version proof.
             }
         }
+        val MIGRATION_7_8 = object : Migration(7, 8) {
+            override fun migrate(db:SupportSQLiteDatabase) {
+                db.execSQL("CREATE TABLE IF NOT EXISTS storage_destinations (id TEXT NOT NULL, treeUri TEXT NOT NULL, domain TEXT NOT NULL, state TEXT NOT NULL, lastValidatedAt TEXT, failure TEXT, PRIMARY KEY(id))")
+                db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS index_storage_destinations_treeUri ON storage_destinations (treeUri)")
+                db.execSQL("CREATE TABLE IF NOT EXISTS replica_integrity (id TEXT NOT NULL, assetId TEXT NOT NULL, destinationId TEXT NOT NULL, locator TEXT NOT NULL, bytes INTEGER NOT NULL, sha256 TEXT NOT NULL, state TEXT NOT NULL, ownerEpoch INTEGER NOT NULL, PRIMARY KEY(id), FOREIGN KEY(assetId) REFERENCES assets(id) ON UPDATE NO ACTION ON DELETE NO ACTION, FOREIGN KEY(destinationId) REFERENCES storage_destinations(id) ON UPDATE NO ACTION ON DELETE NO ACTION)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_replica_integrity_assetId ON replica_integrity (assetId)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_replica_integrity_destinationId ON replica_integrity (destinationId)")
+            }
+        }
         fun open(context: Context, name: String = "sync-ledger.db"): LedgerDatabase {
             require(name.matches(Regex("[A-Za-z0-9._-]+")))
             return Room.databaseBuilder(context.applicationContext, LedgerDatabase::class.java,
                 File(context.noBackupFilesDir, name).absolutePath)
                 .openHelperFactory(PreserveCorruptDatabaseFactory())
-                .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7)
+                .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8)
                 .build()
         }
     }
