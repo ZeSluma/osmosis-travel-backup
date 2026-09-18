@@ -1091,8 +1091,9 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
                 val ledger = dev.konraditurbe.osmosis.ledger.LedgerCoordinator.get(applicationContext)
                 val ledgerToken = ledger.newSession()
                 connectionResources.ledgerSession = ledgerToken
-                currentAddress?.let { address -> ledger.observe(address, ledgerToken, fixed, !dl.moreAvailable,
-                    observation.enumerationFailed || !dl.handshakeOk, observation.enumerationStarted) { planned ->
+                currentAddress?.let { address -> ledger.observe(address, ledgerToken, fixed, observation.enumerationComplete,
+                    !observation.sourceTrusted, observation.sourceTrusted, observation.sourceTrusted, observation.sourceTrusted,
+                    observation.enumerationStarted) { planned ->
                     // The ledger writer creates the trusted plan asynchronously. Schedule only after
                     // that durable plan exists; the initial projection otherwise sees no work.
                     if (planned) main.post { if (ledgerToken == connectionResources.ledgerSession) refreshBackupLabels() }
@@ -1100,9 +1101,26 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
                 logLine("MANIFEST: ${fixed.size} files — " + fixed.groupBy { it.storage }.entries.sortedBy { it.key }
                     .joinToString(", ") { (storage, files) -> "storage=$storage (${files.size} files)" } +
                     (if (dl.moreAvailable) " · more on scroll" else ""))
-                main.post { showGrid(fixed) }
+                main.post {
+                    if (observation.sourceTrusted) showGrid(fixed)
+                    else showUntrustedInventory()
+                }
             },
         )
+    }
+
+    /** Never render a post-connect empty/partial response as "the camera has no media". */
+    private fun showUntrustedInventory() {
+        setConnectProgress(100)
+        switchToGrid()
+        adapter = null
+        grid.adapter = null
+        imageLoader?.shutdown(); imageLoader = null
+        metaLoader?.shutdown(); metaLoader = null
+        updateDownloadFab()
+        backupSummary.text = "Camera inventory: revalidation incomplete — source retained as untrusted; no backup or cleanup action will run."
+        logLine("Inventory revalidation incomplete — retaining prior source evidence; no empty-source conclusion.")
+        toast("Camera inventory needs revalidation; retained source state was not changed.")
     }
 
     /**
@@ -1515,7 +1533,10 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
                 val address = pageLedgerAddress
                 if (token != null && address != null) {
                     dev.konraditurbe.osmosis.ledger.LedgerCoordinator.get(applicationContext)
-                        .observe(address, token, more, !dl.moreAvailable, fetched.isFailure) { planned ->
+                        .observe(address, token, more, pagesEnded = !dl.moreAvailable, failed = fetched.isFailure,
+                            storesComplete = !dl.moreAvailable && fetched.isSuccess,
+                            membersComplete = !dl.moreAvailable && fetched.isSuccess,
+                            stableGeneration = !dl.moreAvailable && fetched.isSuccess) { planned ->
                             if (planned) main.post { if (token == connectionResources.ledgerSession) refreshBackupLabels() }
                         }
                 }

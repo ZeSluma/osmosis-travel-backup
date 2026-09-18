@@ -69,3 +69,38 @@ The current artifact SHA-256
 clear-data, media operation, or database-content read occurred. The expected Room ledger file was
 absent before and after update, so no persisted ledger could be proven present or lost. The app
 process is stable and Bluetooth Scan/Connect permissions are granted.
+
+## Automatic reconnect: empty inventory safety incident
+
+With the current compatible build and persisted known-camera onboarding, the Pocket connected
+automatically after reopening Osmosis. The user did not tap Rescan, the camera row, media, or
+Download. This is a scoped **PASS** for automatic known-camera connection.
+
+The resulting gallery was empty although the immediately preceding real inventory had five videos,
+including a newly recorded asset and protected partial/local-copy evidence. This is a scoped
+**FAIL-CLOSED / INCOMPLETE_UNTRUSTED** post-connect enumeration observation, not an empty camera,
+deletion, completed sync, or cleanup eligibility. No known asset is inferred deleted and neither
+redundancy nor Safe-to-Clear is promoted.
+
+ADB evidence captured while the failure was present: package `1.4.4 (29)` updated at 14:32;
+`CameraConnectionService` foreground host active; durable runtime epoch `4`, state `READY`,
+`user_stopped=false`, and no active transfer. This rules out an explicit stop or an obviously stale
+session as the direct UI cause, but does not establish Pocket media API readiness. No media names,
+database contents, credentials, or GPS data were collected. The available log buffer contained no
+sanitized enumeration event for this interval.
+
+Source inspection then established a reproducible fail-open transition: a zero-result response was
+passed to the grid as an authoritative empty list, and ledger completeness was derived from
+`moreAvailable` rather than the enumerator's `pagesEnded` result. The completion call also hard-coded
+store/member/generation coverage to false, preventing a subsequently trusted automatic plan from
+becoming eligible. The repair performs one bounded fresh-session revalidation for empty/incomplete
+post-connect results; retained zero/incomplete results stay `REVALIDATING` and render an explicit
+untrusted state instead of "no media"; only a non-empty, complete, non-failed response may make the
+session and durable plan trusted. The repair is software-proven by targeted JVM source-session,
+recovery, enumerator, planner, and backup tests; API-36 process-restoration remains PASS. The
+recreation/background harness was updated to establish its synthetic live session after the
+intentional launcher epoch and is pending its final rerun.
+
+APK SHA-256 `E137FE19F67444BDC69894E90BC401B28FEB07EBB142803213C1BF262D72B0C6` was built
+signer-compatible for an in-place S25 update. The S25 became unavailable to ADB before installation,
+so no update or data change occurred after this build.

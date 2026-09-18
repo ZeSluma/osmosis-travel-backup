@@ -15,7 +15,10 @@ class CameraDatalinkCoordinator(
     data class Observation(
         val session: MediaSession,
         val files: List<CameraFile>,
+        val enumerationComplete: Boolean,
         val enumerationFailed: Boolean,
+        /** A zero-result response is not authoritative after automatic connection/recovery. */
+        val sourceTrusted: Boolean,
         val enumerationStarted: Instant,
     )
 
@@ -30,9 +33,8 @@ class CameraDatalinkCoordinator(
     ) {
         val generation = resources.datalinkGeneration.incrementAndGet()
         Thread {
-            var failed = false
             var started = Instant.now()
-            fun open(candidate: CameraModel): Pair<MediaSession, List<CameraFile>> {
+            fun open(candidate: CameraModel): Pair<MediaSession, dev.konraditurbe.osmosis.ledger.EnumerationBatch> {
                 onLog("=== media list [${candidate.name}] via udp/${candidate.datalinkPort} (poke=${candidate.tcpPoke}) ===")
                 val session = openSession(candidate)
                 session.onStatus = onStatus
@@ -40,8 +42,7 @@ class CameraDatalinkCoordinator(
                 resources.pendingSession = session
                 started = Instant.now()
                 val enumeration = LedgerEnumerator.enumerate(session)
-                failed = enumeration.failed
-                return session to enumeration.files
+                return session to enumeration
             }
             fun superseded(session: MediaSession): Boolean {
                 if (generation == resources.datalinkGeneration.get()) return false
@@ -50,7 +51,7 @@ class CameraDatalinkCoordinator(
                 return true
             }
             resources.datalink?.close()
-            var (datalink, files) = open(model)
+            var (datalink, enumeration) = open(model)
             if (superseded(datalink)) return@Thread
             if (!datalink.handshakeOk) {
                 val alternate = model.alternate()
@@ -58,15 +59,28 @@ class CameraDatalinkCoordinator(
                 runCatching { datalink.close() }
                 val retried = open(alternate)
                 datalink = retried.first
-                files = retried.second
+                enumeration = retried.second
                 if (datalink.handshakeOk) onLog("datalink: ${model.name} answered alternate udp/${alternate.datalinkPort}")
             }
             if (superseded(datalink)) return@Thread
+            // A transport-ready Pocket can transiently answer the first media query with no
+            // entries.  It is unsafe to call that a complete empty source: retry once with a
+            // fresh protocol session, then leave the source explicitly untrusted if it remains
+            // empty or incomplete.  This is bounded and does not turn into a background loop.
+            if (datalink.handshakeOk && (enumeration.files.isEmpty() || !enumeration.pagesEnded || enumeration.failed)) {
+                onLog("datalink: inventory incomplete/empty after session-ready — one bounded revalidation retry")
+                runCatching { datalink.close() }
+                val retried = open(model)
+                datalink = retried.first
+                enumeration = retried.second
+                if (superseded(datalink)) return@Thread
+            }
             resources.pendingSession = null
             resources.datalink = datalink
             datalink.startKeepAlive()
-            sessions.revalidate(epoch, !datalink.moreAvailable, failed || !datalink.handshakeOk)
-            onReady(Observation(datalink, files, failed, started))
+            val trusted = datalink.handshakeOk && enumeration.pagesEnded && !enumeration.failed && enumeration.files.isNotEmpty()
+            sessions.revalidate(epoch, trusted, !trusted)
+            onReady(Observation(datalink, enumeration.files, enumeration.pagesEnded, enumeration.failed, trusted, started))
         }.start()
     }
 }

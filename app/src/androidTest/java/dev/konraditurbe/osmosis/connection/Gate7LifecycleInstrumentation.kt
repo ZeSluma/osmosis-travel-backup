@@ -19,14 +19,17 @@ object Gate7LifecycleInstrumentation {
 
     private fun recreationAndBackground(instrumentation: Instrumentation, context: android.content.Context): String {
         val runtime = CameraConnectionService.runtime(context)
-        val lease = runtime.start()
-        runtime.callback(lease.epoch, ConnectionEvent.TRANSPORT_READY)
-        check(runtime.revalidated(lease.epoch, SourceObservation(true, false)) == SourceTrust.TRUSTED)
-        val transfer = checkNotNull(runtime.acquireTransfer(lease.epoch))
+        // A fresh launcher command intentionally begins a replacement epoch.  Establish the
+        // synthetic live session *after* that command, then prove recreation/background only
+        // observe the service-owned owner rather than replacing it.
         var activity = instrumentation.startActivitySync(Intent(context, MainActivity::class.java).apply {
             action = Intent.ACTION_MAIN; addCategory(Intent.CATEGORY_LAUNCHER); addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         })
         instrumentation.waitForIdleSync()
+        val lease = runtime.start()
+        runtime.callback(lease.epoch, ConnectionEvent.TRANSPORT_READY)
+        check(runtime.revalidated(lease.epoch, SourceObservation(true, false)) == SourceTrust.TRUSTED)
+        val transfer = checkNotNull(runtime.acquireTransfer(lease.epoch))
         instrumentation.runOnMainSync { activity.recreate() }
         instrumentation.waitForIdleSync()
         // Recreate must attach to, not replace, the service-owned active session/writer.

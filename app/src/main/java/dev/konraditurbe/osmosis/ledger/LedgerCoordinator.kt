@@ -53,6 +53,7 @@ class LedgerCoordinator private constructor(context: Context) {
         private set
 
     fun observe(association: String, session: String, files: List<CameraFile>, pagesEnded: Boolean, failed: Boolean,
+        storesComplete: Boolean = false, membersComplete: Boolean = false, stableGeneration: Boolean = false,
         startedAt: Instant = Instant.now(), onPlanReady: (Boolean) -> Unit = {}) {
         val captured = files.toList()
         val endedAt = Instant.now()
@@ -66,12 +67,12 @@ class LedgerCoordinator private constructor(context: Context) {
                 val lease = repository.begin(association, UUID.randomUUID().toString(), "MOUNT_MAPPING_ONLY", enumerationStart)
                 repository.reconcile(lease, inventory.values.map(CameraLedgerAdapter::asset), Instant.now(), ZoneId.systemDefault())
                 repository.reconcileLocal(lease, LocalMediaInventory(appContext).read(), Instant.now())
-                repository.finish(lease, endedAt, pagesEnded, false, false, false, failed)
+                repository.finish(lease, endedAt, pagesEnded, storesComplete, membersComplete, stableGeneration, failed)
                 latestPlan = repository.plan(lease.snapshotId)
                 latestLease = lease
                 leaseSession = session
                 status = if(pagesEnded && !failed) "PLANNED_COMPLETE_INVENTORY" else "PLANNED_INCOMPLETE_INVENTORY"
-                planned = pagesEnded && !failed
+                planned = pagesEnded && storesComplete && membersComplete && stableGeneration && !failed
                 // Bound in-memory sessions; durable generations and assets remain in Room.
                 if (inventories.size > 4) inventories.keys.firstOrNull { it != session }?.let { inventories.remove(it); enumerationStarts.remove(it) }
             } catch (_: Exception) {
