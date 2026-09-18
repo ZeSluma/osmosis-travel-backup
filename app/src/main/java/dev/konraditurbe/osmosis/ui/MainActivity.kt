@@ -102,10 +102,7 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
     private val main = Handler(Looper.getMainLooper())
 
     private var btAdapter: BluetoothAdapter? = null
-    private var scanner: OsmoScanner? = null
-    private var gattClient: GattClient? = null
     private val connectionResources by lazy { CameraConnectionService.resources(applicationContext) }
-    private var connecting = false
 
     // ---- download / AP-loss state (all main-thread confined) ----------------
     // One download run at a time. Without this every tap on Download spawned another thread over the
@@ -247,7 +244,7 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
             // Mimo keeps the paired link alive with 0x00/0x2b `01 01` roughly every 0.5-1 s (HCI
             // snoop), not by re-sending SetPairingPIN as we used to — re-pairing every tick is both
             // noisier and, on a sleeping camera, part of what got us dropped.
-            gattClient?.writeCommand(
+            connectionResources.gattClient?.writeCommand(
                 dev.konraditurbe.osmosis.duml.OsmoCommands.sessionPing(
                     dev.konraditurbe.osmosis.duml.OsmoCommands.SESSION_KEEPALIVE
                 )
@@ -424,9 +421,9 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
         // line is flushed, so nothing is lost if the process dies; the toggle closes it explicitly.
         stopKeepalive()
         connectionResources.datalink?.close()
-        scanner?.stop()
-        gattClient?.disconnect()
-        gattClient?.close()
+        connectionResources.scanner?.stop()
+        connectionResources.gattClient?.disconnect()
+        connectionResources.gattClient?.close()
         connectionResources.apJoiner?.release()
         imageLoader?.shutdown()
         metaLoader?.shutdown()
@@ -540,13 +537,13 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
         }
         autoPick = pick
         discovered.clear()
-        connecting = false
+        connectionResources.connecting = false
         selectorHint.text = getString(R.string.scanning)
         rebuildCameraList()
-        val s = OsmoScanner(adapter, this); scanner = s; s.start()
+        val s = OsmoScanner(adapter, this); connectionResources.scanner = s; s.start()
         main.postDelayed({
             s.stop()
-            if (connecting) return@postDelayed // auto-pick already connected
+            if (connectionResources.connecting) return@postDelayed // auto-pick already connected
             rebuildCameraList()
             // Test-hook auto-pick (`--es pick <name|brand>`) connects without a tap.
             autoPick?.let { pk ->
@@ -594,7 +591,7 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
         }
         camRows = savedRows + newRows
         cameraList.adapter = CameraListAdapter(camRows)
-        if (scanner?.isScanning() != true) {
+        if (connectionResources.scanner?.isScanning() != true) {
             selectorHint.text = if (camRows.isEmpty()) getString(R.string.no_cameras_hint)
             else getString(R.string.cameras_in_range, savedRows.count { it.inRange }, savedRows.size, newRows.size)
         }
@@ -649,8 +646,8 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
         // while its socket would keep holding udp/9004 against a camera the next connect is about to
         // handshake with. Closing it here is what actually frees the port.
         connectionResources.releaseTransport()
-        gattClient?.disconnect(); gattClient?.close(); gattClient = null
-        offloadMode = false; offloadTriggered = false; connecting = false
+        connectionResources.gattClient?.disconnect(); connectionResources.gattClient?.close(); connectionResources.gattClient = null
+        offloadMode = false; offloadTriggered = false; connectionResources.connecting = false
         // A stale datalinkStarted would make the next session's first join look like a rejoin and skip
         // startDatalink entirely, leaving the camera connected with no grid.
         // close() above cancels the gatt callback, so onDisconnected won't fire to reset these — do it
@@ -732,7 +729,7 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
         credsRequested = false
         activateState = -1
         wpa3FallbackDone = false
-        connecting = true
+        connectionResources.connecting = true
         setConnectProgress(3) // tap → connecting
         logLine("OFFLOAD [$currentBrand] $offloadSsid (${device.address})")
         // No wake broadcast here: an HCI snoop of Mimo waking a sleeping Nano showed it never
@@ -741,7 +738,7 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
         // onReady/onPaired. (DJI also documents a 'WKP' wake *broadcast*; an HCI snoop proved Mimo
         // never advertises, so it isn't used here — see MEDIA_PROTOCOL.md § "Waking a sleeping camera".)
         val gc = GattClient(this, this)
-        gattClient = gc
+        connectionResources.gattClient = gc
         gc.connect(device)
     }
 
@@ -849,7 +846,7 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
         val b = AlertDialog.Builder(this)
             .setTitle(getString(R.string.pairing_approval_title, currentModel.name))
             .setCancelable(false)
-            .setNegativeButton(R.string.cancel) { _, _ -> gattClient?.disconnect() }
+            .setNegativeButton(R.string.cancel) { _, _ -> connectionResources.gattClient?.disconnect() }
         if (currentModel.isDrone) {
             val view = layoutInflater.inflate(R.layout.dialog_drone_approval, null)
             view.findViewById<TextView>(R.id.approvalText).text = getString(R.string.drone_approval_message)
@@ -911,14 +908,14 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
         //   0x53/0x10 -> (creds) 0x07/0x07 -> 0x07/0x0e
         // 0x53/0x10 is the one that matters: the camera answers 01 00 00 00 and wakes.
         val c = dev.konraditurbe.osmosis.duml.OsmoCommands
-        main.postDelayed({ gattClient?.writeCommand(c.session5310()); logLine("sent 0x53/0x10 (wake)") }, 100)
+        main.postDelayed({ connectionResources.gattClient?.writeCommand(c.session5310()); logLine("sent 0x53/0x10 (wake)") }, 100)
         if (currentModel.isDrone) DronePairing.sendBleSetup(
-            write = { f -> gattClient?.writeCommand(f) },
+            write = { f -> connectionResources.gattClient?.writeCommand(f) },
             schedule = { delay, action -> main.postDelayed(action, delay) },
             log = ::logLine,
         )
-        main.postDelayed({ gattClient?.writeCommand(c.wifiQuery(0x07, id = 0x8007)) }, 900)
-        main.postDelayed({ gattClient?.writeCommand(c.wifiQuery(0x0E, id = 0x800E)) }, 1400)
+        main.postDelayed({ connectionResources.gattClient?.writeCommand(c.wifiQuery(0x07, id = 0x8007)) }, 900)
+        main.postDelayed({ connectionResources.gattClient?.writeCommand(c.wifiQuery(0x0E, id = 0x800E)) }, 1400)
         main.postDelayed({
             if (offloadTriggered) return@postDelayed
             val addr = currentAddress
@@ -956,7 +953,7 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
         // models that never surfaced creds over BLE.
         if (offloadPass.isEmpty()) {
             logLine("OFFLOAD: no BLE creds — falling back to ConnectToWiFi(0x07/47)")
-            gattClient?.writeCommand(
+            connectionResources.gattClient?.writeCommand(
                 dev.konraditurbe.osmosis.duml.OsmoCommands.connectWifi(offloadSsid, offloadPass)
             )
         } else {
@@ -1874,7 +1871,7 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
                 if (!model.verified) "  🧪" else "")
             main.post { rebuildCameraList() }
             // App Shortcut target just appeared — connect immediately, no tap, as onCamRowClick would.
-            if (!connecting && !btnGps.isChecked && addr.equals(autoPickMac, ignoreCase = true)) {
+            if (!connectionResources.connecting && !btnGps.isChecked && addr.equals(autoPickMac, ignoreCase = true)) {
                 autoPickMac = null
                 main.post { onCameraChosen(device) }
             }
@@ -1896,7 +1893,7 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
         logLine("READY — sent session wake 0x00/0x2b[04 00] ok=$woke")
         main.postDelayed({
             val frame = dev.konraditurbe.osmosis.duml.OsmoCommands.setPairingPin(pairPin, identifier = pairIdentity())
-            val ok = gattClient?.writeCommand(frame) ?: false
+            val ok = connectionResources.gattClient?.writeCommand(frame) ?: false
             logLine("sent SetPairingPIN(pin=\"$pairPin\" id=\"${pairIdentity().take(8)}…\") ok=$ok")
         }, 120)
         // The keepalive used to re-send SetPairingPIN every 2 s, which doubled as a retry if the
@@ -1904,12 +1901,12 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
         // retry explicitly until the camera answers — but stop once paired, so we don't re-pair.
         for (delay in longArrayOf(2500, 5000)) {
             main.postDelayed({
-                if (!credsRequested && lastPairStatus == -99 && gattClient != null) {
+                if (!credsRequested && lastPairStatus == -99 && connectionResources.gattClient != null) {
                     logLine("pairing: no reply yet — re-sending SetPairingPIN")
                     // Must carry the SAME identity as the first attempt. This retry used to omit it and
                     // fall back to the camera default, so a dropped first write silently re-paired a
                     // drone under the wrong identity — and, for the rotation test, quietly undid it.
-                    gattClient?.writeCommand(
+                    connectionResources.gattClient?.writeCommand(
                         dev.konraditurbe.osmosis.duml.OsmoCommands.setPairingPin(pairPin, identifier = pairIdentity())
                     )
                 }
@@ -1927,7 +1924,7 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
             val respPayload = if (parsed.cmdSet == 0x00 && parsed.cmdId == 0x81)
                 dev.konraditurbe.osmosis.duml.OsmoCommands.APP_DEVICE_INFO else parsed.payload
             val resp = DjiMessage(respTarget, parsed.id, respType, respPayload).encode()
-            val ok = gattClient?.writeCommand(resp) ?: false
+            val ok = connectionResources.gattClient?.writeCommand(resp) ?: false
             val rk = (parsed.cmdSet shl 8) or parsed.cmdId
             if (reqSeen.add(rk)) {
                 logLine("REQ <- 0x%02x/%02x (flags40) -> responded ok=%s".format(parsed.cmdSet, parsed.cmdId, ok))
@@ -2031,7 +2028,7 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
     }
 
     override fun onDisconnected() {
-        connecting = false
+        connectionResources.connecting = false
         stopKeepalive()
         lastPairStatus = -99
         main.post {

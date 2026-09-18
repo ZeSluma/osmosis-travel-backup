@@ -2,6 +2,8 @@ package dev.konraditurbe.osmosis.connection
 
 import android.net.Network
 import dev.konraditurbe.osmosis.core.MediaSession
+import dev.konraditurbe.osmosis.ble.GattClient
+import dev.konraditurbe.osmosis.ble.OsmoScanner
 import dev.konraditurbe.osmosis.net.ApJoiner
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -11,6 +13,9 @@ import java.util.concurrent.atomic.AtomicInteger
  * must additionally use [DurableSessionRuntime]'s epoch fence before accepting their results.
  */
 class CameraSessionResources {
+    var scanner: OsmoScanner? = null
+    var gattClient: GattClient? = null
+    var connecting = false
     var apJoiner: ApJoiner? = null
     @Volatile var transferNetwork: Network? = null
     var wifiUp = false
