@@ -10,11 +10,13 @@ import dev.konraditurbe.osmosis.ui.MainActivity
  * may run on a paired target at a controlled no-transfer restart checkpoint. */
 class LauncherSecurityInstrumentation : Instrumentation() {
     private var ledgerPhase: String? = null
+    private var lifecyclePhase: String? = null
     private var readOnlyHardwareAudit = false
     private var timestampEvidence = false
     override fun onCreate(arguments: Bundle?) {
         super.onCreate(arguments)
         ledgerPhase = arguments?.getString("ledgerPhase")
+        lifecyclePhase = arguments?.getString("lifecyclePhase")
         readOnlyHardwareAudit = arguments?.getString("hardwareAudit") == "read-only"
         timestampEvidence = arguments?.getString("timestampEvidence") == "read-only"
         start()
@@ -36,6 +38,16 @@ class LauncherSecurityInstrumentation : Instrumentation() {
                 finish(Activity.RESULT_OK, results)
             } catch (error: IllegalStateException) {
                 results.putString("stream", error.message?.takeIf { it.startsWith("GATE2_ASSERTION_") } ?: "FAIL: synthetic ledger precondition")
+                finish(Activity.RESULT_CANCELED, results)
+            }
+            return
+        }
+        lifecyclePhase?.let { phase ->
+            try {
+                results.putString("stream", dev.konraditurbe.osmosis.connection.Gate7LifecycleInstrumentation.run(this, phase))
+                finish(Activity.RESULT_OK, results)
+            } catch (_: Throwable) {
+                results.putString("stream", "FAIL: synthetic GATE7 lifecycle assertion")
                 finish(Activity.RESULT_CANCELED, results)
             }
             return
@@ -109,7 +121,7 @@ class LauncherSecurityInstrumentation : Instrumentation() {
             }.get(activity)
             check(field("pairPin") == "osmo")
             check(field("autoPickMac") == null)
-            check(field("connecting") == false)
+            check(!dev.konraditurbe.osmosis.connection.CameraConnectionService.resources(activity.applicationContext).connecting)
             check(field("shortcutConfirmation") == null)
             check(!dev.konraditurbe.osmosis.camera.CameraSession.debugNoWriteRefresh)
             check(!dev.konraditurbe.osmosis.camera.CameraSession.debugPageForce)

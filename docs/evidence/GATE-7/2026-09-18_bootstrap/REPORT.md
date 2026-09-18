@@ -44,6 +44,13 @@ After moving the resource holder, the focused suite has **13 tests, zero failure
 additional release test verifies that transport teardown increments the datalink generation and
 clears camera-only AP/rejoin state, so a stale worker cannot publish through a released session.
 
+An emulator-only `lifecyclePhase=recreate` instrumentation mode now launches MainActivity, creates
+a ready fenced session and transfer lease through the service runtime, recreates the Activity, and
+asserts that the same epoch and writer lease remain owned by the service. The Android test APK
+compiled successfully. The temporary AVD creation tool could not be normalized after the vendor
+archive's nested layout, so execution remains `EMULATOR_NOT_RUN`; this is not represented as a
+lifecycle pass.
+
 Verification attempt: `gradlew.bat testDebugUnitTest --tests
 dev.konraditurbe.osmosis.connection.*` could not configure because this host exposes Java 11 and
 Room 2.8.5 requires Java 17+ (the project targets Java 21). This is `NOT_TESTED`, not a test pass;
