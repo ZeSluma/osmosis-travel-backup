@@ -4,6 +4,14 @@ Start from the final S25 artifact and the 2026-09-18 report. Do not repeat camer
 until a targeted build exists. The current hardware findings are reproducible and sufficient to
 authorize narrowly scoped software diagnosis.
 
+## Integrated completion contract
+
+This is one product objective, not three tickets. Do not return after an individual fix, test,
+build, commit, or partial device result. Continue until automatic power-cycle recovery, Rescan
+auto-selection, trusted durable planning, and one safe automatic scheduling path work together on
+the S25, or a genuine external hardware blocker prevents the integrated retest. Preserve every
+existing identity, integrity, no-duplicate-writer, explicit-stop, and fail-closed invariant.
+
 ## Priority order
 
 1. Trace why controlled Pocket power-off leaves no `CameraConnectionService`, despite a foreground

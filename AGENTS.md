@@ -8,6 +8,25 @@ Default primary: GPT-5.6 Terra / low. Default subagent: GPT-5.6 Luna / low, only
 
 ## No micro-loops — continuous implementation rule
 
+### Integrated closure rule — explicit user instruction (2026-09-18)
+
+When a hardware observation exposes related product failures, define one end-to-end acceptance
+chain and pursue it as a single integrated objective. Do **not** return control after one fix,
+unit test, build, commit, isolated hardware observation, or subsection closure. Continue
+diagnosis → minimal safe implementation → targeted regression → integrated build → focused
+hardware retest until the whole chain passes or only a genuine external hardware blocker remains.
+
+For the current Pocket completion chain, the acceptance outcome is jointly satisfied only when:
+
+1. a known camera reconnects automatically after a controlled recoverable loss;
+2. a saved camera that becomes in-range after Rescan is selected automatically exactly once;
+3. a complete non-empty source inventory produces a trusted durable automatic plan; and
+4. that plan can schedule safe new work without duplicate writers, false completion, or weakened
+   identity/integrity/completeness safeguards.
+
+Treat all four as one capability. A local success is evidence, not completion. This rule is
+subject only to higher-priority safety, authorization, and genuine human/external boundaries.
+
 Do not return control merely because one class, helper, test, fix, migration, commit, build, documentation update, gate subsection, or hardware-dependent subtask is complete. These are intermediate states. After each, reassess the integrated product/gate objective, continue the next safe software task, and repeat implementation → targeted test → fix → regression → next task.
 
 The normal work unit is an integrated objective with multiple implementation and scenario/fault-testing steps, not one change plus one report. A local blocked path is not a global stop: queue hardware facts with explicit PASS/FAIL/INCONCLUSIVE criteria and continue all other useful software work. Return only when the integrated software objective is mature and consolidated external validation is the remaining boundary, or for an actual product decision, credentials/approval, destructive action, unresolved safety/source-of-truth conflict, or a non-converging blocker that prevents further useful work. Before returning, ask whether a materially larger product capability now exists; if only a component or test was added, continue.
