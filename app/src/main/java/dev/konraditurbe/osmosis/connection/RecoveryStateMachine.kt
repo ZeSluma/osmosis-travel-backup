@@ -2,7 +2,7 @@ package dev.konraditurbe.osmosis.connection
 
 /** Pure, fenced recovery policy. Android/BLE/Wi-Fi adapters perform effects outside this reducer. */
 enum class ConnectionState { DISCONNECTED, CONNECTING, READY, RECONNECT_WAIT, RECONNECTING, REVALIDATING, USER_ACTION_REQUIRED, STOPPED }
-enum class ConnectionReason { NETWORK_LOSS, SESSION_DESYNC, CAMERA_POWER_OFF, PERMISSION_REVOKED, SOURCE_IDENTITY_CHANGED, UNKNOWN }
+enum class ConnectionReason { NETWORK_LOSS, SESSION_DESYNC, CAMERA_POWER_OFF, CAMERA_UNAVAILABLE, PERMISSION_REVOKED, SOURCE_IDENTITY_CHANGED, UNKNOWN }
 enum class ConnectionEvent { START, TRANSPORT_READY, SESSION_READY, LOST, RETRY_TIMER, REVALIDATED, STOP, USER_ACTION_RESOLVED }
 data class RecoverySnapshot(val state:ConnectionState=ConnectionState.DISCONNECTED,val attempts:Int=0,val reason:ConnectionReason?=null)
 
@@ -14,7 +14,7 @@ object RecoveryStateMachine {
         ConnectionEvent.SESSION_READY -> if(current.state in setOf(ConnectionState.CONNECTING,ConnectionState.REVALIDATING)) RecoverySnapshot(ConnectionState.READY) else current
         ConnectionEvent.REVALIDATED -> if(current.state==ConnectionState.REVALIDATING) RecoverySnapshot(ConnectionState.READY) else current
         ConnectionEvent.LOST -> when(reason) {
-            ConnectionReason.CAMERA_POWER_OFF,ConnectionReason.PERMISSION_REVOKED,ConnectionReason.SOURCE_IDENTITY_CHANGED -> RecoverySnapshot(ConnectionState.USER_ACTION_REQUIRED,current.attempts,reason)
+            ConnectionReason.CAMERA_POWER_OFF,ConnectionReason.CAMERA_UNAVAILABLE,ConnectionReason.PERMISSION_REVOKED,ConnectionReason.SOURCE_IDENTITY_CHANGED -> RecoverySnapshot(ConnectionState.USER_ACTION_REQUIRED,current.attempts,reason)
             else -> if(current.attempts>=MAX_TRANSIENT_ATTEMPTS) RecoverySnapshot(ConnectionState.USER_ACTION_REQUIRED,current.attempts,reason?:ConnectionReason.UNKNOWN)
                 else RecoverySnapshot(ConnectionState.RECONNECT_WAIT,current.attempts+1,reason?:ConnectionReason.UNKNOWN)
         }

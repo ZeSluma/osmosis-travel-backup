@@ -4,6 +4,11 @@ package dev.konraditurbe.osmosis.ui
 internal object LauncherInputPolicy {
     private val macPattern = Regex("[0-9A-Fa-f]{2}(:[0-9A-Fa-f]{2}){5}")
 
+    /** A bare launcher intent is explicit user discovery intent, unlike a restored task or deep link. */
+    fun freshLauncher(action: String?, hasData: Boolean, categories: Set<String>, hasExtras: Boolean): Boolean =
+        action == "android.intent.action.MAIN" && !hasData && !hasExtras &&
+            categories == setOf("android.intent.category.LAUNCHER")
+
     fun camera(
         action: String?,
         hasData: Boolean,

@@ -20,4 +20,11 @@ class RecoveryStateMachineTest {
         assertEquals(ConnectionState.USER_ACTION_REQUIRED,RecoveryStateMachine.reduce(RecoverySnapshot(ConnectionState.READY),ConnectionEvent.LOST,ConnectionReason.PERMISSION_REVOKED).state)
         assertEquals(ConnectionState.USER_ACTION_REQUIRED,RecoveryStateMachine.reduce(RecoverySnapshot(ConnectionState.READY,RecoveryStateMachine.MAX_TRANSIENT_ATTEMPTS),ConnectionEvent.LOST,ConnectionReason.NETWORK_LOSS).state)
     }
+    @Test fun unavailableCameraEndsProvisionalDiscoveryWithoutRetry() {
+        val connecting = RecoveryStateMachine.reduce(RecoverySnapshot(), ConnectionEvent.START)
+        val unavailable = RecoveryStateMachine.reduce(connecting, ConnectionEvent.LOST, ConnectionReason.CAMERA_UNAVAILABLE)
+        assertEquals(ConnectionState.USER_ACTION_REQUIRED, unavailable.state)
+        assertEquals(ConnectionReason.CAMERA_UNAVAILABLE, unavailable.reason)
+        assertEquals(0, unavailable.attempts)
+    }
 }

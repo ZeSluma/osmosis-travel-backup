@@ -6,10 +6,10 @@ execution: {
   "scope": "PROJECT_WIDE_PERMANENT",
   "primary_progress_metric": "VISIBLE_SAFE_END_TO_END_PRODUCT_CAPABILITY_PER_CREDIT",
   "cost_policy": {"priority": "HARD", "primary_model": "gpt-5.6-terra", "primary_reasoning": "low", "subagent_model": "gpt-5.6-luna", "subagent_reasoning": "low", "automatic_escalation": false, "expensive_model_requires_explicit_approval": true, "project_config_activation": "PENDING_APPROVAL_RUNTIME_VALIDATION", "active_root_switch": "USER_CLIENT_SWITCH_REQUIRED_FROM_GPT6_ASTRA"},
-  "software_work_remaining": false, "autonomous_work_remaining": false, "human_stop_required": true, "human_stop_kind": "HARDWARE_BATCH", "human_stop_reason": "All PRODUCT_COMPLETION_PLAN software-testable items are PASS; only the queued non-destructive S25/Pocket and deferred S25/SSD physical observations remain.",
+  "software_work_remaining": false, "autonomous_work_remaining": false, "human_stop_required": true, "human_stop_kind": "HARDWARE_BATCH", "human_stop_reason": "All PRODUCT_COMPLETION_PLAN software-testable items are PASS, including autonomous independent SSD replication; only consolidated physical S25/Pocket/SSD observations remain.",
   "reachable_non_destructive_work_remaining": false,
   "software_preparation_exhausted": true,
-  "human_stop": {"required": true, "kind": "HARDWARE_BATCH", "reason": "Final signer-compatible debug APK and one consolidated validation procedure are prepared; physical radio, Pocket API and USB/SAF behavior cannot be established by software simulation."},
+  "human_stop": {"required": true, "kind": "HARDWARE_BATCH", "reason": "The final signer-compatible debug APK is prepared; Pocket radio/protocol and S25 USB/SAF provider behavior require the single consolidated physical session."},
   "hardware_validation": {"state": "LOCAL_PATH_WAITING_FOR_HARDWARE", "queue": "docs/hardware/VALIDATION_QUEUE.json", "consolidated": true},
   "work_items": [
     {"id": "AUTONOMY_CONTROL", "state": "IMPLEMENTED_SOFTWARE_PROVEN"},
@@ -20,7 +20,7 @@ execution: {
     {"id": "HOOK_RUNTIME_ACTIVATION", "state": "LOCAL_PATH_WAITING_FOR_APPROVAL"},
     {"id": "CLOUD_HANDOFF", "state": "PUBLISHED_VERIFIED_450eaf8531fa173c6c8fa0d23ac7b3f37a035f5d"},
     {"id": "GATE_7_SERVICE_RUNTIME", "state": "IMPLEMENTED_SOFTWARE_EMULATOR_PROVEN"},
-    {"id": "AUTONOMOUS_BACKUP_MVP", "state": "SOFTWARE_COMPLETE_HARDWARE_DEFERRED"}
+    {"id": "AUTONOMOUS_BACKUP_MVP", "state": "SOFTWARE_COMPLETE_HARDWARE_DEFERRED_PC16"}
   ]
 }
 current_phase: autonomous_backup_mvp_software_complete_consolidated_hardware_validation_pending

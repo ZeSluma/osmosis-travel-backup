@@ -61,6 +61,10 @@ class LedgerModelTest {
     @Test fun evidencedUnrelatedUnknownDoesNotBlockRecording() { assertNull(SyncPlanner.action(AssetClass.UNKNOWN_NON_RECORDING,TransferState.DISCOVERED,false)) }
     @Test fun knownOptionalNotRequiredByDefault() { assertNull(SyncPlanner.action(AssetClass.KNOWN_OPTIONAL,TransferState.DISCOVERED,false)) }
     @Test fun newRequiredSchedulesDownload() { assertEquals(PlanAction.DOWNLOAD,SyncPlanner.action(AssetClass.KNOWN_REQUIRED,TransferState.DISCOVERED,false)) }
+    @Test fun newAbsentRequiredAssetMayDownloadWithoutImmutableVersion() {
+        assertEquals(PlanAction.DOWNLOAD,SyncPlanner.action(AssetClass.KNOWN_REQUIRED,TransferState.DISCOVERED,true,
+            localPresence=LocalPresence.ABSENT))
+    }
     @Test fun failureSchedulesRetry() { assertEquals(PlanAction.DOWNLOAD,SyncPlanner.action(AssetClass.KNOWN_REQUIRED,TransferState.FAILED,false)) }
     @Test fun twoDaysUseDistinctDirectories() { assertNotEquals(SyncPlanner.relativePath("2026-01-01","a.mp4","a"),SyncPlanner.relativePath("2026-01-02","a.mp4","a")) }
     @Test fun sameNameDistinctAssetCannotOverwrite() { assertNotEquals(SyncPlanner.relativePath("2026-01-01","a.mp4",key("a")),SyncPlanner.relativePath("2026-01-01","a.mp4",key("b"))) }

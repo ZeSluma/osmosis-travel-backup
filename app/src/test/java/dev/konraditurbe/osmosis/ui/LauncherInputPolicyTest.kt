@@ -13,6 +13,14 @@ class LauncherInputPolicyTest {
         })
     }
 
+    @Test fun `only bare launcher intent restarts a stopped discovery session`() {
+        assertTrue(LauncherInputPolicy.freshLauncher("android.intent.action.MAIN", false,
+            setOf("android.intent.category.LAUNCHER"), false))
+        assertFalse(LauncherInputPolicy.freshLauncher("android.intent.action.MAIN", false,
+            setOf("android.intent.category.LAUNCHER"), true))
+        assertFalse(LauncherInputPolicy.freshLauncher(view, false, emptySet(), false))
+    }
+
     @Test fun `unknown and absent actions never read extras`() {
         for (action in listOf(null, "internal.offload", "android.intent.action.SEND")) {
             assertNull(LauncherInputPolicy.camera(action, false, emptySet(), known) { error("Unexpected read") })

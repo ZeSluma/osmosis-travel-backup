@@ -23,8 +23,17 @@ class ExternalDestinationManager(private val context: Context) {
         return id
     }
     fun availability(): Boolean {
-        val tree = selectedTree() ?: return false
-        return app.contentResolver.persistedUriPermissions.any { it.uri == tree && it.isReadPermission && it.isWritePermission }
+        return refreshAvailability()==ExternalStorageAvailability.AVAILABLE
+    }
+    /** Probe the user-approved SAF provider on every foreground/restart opportunity; grants alone do not prove an attached SSD. */
+    fun refreshAvailability(): ExternalStorageAvailability {
+        val tree=selectedTree() ?: return ExternalStorageAvailability.PERMISSION_REQUIRED
+        val id=destinationId() ?: return ExternalStorageAvailability.PERMISSION_REQUIRED
+        val grant=app.contentResolver.persistedUriPermissions.any { it.uri==tree && it.isReadPermission && it.isWritePermission }
+        val bytes=SafDestinationProbe.availableBytes(app.contentResolver,tree)
+        val state=ExternalStoragePolicy.assess(grant,bytes,1)
+        runCatching { ReplicaEvidenceRepository(LedgerDatabase.open(app)).availability(id,state==ExternalStorageAvailability.AVAILABLE,state.name) }
+        return state
     }
     fun destinationId(): String? = prefs.getString("id", null)
     private fun sha256(value: String) = MessageDigest.getInstance("SHA-256").digest(value.toByteArray())

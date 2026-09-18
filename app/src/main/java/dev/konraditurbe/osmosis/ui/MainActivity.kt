@@ -57,6 +57,7 @@ import dev.konraditurbe.osmosis.connection.ConnectionEvent
 import dev.konraditurbe.osmosis.connection.ConnectionReason
 import dev.konraditurbe.osmosis.connection.SessionLease
 import dev.konraditurbe.osmosis.backup.ExternalDestinationManager
+import dev.konraditurbe.osmosis.backup.BackupProductStatus
 import com.google.android.material.progressindicator.LinearProgressIndicator
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -89,6 +90,9 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
     private lateinit var savedCameras: SavedCameras
     private lateinit var statusPill: StatusPillView
     private lateinit var backupSummary: TextView
+    /** Sanitized scheduler diagnosis: state/count only, never camera names, paths, credentials or media data. */
+    private var automaticScheduleStatus = "not evaluated"
+    private var backupProductStatus: BackupProductStatus? = null
     private lateinit var btnGps: MaterialButton
     private lateinit var gpsBanner: TextView
     private var pendingGpsTarget: Pair<String, String>? = null // (mac, name) awaiting location perms
@@ -110,8 +114,10 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
         if (tree == null) return@registerForActivityResult
         Thread {
             val result = runCatching { externalDestination.configure(tree) }
+            if(result.isSuccess) dev.konraditurbe.osmosis.backup.ExternalReplicaCoordinator
+                .get(applicationContext).refreshAndReplicate()
             main.post {
-                if (result.isSuccess) Toast.makeText(this, "External backup destination configured", Toast.LENGTH_SHORT).show()
+                if (result.isSuccess) Toast.makeText(this, "SSD authorized; verified phone backups sync automatically when available", Toast.LENGTH_LONG).show()
                 else Toast.makeText(this, "External destination unavailable; no backup state changed", Toast.LENGTH_LONG).show()
             }
         }.start()
@@ -383,10 +389,20 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
     }
 
     override fun onNewIntent(intent: android.content.Intent) {
+        // Task reuse from the actual launcher is a fresh user request after a prior explicit
+        // stop. A restored task/background return or any parameterized external intent must not
+        // resurrect the session.
+        val freshLauncher = LauncherInputPolicy.freshLauncher(
+            intent.action, intent.data != null, intent.categories.orEmpty(), intent.extras?.isEmpty != true,
+        )
         // Do not retain or pass untrusted extras to framework/other consumers.
         val clean = android.content.Intent(this, MainActivity::class.java)
         super.onNewIntent(clean)
         setIntent(clean)
+        if (freshLauncher) {
+            cameraEpoch = CameraConnectionService.coordinator(applicationContext).begin().epoch
+            startCameraScan(select = true)
+        }
         confirmShortcut(intent)
     }
 
@@ -566,6 +582,12 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
                 discovered.values.firstOrNull {
                     (it.name ?: "").contains(pk, true) || it.brand.name.equals(pk, true)
                 }?.let { onCameraChosen(it.device) }
+            }
+            // A fresh launcher epoch begins CONNECTING before BLE discovery. If no selected
+            // connection was started, terminate that provisional state honestly rather than
+            // presenting a non-advertising camera as indefinitely connecting.
+            if (!connectionResources.connecting) {
+                CameraConnectionService.coordinator(applicationContext).cameraUnavailable(cameraEpoch)
             }
         }, 4000)
     }
@@ -1252,7 +1274,19 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
         // mirrors the queue/progress but does not decide whether automatic camera IO is permitted.
         dev.konraditurbe.osmosis.ledger.LedgerCoordinator.get(applicationContext)
             .automaticDownloadPaths(session,target.filesForBackupDisplay()){paths->main.post {
-                if(!transferActivityClosed && session==connectionResources.ledgerSession && adapter===target && paths.isNotEmpty()) {
+                if(!transferActivityClosed && session==connectionResources.ledgerSession && adapter===target) {
+                    if(paths.isEmpty()) {
+                        dev.konraditurbe.osmosis.ledger.LedgerCoordinator.get(applicationContext)
+                            .automaticPlanDiagnostic(session) { diagnostic -> main.post {
+                                if (!transferActivityClosed && session == connectionResources.ledgerSession && adapter === target) {
+                                    automaticScheduleStatus = diagnostic?.let {
+                                        "plan complete=${it.inventoryComplete}; download=${it.downloads}; verify=${it.verifyExisting}; revalidate=${it.revalidate}; review=${it.review}"
+                                    } ?: "plan unavailable"
+                                    backupProductStatus?.let(::renderBackupSummary)
+                                }
+                            }}
+                        return@post
+                    }
                     val cameraRuntime=CameraConnectionService.runtime(applicationContext)
                     val lease=cameraRuntime.snapshot()
                     val trust=if(dev.konraditurbe.osmosis.connection.CameraSessionCoordinator.mayUseCameraTraffic(lease))
@@ -1261,53 +1295,41 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
                         .plan(lease.epoch,trust,dev.konraditurbe.osmosis.ledger.LedgerCoordinator.get(applicationContext).latestPlan,lease.userStopped)
                     if(scheduled.second.isNotEmpty() && scheduled.first.lease!=null) {
                         target.queueWholePaths(paths.intersect(scheduled.second))
+                        automaticScheduleStatus = "transfer queued (${scheduled.second.size})"
+                        backupProductStatus?.let(::renderBackupSummary)
                         logLine("Automatic backup started for ${scheduled.second.size} trusted new original(s).")
                         onDownloadClicked(scheduled.first.lease)
+                    } else {
+                        automaticScheduleStatus = when(scheduled.first.phase) {
+                            dev.konraditurbe.osmosis.backup.BackupPhase.WAITING_FOR_TRUSTED_INVENTORY -> "waiting for trusted session"
+                            dev.konraditurbe.osmosis.backup.BackupPhase.CAMERA_TRANSFER -> "transfer already scheduled"
+                            dev.konraditurbe.osmosis.backup.BackupPhase.USER_ACTION_REQUIRED -> "user action required"
+                            dev.konraditurbe.osmosis.backup.BackupPhase.STOPPED -> "stopped"
+                            else -> "no schedulable download"
+                        }
+                        backupProductStatus?.let(::renderBackupSummary)
                     }
                 }
             }}
-        scheduleExternalReplication(session)
+        dev.konraditurbe.osmosis.backup.ExternalReplicaCoordinator.get(applicationContext).refreshAndReplicate()
         val sourceReady=dev.konraditurbe.osmosis.connection.CameraSessionCoordinator.mayUseCameraTraffic(
             CameraConnectionService.runtime(applicationContext).snapshot())
         dev.konraditurbe.osmosis.ledger.LedgerCoordinator.get(applicationContext)
             .backupProductStatus(session,externalDestination.destinationId(),sourceReady) { status -> main.post {
-                if(session==connectionResources.ledgerSession) backupSummary.text = "Camera sync: ${if(status.cameraSyncComplete) "complete" else "pending"} · " +
-                    "Redundancy: ${if(status.redundancyComplete) "complete" else "pending"} · " +
-                    "Safe to clear: ${if(status.safeToClearCamera) "eligible (informational)" else "no"}"
+                if(session==connectionResources.ledgerSession) {
+                    backupProductStatus = status
+                    renderBackupSummary(status)
+                }
             }}
     }
 
-    /** Sequentially replicate only read-back-confirmed phone receipts to the configured SAF tree. */
-    private fun scheduleExternalReplication(session:String) {
-        val tree=externalDestination.selectedTree() ?: return
-        val destinationId=externalDestination.destinationId() ?: return
-        if(!externalDestination.availability()) return
-        val ledger=dev.konraditurbe.osmosis.ledger.LedgerCoordinator.get(applicationContext)
-        ledger.reconcileExternalReplicas(session,destinationId) {
-        ledger.phoneReplicaCandidates(session,destinationId) { candidates -> main.post {
-            if(session!=connectionResources.ledgerSession || candidates.isEmpty()) return@post
-            val camera=CameraConnectionService.runtime(applicationContext).snapshot()
-            val statuses=candidates.associate { it.assetId to dev.konraditurbe.osmosis.backup.ReplicaStatus(
-                dev.konraditurbe.osmosis.backup.ReplicaState.VERIFIED,it.proof) }
-            val scheduled=CameraConnectionService.backupRuntime(applicationContext)
-                .replication(camera.epoch,statuses,true,camera.userStopped)
-            val run=scheduled.first.lease ?: return@post
-            val work=candidates.filter { it.assetId in scheduled.second }
-            if(work.isEmpty()) return@post
-            Thread {
-                try {
-                    work.forEach { candidate -> ledger.replicateToExternal(session,candidate,destinationId,tree) {
-                        !CameraConnectionService.backupRuntime(applicationContext).accepts(run) ||
-                            CameraConnectionService.runtime(applicationContext).snapshot().userStopped
-                    } }
-                } finally {
-                    CameraConnectionService.backupRuntime(applicationContext).complete(run)
-                    main.post { if(session==connectionResources.ledgerSession) refreshBackupLabels() }
-                }
-            }.start()
-        }}
-        }
+    private fun renderBackupSummary(status: BackupProductStatus) {
+        backupSummary.text = "Camera sync: ${if(status.cameraSyncComplete) "complete" else "pending"} · " +
+            "Redundancy: ${if(status.redundancyComplete) "complete" else "pending"} · " +
+            "Safe to clear: ${if(status.safeToClearCamera) "eligible (informational)" else "no"} · " +
+            "Auto: $automaticScheduleStatus"
     }
+
 
     private fun renderSessionProjection(lease: SessionLease) {
         // Do not turn a reconnect into a successful gallery/transfer display. The existing detailed

@@ -51,7 +51,11 @@ object ReplicaInstrumentation {
             stage="reallocateAfterMissing";check(runCatching {
                 ReplicaEvidenceRepository(db).beginOperation(fresh,asset.id,"ssd-test",ReplicaProof(10,"a".repeat(64)))
             }.isSuccess)
-            return "PASS: replica migration, durable duplicate fence, partial restart and missing reconciliation"
+            stage="sealComplete";LedgerRepository(db).finish(fresh,now,true,true,true,true)
+            stage="completeSnapshot";check(db.ledger().latestCompleteSnapshot()?.id==fresh.snapshotId)
+            stage="completeRestart";db.close();db=LedgerDatabase.open(context,name)
+            check(db.ledger().latestCompleteSnapshot()?.id==fresh.snapshotId)
+            return "PASS: replica migration, durable duplicate fence, partial restart, missing reconciliation and complete-snapshot restart selection"
         } catch(error:Throwable) { throw IllegalStateException("REPLICA_MIGRATION_$stage",error) }
         finally { db.close(); context.deleteDatabase(name) }
     }

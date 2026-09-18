@@ -12,6 +12,9 @@ class CameraSessionEffectCoordinator(private val runtime: DurableSessionRuntime)
         runtime.callback(epoch, ConnectionEvent.TRANSPORT_READY)
     fun transportLost(epoch: Long, reason: ConnectionReason): SessionLease =
         runtime.callback(epoch, ConnectionEvent.LOST, reason)
+    /** Discovery ended without a usable camera advertisement; do not leave UI in CONNECTING. */
+    fun cameraUnavailable(epoch: Long): SessionLease =
+        runtime.callback(epoch, ConnectionEvent.LOST, ConnectionReason.CAMERA_UNAVAILABLE)
     fun retryTimer(epoch: Long): SessionLease =
         runtime.callback(epoch, ConnectionEvent.RETRY_TIMER)
     fun revalidate(epoch: Long, enumerationComplete: Boolean, enumerationFailed: Boolean): SourceTrust =

@@ -84,6 +84,8 @@ interface LedgerDao {
     @Upsert fun source(row: SourceRow)
     @Query("SELECT * FROM snapshots WHERE sourceId=:source AND requestId=:request") fun snapshot(source: String, request: String): SnapshotRow?
     @Query("SELECT * FROM snapshots WHERE id=:id") fun snapshot(id: String): SnapshotRow?
+    /** A phone→external copy may resume without a live camera, but only from a completed source view. */
+    @Query("SELECT * FROM snapshots WHERE status='COMPLETE' ORDER BY endedAt DESC LIMIT 1") fun latestCompleteSnapshot(): SnapshotRow?
     @Upsert fun snapshot(row: SnapshotRow)
     @Query("SELECT * FROM recordings WHERE id=:id") fun recording(id: String): RecordingRow?
     @Insert(onConflict = OnConflictStrategy.ABORT) fun recording(row: RecordingRow)

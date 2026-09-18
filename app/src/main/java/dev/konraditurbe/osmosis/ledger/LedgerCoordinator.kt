@@ -51,6 +51,14 @@ class LedgerCoordinator private constructor(context: Context) {
         private set
     @Volatile var status: String = "NOT_TESTED"
         private set
+    /** Privacy-safe plan diagnosis: counts and completeness only, never asset identity or paths. */
+    data class AutomaticPlanDiagnostic(
+        val inventoryComplete: Boolean,
+        val downloads: Int,
+        val verifyExisting: Int,
+        val revalidate: Int,
+        val review: Int,
+    )
 
     fun observe(association: String, session: String, files: List<CameraFile>, pagesEnded: Boolean, failed: Boolean,
         storesComplete: Boolean = false, membersComplete: Boolean = false, stableGeneration: Boolean = false,
@@ -87,11 +95,15 @@ class LedgerCoordinator private constructor(context: Context) {
     enum class TransferResult { TRANSFERRED_UNVERIFIED, EXISTING_UNVERIFIED, REVIEW_REQUIRED }
     data class PhoneReplicaCandidate(val assetId:String,val locator:String,val proof:ReplicaProof,val relativePath:String,val mime:String)
 
-    /** Only an owned, published, independently read-back phone receipt becomes SSD replication work. */
-    fun phoneReplicaCandidates(session:String,destinationId:String,result:(List<PhoneReplicaCandidate>)->Unit) {
+    /**
+     * Only an owned, published, independently read-back phone receipt becomes SSD replication work.
+     * Unlike camera transfer, external replication deliberately survives a camera disconnect and process
+     * recreation. The latest complete durable snapshot is the only fallback owner.
+     */
+    fun phoneReplicaCandidates(destinationId:String,result:(List<PhoneReplicaCandidate>)->Unit) {
         writer.execute {
             val candidates=runCatching {
-                val lease=checkNotNull(latestLease);check(session==activeSession && session==leaseSession)
+                val lease=durableReplicaLease()
                 database.ledger().assets(lease.snapshotId).mapNotNull { asset ->
                     val replica=database.ledger().replica(asset.id) ?: return@mapNotNull null
                     if(replica.localLocator==null || asset.size==null) return@mapNotNull null
@@ -113,19 +125,21 @@ class LedgerCoordinator private constructor(context: Context) {
         }
     }
 
-    fun replicateToExternal(session:String,candidate:PhoneReplicaCandidate,destinationId:String,tree:Uri,
+    fun replicateToExternal(candidate:PhoneReplicaCandidate,destinationId:String,tree:Uri,
         cancelled:()->Boolean):ReplicaVerification.Result = writer.submit<ReplicaVerification.Result> {
-        if(session!=activeSession || session!=leaseSession || cancelled()) return@submit ReplicaVerification.Result.Incomplete(0,"STALE_SESSION")
-        val lease=latestLease ?: return@submit ReplicaVerification.Result.Incomplete(0,"NO_LEASE")
+        if(cancelled()) return@submit ReplicaVerification.Result.Incomplete(0,"CANCELLED")
+        val lease=runCatching { durableReplicaLease() }.getOrElse {
+            return@submit ReplicaVerification.Result.Incomplete(0,"NO_COMPLETE_DURABLE_SNAPSHOT")
+        }
         PhoneToExternalReplica(appContext.contentResolver,database).replicate(lease,candidate.assetId,Uri.parse(candidate.locator),
             candidate.proof,destinationId,tree,candidate.relativePath,candidate.mime,cancelled)
     }.get()
 
-    /** Revalidated session owner inspects retained owned staging objects before considering new work. */
-    fun reconcileExternalReplicas(session:String,destinationId:String,result:()->Unit) {
+    /** A new application owner may inspect retained staging independently of the camera session. */
+    fun reconcileExternalReplicas(destinationId:String,result:()->Unit) {
         writer.execute {
             runCatching {
-                val lease=checkNotNull(latestLease);check(session==activeSession && session==leaseSession)
+                val lease=durableReplicaLease()
                 val evidence=ReplicaEvidenceRepository(database)
                 database.ledger().assets(lease.snapshotId).forEach { asset ->
                     database.ledger().replicaOperations(asset.id,destinationId)
@@ -139,6 +153,20 @@ class LedgerCoordinator private constructor(context: Context) {
             }
             result()
         }
+    }
+
+    /**
+     * Rehydrates only the most recent complete source generation. Source epoch and asset epoch must
+     * still agree, so a superseded camera enumeration cannot write a replica after process restart.
+     */
+    private fun durableReplicaLease(): EnumerationLease {
+        val live=latestLease
+        if(live!=null && database.ledger().snapshot(live.snapshotId)?.status=="COMPLETE" &&
+            database.ledger().sourceById(live.sourceId)?.ownerEpoch==live.epoch) return live
+        val snapshot=checkNotNull(database.ledger().latestCompleteSnapshot())
+        val source=checkNotNull(database.ledger().sourceById(snapshot.sourceId))
+        check(database.ledger().assets(snapshot.id).all { it.lastEpoch==source.ownerEpoch })
+        return EnumerationLease(source.id,snapshot.id,source.ownerEpoch)
     }
 
     /** Durable, derived state only: neither UI callbacks nor filename matches can promote it. */
@@ -203,6 +231,23 @@ class LedgerCoordinator private constructor(context: Context) {
                 files.filter { CameraLedgerAdapter.asset(it).identity(lease.sourceId) in ids }.map { it.path }.toSet()
             }.getOrDefault(emptySet())
             result(paths)
+        }
+    }
+
+    fun automaticPlanDiagnostic(session: String, result: (AutomaticPlanDiagnostic?) -> Unit) {
+        writer.execute {
+            val diagnostic = runCatching {
+                check(session == activeSession && session == leaseSession)
+                val plan = checkNotNull(latestPlan)
+                AutomaticPlanDiagnostic(
+                    inventoryComplete = plan.enumerationComplete,
+                    downloads = plan.items.count { it.action == PlanAction.DOWNLOAD },
+                    verifyExisting = plan.items.count { it.action == PlanAction.VERIFY_EXISTING },
+                    revalidate = plan.items.count { it.action in setOf(PlanAction.RESUME_REVALIDATE, PlanAction.REVALIDATE_IDENTITY) },
+                    review = plan.items.count { it.action == PlanAction.REVIEW_UNKNOWN },
+                )
+            }.getOrNull()
+            result(diagnostic)
         }
     }
 

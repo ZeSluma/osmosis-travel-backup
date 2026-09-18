@@ -17,7 +17,8 @@
       "engineering_decision": "Qualify physical liveness/recovery claims or retain hardware-pending status; never enable unsafe resume/deletion.",
       "batch_with": ["G7-REASON-DIAGNOSTICS"],
       "new_hypothesis": "The service-owned fenced runtime survives UI lifecycle changes and fails closed on real transport loss.",
-      "competing_explanations": ["Android stops the service", "Pocket firmware/AP behavior prevents recovery", "protocol session requires user action"]
+      "competing_explanations": ["Android stops the service", "Pocket firmware/AP behavior prevents recovery", "protocol session requires user action"],
+      "latest_attempt": "2026-09-18 final artifact on SM-S938B: Bluetooth scan/connect permissions granted and one saved association retained, but Pocket produced no observed BLE advertisement (0/1 saved in range; 0 new). INCONCLUSIVE before automatic selection; no rescan, tap, media, deletion, or storage operation."
     },
     {
       "id": "G7-REASON-DIAGNOSTICS",
@@ -37,13 +38,13 @@
     {
       "id": "MVP-SSD-SAF-HOST",
       "state": "BLOCKED_DEFERRED_EXTERNAL_HARDWARE_TOPOLOGY",
-      "question": "Can the S25 persist and later reacquire read/write SAF access to the approved USB SSD through the target hub, while correctly reporting unavailable, revoked or insufficient-capacity storage?",
+      "question": "Can the S25 persist and later reacquire read/write SAF access to the approved USB SSD through the target hub, automatically detect its reappearance independently of Pocket connection, and correctly report unavailable, revoked or insufficient-capacity storage?",
       "why_hardware": "Real USB host power, hub enumeration, filesystem/provider behavior and Android permission lifecycle cannot be established by an emulator or fake provider.",
       "software_evidence": ["SAF destination identity persistence", "API36 schema8-to9 destination/partial-operation restart PASS", "capture-day SAF allocation and collision refusal tests"],
       "software_preparation_complete": true,
       "prerequisites": ["No camera deletion", "Use a disposable SSD test directory", "Protect existing SSD content", "Record no paths/media names in exported diagnostics"],
-      "observation": "Select an empty SSD directory, disconnect/reconnect the SSD and hub, then observe availability/permission state before and after app restart. Do not overwrite existing files.",
-      "criteria": {"PASS": "Configured destination identity is reacquired only with valid grant/access; absence, revocation or low capacity remains unavailable/user-action-required.", "FAIL": "A stale destination is treated as writable, a grant is bypassed, or unrelated content is overwritten.", "INCONCLUSIVE": "Hub/SSD/permission UI is unavailable; preserve destination state and record no stronger claim."},
+      "observation": "Select an empty SSD directory once, detach the Pocket, disconnect/reconnect the SSD and hub, then observe automatic availability/permission state before and after app restart. Do not select a new tree or overwrite existing files.",
+      "criteria": {"PASS": "Configured destination identity is reacquired only with valid grant/access and the app detects reappearance without a Pocket session; absence, revocation or low capacity remains unavailable/user-action-required.", "FAIL": "A stale destination is treated as writable, a grant is bypassed, camera absence blocks SSD detection, or unrelated content is overwritten.", "INCONCLUSIVE": "Hub/SSD/permission UI is unavailable; preserve destination state and record no stronger claim."},
       "engineering_decision": "Qualify target-host/SAF assumptions only; never count SSD redundancy without separate verified replica evidence.",
       "batch_with": ["MVP-SSD-REPLICA-RECOVERY"]
       ,"deferred_reason": "The intended USB dongle/hub currently provides no usable SSD validation path with either the S25 or PC. This is not an Osmosis, SAF, or SSD failure claim."
@@ -110,7 +111,7 @@
       "id": "MVP-SSD-BATCH",
       "purpose": "DEFERRED: one non-destructive S25 + hub + approved SSD session when the external hardware topology is usable again.",
       "items": ["MVP-SSD-SAF-HOST", "MVP-SSD-REPLICA-RECOVERY"],
-      "order": ["protect existing SSD content", "select empty test directory", "restart and reconnect availability check", "one normal replica checksum", "one controlled interrupted replica", "restart/reconnect and inspect partial", "export sanitized evidence"],
+      "order": ["protect existing SSD content", "select empty test directory once", "detach Pocket then reconnect SSD and confirm automatic detection/catch-up", "restart and reconnect availability check", "one normal replica checksum", "one controlled interrupted replica", "restart/reconnect and inspect partial", "export sanitized evidence"],
       "decision_rule": "No unverified or interrupted replica counts as redundancy; SSD absence never changes camera-to-phone truth or authorizes cleanup."
       ,"state": "BLOCKED_DEFERRED_EXTERNAL_HARDWARE_TOPOLOGY"
     }

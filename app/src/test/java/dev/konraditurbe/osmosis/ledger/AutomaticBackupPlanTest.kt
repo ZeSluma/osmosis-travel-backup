@@ -13,4 +13,10 @@ class AutomaticBackupPlanTest {
     @Test fun completeInventoryQueuesOnlyNewSafeDownloadWork() {
         assertEquals(setOf("new"),AutomaticBackupPlan.downloadAssetIds(PlanResult("s",items,true,false,false)))
     }
+    @Test fun planActionCountsRemainSeparatedForSanitizedDiagnosis() {
+        val plan=PlanResult("s",items,true,false,false)
+        assertEquals(1,plan.items.count { it.action==PlanAction.DOWNLOAD })
+        assertEquals(1,plan.items.count { it.action==PlanAction.RESUME_REVALIDATE })
+        assertEquals(1,plan.items.count { it.action==PlanAction.REVIEW_UNKNOWN })
+    }
 }

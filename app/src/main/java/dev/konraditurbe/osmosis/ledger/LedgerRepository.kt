@@ -119,8 +119,12 @@ class LedgerRepository(private val db: LedgerDatabase) {
         allMembers: Boolean, stableGeneration: Boolean, failed: Boolean = false) = transaction {
         val snapshot = requireLease(lease)
         if (snapshot.endedAt != null) return@transaction
-        val identityUnresolved = dao.observations(lease.sourceId).any { it.status == "UNRESOLVED" } ||
-            dao.assets(lease.snapshotId).any { it.identityAmbiguous }
+        // An unmaterializable observation is a source-completeness blocker. In contrast, a
+        // currently enumerated asset lacking an immutable version token is still a concrete,
+        // newly observable original: it may receive one fresh full transfer. Its
+        // identityAmbiguous flag remains on the asset and continues to block reuse, resume and
+        // promotion of any pre-existing local candidate.
+        val identityUnresolved = dao.observations(lease.sourceId).any { it.status == "UNRESOLVED" }
         val complete = allPages && allStores && allMembers && stableGeneration && !failed && !identityUnresolved
         dao.snapshot(snapshot.copy(endedAt = now.toString(), status = if (complete) "COMPLETE" else "INCOMPLETE",
             failure = if (failed) "ENUMERATION_FAILED" else if (identityUnresolved) "IDENTITY_UNRESOLVED" else if (!complete) "COVERAGE_UNPROVEN" else null,

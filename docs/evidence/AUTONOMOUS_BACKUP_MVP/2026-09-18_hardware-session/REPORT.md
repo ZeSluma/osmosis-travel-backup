@@ -123,3 +123,37 @@ The final signer-compatible debug validation artifact is
 The associated one-session procedure is
 `docs/hardware/FINAL_CONSOLIDATED_VALIDATION_PROCEDURE.md`. This is software evidence only; all
 physical results remain pending or explicitly deferred in the validation queue.
+
+## Final-artifact S25/Pocket observation — advertisement unavailable
+
+On 2026-09-18 the final artifact SHA-256
+`544D36B98B308E8DF0A9A6A356D6107FAD55B34FD981E1A2847392909E2FB915` was installed in place
+on physical S25 `SM-S938B` without uninstalling or clearing data. The package retained its known
+camera entry, Bluetooth was enabled, and `BLUETOOTH_SCAN` / `BLUETOOTH_CONNECT` were granted.
+With the Pocket powered on, the UI showed **0/1 saved cameras in range** and **0 new**; the saved
+camera row was disabled. No scan result existed from which automatic selection could safely begin.
+
+Classify this observation as **INCONCLUSIVE / source-advertisement unavailable**, not a false
+empty inventory or a failure to connect to a visible saved camera. No Rescan, camera-row tap,
+media operation, deletion, or storage operation was performed. The next discriminating observation
+is to establish that the Pocket is awake and advertising BLE, then perform one fresh app-open scan;
+only then can the automatic-known-camera selection be evaluated.
+
+## Software follow-up — independent SSD catch-up
+
+The real session showed camera connection/revalidation and later phone-grid availability must not be
+used as a prerequisite for phone-to-SSD work. The product requirement is now explicit: an approved
+SAF tree is probed by the application at startup and on USB/media availability hints; it is not a
+manual per-sync mode. A usable provider schedules only durable, independently verified phone
+receipts from the latest complete source snapshot. This survives camera disconnect and process
+recreation. A missing, revoked, unprobeable, or insufficient-capacity destination remains
+unavailable, never blocks camera-to-phone work, and cannot promote redundancy or Safe-to-Clear.
+The SSD copy retains the exact durable Osmosis relative path and creates a missing capture-day
+directory under the user-approved tree; collisions are review-required rather than overwritten.
+
+Software evidence on 2026-09-18: targeted SSD/recovery tests plus the integrated
+`:app:testDebugUnitTest :app:assembleDebug` checkpoint, **458 JVM tests, zero failures/errors,
+BUILD SUCCESSFUL**. The Android-test restart source for latest-complete-snapshot selection compiles.
+The resulting debug APK SHA-256 is
+`27C877C412EFAF673AEE3788CE1874A1FD644293DB9FA04936267D20177CD600`.
+Physical USB/provider behavior remains explicitly deferred to `MVP-SSD-INDEPENDENT-CATCHUP`.
