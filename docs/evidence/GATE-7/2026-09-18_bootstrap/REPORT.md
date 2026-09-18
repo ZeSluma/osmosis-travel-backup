@@ -40,6 +40,10 @@ The recovered-AP path now rebuilds the datalink and performs a new enumeration u
 epoch. It no longer regards a new `Network` callback as proof that the prior protocol session or
 source listing remains valid; automatic transfer use stays fenced until this revalidation succeeds.
 
+After moving the resource holder, the focused suite has **13 tests, zero failures/errors**. The
+additional release test verifies that transport teardown increments the datalink generation and
+clears camera-only AP/rejoin state, so a stale worker cannot publish through a released session.
+
 Verification attempt: `gradlew.bat testDebugUnitTest --tests
 dev.konraditurbe.osmosis.connection.*` could not configure because this host exposes Java 11 and
 Room 2.8.5 requires Java 17+ (the project targets Java 21). This is `NOT_TESTED`, not a test pass;
