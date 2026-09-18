@@ -17,6 +17,12 @@ class PhoneToExternalReplica(private val resolver: ContentResolver, private val 
             ?: return ReplicaVerification.Result.Rejected("SSD_NOT_CONFIGURED")
         if (destination.state != "AVAILABLE" || destination.treeUri != treeUri.toString())
             return ReplicaVerification.Result.Rejected("SSD_UNAVAILABLE_OR_CHANGED")
+        val grant=resolver.persistedUriPermissions.any { it.uri==treeUri && it.isReadPermission && it.isWritePermission }
+        val availability=ExternalStoragePolicy.assess(grant,SafDestinationProbe.availableBytes(resolver,treeUri),phoneProof.bytes)
+        if(availability!=ExternalStorageAvailability.AVAILABLE) {
+            ReplicaEvidenceRepository(database).availability(destinationId,false,availability.name)
+            return ReplicaVerification.Result.Rejected("SSD_${availability.name}")
+        }
         val evidence=ReplicaEvidenceRepository(database)
         val operation=try { evidence.beginOperation(lease,assetId,destinationId,phoneProof) }
         catch (_: Exception) { return ReplicaVerification.Result.Incomplete(0,"STALE_OR_UNAVAILABLE") }

@@ -32,6 +32,9 @@ Branch: `codex/autonomous-backup-mvp`. Status: **IN PROGRESS; SOFTWARE-ONLY FOUN
 - A retained external-replica `INTENT`, `COPYING` or `PARTIAL` operation suppresses new allocation
   for that asset/destination. Provider-specific append recovery remains unavailable until it can
   be safely reconciled; the system chooses durable review over duplicate output.
+- External allocation now checks persisted read/write grant and the matching SAF provider root's
+  advertised available bytes before it stages a document. Permission loss, unknown capacity and
+  insufficient capacity record an unavailable reason and allocate nothing.
 
 Focused JVM checkpoint: backup package (9), connection package (13), and automatic-plan (2):
 **24 tests, zero failures/errors**. `assembleDebug` passed before the final bridge correction;
