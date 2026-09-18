@@ -263,6 +263,13 @@ class MediaGridAdapter(
         onQueueChanged?.invoke()
     }
 
+    /** Add only planner-approved whole originals; preserve an explicit user trim or queue decision. */
+    fun queueWholePaths(paths: Collection<String>) {
+        val available=all.map { it.path }.toSet();var changed=false
+        for(path in paths) if(path in available && path !in selected) { selected[path]=null;changed=true }
+        if(changed) { notifyDataSetChanged();onQueueChanged?.invoke() }
+    }
+
     /** Reflect a favorite toggle (from the grid long-press) on the ❤️ badge. */
     fun setStarredByPath(path: String, starred: Boolean) {
         val idx = all.indexOfFirst { it.path == path }

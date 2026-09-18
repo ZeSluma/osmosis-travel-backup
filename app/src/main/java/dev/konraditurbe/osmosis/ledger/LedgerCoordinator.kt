@@ -57,7 +57,7 @@ class LedgerCoordinator private constructor(context: Context) {
                 latestPlan = repository.plan(lease.snapshotId)
                 latestLease = lease
                 leaseSession = session
-                status = "PLANNED_INCOMPLETE_INVENTORY"
+                status = if(pagesEnded && !failed) "PLANNED_COMPLETE_INVENTORY" else "PLANNED_INCOMPLETE_INVENTORY"
                 // Bound in-memory sessions; durable generations and assets remain in Room.
                 if (inventories.size > 4) inventories.keys.firstOrNull { it != session }?.let { inventories.remove(it); enumerationStarts.remove(it) }
             } catch (_: Exception) {
@@ -89,6 +89,20 @@ class LedgerCoordinator private constructor(context: Context) {
                 }
             }.getOrDefault(emptyMap())
             result(values)
+        }
+    }
+
+    /** Read-only mapping of a complete trusted plan onto visible files. UI may queue it but never start IO here. */
+    fun automaticDownloadPaths(session:String,files:List<CameraFile>,result:(Set<String>)->Unit) {
+        writer.execute {
+            val paths=runCatching {
+                val lease=checkNotNull(latestLease)
+                check(session==activeSession && session==leaseSession)
+                val plan=checkNotNull(latestPlan)
+                val ids=AutomaticBackupPlan.downloadAssetIds(plan)
+                files.filter { CameraLedgerAdapter.asset(it).identity(lease.sourceId) in ids }.map { it.path }.toSet()
+            }.getOrDefault(emptySet())
+            result(paths)
         }
     }
 

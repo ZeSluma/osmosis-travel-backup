@@ -1250,6 +1250,14 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
             .displayStates(session,target.filesForBackupDisplay()){states->main.post {
                 if(!transferActivityClosed && session==ledgerSession && adapter===target)target.setBackupStates(states)
             }}
+        // The planner queues only DOWNLOAD actions from a complete enumeration. It never starts a
+        // transfer, revisits partial/ambiguous items, or replaces a user's explicit queue decision.
+        dev.konraditurbe.osmosis.ledger.LedgerCoordinator.get(applicationContext)
+            .automaticDownloadPaths(session,target.filesForBackupDisplay()){paths->main.post {
+                if(!transferActivityClosed && session==ledgerSession && adapter===target && paths.isNotEmpty()) {
+                    target.queueWholePaths(paths);logLine("Backup plan ready: ${paths.size} new original(s) queued.")
+                }
+            }}
     }
 
     /** 3 columns portrait, 6 landscape — matches the old GridView numColumns. */

@@ -87,6 +87,12 @@ data class PlanItem(val assetId: String, val action: PlanAction, val relativePat
 data class PlanResult(val snapshotId: String, val items: List<PlanItem>, val enumerationComplete: Boolean,
     val recordingComplete: Boolean, val localComplete: Boolean)
 
+/** Product planning may prepare safe new work, but never starts IO or treats an incomplete source as complete. */
+object AutomaticBackupPlan {
+    fun downloadAssetIds(plan: PlanResult): Set<String> =
+        if (!plan.enumerationComplete) emptySet() else plan.items.filter { it.action == PlanAction.DOWNLOAD }.map { it.assetId }.toSet()
+}
+
 object SyncPlanner {
     /** GATE-2 has no authority to mint verification. A remembered VERIFIED label alone is insufficient. */
     fun action(classification: AssetClass, state: TransferState, identityAmbiguous: Boolean,
