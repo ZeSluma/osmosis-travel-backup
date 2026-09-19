@@ -6,10 +6,10 @@ execution: {
   "scope": "PROJECT_WIDE_PERMANENT",
   "primary_progress_metric": "VISIBLE_SAFE_END_TO_END_PRODUCT_CAPABILITY_PER_CREDIT",
   "cost_policy": {"priority": "HARD", "primary_model": "gpt-5.6-terra", "primary_reasoning": "low", "subagent_model": "gpt-5.6-luna", "subagent_reasoning": "low", "automatic_escalation": false, "expensive_model_requires_explicit_approval": true, "project_config_activation": "PENDING_APPROVAL_RUNTIME_VALIDATION", "active_root_switch": "USER_CLIENT_SWITCH_REQUIRED_FROM_GPT6_ASTRA"},
-  "software_work_remaining": false, "autonomous_work_remaining": false, "human_stop_required": false, "human_stop_kind": null, "human_stop_reason": "PC18 status-projection regression repaired and target-retested; the target safely reports IDENTITY_UNRESOLVED historical evidence rather than fabricating automatic completion. Consolidated remaining physical lifecycle/SSD validation remains.",
+  "software_work_remaining": false, "autonomous_work_remaining": false, "human_stop_required": false, "human_stop_kind": null, "human_stop_reason": "PC01 power-cycle recovery repaired and target-retested: known Pocket automatically reconnects, revalidates and restores the grid after controlled power loss. Remaining hardware is consolidated SSD/physical lifecycle coverage only.",
   "reachable_non_destructive_work_remaining": false,
   "software_preparation_exhausted": true,
-  "closure_audit": {"full_software_scope_complete": true, "evidence": "2026-09-19 target UI evidence reopened PC18: a connected S25 grid displayed an empty backup summary because transport teardown cleared the association before the service-owned trusted-inventory publisher ran. Repair verified by focused tests, full 472-test/debug build, then an in-place S25 target retest: visible plan state was CAMERA_SYNC pending/REDUNDANCY pending/SAFE_TO_CLEAR no and plan complete=false due IDENTITY_UNRESOLVED with current-unresolved=0/history-unresolved=3. This is fail-closed; no automatic writer ran."},
+  "closure_audit": {"full_software_scope_complete": true, "evidence": "2026-09-19 target recovery closure: background/foreground retained a connected grid; controlled Pocket power-cycle initially reproduced missing auto-reconnect. Repair routes live AP loss to five bounded BLE rediscovery scans, clears the stale connecting gate, fences recovery by durable epoch, and silently drops stale scan callbacks. Full JVM/debug build 475 tests PASS; in-place S25 retest automatically showed Connecting → Revalidating → six-item grid with the honest fail-closed status projection."},
   "human_stop": {"required": false, "kind": null, "reason": "Autonomous closure audit and any resulting safe software repairs must finish before the consolidated physical session."},
   "hardware_validation": {"state": "LOCAL_PATH_WAITING_FOR_HARDWARE", "queue": "docs/hardware/VALIDATION_QUEUE.json", "consolidated": true},
   "work_items": [
@@ -21,7 +21,7 @@ execution: {
     {"id": "HOOK_RUNTIME_ACTIVATION", "state": "LOCAL_PATH_WAITING_FOR_APPROVAL"},
     {"id": "CLOUD_HANDOFF", "state": "PUBLISHED_VERIFIED_450eaf8531fa173c6c8fa0d23ac7b3f37a035f5d"},
     {"id": "GATE_7_SERVICE_RUNTIME", "state": "IMPLEMENTED_SOFTWARE_EMULATOR_PROVEN"},
-    {"id": "AUTONOMOUS_BACKUP_MVP", "state": "SOFTWARE_COMPLETE_472_TESTS_TARGET_STATUS_PROJECTION_RETESTED"}
+    {"id": "AUTONOMOUS_BACKUP_MVP", "state": "SOFTWARE_COMPLETE_475_TESTS_PC01_TARGET_RECOVERY_PASS"}
   ]
 }
 current_phase: autonomous_backup_mvp_recovery_repair_hardware_retest_pending

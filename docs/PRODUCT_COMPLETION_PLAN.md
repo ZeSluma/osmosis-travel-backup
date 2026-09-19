@@ -10,7 +10,7 @@ reproducible software evidence exists; it never substitutes for a physical Pocke
 
 | ID | Capability and PASS criterion | Evidence | State |
 |---|---|---|---|
-| PC01 | Known-camera selection respects saved MAC matching, explicit stop and replacement epochs. | `AutomaticCameraAvailabilityTest`, `CameraSessionEffectCoordinatorTest` | PASS |
+| PC01 | Known-camera selection respects saved MAC matching, explicit stop and replacement epochs. | **Repaired and target-retested 2026-09-19:** background/foreground retained the session. A Pocket power-cycle initially left the camera greyed out until Rescan, which correctly auto-selected it once. Root cause: live AP loss used an AP-only rejoin and a stale `connecting` gate / UI epoch could suppress recovery. Repair changes this to five bounded BLE rediscovery scans, clears released transport connection state, fences scheduling by durable epoch, and drops stale scan callbacks without falsely setting user action required. `CameraRecoveryScanPolicyTest`, `CameraSessionResourcesTest`, recovery scenarios and full JVM/debug build **475 tests, 0 failures/errors** PASS. In-place S25 retest automatically showed `Connecting` → `Revalidating` → restored six-item grid and honest fail-closed status. | PASS |
 | PC02 | Transport never implies media readiness; stale/empty/failed enumeration cannot become trusted. | `CameraDatalinkCoordinatorTest`, `DurableSessionRuntimeTest` | PASS |
 | PC03 | Empty/incomplete post-connect inventory gets one bounded fresh-session retry then remains untrusted. | `CameraDatalinkCoordinatorTest` | PASS |
 | PC04 | Trusted complete inventory reconciles durably; incomplete observations preserve known evidence and block automatic work. | `LedgerEnumeratorTest`, `AutomaticBackupPlanTest` | PASS |

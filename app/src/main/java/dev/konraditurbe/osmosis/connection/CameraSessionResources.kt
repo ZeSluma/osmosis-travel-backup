@@ -82,6 +82,10 @@ class CameraSessionResources {
         sourceAssociation = null
         trustedFilesByPath = emptyMap()
         automaticStrictTransferSupported = false
+        // A released transport cannot still be a selected in-flight connection.  Leaving this
+        // true makes bounded recovery believe a GATT attempt is active and suppresses every
+        // rediscovery scan after a live AP loss.
+        connecting = false
         wifiUp = false; datalinkStarted = false; wifiRejoins = 0; resumeDownloadOnRejoin = false
     }
 

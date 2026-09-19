@@ -7,6 +7,7 @@ import org.junit.Test
 class CameraSessionResourcesTest {
     @Test fun releaseSupersedesInFlightDatalinkAndClearsOnlyCameraTransportState() {
         val resources = CameraSessionResources()
+        resources.connecting = true
         resources.wifiUp = true
         resources.datalinkStarted = true
         resources.wifiRejoins = 3
@@ -17,6 +18,7 @@ class CameraSessionResourcesTest {
         assertFalse(resources.wifiUp)
         assertFalse(resources.datalinkStarted)
         assertFalse(resources.resumeDownloadOnRejoin)
+        assertFalse(resources.connecting)
         assertTrue(resources.wifiRejoins == 0)
     }
 

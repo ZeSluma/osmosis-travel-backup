@@ -563,7 +563,7 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
     private var autoPickMac: String? = null
 
     /** Scan ~4s for DJI/Xtra cameras (bonds aren't reliable for these), then feed the selector list. */
-    private fun startCameraScan(select: Boolean, pick: String? = null, recovery: Boolean = false) {
+    private fun startCameraScan(select: Boolean, pick: String? = null, recovery: Boolean = false, recoveryEpoch: Long? = null) {
         val adapter = btAdapter ?: run { logLine("No Bluetooth adapter."); toast(getString(R.string.no_bluetooth)); return }
         if (!adapter.isEnabled) { promptEnableBluetooth(select, pick); return }
         val missing = requiredPerms().filter {
@@ -593,19 +593,34 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
             // connection was started, terminate that provisional state honestly rather than
             // presenting a non-advertising camera as indefinitely connecting.
             if (!connectionResources.connecting) {
-                if (recovery && recoveryScanEpoch == cameraEpoch) {
-                    scheduleRecoveryScan()
+                val durable = CameraConnectionService.runtime(applicationContext).snapshot()
+                if (recovery) {
+                    // A superseded recovery scan is only stale evidence. It must never turn a
+                    // replacement session into USER_ACTION_REQUIRED. The current durable owner
+                    // alone decides whether to schedule its next bounded scan.
+                    if (recoveryEpoch != null &&
+                        CameraRecoveryScanPolicy.ownsRecoveryEpoch(recoveryScanEpoch, recoveryEpoch, durable)) {
+                        scheduleRecoveryScan()
+                    }
+                    return@postDelayed
                 } else {
-                    CameraConnectionService.coordinator(applicationContext).cameraUnavailable(cameraEpoch)
+                    // Never let a stale recovery scanner fail a replacement session. A normal
+                    // discovery scan owns the current UI epoch.
+                    CameraConnectionService.coordinator(applicationContext)
+                        .cameraUnavailable(cameraEpoch)
                 }
             }
         }, 4000)
     }
 
     /** A GATT loss from a live grid is recoverable, unlike an explicit exit or user stop. */
-    private fun beginBoundedRecovery() {
-        val lost=CameraConnectionService.coordinator(applicationContext)
+    private fun beginBoundedRecovery(alreadyLost: SessionLease? = null) {
+        val lost=alreadyLost ?: CameraConnectionService.coordinator(applicationContext)
             .transportLost(cameraEpoch,ConnectionReason.NETWORK_LOSS)
+        // `LOST` deliberately enters RECONNECT_WAIT. The scheduler below advances that state via
+        // RETRY_TIMER before the scanner starts; testing mayRebuild here would deadlock recovery
+        // in RECONNECT_WAIT and prevent the very timer that makes rebuilding legal.
+        if (!CameraRecoveryScanPolicy.mayScheduleAfterLoss(lost)) return
         recoveryScanEpoch=lost.epoch
         recoveryScanAttempts=0
         scheduleRecoveryScan()
@@ -613,8 +628,8 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
 
     private fun scheduleRecoveryScan() {
         val epoch=recoveryScanEpoch ?: return
-        if(epoch!=cameraEpoch || connectionResources.connecting) return
         val coordinator=CameraConnectionService.coordinator(applicationContext)
+        if(!CameraRecoveryScanPolicy.ownsRecoveryEpoch(recoveryScanEpoch, epoch, coordinator.snapshot()) || connectionResources.connecting) return
         val next=CameraRecoveryScanPolicy.nextAttempt(recoveryScanAttempts,coordinator.snapshot())
         if(next==null) {
             recoveryScanEpoch=null
@@ -624,7 +639,8 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
         recoveryScanAttempts=next
         coordinator.retryTimer(epoch)
         main.postDelayed({
-            if(recoveryScanEpoch==epoch && !connectionResources.connecting) startCameraScan(select=true,recovery=true)
+            if(CameraRecoveryScanPolicy.ownsRecoveryEpoch(recoveryScanEpoch, epoch, coordinator.snapshot()) && !connectionResources.connecting)
+                startCameraScan(select=true,recovery=true,recoveryEpoch=epoch)
         },if(next==1) 0L else CameraRecoveryScanPolicy.RETRY_DELAY_MS)
     }
 
@@ -1113,10 +1129,27 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
             }
             override fun onLost() {
                 connectionResources.transferNetwork = null
-                CameraConnectionService.coordinator(applicationContext).transportLost(callbackEpoch, ConnectionReason.NETWORK_LOSS)
+                val lost = CameraConnectionService.coordinator(applicationContext)
+                    .transportLost(callbackEpoch, ConnectionReason.NETWORK_LOSS)
                 main.post {
                     connectionResources.wifiUp = false
                     if (!offloadMode) return@post
+                    // From a live gallery this can be a complete camera power-cycle, not merely
+                    // a transient AP disappearance.  Rejoining the old Wi-Fi request cannot
+                    // rediscover or wake that camera; release the old effects and use the bounded
+                    // BLE recovery path, which will pair, join and revalidate from scratch.
+                    if (dev.konraditurbe.osmosis.connection.CameraRecoveryScanPolicy
+                            .shouldRebuildAfterLiveApLoss(lost, gridGroup.visibility == View.VISIBLE)) {
+                        logLine("WiFi: live camera AP lost — bounded BLE rediscovery and source revalidation")
+                        if (downloadRunning) connectionResources.resumeDownloadOnRejoin = true
+                        connectionResources.releaseTransport()
+                        grid.adapter = null
+                        adapter = null
+                        gridGroup.visibility = View.GONE
+                        selectorGroup.visibility = View.VISIBLE
+                        beginBoundedRecovery(lost)
+                        return@post
+                    }
                     // Remember to pick the transfer back up: the in-flight run is about to fail out
                     // with ENONET and its own resume loop can't help — with no network it moves zero
                     // bytes, trips the "no progress" guard, and pauses on the first attempt.
