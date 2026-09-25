@@ -85,12 +85,22 @@ data class RemoteAsset(
 }
 data class PlanItem(val assetId: String, val action: PlanAction, val relativePath: String)
 data class PlanResult(val snapshotId: String, val items: List<PlanItem>, val enumerationComplete: Boolean,
-    val recordingComplete: Boolean, val localComplete: Boolean)
+    val recordingComplete: Boolean, val localComplete: Boolean,
+    /** Current observation is complete enough for fresh, non-resume DOWNLOAD work. Historical
+     * ambiguity still keeps [enumerationComplete] false and therefore blocks product completion. */
+    val automaticDownloadEligible: Boolean = enumerationComplete)
 
 /** Product planning may prepare safe new work, but never starts IO or treats an incomplete source as complete. */
 object AutomaticBackupPlan {
     fun downloadAssetIds(plan: PlanResult): Set<String> =
-        if (!plan.enumerationComplete) emptySet() else plan.items.filter { it.action == PlanAction.DOWNLOAD }.map { it.assetId }.toSet()
+        if (!plan.automaticDownloadEligible) emptySet() else plan.items.filter { it.action == PlanAction.DOWNLOAD }.map { it.assetId }.toSet()
+}
+
+/** Distinguishes safe current observation coverage from unresolved historical identity evidence. */
+object SnapshotCompletenessPolicy {
+    private const val COMPLETE_SCOPE = "pages=true;stores=true;members=true;stable=true"
+    fun currentInventoryEligible(scope: String, failure: String?, currentUnresolved: Int): Boolean =
+        scope == COMPLETE_SCOPE && currentUnresolved == 0 && failure !in setOf("ENUMERATION_FAILED", "COVERAGE_UNPROVEN")
 }
 
 object SyncPlanner {

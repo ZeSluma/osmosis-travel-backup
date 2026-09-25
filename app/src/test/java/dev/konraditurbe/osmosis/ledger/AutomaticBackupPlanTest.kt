@@ -13,6 +13,11 @@ class AutomaticBackupPlanTest {
     @Test fun completeInventoryQueuesOnlyNewSafeDownloadWork() {
         assertEquals(setOf("new"),AutomaticBackupPlan.downloadAssetIds(PlanResult("s",items,true,false,false)))
     }
+    @Test fun historicalAmbiguityBlocksCompletionButNotFreshSafeDownloads() {
+        val plan = PlanResult("s", items, enumerationComplete = false, recordingComplete = false,
+            localComplete = false, automaticDownloadEligible = true)
+        assertEquals(setOf("new"), AutomaticBackupPlan.downloadAssetIds(plan))
+    }
     @Test fun planActionCountsRemainSeparatedForSanitizedDiagnosis() {
         val plan=PlanResult("s",items,true,false,false)
         assertEquals(1,plan.items.count { it.action==PlanAction.DOWNLOAD })

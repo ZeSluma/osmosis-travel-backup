@@ -147,8 +147,12 @@ class LedgerRepository(private val db: LedgerDatabase) {
             dao.recording(group)?.relationshipUncertain == false && dao.members(group).all { !it.required ||
                 (it.assetId != null && assets.any { asset -> asset.id == it.assetId }) }
         } && assets.none { it.classification in setOf("UNKNOWN_POTENTIALLY_REQUIRED", "UNSUPPORTED") }
+        val currentUnresolved = dao.observations(snapshot.sourceId)
+            .count { it.status == "UNRESOLVED" && it.snapshotId == snapshotId }
+        val currentEligible = SnapshotCompletenessPolicy.currentInventoryEligible(
+            snapshot.scope, snapshot.failure, currentUnresolved)
         PlanResult(snapshotId, plans, snapshot.status == "COMPLETE", completeGroups,
-            snapshot.status == "COMPLETE" && completeGroups && plans.isEmpty())
+            snapshot.status == "COMPLETE" && completeGroups && plans.isEmpty(), currentEligible)
     }
 
     /** Metadata-only candidate adoption. Fenced and atomic; no file or verified-state writes.

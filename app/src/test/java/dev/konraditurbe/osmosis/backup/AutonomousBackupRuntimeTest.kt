@@ -13,6 +13,14 @@ class AutonomousBackupRuntimeTest {
         val (state,work)=runtime.plan(3,SourceTrust.TRUSTED,complete,false)
         assertEquals(BackupPhase.CAMERA_TRANSFER,state.phase);assertEquals(setOf("new"),work)
     }
+    @Test fun trustedCurrentDownloadMayRunWhileHistoricalCompletenessStaysFalse(){
+        val currentSafe = complete.copy(enumerationComplete = false, recordingComplete = false,
+            localComplete = false, automaticDownloadEligible = true)
+        val (state, work) = AutonomousBackupRuntime().plan(3, SourceTrust.TRUSTED, currentSafe, false)
+        assertEquals(BackupPhase.CAMERA_TRANSFER, state.phase)
+        assertEquals(setOf("new"), work)
+        assertFalse(currentSafe.enumerationComplete)
+    }
     @Test fun staleCameraResultCannotCompleteReplacement(){
         val runtime=AutonomousBackupRuntime();val old=runtime.plan(1,SourceTrust.TRUSTED,complete,false).first.lease!!
         val replacement=runtime.plan(2,SourceTrust.TRUSTED,complete,false).first.lease!!

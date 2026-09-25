@@ -20,7 +20,7 @@ class AutonomousBackupRuntime {
 
     @Synchronized fun plan(sessionEpoch: Long, trust: SourceTrust, plan: PlanResult?, userStopped: Boolean): Pair<BackupSnapshot, Set<String>> {
         if (userStopped) return publish(null, BackupPhase.STOPPED, "USER_STOPPED") to emptySet()
-        if (trust != SourceTrust.TRUSTED || plan == null || !plan.enumerationComplete)
+        if (trust != SourceTrust.TRUSTED || plan == null || !plan.automaticDownloadEligible)
             return publish(null, BackupPhase.WAITING_FOR_TRUSTED_INVENTORY, "INCOMPLETE_UNTRUSTED") to emptySet()
         val downloads = plan.items.filter { it.action == PlanAction.DOWNLOAD }.map { it.assetId }.toSet()
         if (downloads.isEmpty()) return publish(null, BackupPhase.REPLICATION) to emptySet()

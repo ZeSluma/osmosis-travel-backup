@@ -85,3 +85,25 @@ is to audit whether the two current, concretely observed new assets can be dispa
 the three historical observations remain unresolved and continue to block Camera Sync Complete,
 redundancy, and Safe-to-Clear. No camera deletion, overwrite, identity inference, verification
 promotion, or manual retest was performed.
+
+## 2026-09-25 safe-current dispatch repair — internal PASS, target pending
+
+The audit found that `LedgerRepository.plan` had one global `enumerationComplete` bit. It was
+correct for overall completeness, but it also prevented a new strictly non-resume `DOWNLOAD`
+whose current source observation was complete and had no current unresolved identity. That joined
+two distinct safety claims unnecessarily.
+
+The repair adds an explicit `automaticDownloadEligible` property. It is true only when the current
+snapshot proves complete pages, stores, recording members and stable generation, has no coverage
+or enumeration failure, and has zero unresolved identities *from that snapshot*. Historical
+ambiguity remains represented by `enumerationComplete=false`, so Camera Sync Complete, redundancy,
+Safe-to-Clear, deletion eligibility and any unproven resume path remain blocked. The runtime and
+automatic plan consume only this narrow eligibility for fresh `DOWNLOAD` scheduling; they retain
+their existing writer and epoch fences.
+
+Focused planner/policy/runtime/dispatcher tests and the full JVM/debug build passed with **479
+tests, zero failures and zero errors**. The remaining target observation is deliberately narrow:
+after a normal trusted connection, the two current candidates may begin service-owned strict
+downloads, while the summary must remain Camera Sync Pending, Redundancy Pending and Safe to Clear
+No until the historical identity ambiguity is actually resolved. No camera-original mutation,
+overwrite, identity inference or VERIFIED promotion is authorized by this repair.
