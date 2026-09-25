@@ -211,10 +211,15 @@ class LedgerCoordinator private constructor(context: Context) {
                 val plan = checkNotNull(latestPlan)
                 val snapshot = checkNotNull(database.ledger().snapshot(plan.snapshotId))
                 val unresolved = database.ledger().observations(lease.sourceId).filter { it.status == "UNRESOLVED" }
+                val currentUnresolved = unresolved.count { it.snapshotId == plan.snapshotId }
                 val automatic = AutomaticPlanDiagnostic(
-                    inventoryComplete = plan.enumerationComplete,
+                    // Historical ambiguity blocks product completion, but it must not falsely say
+                    // that the freshly enumerated camera list is still loading.  The UI needs this
+                    // narrower current-observation truth to explain the actual blocker.
+                    inventoryComplete = SnapshotCompletenessPolicy.currentInventoryEligible(
+                        snapshot.scope, snapshot.failure, currentUnresolved),
                     completenessReason = snapshot.failure ?: "NONE",
-                    currentUnresolved = unresolved.count { it.snapshotId == plan.snapshotId },
+                    currentUnresolved = currentUnresolved,
                     historicalUnresolved = unresolved.count { it.snapshotId != plan.snapshotId },
                     downloads = plan.items.count { it.action == PlanAction.DOWNLOAD },
                     verifyExisting = plan.items.count { it.action == PlanAction.VERIFY_EXISTING },
@@ -294,10 +299,12 @@ class LedgerCoordinator private constructor(context: Context) {
                 val lease=checkNotNull(latestLease)
                 val snapshot=checkNotNull(database.ledger().snapshot(plan.snapshotId))
                 val unresolved=database.ledger().observations(lease.sourceId).filter { it.status=="UNRESOLVED" }
+                val currentUnresolved=unresolved.count { it.snapshotId==plan.snapshotId }
                 AutomaticPlanDiagnostic(
-                    inventoryComplete = plan.enumerationComplete,
+                    inventoryComplete = SnapshotCompletenessPolicy.currentInventoryEligible(
+                        snapshot.scope, snapshot.failure, currentUnresolved),
                     completenessReason = snapshot.failure ?: "NONE",
-                    currentUnresolved = unresolved.count { it.snapshotId==plan.snapshotId },
+                    currentUnresolved = currentUnresolved,
                     historicalUnresolved = unresolved.count { it.snapshotId!=plan.snapshotId },
                     downloads = plan.items.count { it.action == PlanAction.DOWNLOAD },
                     verifyExisting = plan.items.count { it.action == PlanAction.VERIFY_EXISTING },

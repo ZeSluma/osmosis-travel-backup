@@ -37,6 +37,16 @@ class BackupStatusCopyTest {
         assertTrue(!text.contains("Kameraliste wird noch geprüft"))
     }
 
+    @Test fun currentCompleteInventoryWithHistoricalAmbiguityExplainsTheHistoryRatherThanLoading() {
+        val diagnostic = LedgerCoordinator.AutomaticPlanDiagnostic(
+            inventoryComplete = true, completenessReason = "IDENTITY_UNRESOLVED", currentUnresolved = 0,
+            historicalUnresolved = 3, downloads = 0, verifyExisting = 2, revalidate = 4, review = 0)
+
+        val text = BackupStatusCopy.plan(diagnostic)
+        assertTrue(text.contains("3"))
+        assertTrue(!text.contains("Kameraliste"))
+    }
+
     @Test fun unavailableDurableProjectionIsNotMisreportedAsAnIncompleteCameraList() {
         assertEquals("Backupstatus wird geladen", BackupStatusCopy.automaticStatus(null, null, "NOT_EVALUATED"))
     }

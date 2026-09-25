@@ -56,6 +56,14 @@ class LedgerModelTest {
     @Test fun partialRequiresResumeValidation() { assertEquals(PlanAction.RESUME_REVALIDATE,SyncPlanner.action(AssetClass.KNOWN_REQUIRED,TransferState.PARTIAL,true)) }
     @Test fun successfulTransferStillRequiresVerification() { assertEquals(PlanAction.VERIFY_EXISTING,SyncPlanner.action(AssetClass.KNOWN_REQUIRED,TransferState.TRANSFERRED_UNVERIFIED,true)) }
     @Test fun unknownsNeverDisappear() { assertEquals(PlanAction.REVIEW_UNKNOWN,SyncPlanner.action(AssetClass.UNKNOWN_POTENTIALLY_REQUIRED,TransferState.DISCOVERED,false)) }
+    @Test fun currentCompleteInventoryIsNotMisreportedBecauseOnlyHistoricalIdentityIsUnresolved() {
+        assertTrue(SnapshotCompletenessPolicy.currentInventoryEligible(
+            "pages=true;stores=true;members=true;stable=true", "IDENTITY_UNRESOLVED", 0))
+    }
+    @Test fun currentIdentityUnresolvedStillBlocksCurrentInventoryPresentation() {
+        assertFalse(SnapshotCompletenessPolicy.currentInventoryEligible(
+            "pages=true;stores=true;members=true;stable=true", "IDENTITY_UNRESOLVED", 1))
+    }
     @Test fun unsupportedRequiresReview() { assertEquals(PlanAction.REVIEW_UNKNOWN,SyncPlanner.action(AssetClass.UNSUPPORTED,TransferState.DISCOVERED,false)) }
     @Test fun provenRegenerableExcluded() { assertNull(SyncPlanner.action(AssetClass.KNOWN_REGENERABLE_EXCLUDED,TransferState.DISCOVERED,false)) }
     @Test fun evidencedUnrelatedUnknownDoesNotBlockRecording() { assertNull(SyncPlanner.action(AssetClass.UNKNOWN_NON_RECORDING,TransferState.DISCOVERED,false)) }
