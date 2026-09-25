@@ -45,3 +45,21 @@ start service-owned strict downloads after normal trusted enumeration. The same 
 show that historical ambiguity still leaves Camera Sync Pending, Redundancy Pending and Safe to
 Clear No. It is queued as `G7-LIFECYCLE-RECOVERY`; no deletion, overwrite, identity inference or
 verification shortcut is involved.
+
+## 2026-09-25 final amendment — target transfer and user-facing state copy
+
+The consolidated target session subsequently demonstrated the previously pending current-safe path:
+a new 101 MB recording was discovered in a seven-item manifest, strict-transferred automatically
+without a Download tap, checkpointed durably, and read back to `TRANSFERRED_UNVERIFIED`. The UI
+correctly retained Camera Sync/Redundancy/Safe-to-Clear as pending/no because historical identity
+ambiguity is still open. See
+[`CAMERA_LIFECYCLE_AND_TRANSFER.md`](../2026-09-25_hardware-batch/CAMERA_LIFECYCLE_AND_TRANSFER.md).
+
+The user also identified a product clarity gap: technical summary tokens such as
+`identity unresolved` were truthful but not useful. `BackupStatusCopy` is now the single
+privacy-safe UI-copy boundary. It translates only durable flags and counts to German
+action-oriented wording, without source names, paths, credentials, GPS, or a completion claim.
+`BackupStatusCopyTest`, the state matrix, and the full final checkpoint
+`./gradlew.bat :app:testDebugUnitTest :app:assembleDebug` passed with **493 JVM tests, zero
+failures/errors**. The generated APK SHA-256 is
+`6C55E53D5BBBE29B676DE6602AD0096649D9EB1EAC351D7B35BD0D1EDCFFA8E2`.

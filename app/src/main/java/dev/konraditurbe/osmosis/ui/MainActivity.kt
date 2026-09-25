@@ -1395,7 +1395,9 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
         val session=connectionResources.ledgerSession ?: run {
             // A connected grid may precede the asynchronous durable projection. Never leave a
             // user with a blank safety/status surface during that interval.
-            backupSummary.text = "Camera sync: pending · Redundancy: pending · Safe to clear: no · Auto: awaiting trusted inventory"
+            backupSummary.text = dev.konraditurbe.osmosis.backup.BackupStatusCopy.summary(
+                dev.konraditurbe.osmosis.backup.BackupProductStatus(false, true, false, false, false, 0, 0),
+                dev.konraditurbe.osmosis.backup.BackupStatusCopy.awaitingTrustedInventory())
             return
         }
         dev.konraditurbe.osmosis.ledger.LedgerCoordinator.get(applicationContext)
@@ -1412,8 +1414,8 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
                             .automaticPlanDiagnostic(session) { diagnostic -> main.post {
                                 if (!transferActivityClosed && session == connectionResources.ledgerSession && adapter === target) {
                     automaticScheduleStatus = diagnostic?.let {
-                        "plan complete=${it.inventoryComplete}; reason=${it.completenessReason}; current-unresolved=${it.currentUnresolved}; history-unresolved=${it.historicalUnresolved}; download=${it.downloads}; verify=${it.verifyExisting}; revalidate=${it.revalidate}; review=${it.review}"
-                                    } ?: "plan unavailable"
+                        dev.konraditurbe.osmosis.backup.BackupStatusCopy.plan(it)
+                                    } ?: "Kameraliste wird geprüft"
                                     backupProductStatus?.let(::renderBackupSummary)
                                 }
                             }}
@@ -1422,7 +1424,8 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
                     // Automatic camera IO is dispatched by the service-owned executor when the
                     // durable ledger plan is published.  The Activity only projects its state.
                     val dispatcher = CameraConnectionService.automaticTransferDispatcher(applicationContext)
-                    automaticScheduleStatus = dispatcher.progress ?: "service dispatch=${dispatcher.lastDecision} (${paths.size})"
+                    automaticScheduleStatus = dispatcher.progress ?: dev.konraditurbe.osmosis.backup.BackupStatusCopy
+                        .serviceDecision(dispatcher.lastDecision, paths.size)
                     backupProductStatus?.let(::renderBackupSummary)
                     return@post
                 }
@@ -1440,10 +1443,7 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
     }
 
     private fun renderBackupSummary(status: BackupProductStatus) {
-        backupSummary.text = "Camera sync: ${if(status.cameraSyncComplete) "complete" else "pending"} · " +
-            "Redundancy: ${if(status.redundancyComplete) "complete" else "pending"} · " +
-            "Safe to clear: ${if(status.safeToClearCamera) "eligible (informational)" else "no"} · " +
-            "Auto: $automaticScheduleStatus"
+        backupSummary.text = dev.konraditurbe.osmosis.backup.BackupStatusCopy.summary(status, automaticScheduleStatus)
     }
 
 
