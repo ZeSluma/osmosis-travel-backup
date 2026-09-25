@@ -19,7 +19,7 @@ import kotlin.random.Random
  * (`verify_data=0` = approved) → we ACK it → connected. Then we subscribe to camera status
  * (0x1D/0x05) and stream GPS (0x00/0x17).
  */
-class RsdkController(private val context: Context, private val listener: Listener) : GattClient.Listener {
+class RsdkController(private val context: Context, private val listener: Listener) {
 
     interface Listener {
         fun onLog(s: String)
@@ -34,6 +34,7 @@ class RsdkController(private val context: Context, private val listener: Listene
     private var gatt: GattClient? = null
     private var seq = 0
     private var connected = false
+    private val callbackFence = RsdkCallbackFence()
     private val approvalTimeout = Runnable { fail("Camera didn't approve the R-SDK connection (approve it on-screen, then retry)") }
 
     // Stable per-install controller identity (the camera remembers us by these).
@@ -48,15 +49,28 @@ class RsdkController(private val context: Context, private val listener: Listene
     }
 
     fun connect(device: BluetoothDevice) {
+        val token = callbackFence.begin()
         listener.onLog("R-SDK: connecting to selected camera")
-        val gc = GattClient(context, this, armPairing = false)
+        lateinit var gc: GattClient
+        val fencedListener = object : GattClient.Listener {
+            private fun current() = callbackFence.accepts(token) && gatt === gc
+            override fun onLog(s: String) { if (current()) onGattLog(s) }
+            override fun onReady(gatt: GattClient) { if (current()) onGattReady(gatt) }
+            override fun onNotification(sourceChar: UUID, raw: ByteArray, parsed: DjiMessage?) {
+                if (current()) onGattNotification(sourceChar, raw, parsed)
+            }
+            override fun onDisconnected() { if (current()) onGattDisconnected() }
+        }
+        gc = GattClient(context, fencedListener, armPairing = false)
         gatt = gc
         gc.connect(device)
     }
 
     fun disconnect() {
+        callbackFence.invalidate()
         main.removeCallbacks(approvalTimeout)
         main.removeCallbacks(statusPoll)
+        connected = false
         gatt?.disconnect(); gatt?.close(); gatt = null
     }
 
@@ -83,9 +97,9 @@ class RsdkController(private val context: Context, private val listener: Listene
 
     // ---- GattClient.Listener -------------------------------------------------
 
-    override fun onLog(s: String) = listener.onLog(s)
+    private fun onGattLog(s: String) = listener.onLog(s)
 
-    override fun onReady(g: GattClient) {
+    private fun onGattReady(g: GattClient) {
         // STEP 1: send the Connection Request. verify_mode=0 → camera decides / shows a code popup.
         val verifyData = Random.nextInt(0, 10000)
         listener.onLog("R-SDK: sending connection request (approve on the camera if prompted)…")
@@ -94,7 +108,7 @@ class RsdkController(private val context: Context, private val listener: Listene
         main.postDelayed(approvalTimeout, 40_000)
     }
 
-    override fun onNotification(sourceChar: UUID, raw: ByteArray, parsed: DjiMessage?) {
+    private fun onGattNotification(sourceChar: UUID, raw: ByteArray, parsed: DjiMessage?) {
         val f = RsdkProtocol.parse(raw)
         if (f == null) {
             // Dropping these silently made "the camera sends no status" and "it sends status we can't
@@ -189,7 +203,7 @@ class RsdkController(private val context: Context, private val listener: Listene
         main.post { listener.onConnected() }
     }
 
-    override fun onDisconnected() {
+    private fun onGattDisconnected() {
         main.removeCallbacks(approvalTimeout)
         main.removeCallbacks(statusPoll)
         connected = false
