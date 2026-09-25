@@ -37,6 +37,15 @@ reproducible software evidence exists; it never substitutes for a physical Pocke
 | R041 | Typed diagnostics are bounded, app-private and explicitly exportable; ordinary/verbose paths cannot expose protected data or affect backup. | `DiagnosticEventStoreTest`, `PrivacySafeDiagnosticsTest`, `VerboseDiagnosticsPolicyTest`; target share-sheet and reason-code observation remain pending. | SOFTWARE_PARTIAL |
 | R042 | Camera liveness/recovery is fenced, bounded and reason-coded; no unproven model-specific keepalive or power claim is made. | Recovery state-machine and stale-callback simulations exist, but KA01-KA08 physical matrix plus service-owned liveness observation audit remain incomplete. | SOFTWARE_PARTIAL |
 
+## Latest integrated software checkpoint
+
+2026-09-26: after GPS mode-restart isolation, destructive-cleanup fail-closed gating,
+current-versus-historical inventory status separation, and R-SDK stale-GATT callback fencing,
+`:app:testDebugUnitTest :app:assembleDebug --no-daemon` completed successfully with **509 JVM
+tests, 0 failures, 0 errors**. Debug APK SHA-256:
+`478E64EB554E73E4A9D1A5A74DB2315862816622CAB6BC88703814F9491902FE`.
+This is software evidence only; it does not replace any pending physical validation.
+
 ## Hardware deferred
 
 | ID | Requirement | State |
