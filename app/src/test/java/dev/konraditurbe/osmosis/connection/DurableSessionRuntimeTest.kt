@@ -50,6 +50,15 @@ class DurableSessionRuntimeTest {
         assertEquals(stopped, runtime.snapshot())
     }
 
+    @Test fun replacementConnectionIsConnectingNotStoppedBeforeTransportIsReady() {
+        val runtime = DurableSessionRuntime(MemoryStore())
+        runtime.start()
+        val replacement = runtime.start()
+        assertEquals(ConnectionState.CONNECTING, replacement.recovery.state)
+        assertFalse(replacement.userStopped)
+        assertTrue(replacement.epoch > 1)
+    }
+
     @Test fun repeatedTransientFailureConsumesBoundedBudget() {
         val runtime = DurableSessionRuntime(MemoryStore())
         val epoch = runtime.start().epoch

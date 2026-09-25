@@ -38,6 +38,13 @@ class CameraRecoveryScanPolicyTest {
         assertFalse(CameraRecoveryScanPolicy.mayScheduleAfterLoss(recovering.copy(userStopped=true)))
     }
 
+    @Test fun earlyGattLossRebuildsButNormalWifiHandoffDoesNot(){
+        val connecting=recovering.copy(recovery=RecoverySnapshot(ConnectionState.CONNECTING))
+        assertTrue(CameraRecoveryScanPolicy.shouldRebuildAfterEarlyGattLoss(connecting, wifiHandoffStarted=false))
+        assertFalse(CameraRecoveryScanPolicy.shouldRebuildAfterEarlyGattLoss(connecting, wifiHandoffStarted=true))
+        assertFalse(CameraRecoveryScanPolicy.shouldRebuildAfterEarlyGattLoss(connecting.copy(userStopped=true), false))
+    }
+
     @Test fun recoveryOwnershipUsesDurableEpochNotACallerLocalEpoch(){
         assertTrue(CameraRecoveryScanPolicy.ownsRecoveryEpoch(4, 4, recovering))
         assertFalse(CameraRecoveryScanPolicy.ownsRecoveryEpoch(3, 4, recovering))

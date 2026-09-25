@@ -22,6 +22,10 @@ object CameraRecoveryScanPolicy {
         gridWasVisible && !session.userStopped &&
             session.recovery.state in setOf(ConnectionState.RECONNECT_WAIT, ConnectionState.RECONNECTING)
 
+    /** A GATT loss before the BLE-to-Wi-Fi handoff is not a successful handoff. */
+    fun shouldRebuildAfterEarlyGattLoss(session: SessionLease, wifiHandoffStarted: Boolean): Boolean =
+        !wifiHandoffStarted && !session.userStopped && session.recovery.state == ConnectionState.CONNECTING
+
     /** A loss must be schedulable while waiting; RETRY_TIMER makes scanning legal afterwards. */
     fun mayScheduleAfterLoss(session: SessionLease): Boolean =
         !session.userStopped && session.recovery.state == ConnectionState.RECONNECT_WAIT

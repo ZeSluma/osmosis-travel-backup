@@ -766,10 +766,15 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
 
     /** Drop any live WiFi-offload session (BLE GATT + datalink + WiFi request) so the R-SDK GPS flow
      *  can take the camera's single BLE link without contention. Safe to call when nothing is active. */
-    private fun teardownOffload() {
-        CameraConnectionService.coordinator(applicationContext).stop()
-        CameraConnectionService.backupRuntime(applicationContext).stop()
-        CameraConnectionService.stopHost(this)
+    private fun teardownOffload(terminal: Boolean = true) {
+        // Replacing a selected camera is not a user stop.  Leaving the service/session alive until
+        // the replacement epoch is allocated prevents a queued STOP command from terminating the
+        // new GATT connect.  Real exit, selector return and GPS handoff remain terminal.
+        if (terminal) {
+            CameraConnectionService.coordinator(applicationContext).stop()
+            CameraConnectionService.backupRuntime(applicationContext).stop()
+            CameraConnectionService.stopHost(this)
+        }
         stopKeepalive()
         dev.konraditurbe.osmosis.net.Highlights.provider = null
         dev.konraditurbe.osmosis.net.PreviewNav.clear()
@@ -856,7 +861,9 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
     }
 
     private fun connectAndOffload(device: BluetoothDevice) {
-        teardownOffload()   // fully release any prior camera (GATT, datalink, WiFi, keepalive) first —
+        teardownOffload(terminal = false) // release old transport without turning a replacement into STOPPED
+        cameraEpoch = CameraConnectionService.coordinator(applicationContext).begin().epoch
+        CameraConnectionService.host(this)
                             // a leaked GATT/keepalive from the last camera otherwise stalls this connect
         // releaseTransport intentionally clears the former source association and transfer
         // capability.  Reinstall them only for this freshly selected camera, before any GATT or
@@ -1136,9 +1143,7 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
     }
 
     private fun startWifiFlow(ssid: String, pass: String) {
-        cameraEpoch = CameraConnectionService.coordinator(applicationContext).begin().epoch
         val callbackEpoch = cameraEpoch
-        CameraConnectionService.host(this)
         connectionResources.transferNetwork = null
         setConnectProgress(35) // requesting the WiFi join
         logLine("WiFi flow: credentials supplied")
@@ -2225,8 +2230,13 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
             } else {
                 logLine("Disconnected.")
                 // A drop after pairing is the normal WiFi handoff (keep the progress bar going);
-                // a drop before pairing means the connection failed early — clear the bar.
-                if (!offloadTriggered) setConnectProgress(0)
+                // a drop before pairing is a recoverable connection failure, not a stopped session.
+                val session=CameraConnectionService.runtime(applicationContext).snapshot()
+                if (dev.konraditurbe.osmosis.connection.CameraRecoveryScanPolicy
+                        .shouldRebuildAfterEarlyGattLoss(session, offloadTriggered)) {
+                    connectionResources.releaseTransport()
+                    beginBoundedRecovery()
+                } else if (!offloadTriggered) setConnectProgress(0)
             }
         }
     }
