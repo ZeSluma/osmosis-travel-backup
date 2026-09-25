@@ -37,6 +37,7 @@ import dev.konraditurbe.osmosis.camera.PathAddressing
 import dev.konraditurbe.osmosis.core.CameraFile
 import dev.konraditurbe.osmosis.core.CameraStatus
 import dev.konraditurbe.osmosis.core.FileLog
+import dev.konraditurbe.osmosis.core.DiagnosticEventStore
 import dev.konraditurbe.osmosis.core.SavedCameras
 import dev.konraditurbe.osmosis.core.TrimRange
 import dev.konraditurbe.osmosis.duml.DjiMessage
@@ -362,6 +363,7 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
                 if (saved != null && saved.exists() && saved.length() > 0) offerToShareLogs(saved)
             }
         }
+        findViewById<MaterialButton>(R.id.btnExportDiagnostics).setOnClickListener { exportDiagnosticEvents() }
 
         // 🛰️ GPS-sync mode (R-SDK): when on, picking a camera starts the GPS foreground service
         // instead of the usual WiFi offload. Default off.
@@ -2265,6 +2267,28 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
         }.onFailure {
             android.util.Log.e("Osmosis", "shareLogGzipped failed", it)
             android.widget.Toast.makeText(this, getString(R.string.share_logs_failed, it.message), android.widget.Toast.LENGTH_LONG).show()
+        }
+    }
+
+    /** Explicit export of the typed, app-private event channel; it never includes verbose logs. */
+    private fun exportDiagnosticEvents() {
+        runCatching {
+            val dir = java.io.File(externalCacheDir, "shared_diagnostics").apply { mkdirs() }
+            val export = java.io.File(dir, "diagnostics_${System.currentTimeMillis()}.txt")
+            val safe = DiagnosticEventStore.open(applicationContext).exportTo(export)
+                ?: throw IllegalStateException("DIAGNOSTIC_EXPORT_UNAVAILABLE")
+            val uri = androidx.core.content.FileProvider.getUriForFile(this, "$packageName.fileprovider", safe)
+            val send = android.content.Intent(android.content.Intent.ACTION_SEND).apply {
+                type = "text/plain"
+                putExtra(android.content.Intent.EXTRA_STREAM, uri)
+                putExtra(android.content.Intent.EXTRA_SUBJECT, getString(R.string.diagnostics_email_subject, safe.name))
+                addFlags(android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            }
+            startActivity(android.content.Intent.createChooser(send, getString(R.string.share_diagnostics_chooser)))
+        }.onFailure {
+            // Never send raw exception data to the normal diagnostics/UI path.
+            android.util.Log.i("Osmosis", "diagnostic export unavailable")
+            android.widget.Toast.makeText(this, R.string.share_diagnostics_failed, android.widget.Toast.LENGTH_LONG).show()
         }
     }
 

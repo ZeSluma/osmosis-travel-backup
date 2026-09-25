@@ -94,6 +94,20 @@
                 app:cornerRadius="20dp"
                 app:icon="@null"
                 app:strokeWidth="2dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnExportDiagnostics"
+                style="@style/Widget.Material3.Button.OutlinedButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:minWidth="0dp"
+                android:text="@string/export_diagnostics"
+                android:textSize="13sp"
+                app:cornerRadius="20dp"
+                app:icon="@null"
+                app:strokeWidth="2dp" />
         </LinearLayout>
 
         <TextView
