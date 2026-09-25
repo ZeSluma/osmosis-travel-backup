@@ -38,5 +38,15 @@ object BackupStatusCopy {
         else -> "Übertragung wird sicher vorbereitet ($count Datei${plural(count)})"
     }
 
+    /**
+     * Render automatic work from one current durable projection.  The caller deliberately passes
+     * no previous UI text: a former incomplete enumeration may never survive a newer complete
+     * plan as stale copy.
+     */
+    fun automaticStatus(diagnostic: LedgerCoordinator.AutomaticPlanDiagnostic?, serviceProgress: String?,
+        serviceDecision: String): String = serviceProgress ?: diagnostic?.let {
+        if (it.downloads > 0) serviceDecision(serviceDecision, it.downloads) else plan(it)
+    } ?: "Kameraliste wird geprüft"
+
     private fun plural(count: Int) = if (count == 1) "" else "en"
 }

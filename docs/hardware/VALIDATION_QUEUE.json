@@ -11,7 +11,7 @@
       "why_hardware": "Android foreground-service policy, Pocket AP/BLE/datalink behavior and firmware-specific liveness cannot be established by synthetic emulation.",
       "software_evidence": ["GATE-7 focused unit suite 13 PASS", "API36 synthetic process restoration PASS", "post-connect empty-inventory bounded-retry JVM regression PASS", "GATE-7 bootstrap report"],
       "software_preparation_complete": true,
-      "software_closure_build": {"commit": "ddbd9b91db2748245e27f3d31ba0bcd8e057ae84", "apk": "app/build/outputs/apk/debug/app-debug.apk", "sha256": "793DAF85B8867EB95E5F77B9ACF68533633769BDB9A2C7A03FD4AAA96419A17A", "internal_validation": "Clean final checkpoint: 493 JVM tests, zero failures/errors; full PC01-PC20 requirement audit, bounded launcher-after-camera-off discovery, replacement-session service preservation, automatic strict transfer with durable receipt, service-owned progress projection, human-readable privacy-safe state copy, integrity and replica safety"},
+      "software_closure_build": {"commit": "ddbd9b91db2748245e27f3d31ba0bcd8e057ae84", "apk": "app/build/outputs/apk/debug/app-debug.apk", "sha256": "4463CD235C67538AF9C3CC9E5405D887AEB2E30372D830C1D4AC608730E1A058", "internal_validation": "Final checkpoint: 494 JVM tests, zero failures/errors; full PC01-PC20 requirement audit, atomic durable German summary projection, bounded launcher-after-camera-off discovery, replacement-session service preservation, automatic strict transfer with durable receipt, service-owned progress projection, integrity and replica safety"},
       "prerequisites": ["Signer-compatible build", "No destructive operation", "Protected originals and existing partials", "Record sanitized timing/reason evidence"],
       "observation": "Install the current signer-compatible closure APK in place without clearing data. Confirm the German summary is understandable: Camera-Abgleich, SSD-Sicherung, Sicher zum Löschen and an automatic-work explanation. First, open the app while the saved Pocket is off, turn the Pocket on within 30 seconds, and verify it is selected and connected exactly once without Rescan. Verify trusted non-empty inventory. A 101 MB automatic transfer, local integrity receipt, background survival and power-cycle rebuild are already target-observed; repeat none of them unless the new build changes their result. With one new safe `download` candidate, observe service-owned strict download start without pressing Download and an advancing `Automatisch:` percentage/status while it is active; after completion, confirm grid/summary re-read truthful durable receipt states. Camera Sync/SSD-Sicherung must remain open and Sicher zum Löschen nein while historical identity ambiguity remains. Then background/screen-off separately and controlled AP/session loss, observe bounded rebuild/revalidation and retained partial. Do not delete, reset, or re-download protected originals.",
       "criteria": {"PASS": "Service truth remains accurate; progress advances without exposing sensitive metadata; completion refreshes durable UI state; recovery is bounded; no duplicate writer/false completion; incomplete enumeration stays untrusted and partial remains preserved.", "FAIL": "Activity loss stops/duplicates work, stale result mutates a replacement, progress or completion lies about durable state, false completion occurs, or recovery bypasses source revalidation.", "INCONCLUSIVE": "Required phone/camera state, consent, or source enumeration is unavailable; preserve safe state and record reason."},
@@ -65,6 +65,20 @@
       ,"deferred_reason": "The intended USB dongle/hub currently provides no usable SSD validation path with either the S25 or PC. This is not an Osmosis, SAF, or SSD failure claim."
     },
     {
+      "id": "MVP-SSD-INDEPENDENT-CATCHUP",
+      "state": "BLOCKED_DEFERRED_EXTERNAL_HARDWARE_TOPOLOGY",
+      "question": "After the Pocket is detached, does an already-authorized SSD reappearance trigger safe automatic phone-to-SSD catch-up without selecting a new tree or reconnecting the camera?",
+      "why_hardware": "Android USB host/provider availability and persisted SAF-grant behavior must be observed on the S25 and target hub.",
+      "software_evidence": ["ExternalReplicaRunPolicyTest", "ExternalProviderFaultScenarioTest", "completed-snapshot rehydration coverage"],
+      "software_preparation_complete": true,
+      "prerequisites": ["Usable S25 hub and SSD", "Previously approved empty dedicated tree", "One verified phone receipt", "Pocket detached", "No overwrite or camera deletion"],
+      "observation": "Detach the Pocket, attach the already-approved SSD, then observe provider reappearance and automatic catch-up using the same durable relative path without opening a picker. Restart once and reconnect the SSD to confirm the stored grant is re-probed.",
+      "criteria": {"PASS": "Catch-up starts only for a verified phone receipt after valid provider reappearance, reuses the stored tree/path, and produces independent readback evidence.", "FAIL": "The app requires a new tree selection, writes while unavailable, overwrites unrelated content, or claims redundancy without readback.", "INCONCLUSIVE": "Hub, SSD or prior grant is unavailable; preserve state and report no stronger result."},
+      "engineering_decision": "Qualify independent SSD catch-up only; no cleanup eligibility follows automatically.",
+      "batch_with": ["MVP-SSD-SAF-HOST", "MVP-SSD-REPLICA-RECOVERY"],
+      "deferred_reason": "The intended USB dongle/hub currently provides no usable SSD validation path with either the S25 or PC. This is not an app failure."
+    },
+    {
       "id": "G3-MIGRATION-UI",
       "state": "PASS",
       "question": "Does the final bundled build retain all schema6 history/local references and display A/B independently after migration?",
@@ -99,7 +113,7 @@
       "id": "FINAL-CONSOLIDATED-MVP-VALIDATION",
       "purpose": "One non-destructive session covering every still-unconfirmed physical product behavior on the final APK; avoid retesting already-observed transfer/recovery facts unless needed to observe new state copy or progress.",
       "items": ["G7-LIFECYCLE-RECOVERY", "G7-REASON-DIAGNOSTICS"],
-      "conditional_deferred_items": ["G3-TRANSPORT-CONTINUITY", "MVP-SSD-SAF-HOST", "MVP-SSD-REPLICA-RECOVERY"],
+      "conditional_deferred_items": ["G3-TRANSPORT-CONTINUITY", "MVP-SSD-SAF-HOST", "MVP-SSD-REPLICA-RECOVERY", "MVP-SSD-INDEPENDENT-CATCHUP"],
       "order": ["install current APK in place and verify German state copy", "Pocket automatic discovery and complete non-empty inventory", "one newly recorded disposable clip: observe active automatic progress then receipt", "background/screen-off", "one controlled Pocket power cycle and source revalidation", "read-only source-continuity metadata only if exposed without a payload retry", "conditional SSD branch: grant one empty test tree, catch-up without Pocket, readback, one interruption/restart/reappearance check"],
       "decision_rule": "Every unavailable topology or unobservable physical protocol fact is INCONCLUSIVE/HARDWARE_DEFERRED, never inferred. Do not clear data, delete camera media, force duplicate downloads, overwrite existing SSD content, or repeat an identical failed condition."
     },
@@ -119,7 +133,7 @@
     {
       "id": "MVP-SSD-BATCH",
       "purpose": "DEFERRED: one non-destructive S25 + hub + approved SSD session when the external hardware topology is usable again.",
-      "items": ["MVP-SSD-SAF-HOST", "MVP-SSD-REPLICA-RECOVERY"],
+      "items": ["MVP-SSD-SAF-HOST", "MVP-SSD-REPLICA-RECOVERY", "MVP-SSD-INDEPENDENT-CATCHUP"],
       "order": ["protect existing SSD content", "select empty test directory once", "detach Pocket then reconnect SSD and confirm automatic detection/catch-up", "restart and reconnect availability check", "one normal replica checksum", "one controlled interrupted replica", "restart/reconnect and inspect partial", "export sanitized evidence"],
       "decision_rule": "No unverified or interrupted replica counts as redundancy; SSD absence never changes camera-to-phone truth or authorizes cleanup."
       ,"state": "BLOCKED_DEFERRED_EXTERNAL_HARDWARE_TOPOLOGY"

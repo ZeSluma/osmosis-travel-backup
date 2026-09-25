@@ -63,6 +63,16 @@ class LedgerCoordinator private constructor(context: Context) {
         val review: Int,
     )
 
+    /**
+     * One durable read for the two strings that form the backup summary.  Keeping them together is
+     * important: a previous, incomplete enumeration must not race a newer product status back to
+     * the transient "inventory pending" copy in the Activity.
+     */
+    data class BackupSummaryProjection(
+        val status: BackupProductStatus,
+        val automatic: AutomaticPlanDiagnostic?,
+    )
+
     fun observe(association: String, session: String, files: List<CameraFile>, pagesEnded: Boolean, failed: Boolean,
         storesComplete: Boolean = false, membersComplete: Boolean = false, stableGeneration: Boolean = false,
         startedAt: Instant = Instant.now(), onPlanReady: (Boolean) -> Unit = {}) {
@@ -184,6 +194,45 @@ class LedgerCoordinator private constructor(context: Context) {
                 BackupStatusProjection.derive(plan.enumerationComplete,unknown,phone,external,freshSourceRevalidation)
             }.getOrElse { BackupStatusProjection.derive(false,true,emptyList(),emptyList(),false) }
             result(status)
+        }
+    }
+
+    /**
+     * Atomically derives the durable product and automatic-work views for one active session.
+     * UI callers must use this instead of independently racing [backupProductStatus] and
+     * [automaticPlanDiagnostic].
+     */
+    fun backupSummaryProjection(session: String, destinationId: String?, freshSourceRevalidation: Boolean,
+        result: (BackupSummaryProjection) -> Unit) {
+        writer.execute {
+            val projection = runCatching {
+                val lease = checkNotNull(latestLease)
+                check(session == activeSession && session == leaseSession)
+                val plan = checkNotNull(latestPlan)
+                val snapshot = checkNotNull(database.ledger().snapshot(plan.snapshotId))
+                val unresolved = database.ledger().observations(lease.sourceId).filter { it.status == "UNRESOLVED" }
+                val automatic = AutomaticPlanDiagnostic(
+                    inventoryComplete = plan.enumerationComplete,
+                    completenessReason = snapshot.failure ?: "NONE",
+                    currentUnresolved = unresolved.count { it.snapshotId == plan.snapshotId },
+                    historicalUnresolved = unresolved.count { it.snapshotId != plan.snapshotId },
+                    downloads = plan.items.count { it.action == PlanAction.DOWNLOAD },
+                    verifyExisting = plan.items.count { it.action == PlanAction.VERIFY_EXISTING },
+                    revalidate = plan.items.count { it.action in setOf(PlanAction.RESUME_REVALIDATE, PlanAction.REVALIDATE_IDENTITY) },
+                    review = plan.items.count { it.action == PlanAction.REVIEW_UNKNOWN },
+                )
+                val unknown = plan.items.any { it.action == PlanAction.REVIEW_UNKNOWN }
+                val required = database.ledger().assets(lease.snapshotId).filter { it.classification == AssetClass.KNOWN_REQUIRED.name }
+                val phone = required.map(::phoneStatus)
+                val external = required.map { asset -> externalStatus(asset, destinationId) }
+                BackupSummaryProjection(
+                    BackupStatusProjection.derive(plan.enumerationComplete, unknown, phone, external, freshSourceRevalidation),
+                    automatic,
+                )
+            }.getOrElse {
+                BackupSummaryProjection(BackupStatusProjection.derive(false, true, emptyList(), emptyList(), false), null)
+            }
+            result(projection)
         }
     }
     private fun phoneStatus(asset:AssetRow):ReplicaStatus {

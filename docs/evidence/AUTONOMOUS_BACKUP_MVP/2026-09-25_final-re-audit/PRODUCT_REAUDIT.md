@@ -10,7 +10,7 @@ reproducible evidence. The audit found no product-scoped, safe software implemen
 
 - A clean `./gradlew.bat clean :app:testDebugUnitTest :app:assembleDebug` was initiated, followed
   by a no-daemon full completion checkpoint.
-- Full result: **83 test suites, 493 JVM tests, 0 failures, 0 errors**; `BUILD SUCCESSFUL`.
+- Full result: **83 test suites, 494 JVM tests, 0 failures, 0 errors**; `BUILD SUCCESSFUL`.
 - Final debug APK SHA-256:
   `793DAF85B8867EB95E5F77B9ACF68533633769BDB9A2C7A03FD4AAA96419A17A`.
 - Static product-scope scan found no `TODO`, `FIXME`, `NotImplemented`, or unsupported operation in
@@ -27,7 +27,9 @@ reproducible evidence. The audit found no product-scoped, safe software implemen
   process recreation, SAF staging/readback, replica failure handling, privacy-safe diagnostics and
   backend-owned UI observation have direct tests in the completion matrix.
 - UI status wording is now a single privacy-safe boundary and is tested not to turn open source
-  identity, missing redundancy or informational cleanup eligibility into a success claim.
+  identity, missing redundancy or informational cleanup eligibility into a success claim. PC20's
+  summary projection is atomic, so a stale incomplete-inventory callback cannot overwrite the
+  current complete-plan explanation; `PC20_SOFTWARE_REPAIR.md` records the focused regression.
 
 ## Remaining physical evidence — one batch
 

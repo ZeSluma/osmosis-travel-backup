@@ -25,4 +25,15 @@ class BackupStatusCopyTest {
         assertEquals("Übertragung gestartet (2 Dateien)", BackupStatusCopy.serviceDecision("WRITER_STARTED", 2))
         assertTrue(BackupStatusCopy.serviceDecision("SOURCE_CHANGED", 1).contains("erneut geprüft"))
     }
+
+    @Test fun completeProjectionNeverRetainsAnEarlierInventoryPendingMessage() {
+        val current = LedgerCoordinator.AutomaticPlanDiagnostic(
+            inventoryComplete = true, completenessReason = "IDENTITY_UNRESOLVED", currentUnresolved = 0,
+            historicalUnresolved = 4, downloads = 0, verifyExisting = 4, revalidate = 0, review = 0)
+
+        val text = BackupStatusCopy.automaticStatus(current, null, "NO_WORK")
+
+        assertEquals("Zuordnung von 4 früheren Dateien prüfen", text)
+        assertTrue(!text.contains("Kameraliste wird noch geprüft"))
+    }
 }

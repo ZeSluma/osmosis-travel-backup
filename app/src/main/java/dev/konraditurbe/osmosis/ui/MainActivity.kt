@@ -1406,38 +1406,17 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
             }}
         // The service-owned scheduler receives only a complete, revalidated ledger plan. The UI
         // mirrors the queue/progress but does not decide whether automatic camera IO is permitted.
-        dev.konraditurbe.osmosis.ledger.LedgerCoordinator.get(applicationContext)
-            .automaticDownloadPaths(session,target.filesForBackupDisplay()){paths->main.post {
-                if(!transferActivityClosed && session==connectionResources.ledgerSession && adapter===target) {
-                    if(paths.isEmpty()) {
-                        dev.konraditurbe.osmosis.ledger.LedgerCoordinator.get(applicationContext)
-                            .automaticPlanDiagnostic(session) { diagnostic -> main.post {
-                                if (!transferActivityClosed && session == connectionResources.ledgerSession && adapter === target) {
-                    automaticScheduleStatus = diagnostic?.let {
-                        dev.konraditurbe.osmosis.backup.BackupStatusCopy.plan(it)
-                                    } ?: "Kameraliste wird geprüft"
-                                    backupProductStatus?.let(::renderBackupSummary)
-                                }
-                            }}
-                        return@post
-                    }
-                    // Automatic camera IO is dispatched by the service-owned executor when the
-                    // durable ledger plan is published.  The Activity only projects its state.
-                    val dispatcher = CameraConnectionService.automaticTransferDispatcher(applicationContext)
-                    automaticScheduleStatus = dispatcher.progress ?: dev.konraditurbe.osmosis.backup.BackupStatusCopy
-                        .serviceDecision(dispatcher.lastDecision, paths.size)
-                    backupProductStatus?.let(::renderBackupSummary)
-                    return@post
-                }
-            }}
         dev.konraditurbe.osmosis.backup.ExternalReplicaCoordinator.get(applicationContext).refreshAndReplicate()
         val sourceReady=dev.konraditurbe.osmosis.connection.CameraSessionCoordinator.mayUseCameraTraffic(
             CameraConnectionService.runtime(applicationContext).snapshot())
         dev.konraditurbe.osmosis.ledger.LedgerCoordinator.get(applicationContext)
-            .backupProductStatus(session,externalDestination.destinationId(),sourceReady) { status -> main.post {
-                if(session==connectionResources.ledgerSession) {
-                    backupProductStatus = status
-                    renderBackupSummary(status)
+            .backupSummaryProjection(session,externalDestination.destinationId(),sourceReady) { projection -> main.post {
+                if(!transferActivityClosed && session==connectionResources.ledgerSession && adapter===target) {
+                    backupProductStatus = projection.status
+                    val dispatcher = CameraConnectionService.automaticTransferDispatcher(applicationContext)
+                    automaticScheduleStatus = dev.konraditurbe.osmosis.backup.BackupStatusCopy.automaticStatus(
+                        projection.automatic, dispatcher.progress, dispatcher.lastDecision)
+                    renderBackupSummary(projection.status)
                 }
             }}
     }

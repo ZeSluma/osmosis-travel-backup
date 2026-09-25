@@ -5,6 +5,7 @@ import dev.konraditurbe.osmosis.backup.ReplicaState
 import dev.konraditurbe.osmosis.backup.ReplicaStatus
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 /** Every visible backup label must be grounded in one unambiguous durable evidence combination. */
@@ -34,5 +35,31 @@ class ProductStateMatrixTest {
         assertFalse(status.cameraSyncComplete)
         assertFalse(status.redundancyComplete)
         assertFalse(status.safeToClearCamera)
+    }
+
+    @Test fun visibleProductStateMatrixRequiresEveryDurableCompletionPrerequisite() {
+        val verified = ReplicaStatus(ReplicaState.VERIFIED)
+        val missing = ReplicaStatus(ReplicaState.NOT_PRESENT)
+
+        val complete = BackupStatusProjection.derive(true, false, listOf(verified), listOf(verified), true)
+        assertTrue(complete.inventoryTrusted)
+        assertTrue(complete.cameraSyncComplete)
+        assertTrue(complete.redundancyComplete)
+        assertTrue(complete.safeToClearCamera)
+
+        val incompleteInventory = BackupStatusProjection.derive(false, false, listOf(verified), listOf(verified), true)
+        assertFalse(incompleteInventory.cameraSyncComplete)
+        assertFalse(incompleteInventory.redundancyComplete)
+        assertFalse(incompleteInventory.safeToClearCamera)
+
+        val missingSsd = BackupStatusProjection.derive(true, false, listOf(verified), listOf(missing), true)
+        assertTrue(missingSsd.cameraSyncComplete)
+        assertFalse(missingSsd.redundancyComplete)
+        assertFalse(missingSsd.safeToClearCamera)
+
+        val staleSource = BackupStatusProjection.derive(true, false, listOf(verified), listOf(verified), false)
+        assertTrue(staleSource.cameraSyncComplete)
+        assertTrue(staleSource.redundancyComplete)
+        assertFalse(staleSource.safeToClearCamera)
     }
 }
