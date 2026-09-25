@@ -4,7 +4,7 @@ Status: **READY FOR ONE NON-DESTRUCTIVE SESSION**. This is the only remaining ha
 
 ## Prepared artifact and guardrails
 
-- Install only `app/build/outputs/apk/debug/app-debug.apk`, SHA-256 `27C877C412EFAF673AEE3788CE1874A1FD644293DB9FA04936267D20177CD600`.
+- Install only `app/build/outputs/apk/debug/app-debug.apk`, SHA-256 `793DAF85B8867EB95E5F77B9ACF68533633769BDB9A2C7A03FD4AAA96419A17A`.
 - Keep every Pocket original, current phone partial/local copy, and existing SSD file unchanged. A single new non-sensitive test asset may be used for a complete transfer and a second only if an interruption test is safe. Never delete from camera or format/clear storage.
 - Capture only state/reason/count outcomes. Do not export credentials, GPS, paths, media names, or SSD contents. A missing fact is **INCONCLUSIVE**, never inferred as success or failure.
 - Do not clear app data, reset the Pocket, or repeat scans. One Rescan is allowed only when the camera was restarted after the initial scan and the app shows the saved camera out of range.
@@ -15,14 +15,14 @@ Status: **READY FOR ONE NON-DESTRUCTIVE SESSION**. This is the only remaining ha
 2. Observe whether saved `Slumas 4P`/Osmo Pocket 4 Pro connects without tapping Rescan, the camera row, Media, or Download.
 3. If it is genuinely out of range after a camera restart, use the one permitted Rescan and wait for `Connecting` then `Revalidating`. Do not repeat it.
 4. Confirm the gallery is non-empty and retains known prior states rather than treating prior evidence as deleted or complete.
-5. Read the one privacy-safe `Auto:` plan summary. Record only counts: complete, download, verify, revalidate, review. It diagnoses the prior “no download candidates” observation without exposing an asset identity.
+5. Confirm the understandable German summary: `Kamera-Abgleich`, `SSD-Sicherung`, `Sicher zum Löschen`, and `Automatisch`. Record only state/count meaning, never an asset name/path. The expected conservative outcome with historic ambiguity is "noch offen" / "nein" and a short explanation of the outstanding matching.
 
 PASS: automatic or one bounded revalidation reaches a truthful non-empty source view; incomplete/empty results remain untrusted. FAIL: known data becomes empty/deleted, or UI claims completion from incomplete evidence. Otherwise record INCONCLUSIVE and continue to SSD steps that do not need Pocket traffic.
 
 ## B. Automatic phone backup, integrity and duplicate-writer fence
 
 1. With a trusted inventory and one new disposable test asset, wait for automatic scheduling. Do not tap Download first.
-2. Confirm the UI reports a queued/active automatic transfer at most once. If it does not queue, record `Auto:` counts and do not force a duplicate writer.
+2. Confirm the UI reports a queued/active automatic transfer at most once, including at least one visible active progress update if the transfer lasts long enough. If it does not queue, record the human-readable `Automatisch:` explanation and do not force a duplicate writer.
 3. Let one small test transfer finish if scheduled. Confirm it becomes local verified/confirmed only after local integrity; it must not become verified merely from bytes written.
 4. Background the app, return, then separately turn screen off/on once while idle or safely transferring. Confirm state is re-observed rather than reset or duplicated.
 
@@ -52,3 +52,11 @@ PASS: valid grant is re-acquired only when provider is usable; offline Pocket do
 ## Session close-out
 
 Record each section as PASS, FAIL, or INCONCLUSIVE with only state/reason/count information. Do not retry failed physical conditions repeatedly. The record updates `G7-LIFECYCLE-RECOVERY`, `G7-REASON-DIAGNOSTICS`, `MVP-SSD-SAF-HOST`, and `MVP-SSD-REPLICA-RECOVERY` in one pass.
+
+## E. Read-only source-continuity capability (only if exposed)
+
+Without retrying or downloading an existing protected asset, record whether the Pocket exposes a
+specific immutable source-version/continuity contract beyond plain ETag presence. This is not needed
+to accept the current fail-closed product: lack of proof must retain safe non-append/revalidation
+behavior. Record PASS only for a discriminating, sanitized capability observation; otherwise
+INCONCLUSIVE and do not attempt an unsafe resume.
