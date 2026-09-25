@@ -48,3 +48,15 @@ historic identity mapping in human language. Classify this as **FAIL / software 
 defect**, not a camera or integrity failure. No further hardware actions were taken after this
 discriminating observation. PC20 is reopened; resume with a deterministic service-plan-to-UI
 projection regression, then repeat the full closure audit before another hardware session.
+
+## Final in-place hardware attempt — 2026-09-25
+
+- S25 Ultra (`SM-S938B`, Android 16) was ADB-visible. Osmosis 1.4.4 / versionCode 29 received
+  the signer-compatible debug APK in place, SHA-256 `4463CD235C67538AF9C3CC9E5405D887AEB2E30372D830C1D4AC608730E1A058`.
+  No app-data clear, deletion, protected-media retry, SSD operation or overwrite occurred.
+- The Pocket started off, was powered on after app launch, connected automatically without Rescan,
+  and showed seven videos: connection and visible-inventory portion PASS.
+- `Kamera-Abgleich noch offen`, `SSD-Sicherung noch offen`, and `Sicher zum Löschen nein` remained
+  conservatively correct. However, `Automatisch: Kameraliste wird noch geprüft` persisted.
+- PC20 is therefore FAIL on target. Do not repeat physical testing until code traces whether the
+  terminal-inventory-completeness signal is absent or lost before durable-plan projection.
