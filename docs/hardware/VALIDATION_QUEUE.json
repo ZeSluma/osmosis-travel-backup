@@ -19,7 +19,7 @@
       "batch_with": ["G7-REASON-DIAGNOSTICS"],
       "new_hypothesis": "The service-owned fenced runtime survives UI lifecycle changes and fails closed on real transport loss.",
       "competing_explanations": ["Android stops the service", "Pocket firmware/AP behavior prevents recovery", "protocol session requires user action"],
-      "latest_attempt": "2026-09-25 repaired artifact: automatic launch-after-camera-off connection, trusted 6→7 item manifest, automatic 101 MB strict transfer with durable checkpoints/readback receipt, background/screen-off retention and controlled power-cycle automatic rebuild were observed. Historical ambiguity correctly kept Camera Sync/Redundancy/Safe-to-Clear conservative. Intermediate user-visible transfer percentage and current German state wording remain unobserved on target; no destructive action occurred. Evidence: docs/evidence/AUTONOMOUS_BACKUP_MVP/2026-09-25_hardware-batch/CAMERA_LIFECYCLE_AND_TRANSFER.md."
+      "latest_attempt": "2026-09-25 current APK: automatic launch-after-camera-off connection and trusted seven-item grid PASS. New German labels render, per-file integrity/review labels are correct, but the automatic-work summary remained the stale transient 'Kameraliste wird noch geprüft' after stable inventory. This is a software PC20 observer-refresh defect; hardware validation is paused until repaired. No destructive action occurred. Evidence: docs/evidence/AUTONOMOUS_BACKUP_MVP/2026-09-25_hardware-batch/CAMERA_LIFECYCLE_AND_TRANSFER.md."
     },
     {
       "id": "G7-REASON-DIAGNOSTICS",

@@ -31,3 +31,20 @@ camera cleanup pending. This is expected fail-closed behavior, not a download fa
 The next APK replaces technical English summary text with German action-oriented wording. Any future
 physical session should batch only the still-unobserved intermediate progress and the deferred SSD
 path with another independently useful check; it must not delete or re-download protected media.
+
+## Latest current-APK observation — status-summary refresh defect
+
+After installing the final current APK (`793DAF85…19A17A`) in place, the saved Pocket was powered
+on while the app was already open. Automatic connection succeeded and the sanitized target log
+confirmed a trusted seven-file manifest and grid. The user then observed:
+
+- the new German summary labels render correctly;
+- all three locally received files show local completion/integrity with source still open;
+- the four historic ambiguous files show `Zuordnung prüfen`; and
+- **the automatic-work summary remained `Kameraliste wird noch geprüft` after the grid was stable**.
+
+This final line is stale. With the durable inventory result it should instead explain the outstanding
+historic identity mapping in human language. Classify this as **FAIL / software observer-refresh
+defect**, not a camera or integrity failure. No further hardware actions were taken after this
+discriminating observation. PC20 is reopened; resume with a deterministic service-plan-to-UI
+projection regression, then repeat the full closure audit before another hardware session.
