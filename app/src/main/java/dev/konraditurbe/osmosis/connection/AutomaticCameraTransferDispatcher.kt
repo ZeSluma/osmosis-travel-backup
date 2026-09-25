@@ -5,6 +5,7 @@ import dev.konraditurbe.osmosis.backup.AutonomousBackupRuntime
 import dev.konraditurbe.osmosis.integrity.StrictTransferBatch
 import dev.konraditurbe.osmosis.ledger.LedgerCoordinator
 import dev.konraditurbe.osmosis.net.MediaDownloader
+import dev.konraditurbe.osmosis.core.DiagnosticEventStore
 
 /** Service-owned automatic strict-transfer effect. UI may observe ledger state but never owns this writer. */
 class AutomaticCameraTransferDispatcher(
@@ -20,29 +21,33 @@ class AutomaticCameraTransferDispatcher(
     @Volatile var progress: String? = null
         private set
     @Volatile private var progressPercent: Long = -1L
+    private fun decision(value: String) {
+        lastDecision = value
+        DiagnosticEventStore.open(context).record(DiagnosticEventStore.Type.TRANSFER_STATE, newState = value)
+    }
     fun dispatch() {
-        val session = resources.ledgerSession ?: run { lastDecision="NO_LEDGER_SESSION"; return }
-        val network = resources.transferNetwork ?: run { lastDecision="NO_CAMERA_NETWORK"; return }
+        val session = resources.ledgerSession ?: run { decision("NO_LEDGER_SESSION"); return }
+        val network = resources.transferNetwork ?: run { decision("NO_CAMERA_NETWORK"); return }
         val lease = sessions.snapshot()
         if (!AutomaticTransferDispatchPolicy.mayStart(resources.automaticStrictTransferSupported, session, true, lease)) {
-            lastDecision = if (lease.userStopped) "USER_STOPPED" else if (!resources.automaticStrictTransferSupported) "STRICT_TRANSFER_UNSUPPORTED" else "SESSION_NOT_READY"
+            decision(if (lease.userStopped) "USER_STOPPED" else if (!resources.automaticStrictTransferSupported) "STRICT_TRANSFER_UNSUPPORTED" else "SESSION_NOT_READY")
             return
         }
-        lastDecision = "PLAN_LOOKUP"
+        decision("PLAN_LOOKUP")
         ledger.automaticDownloadPaths(session, resources.trustedFilesByPath.values.toList()) { files ->
             val current = sessions.snapshot()
-            if (current.epoch != lease.epoch || !CameraSessionCoordinator.mayUseCameraTraffic(current)) { lastDecision="STALE_OR_UNTRUSTED"; return@automaticDownloadPaths }
+            if (current.epoch != lease.epoch || !CameraSessionCoordinator.mayUseCameraTraffic(current)) { decision("STALE_OR_UNTRUSTED"); return@automaticDownloadPaths }
             val scheduled = runtime.plan(lease.epoch, SourceTrust.TRUSTED, ledger.latestPlan, current.userStopped)
-            val backupLease = scheduled.first.lease ?: run { lastDecision="PLAN_NOT_ELIGIBLE"; return@automaticDownloadPaths }
+            val backupLease = scheduled.first.lease ?: run { decision("PLAN_NOT_ELIGIBLE"); return@automaticDownloadPaths }
             // A duplicate plan callback deliberately returns the already-current writer with no new
             // paths. Do nothing: completing it here would let the duplicate observer declare an
             // in-flight batch finished. Conversely, selected paths that no longer map to this
             // trusted observation are unsafe, not an empty successful batch.
-            if (scheduled.second.isEmpty()) { lastDecision="WRITER_ALREADY_ACTIVE"; return@automaticDownloadPaths }
+            if (scheduled.second.isEmpty()) { decision("WRITER_ALREADY_ACTIVE"); return@automaticDownloadPaths }
             val selected = files.keys.intersect(scheduled.second)
             if (!AutomaticTransferDispatchPolicy.hasEveryPlannedSource(scheduled.second, selected)) {
                 runtime.fail(backupLease, "TRANSFER_SOURCE_CHANGED")
-                lastDecision="SOURCE_CHANGED"
+                decision("SOURCE_CHANGED")
                 return@automaticDownloadPaths
             }
             val jobs = selected.mapNotNull { files[it] }.map { MediaDownloader.Job(it) }
@@ -51,7 +56,7 @@ class AutomaticCameraTransferDispatcher(
                 return@automaticDownloadPaths
             }
             val transferLease = sessions.acquireTransfer(lease.epoch) ?: run { runtime.fail(backupLease, "TRANSFER_BUSY_OR_UNTRUSTED"); return@automaticDownloadPaths }
-            lastDecision="WRITER_STARTED"
+            decision("WRITER_STARTED")
             progress = AutomaticTransferProgressPolicy.project(jobs.size, jobs.sumOf { it.file.sizeBytes.coerceAtLeast(0L) }, 0, 0).text
             progressPercent = -1L
             publishProgress()
@@ -74,7 +79,13 @@ class AutomaticCameraTransferDispatcher(
                     failed = true
                 } finally {
                     sessions.releaseTransfer(transferLease)
-                    if (!failed) runtime.complete(backupLease) else runtime.fail(backupLease, "TRANSFER_REVIEW_REQUIRED")
+                    if (!failed) {
+                        runtime.complete(backupLease)
+                        decision("WRITER_COMPLETE")
+                    } else {
+                        runtime.fail(backupLease, "TRANSFER_REVIEW_REQUIRED")
+                        decision("TRANSFER_REVIEW_REQUIRED")
+                    }
                     progress = null
                     progressPercent = -1L
                     // The Activity observes this service signal and re-reads durable receipt state;

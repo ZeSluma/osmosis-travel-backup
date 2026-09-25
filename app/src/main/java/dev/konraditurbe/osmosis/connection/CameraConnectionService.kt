@@ -59,9 +59,15 @@ class CameraConnectionService : Service() {
         @Volatile private var backupProjectionNotifierInstance: BackupProjectionNotifier? = null
         fun runtime(context: Context): DurableSessionRuntime = instance ?: synchronized(this) {
             instance ?: DurableSessionRuntime(PreferenceSessionStore(context)) { lease ->
-                DiagnosticEventStore.open(context).record(
+                val diagnostics = DiagnosticEventStore.open(context)
+                diagnostics.record(
                     DiagnosticEventStore.Type.SESSION_STATE,
                     newState = lease.recovery.state.name,
+                    reason = lease.recovery.reason?.name,
+                    retryCount = lease.recovery.attempts,
+                )
+                if (lease.recovery.state == ConnectionState.USER_ACTION_REQUIRED) diagnostics.record(
+                    DiagnosticEventStore.Type.USER_ACTION_REQUIRED,
                     reason = lease.recovery.reason?.name,
                     retryCount = lease.recovery.attempts,
                 )

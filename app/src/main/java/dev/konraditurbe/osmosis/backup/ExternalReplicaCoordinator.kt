@@ -3,6 +3,7 @@ package dev.konraditurbe.osmosis.backup
 import android.content.Context
 import java.util.concurrent.atomic.AtomicBoolean
 import dev.konraditurbe.osmosis.ledger.LedgerCoordinator
+import dev.konraditurbe.osmosis.core.DiagnosticEventStore
 
 /**
  * Application-owned phone→SSD runner. It intentionally has no camera/session dependency: a
@@ -19,6 +20,7 @@ class ExternalReplicaCoordinator private constructor(context: Context) {
         Thread {
             val destination=ExternalDestinationManager(app)
             val state=destination.refreshAvailability()
+            DiagnosticEventStore.open(app).record(DiagnosticEventStore.Type.STORAGE_STATE, newState = state.name)
             if(state!=ExternalStorageAvailability.AVAILABLE) { running.set(false); return@Thread }
             val tree=destination.selectedTree()
             val id=destination.destinationId()
@@ -26,13 +28,17 @@ class ExternalReplicaCoordinator private constructor(context: Context) {
             val ledger=LedgerCoordinator.get(app)
                 ledger.reconcileExternalReplicas(id) {
                     ledger.phoneReplicaCandidates(id) { candidates ->
-                    if(!ExternalReplicaRunPolicy.maySchedule(state,candidates.size)) { running.set(false); return@phoneReplicaCandidates }
+                    if(!ExternalReplicaRunPolicy.maySchedule(state,candidates.size)) {
+                        DiagnosticEventStore.open(app).record(DiagnosticEventStore.Type.STORAGE_STATE, newState = "NO_REPLICA_WORK")
+                        running.set(false); return@phoneReplicaCandidates
+                    }
                     // This callback is on the serialized ledger writer; copy work must run elsewhere.
                     Thread {
                         try {
                         candidates.forEach { candidate ->
                             ledger.replicateToExternal(candidate,id,tree) { false }
                         }
+                        DiagnosticEventStore.open(app).record(DiagnosticEventStore.Type.STORAGE_STATE, newState = "REPLICA_RUN_COMPLETE")
                         } finally { running.set(false) }
                     }.apply { name="osmosis-external-replica-copy" }.start()
                 }
