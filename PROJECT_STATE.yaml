@@ -6,10 +6,10 @@ execution: {
   "scope": "PROJECT_WIDE_PERMANENT",
   "primary_progress_metric": "VISIBLE_SAFE_END_TO_END_PRODUCT_CAPABILITY_PER_CREDIT",
   "cost_policy": {"priority": "HARD", "primary_model": "gpt-5.6-terra", "primary_reasoning": "low", "subagent_model": "gpt-5.6-luna", "subagent_reasoning": "low", "automatic_escalation": false, "expensive_model_requires_explicit_approval": true, "project_config_activation": "PENDING_APPROVAL_RUNTIME_VALIDATION", "active_root_switch": "USER_CLIENT_SWITCH_REQUIRED_FROM_GPT6_ASTRA"},
-  "software_work_remaining": false, "autonomous_work_remaining": false, "human_stop_required": false, "human_stop_kind": null, "human_stop_reason": "PC01 power-cycle recovery repaired and target-retested: known Pocket automatically reconnects, revalidates and restores the grid after controlled power loss. Remaining hardware is consolidated SSD/physical lifecycle coverage only.",
-  "reachable_non_destructive_work_remaining": false,
-  "software_preparation_exhausted": true,
-  "closure_audit": {"full_software_scope_complete": true, "evidence": "2026-09-19 target recovery closure: background/foreground retained a connected grid; controlled Pocket power-cycle initially reproduced missing auto-reconnect. Repair routes live AP loss to five bounded BLE rediscovery scans, clears the stale connecting gate, fences recovery by durable epoch, and silently drops stale scan callbacks. Full JVM/debug build 475 tests PASS; in-place S25 retest automatically showed Connecting → Revalidating → six-item grid with the honest fail-closed status projection."},
+  "software_work_remaining": true, "autonomous_work_remaining": true, "human_stop_required": false, "human_stop_kind": null, "human_stop_reason": "2026-09-25 S25 evidence: automatic reconnect/revalidation is target-proven, but two displayed DOWNLOAD candidates did not dispatch because the plan is INCOMPLETE with IDENTITY_UNRESOLVED historical observations. Diagnose whether safe current candidates can proceed without weakening historical completeness or completion truth.",
+  "reachable_non_destructive_work_remaining": true,
+  "software_preparation_exhausted": false,
+  "closure_audit": {"full_software_scope_complete": false, "evidence": "2026-09-19 target recovery closure passed known-camera power-cycle recovery. 2026-09-25 target observation reopens automatic execution: status reports current-unresolved=0/history-unresolved=3/download=2/verify=3/revalidate=1/review=0, but no automatic download started. The observed block is fail-closed, but the planner/dispatcher product behavior needs a software audit before another hardware request."},
   "human_stop": {"required": false, "kind": null, "reason": "Autonomous closure audit and any resulting safe software repairs must finish before the consolidated physical session."},
   "hardware_validation": {"state": "LOCAL_PATH_WAITING_FOR_HARDWARE", "queue": "docs/hardware/VALIDATION_QUEUE.json", "consolidated": true},
   "work_items": [
@@ -21,7 +21,7 @@ execution: {
     {"id": "HOOK_RUNTIME_ACTIVATION", "state": "LOCAL_PATH_WAITING_FOR_APPROVAL"},
     {"id": "CLOUD_HANDOFF", "state": "PUBLISHED_VERIFIED_450eaf8531fa173c6c8fa0d23ac7b3f37a035f5d"},
     {"id": "GATE_7_SERVICE_RUNTIME", "state": "IMPLEMENTED_SOFTWARE_EMULATOR_PROVEN"},
-    {"id": "AUTONOMOUS_BACKUP_MVP", "state": "SOFTWARE_COMPLETE_475_TESTS_PC01_TARGET_RECOVERY_PASS"}
+    {"id": "AUTONOMOUS_BACKUP_MVP", "state": "AUTOMATIC_DOWNLOAD_DISPATCH_AUDIT_PENDING"}
   ]
 }
 current_phase: autonomous_backup_mvp_recovery_repair_hardware_retest_pending

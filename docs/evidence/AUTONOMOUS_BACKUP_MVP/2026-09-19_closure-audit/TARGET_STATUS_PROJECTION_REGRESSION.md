@@ -70,3 +70,18 @@ Clear No`, with the existing `IDENTITY_UNRESOLVED` plan reason and no writer fal
 This is a target PASS for known-camera recovery after controlled loss. The implementation is
 bounded at five scan windows, fenced by the durable session epoch, and does not retry after an
 explicit user stop.
+
+## 2026-09-25 automatic-download execution finding
+
+The recovered target session displayed the six-item grid and the durable status projection:
+`Camera Sync Pending`, `Redundancy Pending`, `Safe to Clear No`, `Auto Plan Complete False`,
+`IDENTITY_UNRESOLVED`, `current unresolved=0`, `history unresolved=3`, `download=2`,
+`verify=3`, `revalidate=1`, `review=0`.
+
+No automatic download started. This is not recorded as a transfer failure or a false completion:
+the current implementation refuses automatic paths whenever the plan's `enumerationComplete` is
+false, and historical unresolved observations make that plan incomplete. The next software task
+is to audit whether the two current, concretely observed new assets can be dispatched safely while
+the three historical observations remain unresolved and continue to block Camera Sync Complete,
+redundancy, and Safe-to-Clear. No camera deletion, overwrite, identity inference, verification
+promotion, or manual retest was performed.
