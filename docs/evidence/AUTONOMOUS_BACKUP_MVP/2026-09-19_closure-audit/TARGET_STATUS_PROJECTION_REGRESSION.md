@@ -107,3 +107,24 @@ after a normal trusted connection, the two current candidates may begin service-
 downloads, while the summary must remain Camera Sync Pending, Redundancy Pending and Safe to Clear
 No until the historical identity ambiguity is actually resolved. No camera-original mutation,
 overwrite, identity inference or VERIFIED promotion is authorized by this repair.
+
+## 2026-09-25 paginated-inventory dispatch repair — internal PASS, target pending
+
+The mandatory ownership audit found a second execution gap: a user-requested next manifest page
+was reconciled directly by `MainActivity`. If that page was terminal, it could make the durable
+inventory complete but did not call the service dispatcher; it also retained only the terminal
+page in the service file map. This could leave automatic work absent or conservatively fail with
+`TRANSFER_SOURCE_CHANGED` for earlier pages.
+
+The Activity now hands a fetched page back to `CameraBackupPlanCoordinator`. That service bridge
+requires the active ledger session and source association, accumulates only that session's observed
+pages, and invokes dispatch only after its terminal trusted ledger plan is durable. A transport
+release clears the page map. The UI applies a page to its grid only after the same service-owned
+session/source fence, so a stale callback cannot repaint a replacement camera grid. The added
+resource regression proves current pages aggregate, a stale session/source page is rejected, and
+release clears retained source data. Focused connection/dispatch tests and the full JVM/debug build
+passed with **480 tests, zero failures and zero errors**.
+
+The target proof remains the same non-destructive observation: allow normal complete enumeration
+and confirm service-owned work starts for the two current candidates while historical ambiguity
+continues to keep Camera Sync Pending, Redundancy Pending and Safe to Clear No.

@@ -1,5 +1,6 @@
 package dev.konraditurbe.osmosis.connection
 
+import dev.konraditurbe.osmosis.core.CameraFile
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -65,5 +66,21 @@ class CameraSessionResourcesTest {
         assertTrue(resources.acceptsApJoinerCallback(second))
         resources.releaseApJoiner()
         assertFalse(resources.acceptsApJoinerCallback(second))
+    }
+
+    @Test fun terminalTrustedPageRetainsAllCurrentSessionPagesButRejectsStalePage() {
+        val resources = CameraSessionResources()
+        resources.ledgerSession = "current"
+        resources.configureSelectedCamera("AA:BB", strictTransferSupported = true)
+        assertTrue(resources.acceptsSourcePage("current", "AA:BB"))
+        assertFalse(resources.acceptsSourcePage("superseded", "AA:BB"))
+        assertFalse(resources.acceptsSourcePage("current", "CC:DD"))
+        assertTrue(resources.recordSourcePage("current", listOf(CameraFile("first.mp4", "first.thm"))))
+        assertFalse(resources.recordSourcePage("superseded", listOf(CameraFile("stale.mp4", "stale.thm"))))
+        assertTrue(resources.recordSourcePage("current", listOf(CameraFile("last.mp4", "last.thm"))))
+
+        assertTrue(resources.trustedFilesByPath.keys == setOf("first.mp4", "last.mp4"))
+        resources.releaseTransport()
+        assertTrue(resources.trustedFilesByPath.isEmpty())
     }
 }

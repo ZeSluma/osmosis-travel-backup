@@ -61,6 +61,7 @@ import dev.konraditurbe.osmosis.backup.ExternalDestinationManager
 import dev.konraditurbe.osmosis.backup.BackupProductStatus
 import com.google.android.material.progressindicator.LinearProgressIndicator
 import java.text.SimpleDateFormat
+import java.time.Instant
 import java.util.Date
 import java.util.Locale
 
@@ -1612,24 +1613,22 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
             visibility = View.VISIBLE; alpha = 1f; scaleX = 1f; scaleY = 1f; translationY = 0f
         }
         val pageLedgerToken = connectionResources.ledgerSession
-        val pageLedgerAddress = currentAddress
+        val pageLedgerAssociation = connectionResources.sourceAssociation
         Thread {
             val fetched = runCatching {
                 applyStorageAndSort(dl.fetchNextPage())
             }
             val more = fetched.getOrElse { emptyList() }
+            val terminalTrustedPage = fetched.isSuccess && !dl.moreAvailable
             main.post {
-                adapter?.append(more)
                 val token = pageLedgerToken
-                val address = pageLedgerAddress
-                if (token != null && address != null) {
-                    dev.konraditurbe.osmosis.ledger.LedgerCoordinator.get(applicationContext)
-                        .observe(address, token, more, pagesEnded = !dl.moreAvailable, failed = fetched.isFailure,
-                            storesComplete = !dl.moreAvailable && fetched.isSuccess,
-                            membersComplete = !dl.moreAvailable && fetched.isSuccess,
-                            stableGeneration = !dl.moreAvailable && fetched.isSuccess) { planned ->
-                            if (planned) main.post { if (token == connectionResources.ledgerSession) refreshBackupLabels() }
-                        }
+                val address = pageLedgerAssociation
+                if (token != null && address != null && connectionResources.acceptsSourcePage(token, address)) {
+                    adapter?.append(more)
+                    CameraConnectionService.backupPlanCoordinator(applicationContext).append(
+                        token, address, more, terminalTrustedPage, terminalTrustedPage, Instant.now(),
+                        CameraConnectionService.backupProjectionNotifier(applicationContext)::publish,
+                    )
                 }
                 findViewById<View>(R.id.loadMoreSpinner)?.animate()?.alpha(0f)?.setDuration(180)
                     ?.withEndAction { findViewById<View>(R.id.loadMoreSpinner)?.visibility = View.GONE }?.start()

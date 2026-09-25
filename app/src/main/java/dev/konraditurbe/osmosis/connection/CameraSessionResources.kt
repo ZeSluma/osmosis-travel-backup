@@ -99,4 +99,19 @@ class CameraSessionResources {
         sourceAssociation = association
         automaticStrictTransferSupported = strictTransferSupported
     }
+
+    /**
+     * Retain pages only for the current service-owned ledger session. They are observed source
+     * data, not permission to transfer: the dispatcher still requires a final trusted inventory.
+     * This lets a trusted terminal page schedule a plan covering every page, without letting a
+     * stale pagination callback donate files to a replacement camera session.
+     */
+    @Synchronized fun recordSourcePage(session: String, files: List<CameraFile>): Boolean {
+        if (session != ledgerSession) return false
+        trustedFilesByPath = trustedFilesByPath + files.associateBy { it.path }
+        return true
+    }
+
+    @Synchronized fun acceptsSourcePage(session: String, association: String): Boolean =
+        session == ledgerSession && association == sourceAssociation
 }

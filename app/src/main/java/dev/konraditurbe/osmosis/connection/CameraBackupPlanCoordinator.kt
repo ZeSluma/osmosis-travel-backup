@@ -20,7 +20,30 @@ class CameraBackupPlanCoordinator(
     ) {
         val session = ledger.newSession()
         resources.ledgerSession = session
-        resources.trustedFilesByPath = if (sourceTrusted) files.associateBy { it.path } else emptyMap()
+        resources.trustedFilesByPath = emptyMap()
+        resources.recordSourcePage(session, files)
+        ledger.observe(association, session, files, enumerationComplete, !sourceTrusted,
+            sourceTrusted, sourceTrusted, sourceTrusted, started) { planned ->
+            if (planned) dispatcher.dispatch()
+            onProjectionChanged()
+        }
+    }
+
+    /**
+     * A UI may request another manifest page, but it must hand the result back to this service
+     * bridge. The bridge keeps one durable session, aggregates only that session's pages and
+     * starts automatic work only after the terminal trusted observation is planned.
+     */
+    fun append(
+        session: String,
+        association: String,
+        files: List<CameraFile>,
+        enumerationComplete: Boolean,
+        sourceTrusted: Boolean,
+        started: Instant,
+        onProjectionChanged: () -> Unit,
+    ) {
+        if (!resources.acceptsSourcePage(session, association) || !resources.recordSourcePage(session, files)) return
         ledger.observe(association, session, files, enumerationComplete, !sourceTrusted,
             sourceTrusted, sourceTrusted, sourceTrusted, started) { planned ->
             if (planned) dispatcher.dispatch()
