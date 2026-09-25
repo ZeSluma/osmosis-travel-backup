@@ -13,6 +13,11 @@ execution: {
   "human_stop": {"required": true, "kind": "USER_PAUSE", "reason": "User ended this session after documented PC20 target FAIL; preserve current device data."},
   "hardware_validation": {"state": "LOCAL_PATH_WAITING_FOR_HARDWARE", "queue": "docs/hardware/VALIDATION_QUEUE.json", "consolidated": true},
   "work_items": [
+    {"id": "PC20_TERMINAL_INVENTORY_PROJECTION", "state": "READY"},
+    {"id": "R037_CAPTURE_DAY_COMPLETE", "state": "READY"},
+    {"id": "R040_GPS_OPT_IN", "state": "READY"},
+    {"id": "R041_DIAGNOSTICS_COMPLETE", "state": "READY"},
+    {"id": "R042_LIVENESS_MATRIX", "state": "READY"},
     {"id": "AUTONOMY_CONTROL", "state": "IMPLEMENTED_SOFTWARE_PROVEN"},
     {"id": "CRASH_BOUNDARY_MATRIX", "state": "PARTIALLY_PROVEN_FAIL_CLOSED"},
     {"id": "CAMERA_LEDGER_HARNESS", "state": "SYNTHETIC_EMULATOR_PROVEN"},
@@ -224,7 +229,7 @@ product_identity_distribution: Future R-043 phase after proven G2/G3/G7/G4 workf
 execution_policy: CONTINUOUS_DEFINED_NONDESTRUCTIVE_GATES
 cost_policy: AGENTS.md cost-aware execution; targeted iterations, batched evidence, full verification at meaningful checkpoints
 execution_policy_source: AGENTS.md
-current_implementation_scope: Autonomous camera-to-phone-to-SSD MVP on top of closed GATE-7: trusted automatic planning, strict phone receipt integrity, SAF destination identity and independently verified external replicas; no camera deletion, release, main modification or untrusted append/resume
+current_implementation_scope: Complete non-destructive Osmosis Travel Backup app: core autonomous backup plus R-037 capture-day, R-040 GPS opt-in, R-041 diagnostics and R-042 liveness. Camera deletion, release, production access, main modification and untrusted append/resume remain separately restricted.
 autonomous_backup_checkpoint: >-
   2026-09-18 published f7c1f72716ba9d5d3ca45cbefe36572cb747ca04: trusted automatic
   known-camera selection, complete-inventory-only planning, fenced camera/replica scheduling,
