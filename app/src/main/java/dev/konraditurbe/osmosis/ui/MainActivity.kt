@@ -56,6 +56,7 @@ import dev.konraditurbe.osmosis.connection.CameraConnectionService
 import dev.konraditurbe.osmosis.connection.ConnectionEvent
 import dev.konraditurbe.osmosis.connection.ConnectionReason
 import dev.konraditurbe.osmosis.connection.CameraRecoveryScanPolicy
+import dev.konraditurbe.osmosis.connection.CameraStartupDiscoveryPolicy
 import dev.konraditurbe.osmosis.connection.SessionLease
 import dev.konraditurbe.osmosis.backup.ExternalDestinationManager
 import dev.konraditurbe.osmosis.backup.BackupProductStatus
@@ -389,7 +390,7 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
         // A launcher open is explicit user intent to begin a new discovery session. It may clear a
         // previous explicit stop by allocating a fresh epoch; configuration/recreation does not.
         if (savedInstanceState == null) cameraEpoch = CameraConnectionService.coordinator(applicationContext).begin().epoch
-        startCameraScan(select = true)
+        startKnownCameraDiscovery()
         confirmShortcut(launchIntent)
     }
 
@@ -406,7 +407,7 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
         setIntent(clean)
         if (freshLauncher) {
             cameraEpoch = CameraConnectionService.coordinator(applicationContext).begin().epoch
-            startCameraScan(select = true)
+            startKnownCameraDiscovery()
         }
         confirmShortcut(intent)
     }
@@ -562,9 +563,44 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
     // MAC explicitly confirmed in the shortcut dialog: connect the moment it advertises
     // (see CameraShortcuts / onHit). Cleared once consumed.
     private var autoPickMac: String? = null
+    private var startupScanEpoch: Long? = null
+    private var startupScanAttempts = 0
+
+    /** Fresh-launch discovery is bounded yet covers a Pocket booting after the app opens. */
+    private fun startKnownCameraDiscovery() {
+        val current = CameraConnectionService.runtime(applicationContext).snapshot()
+        if (savedCameras.recent().isEmpty() || current.userStopped) {
+            startCameraScan(select = true)
+            return
+        }
+        startupScanEpoch = cameraEpoch
+        startupScanAttempts = 0
+        scheduleStartupDiscovery()
+    }
+
+    private fun scheduleStartupDiscovery() {
+        val epoch = startupScanEpoch ?: return
+        val runtime = CameraConnectionService.runtime(applicationContext)
+        if (!CameraStartupDiscoveryPolicy.ownsEpoch(startupScanEpoch, epoch, runtime.snapshot()) || connectionResources.connecting) return
+        val next = CameraStartupDiscoveryPolicy.nextAttempt(startupScanAttempts, savedCameras.recent().isNotEmpty(), runtime.snapshot())
+        if (next == null) {
+            startupScanEpoch = null
+            CameraConnectionService.coordinator(applicationContext).cameraUnavailable(epoch)
+            return
+        }
+        startupScanAttempts = next
+        main.postDelayed({
+            if (CameraStartupDiscoveryPolicy.ownsEpoch(startupScanEpoch, epoch, runtime.snapshot()) && !connectionResources.connecting)
+                startCameraScan(select = true, startupDiscovery = true, startupEpoch = epoch)
+        }, if (next == 1) 0L else CameraStartupDiscoveryPolicy.RETRY_DELAY_MS)
+    }
 
     /** Scan ~4s for DJI/Xtra cameras (bonds aren't reliable for these), then feed the selector list. */
-    private fun startCameraScan(select: Boolean, pick: String? = null, recovery: Boolean = false, recoveryEpoch: Long? = null) {
+    private fun startCameraScan(select: Boolean, pick: String? = null, recovery: Boolean = false, recoveryEpoch: Long? = null,
+        startupDiscovery: Boolean = false, startupEpoch: Long? = null) {
+        // A user-initiated scan is a new foreground decision, not a continuation of launcher
+        // discovery.  Invalidate its delayed callbacks before replacing the scanner.
+        if (!recovery && !startupDiscovery) startupScanEpoch = null
         val adapter = btAdapter ?: run { logLine("No Bluetooth adapter."); toast(getString(R.string.no_bluetooth)); return }
         if (!adapter.isEnabled) { promptEnableBluetooth(select, pick); return }
         val missing = requiredPerms().filter {
@@ -603,6 +639,10 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
                         CameraRecoveryScanPolicy.ownsRecoveryEpoch(recoveryScanEpoch, recoveryEpoch, durable)) {
                         scheduleRecoveryScan()
                     }
+                    return@postDelayed
+                } else if (startupDiscovery) {
+                    if (startupEpoch != null && CameraStartupDiscoveryPolicy.ownsEpoch(startupScanEpoch, startupEpoch, durable))
+                        scheduleStartupDiscovery()
                     return@postDelayed
                 } else {
                     // Never let a stale recovery scanner fail a replacement session. A normal

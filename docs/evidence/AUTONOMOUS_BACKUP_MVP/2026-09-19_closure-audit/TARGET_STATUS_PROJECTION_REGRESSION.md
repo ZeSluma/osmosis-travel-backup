@@ -165,3 +165,21 @@ each notification re-reads its durable display state and does not own the sessio
 errors**. Physical confirmation of the new UI projection, the already-repaired recovery chain and
 SSD provider behavior is consolidated in `docs/hardware/VALIDATION_QUEUE.json`; no software-only
 claim is left open.
+
+## 2026-09-25 launcher-before-camera discovery regression — target FAIL, repair ready
+
+In the consolidated S25/Pocket session, opening the app while the Pocket was off started one BLE
+scan. Turning the Pocket on afterwards did not trigger another scan or automatic connection. When
+the Pocket was already on before opening the app, the same build found it, completed the bounded
+empty-inventory retry, revalidated a six-item grid, and retained the fail-closed plan status.
+
+This isolates the fault to launcher discovery timing, not pairing, AP association, datalink,
+inventory parsing or ledger status. `CameraStartupDiscoveryPolicy` now gives only a known saved
+camera eight epoch-fenced scan windows after a fresh launcher start. It never runs after explicit
+stop, never survives a replacement epoch, is cancelled by a manual scan, and ends in an honest
+user-action-required state once its fixed budget is exhausted. Focused policy/recovery/resource
+tests plus the full JVM/debug build passed with **486 tests, zero failures and zero errors**.
+
+The remaining target check is discriminating and non-destructive: app open while camera is off,
+then power the Pocket on within the bounded search window; it must connect exactly once without a
+Rescan. No transfer, deletion, media overwrite or SSD action is required for this retest.
