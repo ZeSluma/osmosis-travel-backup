@@ -24,7 +24,10 @@ class CameraBackupPlanCoordinator(
         resources.recordSourcePage(session, files)
         ledger.observe(association, session, files, enumerationComplete, !sourceTrusted,
             sourceTrusted, sourceTrusted, sourceTrusted, started) { planned ->
-            if (planned) dispatcher.dispatch()
+            // `planned` is a projection hint only. The durable dispatcher rechecks trust,
+            // current-source eligibility and writer fencing itself; coupling its wake-up to this
+            // second callback can strand a safe persisted DOWNLOAD plan.
+            dispatcher.dispatch()
             onProjectionChanged()
         }
     }
@@ -46,7 +49,7 @@ class CameraBackupPlanCoordinator(
         if (!resources.acceptsSourcePage(session, association) || !resources.recordSourcePage(session, files)) return
         ledger.observe(association, session, files, enumerationComplete, !sourceTrusted,
             sourceTrusted, sourceTrusted, sourceTrusted, started) { planned ->
-            if (planned) dispatcher.dispatch()
+            dispatcher.dispatch()
             onProjectionChanged()
         }
     }

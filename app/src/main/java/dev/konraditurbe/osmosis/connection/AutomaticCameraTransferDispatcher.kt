@@ -14,32 +14,47 @@ class AutomaticCameraTransferDispatcher(
     private val runtime: AutonomousBackupRuntime,
     private val ledger: LedgerCoordinator,
 ) {
+    /** Privacy-safe service diagnostic; contains no asset, path, network or credential data. */
+    @Volatile var lastDecision: String = "NOT_EVALUATED"
+        private set
+    @Volatile var progress: String? = null
+        private set
+    @Volatile private var progressPercent: Long = -1L
     fun dispatch() {
-        val session = resources.ledgerSession ?: return
-        val network = resources.transferNetwork ?: return
+        val session = resources.ledgerSession ?: run { lastDecision="NO_LEDGER_SESSION"; return }
+        val network = resources.transferNetwork ?: run { lastDecision="NO_CAMERA_NETWORK"; return }
         val lease = sessions.snapshot()
-        if (!AutomaticTransferDispatchPolicy.mayStart(resources.automaticStrictTransferSupported, session, true, lease)) return
-        ledger.automaticDownloadPaths(session, resources.trustedFilesByPath.values.toList()) { paths ->
+        if (!AutomaticTransferDispatchPolicy.mayStart(resources.automaticStrictTransferSupported, session, true, lease)) {
+            lastDecision = if (lease.userStopped) "USER_STOPPED" else if (!resources.automaticStrictTransferSupported) "STRICT_TRANSFER_UNSUPPORTED" else "SESSION_NOT_READY"
+            return
+        }
+        lastDecision = "PLAN_LOOKUP"
+        ledger.automaticDownloadPaths(session, resources.trustedFilesByPath.values.toList()) { files ->
             val current = sessions.snapshot()
-            if (current.epoch != lease.epoch || !CameraSessionCoordinator.mayUseCameraTraffic(current)) return@automaticDownloadPaths
+            if (current.epoch != lease.epoch || !CameraSessionCoordinator.mayUseCameraTraffic(current)) { lastDecision="STALE_OR_UNTRUSTED"; return@automaticDownloadPaths }
             val scheduled = runtime.plan(lease.epoch, SourceTrust.TRUSTED, ledger.latestPlan, current.userStopped)
-            val backupLease = scheduled.first.lease ?: return@automaticDownloadPaths
+            val backupLease = scheduled.first.lease ?: run { lastDecision="PLAN_NOT_ELIGIBLE"; return@automaticDownloadPaths }
             // A duplicate plan callback deliberately returns the already-current writer with no new
             // paths. Do nothing: completing it here would let the duplicate observer declare an
             // in-flight batch finished. Conversely, selected paths that no longer map to this
             // trusted observation are unsafe, not an empty successful batch.
-            if (scheduled.second.isEmpty()) return@automaticDownloadPaths
-            val selected = paths.intersect(scheduled.second)
+            if (scheduled.second.isEmpty()) { lastDecision="WRITER_ALREADY_ACTIVE"; return@automaticDownloadPaths }
+            val selected = files.keys.intersect(scheduled.second)
             if (!AutomaticTransferDispatchPolicy.hasEveryPlannedSource(scheduled.second, selected)) {
                 runtime.fail(backupLease, "TRANSFER_SOURCE_CHANGED")
+                lastDecision="SOURCE_CHANGED"
                 return@automaticDownloadPaths
             }
-            val jobs = selected.mapNotNull { resources.trustedFilesByPath[it] }.map { MediaDownloader.Job(it) }
+            val jobs = selected.mapNotNull { files[it] }.map { MediaDownloader.Job(it) }
             if (jobs.size != selected.size) {
                 runtime.fail(backupLease, "TRANSFER_SOURCE_CHANGED")
                 return@automaticDownloadPaths
             }
             val transferLease = sessions.acquireTransfer(lease.epoch) ?: run { runtime.fail(backupLease, "TRANSFER_BUSY_OR_UNTRUSTED"); return@automaticDownloadPaths }
+            lastDecision="WRITER_STARTED"
+            progress = AutomaticTransferProgressPolicy.project(jobs.size, jobs.sumOf { it.file.sizeBytes.coerceAtLeast(0L) }, 0, 0).text
+            progressPercent = -1L
+            publishProgress()
             Thread {
                 var failed = true
                 try {
@@ -47,7 +62,7 @@ class AutomaticCameraTransferDispatcher(
                         session, resources.ledgerSession, network, resources.transferNetwork, lease.epoch,
                         sessions.snapshot(), sessions.activeTransfer() == transferLease, runtime.accepts(backupLease),
                     )
-                    val result = StrictTransferBatch.run(jobs, SilentProgress) { job, tick ->
+                    val result = StrictTransferBatch.run(jobs, progressReporter(jobs)) { job, tick ->
                         if (invalid())
                             LedgerCoordinator.TransferResult.REVIEW_REQUIRED
                         else ledger.transferOriginal(session, job.file, network, ::invalid, tick)
@@ -60,15 +75,45 @@ class AutomaticCameraTransferDispatcher(
                 } finally {
                     sessions.releaseTransfer(transferLease)
                     if (!failed) runtime.complete(backupLease) else runtime.fail(backupLease, "TRANSFER_REVIEW_REQUIRED")
+                    progress = null
+                    progressPercent = -1L
+                    // The Activity observes this service signal and re-reads durable receipt state;
+                    // it never receives transfer truth directly from the worker.
+                    CameraConnectionService.backupProjectionNotifier(context).publish()
                 }
             }.start()
         }
     }
-    private object SilentProgress : MediaDownloader.Progress {
-        override fun onStart(totalFiles: Int, totalBytes: Long) = Unit
+    private fun progressReporter(jobs: List<MediaDownloader.Job>) = object : MediaDownloader.Progress {
+        private var totalFiles = jobs.size
+        private var totalBytes = jobs.sumOf { it.file.sizeBytes.coerceAtLeast(0L) }
+        private var completedFiles = 0
+        private var lastOverallDone = 0L
+        override fun onStart(totalFiles: Int, totalBytes: Long) {
+            this.totalFiles = totalFiles
+            this.totalBytes = totalBytes
+            update(0L)
+        }
+        // Names are intentionally ignored: the observer diagnostic must not expose media metadata.
         override fun onFileStart(index: Int, name: String, fileBytes: Long) = Unit
-        override fun onTick(fileDone: Long, overallDone: Long) = Unit
-        override fun onFileDone(index: Int, done: Boolean) = Unit
+        override fun onTick(fileDone: Long, overallDone: Long) {
+            lastOverallDone = overallDone.coerceAtLeast(lastOverallDone)
+            update(lastOverallDone)
+        }
+        override fun onFileDone(index: Int, done: Boolean) {
+            if (done) completedFiles++
+            update(lastOverallDone)
+        }
         override fun onComplete(saved: Int, skipped: Int, failed: Int) = Unit
+        private fun update(overallDone: Long) {
+            val next = AutomaticTransferProgressPolicy.project(totalFiles, totalBytes, completedFiles, overallDone)
+            if (AutomaticTransferProgressPolicy.shouldPublish(progressPercent, next.percent)) {
+                progress = next.text
+                progressPercent = next.percent
+                publishProgress()
+            }
+        }
     }
+
+    private fun publishProgress() = CameraConnectionService.backupProjectionNotifier(context).publish()
 }

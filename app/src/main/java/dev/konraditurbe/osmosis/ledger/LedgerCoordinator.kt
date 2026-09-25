@@ -224,15 +224,15 @@ class LedgerCoordinator private constructor(context: Context) {
     }
 
     /** Read-only mapping of a complete trusted plan onto visible files. UI may queue it but never start IO here. */
-    fun automaticDownloadPaths(session:String,files:List<CameraFile>,result:(Set<String>)->Unit) {
+    fun automaticDownloadPaths(session:String,files:List<CameraFile>,result:(Map<String,CameraFile>)->Unit) {
         writer.execute {
             val paths=runCatching {
                 val lease=checkNotNull(latestLease)
                 check(session==activeSession && session==leaseSession)
                 val plan=checkNotNull(latestPlan)
                 val ids=AutomaticBackupPlan.downloadAssetIds(plan)
-                files.filter { CameraLedgerAdapter.asset(it).identity(lease.sourceId) in ids }.map { it.path }.toSet()
-            }.getOrDefault(emptySet())
+                files.mapNotNull { file -> CameraLedgerAdapter.asset(file).identity(lease.sourceId).takeIf { it in ids }?.let { it to file } }.toMap()
+            }.getOrDefault(emptyMap())
             result(paths)
         }
     }

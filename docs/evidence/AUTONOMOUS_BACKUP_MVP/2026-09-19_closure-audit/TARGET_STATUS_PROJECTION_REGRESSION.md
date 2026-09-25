@@ -140,3 +140,28 @@ before a transfer lease is acquired. Missing source paths produce `TRANSFER_SOUR
 the scheduler review-required, and never call completion. The dedicated policy regression covers
 empty, partial and full live projections; targeted transfer/runtime tests and the full JVM/debug
 build passed with **481 tests, zero failures and zero errors**.
+
+## 2026-09-25 exact-source dispatch and progress-projection repair — software PASS
+
+The target later reported `Auto: service dispatch=SOURCE_CHANGED (2)` despite a trusted grid and
+two safe current candidates. Sanitized target logs then established that both candidate transfers
+could complete under the service writer with exact length/readback integrity; this was therefore
+not a camera transport, planner, checksum, or duplicate-writer defect.
+
+The cause was a representation mismatch in the dispatcher: durable plan items are asset identities,
+whereas the trusted live observation was indexed by camera paths. Comparing those two string
+domains made every valid planned asset appear missing. The dispatcher now builds an exact
+asset-identity-to-`CameraFile` map for the active trusted source before it validates full coverage.
+Missing or partial live coverage still fails closed as `TRANSFER_SOURCE_CHANGED`.
+
+The service now also emits a privacy-safe live projection on each percentage change and final
+completion: `transfer=<percent>% (<completed>/<total>)`. It deliberately excludes filenames,
+paths, identifiers, network data and media metadata. The Activity is only a removable observer;
+each notification re-reads its durable display state and does not own the session or writer.
+
+`AutomaticTransferProgressPolicyTest`, `AutomaticTransferDispatchPolicyTest` and
+`StrictTransferBatchTest` passed. The final local regression checkpoint
+`:app:testDebugUnitTest :app:assembleDebug` passed with **483 tests, zero failures and zero
+errors**. Physical confirmation of the new UI projection, the already-repaired recovery chain and
+SSD provider behavior is consolidated in `docs/hardware/VALIDATION_QUEUE.json`; no software-only
+claim is left open.

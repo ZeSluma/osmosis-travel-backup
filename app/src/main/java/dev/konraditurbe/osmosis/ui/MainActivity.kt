@@ -1376,7 +1376,8 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
                     }
                     // Automatic camera IO is dispatched by the service-owned executor when the
                     // durable ledger plan is published.  The Activity only projects its state.
-                    automaticScheduleStatus = "service dispatch pending (${paths.size})"
+                    val dispatcher = CameraConnectionService.automaticTransferDispatcher(applicationContext)
+                    automaticScheduleStatus = dispatcher.progress ?: "service dispatch=${dispatcher.lastDecision} (${paths.size})"
                     backupProductStatus?.let(::renderBackupSummary)
                     return@post
                 }
