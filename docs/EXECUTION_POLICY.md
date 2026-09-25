@@ -50,6 +50,32 @@ fresh audit records `full_software_scope_complete: true` with evidence in `PROJE
 unfenced stale-GATT-callback path; it is a process control, not evidence that hardware behavior was
 already proven.
 
+### Mandatory visible-state matrix — corrective rule (2026-09-25)
+
+Before any hardware request, execute and record a deterministic matrix covering every visible
+asset and product state: new, partial, locally integrity-confirmed with source identity still open,
+existing-but-unconfirmed local copy, ambiguous/missing binding, trusted/incomplete inventory,
+Camera Sync, redundancy and Safe-to-Clear. Each row must state its required durable evidence and
+prove that no stronger completion claim appears. `PROJECT_STATE.execution.closure_audit` must set
+`state_matrix_complete: true` and cite `state_matrix_evidence`; `tools/autonomy/control.py --check`
+rejects a hardware boundary otherwise. This is a hard control, not a documentation convention.
+
+### Mandatory full-requirement and combined-hardware audit — corrective rule (2026-09-25)
+
+Before hardware is requested, audit every requirement in `docs/PRODUCT_COMPLETION_PLAN.md` against
+the implementation and its reproducible software evidence, including all transfer, recovery,
+process-death, integrity, replica, status, privacy and UI-observation paths. A successful test
+subset, a build, or an individual fixed bug does not satisfy this audit. Any software-testable
+gap reopens the software phase until it is implemented and tested.
+
+At the same boundary, consolidate every remaining hardware-only criterion from
+`docs/hardware/VALIDATION_QUEUE.json` into the smallest safe session. The plan must specify a
+single ordered procedure and individual PASS/FAIL/INCONCLUSIVE outcomes; do not request a
+one-function retest when another currently-open physical criterion can be tested safely in the
+same session. `PROJECT_STATE.execution.closure_audit` must record both requirement-audit and
+combined-hardware-plan evidence. `tools/autonomy/control.py --check` blocks hardware readiness
+without all four explicit fields. This rule is permanent for Osmosis work.
+
 Repeated camera display states (including Playback running via DJI Mimo with Back to Live View) are recurrence evidence, not new standalone tests. Request the same observation again only when a new software change/build creates a specific hypothesis, it distinguishes concrete competing explanations, AND the answer changes the next engineering action. Otherwise reuse existing evidence and continue software work.
 
 Stop only when hardware evidence is the actual remaining blocker; a product decision cannot be derived safely; credentials/authentication or Windows/Android/GitHub approval is required; an actual destructive action is required; a source-of-truth conflict remains unresolved; safety/security/data integrity requires human judgment; or a blocker has not converged after approximately three substantively different evidence-based attempts. Continue unaffected useful work first. At a hardware stop, provide one consolidated validation session, not an isolated micro-test unless necessary for safety/evidence isolation.

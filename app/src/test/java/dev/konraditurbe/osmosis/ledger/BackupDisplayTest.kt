@@ -5,7 +5,7 @@ import org.junit.Test
 
 class BackupDisplayTest {
     @Test fun completedAndPartialHardwareStatesStayDistinct(){
-        assertEquals(BackupDisplayState.TRANSFERRED_UNVERIFIED,
+        assertEquals(BackupDisplayState.LOCAL_INTEGRITY_CONFIRMED,
             BackupDisplayPolicy.resolve("TRANSFERRED_UNVERIFIED","PRESENT_UNVERIFIED",true,103945077,103945077,true).state)
         assertEquals(BackupDisplay(BackupDisplayState.PARTIAL_REVIEW,28),
             BackupDisplayPolicy.resolve("PARTIAL","CHANGED",true,330769591,1164588515))

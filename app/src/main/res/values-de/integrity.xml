@@ -2,7 +2,7 @@
     <string name="strict_transfer_result">Dateiintegrität bestätigt: %1$d. Vorhandene Kopien erhalten: %2$d. Prüfung erforderlich: %3$d. Quellgleichheit unbestätigt — insgesamt UNVERIFIZIERT.</string>
     <string name="backup_new">Noch nicht geladen</string>
     <string name="backup_partial">Teilweise (%1$d%%) · Prüfung nötig</string>
-    <string name="backup_transferred">Übertragen · unbestätigt</string>
+    <string name="backup_transferred">Lokal vollständig · Integrität geprüft; Quelle offen</string>
     <string name="backup_existing">Lokale Kopie · unbestätigt</string>
     <string name="backup_review">Zuordnung prüfen</string>
 </resources>

@@ -9,7 +9,7 @@ object BackupBadge {
         val resource=when(display.state){
             BackupDisplayState.NEW->R.string.backup_new
             BackupDisplayState.PARTIAL_REVIEW->R.string.backup_partial
-            BackupDisplayState.TRANSFERRED_UNVERIFIED->R.string.backup_transferred
+            BackupDisplayState.LOCAL_INTEGRITY_CONFIRMED->R.string.backup_transferred
             BackupDisplayState.EXISTING_UNVERIFIED->R.string.backup_existing
             BackupDisplayState.REVIEW_REQUIRED->R.string.backup_review
         }

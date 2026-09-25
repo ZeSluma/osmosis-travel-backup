@@ -45,6 +45,12 @@ def batch_ready(state, queue):
     closure_audit = state.get("closure_audit", {})
     if (work_remains(state) or state["software_preparation_exhausted"] is not True or
             closure_audit.get("full_software_scope_complete") is not True or
+            closure_audit.get("state_matrix_complete") is not True or
+            not closure_audit.get("state_matrix_evidence") or
+            closure_audit.get("requirements_audit_complete") is not True or
+            not closure_audit.get("requirements_audit_evidence") or
+            closure_audit.get("combined_hardware_plan_complete") is not True or
+            not closure_audit.get("combined_hardware_plan_evidence") or
             not closure_audit.get("evidence")):
         return False
     if state["hardware_validation"]["consolidated"] is not True or queue.get("consolidated") is not True:
