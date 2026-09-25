@@ -17,6 +17,7 @@ import dev.konraditurbe.osmosis.backup.AutonomousBackupRuntime
 import dev.konraditurbe.osmosis.ble.GattClient
 import dev.konraditurbe.osmosis.ble.OsmoScanner
 import dev.konraditurbe.osmosis.net.ApJoiner
+import dev.konraditurbe.osmosis.core.DiagnosticEventStore
 
 /**
  * Lifecycle-safe host for future camera-only BLE/AP/datalink effect adapters. It owns persistent
@@ -57,7 +58,14 @@ class CameraConnectionService : Service() {
         @Volatile private var backupPlanCoordinatorInstance: CameraBackupPlanCoordinator? = null
         @Volatile private var backupProjectionNotifierInstance: BackupProjectionNotifier? = null
         fun runtime(context: Context): DurableSessionRuntime = instance ?: synchronized(this) {
-            instance ?: DurableSessionRuntime(PreferenceSessionStore(context)).also { instance = it }
+            instance ?: DurableSessionRuntime(PreferenceSessionStore(context)) { lease ->
+                DiagnosticEventStore.open(context).record(
+                    DiagnosticEventStore.Type.SESSION_STATE,
+                    newState = lease.recovery.state.name,
+                    reason = lease.recovery.reason?.name,
+                    retryCount = lease.recovery.attempts,
+                )
+            }.also { instance = it }
         }
         fun coordinator(context: Context): CameraSessionEffectCoordinator = coordinatorInstance ?: synchronized(this) {
             coordinatorInstance ?: CameraSessionEffectCoordinator(runtime(context)).also { coordinatorInstance = it }

@@ -12,7 +12,7 @@ import android.content.SharedPreferences
 data class SourceObservation(val enumerationComplete: Boolean, val enumerationFailed: Boolean)
 enum class SourceTrust { TRUSTED, INCOMPLETE_UNTRUSTED }
 
-class DurableSessionRuntime(private val store: SessionStore) {
+class DurableSessionRuntime(private val store: SessionStore, private val diagnostic: (SessionLease) -> Unit = {}) {
     private var current = store.read()
     // A process cannot retain a live writer. Its durable ledger attempt remains PARTIAL, but its
     // in-memory allocation must be released for post-revalidation recovery in the replacement host.
@@ -61,6 +61,9 @@ class DurableSessionRuntime(private val store: SessionStore) {
         if (next == current) return current
         current = next
         store.write(next)
+        // The event contains only state/reason enum names and retry count; a diagnostics failure is
+        // intentionally unable to affect durable session or transfer ownership.
+        runCatching { diagnostic(next) }
         observers.toList().forEach { it(next) }
         return next
     }

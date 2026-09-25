@@ -20,10 +20,10 @@ Produktionszugänge bleiben eigene, explizit freizugebende Grenzen.
 
 | Bereich | Offene Arbeit | Test-/Abschlusskriterium |
 |---|---|---|
-| R-037 Capture-Day | CD01–CD08 als integrierte Matrix schließen: stabile Tagesordner, Jahreswechsel, Quellenpriorität/Unsicherheit, eingefrorene Pfade über Neustart, Sidecar-Gruppen, Konflikte und Replica-Pfade. Reale Pocket-Zeit-/Zeitzonen-/MIME-Fakten fehlen. | JVM/Emulator für alle deterministischen Regeln; gebündelte S25/Pocket-Beobachtungen für Zeitquelle, Mitternacht, Sidecars und Zielordner. |
-| R-042 Liveness | KA01–KA07: Idle-/Aktivtransfer-Verhalten, Screen-off, kontrollierter Verlust, begrenzte Wiederherstellung und Ursache-Unsicherheit. Keine unbelegte Keepalive- oder Power-Setting-Behauptung. | Service-/Fault-Tests plus ein realer, zeitlich erfasster S25/Pocket-Liveness-Test. |
-| R-040 GPS-Sync | Opt-in-GPS-Lebenszyklus, Berechtigungs-/Moduskonflikt mit Backup, keine stille Wiederaufnahme und keine Beeinträchtigung von Backup bei GPS aus/abgelehnt. | Unit/Instrumentation für Berechtigungs-/Arbiterzustände; echte opt-in-Hardwarevalidierung nur mit separater Nutzerfreigabe. |
-| R-041 Diagnostik | Typisierte, begrenzte, bereinigte Eventablage/Export sowie Fehler-/Speichergrenzen implementieren oder bestehende Logpfade endgültig gegen die Spezifikation absichern. | Sink-/Privacy-Tests einschließlich Export und Größen-/Zeitgrenzen; reale Reason-State-Beobachtung ohne sensible Ausgabe. |
+| R-037 Capture-Day | **Software-Teilnachweis vorhanden:** lokale Zeitauflösung, Pfadreservierung, Gruppen-/Pfadstabilität über Reconcile und Neustart, Sidecar-Mitglieder sowie SAF-Pfadvalidierung sind durch JVM- und Emulator-Fixtures abgedeckt. Offen bleiben die CD01–CD08-Integration als Matrix und reale Pocket-Zeit-/Zeitzonen-/MIME-Fakten. | Die vorhandenen deterministischen Fixtures in einem aktuellen Emulatorlauf ausführen und eine gebündelte S25/Pocket-Beobachtung für Zeitquelle, Mitternacht, Sidecars und Zielordner erfassen. |
+| R-042 Liveness | **Software-Teilnachweis vorhanden:** epoch-gefence-te Recovery-State-Machine und Wiederanlauf-Fault-Tests. Offen sind KA01–KA07: Idle-/Aktivtransfer-Verhalten, Screen-off, kontrollierter Verlust, kausale Einordnung und modellbezogene Keepalive-/Power-Settings. | Service-/Fault-Matrix vervollständigen plus ein realer, zeitlich erfasster S25/Pocket-Liveness-Test. Keine unbelegte Keepalive- oder Power-Setting-Behauptung. |
+| R-040 GPS-Sync | Bestehender opt-in GPS-Foreground-Service und UI-Sperre verhindern gleichzeitiges Medien-Offload im selben Prozess. Offen: dauerhafte, prozessübergreifende Modus-Arbitrierung, expliziter Berechtigungs-/Ablehnungsnachweis und Hardwarevalidierung; Backup darf bei GPS aus/abgelehnt nicht beeinträchtigt sein. | Unit/Instrumentation für Berechtigungs-/Arbiterzustände; echte opt-in-Hardwarevalidierung nur mit separater Nutzerfreigabe. |
+| R-041 Diagnostik | **Teilweise umgesetzt am 2026-09-25:** `DiagnosticEventStore` speichert Session-Zustände app-privat, auf sieben Tage/10 MiB begrenzt, als ausschließlich erlaubnislistenbasierte Codes und kann nur diese Repräsentation explizit exportieren. 3 Store-Tests und die Session-Runtime-Regression sind PASS. Offen: alle erforderlichen Eventtypen/Sinks (Transfer, Storage, User-Aktion), UI-Export und Ablösung bzw. harte Begrenzung des alten optionalen Dateilogs. | Alle Sinkpfade auf den typisierten Kanal umstellen bzw. den Altfallback sicher begrenzen; Tests für Transfer/Storage/Export-UI und reale Reason-State-Beobachtung ohne sensible Ausgabe. |
 | SSD-Endpfad | Reale SAF-Grant-Reakquisition, kameraunabhängiges Catch-up, Readback, Unterbrechung/Restart und Wiedererscheinen. | HD03–HD05 mit nutzbarem Hub/SSD; fehlende Topologie bleibt `HARDWARE_DEFERRED`. |
 
 ## Delta C — Zielgerätevalidierung des Kern-Backups
@@ -47,7 +47,7 @@ Produktionszugänge bleiben eigene, explizit freizugebende Grenzen.
 
 1. PC20 terminale Inventarvollständigkeit reparieren und vollständig regressieren.
 2. R-037 deterministische Capture-Day-/Pfad-/Gruppenmatrix schließen.
-3. R-041 Diagnostik-Speicher/Export und R-040 GPS-Modusgrenzen implementieren und testen.
+3. R-041 Diagnostik-Sinks/Export und R-040 GPS-Modusgrenzen implementieren und testen.
 4. R-042 softwareseitige Liveness-Fault-Matrix schließen.
 5. Einen erweiterten, nicht-destruktiven Hardwaretest für alle dann verbleibenden physischen Kriterien durchführen.
 6. Erst nach expliziten separaten Freigaben: Bereinigung, Release/Signierung und Produktionsintegrationen.
