@@ -30,6 +30,10 @@ class AutomaticCameraTransferDispatcher(
             // trusted observation are unsafe, not an empty successful batch.
             if (scheduled.second.isEmpty()) return@automaticDownloadPaths
             val selected = paths.intersect(scheduled.second)
+            if (!AutomaticTransferDispatchPolicy.hasEveryPlannedSource(scheduled.second, selected)) {
+                runtime.fail(backupLease, "TRANSFER_SOURCE_CHANGED")
+                return@automaticDownloadPaths
+            }
             val jobs = selected.mapNotNull { resources.trustedFilesByPath[it] }.map { MediaDownloader.Job(it) }
             if (jobs.size != selected.size) {
                 runtime.fail(backupLease, "TRANSFER_SOURCE_CHANGED")

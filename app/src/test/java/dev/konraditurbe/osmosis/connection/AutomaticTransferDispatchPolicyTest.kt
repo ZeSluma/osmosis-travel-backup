@@ -53,4 +53,10 @@ class AutomaticTransferDispatchPolicyTest {
         assertTrue(second.second.isEmpty())
         assertTrue(runtime.accepts(checkNotNull(first.first.lease)))
     }
+    @Test fun partialOrEmptyLiveSourceProjectionCannotCompleteAPlannedBatch() {
+        val planned = setOf("one", "two")
+        assertFalse(AutomaticTransferDispatchPolicy.hasEveryPlannedSource(planned, emptySet()))
+        assertFalse(AutomaticTransferDispatchPolicy.hasEveryPlannedSource(planned, setOf("one")))
+        assertTrue(AutomaticTransferDispatchPolicy.hasEveryPlannedSource(planned, setOf("one", "two", "extra")))
+    }
 }

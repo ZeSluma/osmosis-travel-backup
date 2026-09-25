@@ -128,3 +128,15 @@ passed with **480 tests, zero failures and zero errors**.
 The target proof remains the same non-destructive observation: allow normal complete enumeration
 and confirm service-owned work starts for the two current candidates while historical ambiguity
 continues to keep Camera Sync Pending, Redundancy Pending and Safe to Clear No.
+
+## 2026-09-25 empty-batch false-completion repair — internal PASS, target pending
+
+The automatic dispatcher previously checked that every *selected* path resolved to a live job, but
+did not prove that selection covered every planned asset. A stale/empty source projection could
+therefore have run `StrictTransferBatch` with zero jobs and then marked the scheduler complete.
+
+`AutomaticTransferDispatchPolicy.hasEveryPlannedSource` now requires a nonempty, full set match
+before a transfer lease is acquired. Missing source paths produce `TRANSFER_SOURCE_CHANGED`, leave
+the scheduler review-required, and never call completion. The dedicated policy regression covers
+empty, partial and full live projections; targeted transfer/runtime tests and the full JVM/debug
+build passed with **481 tests, zero failures and zero errors**.

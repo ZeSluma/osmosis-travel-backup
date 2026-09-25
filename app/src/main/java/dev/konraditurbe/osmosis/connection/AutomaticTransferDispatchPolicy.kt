@@ -8,6 +8,10 @@ object AutomaticTransferDispatchPolicy {
     fun mayStart(strictSupported: Boolean, session: String?, hasNetwork: Boolean, lease: SessionLease): Boolean =
         strictSupported && session != null && hasNetwork && CameraSessionCoordinator.mayUseCameraTraffic(lease)
 
+    /** A plan may never be completed by an empty or partial live-source projection. */
+    fun hasEveryPlannedSource(planned: Set<String>, live: Set<String>): Boolean =
+        planned.isNotEmpty() && live.containsAll(planned)
+
     fun shouldRefuse(
         expectedSession: String,
         actualSession: String?,
