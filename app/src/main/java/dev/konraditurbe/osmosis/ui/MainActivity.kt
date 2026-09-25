@@ -34,6 +34,7 @@ import dev.konraditurbe.osmosis.ble.CameraModel
 import dev.konraditurbe.osmosis.ble.GattClient
 import dev.konraditurbe.osmosis.ble.OsmoScanner
 import dev.konraditurbe.osmosis.camera.PathAddressing
+import dev.konraditurbe.osmosis.camera.CameraCleanupPolicy
 import dev.konraditurbe.osmosis.core.CameraFile
 import dev.konraditurbe.osmosis.core.CameraStatus
 import dev.konraditurbe.osmosis.core.FileLog
@@ -1507,7 +1508,7 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
      */
     private fun updateBulkDeleteFab() {
         val n = adapter?.selectedCount() ?: 0
-        val show = n > 0 && ::chipSelect.isInitialized && chipSelect.isChecked && !downloadRunning
+        val show = CameraCleanupPolicy.maySendDelete() && n > 0 && ::chipSelect.isInitialized && chipSelect.isChecked && !downloadRunning
         val fab = findViewById<com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton>(R.id.fabDelete)
             ?: return
         // show()/hide() animate the FAB's own scale+fade motion, so it grows in / shrinks out instead of
@@ -1728,12 +1729,11 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
     private fun onGridLongPress(f: CameraFile) {
         val dl = connectionResources.datalink ?: run { logLine("Long-press: no live datalink session."); toast(getString(R.string.not_connected)); return }
         val fav = getString(if (f.starred) R.string.unfavorite else R.string.favorite)
-        val del = getString(R.string.delete)
-        val actions = if (f.deletable) arrayOf(fav, del) else arrayOf(fav)
+        val actions = arrayOf(fav)
         AlertDialog.Builder(this)
             .setTitle(f.name)
             .setItems(actions) { _, which ->
-                if (actions[which] == del) confirmDelete(f, dl) else toggleFavorite(f, dl)
+                toggleFavorite(f, dl)
             }
             .show()
     }
@@ -1759,6 +1759,11 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
 
     /** Confirm + delete [f] from the camera (DUML 0x00/0x28) — irreversible, so it's gated by a dialog. */
     private fun confirmDelete(f: CameraFile, dl: MediaSession) {
+        if (!CameraCleanupPolicy.maySendDelete()) {
+            logLine(CameraCleanupPolicy.REASON)
+            toast(getString(R.string.camera_deletion_disabled))
+            return
+        }
         val hx = "0x%08x".format(f.opHandle)
         AlertDialog.Builder(this)
             .setTitle(R.string.delete_from_camera_title)
@@ -1801,6 +1806,11 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
      * with another file, which for an irreversible command must disqualify every claimant.
      */
     private fun onBulkDeleteClicked() {
+        if (!CameraCleanupPolicy.maySendDelete()) {
+            logLine(CameraCleanupPolicy.REASON)
+            toast(getString(R.string.camera_deletion_disabled))
+            return
+        }
         val ad = adapter ?: return
         val dl = connectionResources.datalink ?: return
         val picked = ad.selectedEntries().map { it.first }
@@ -1826,6 +1836,11 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
     }
 
     private fun runBulkDelete(files: List<CameraFile>, dl: MediaSession) {
+        if (!CameraCleanupPolicy.maySendDelete()) {
+            logLine(CameraCleanupPolicy.REASON)
+            toast(getString(R.string.camera_deletion_disabled))
+            return
+        }
         val handles = files.map { it.opHandle }
         logLine("DELETE requested: ${files.size} files, handles " +
             handles.joinToString(" ") { "0x%08x".format(it) })

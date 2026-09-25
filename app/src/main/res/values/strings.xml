@@ -64,6 +64,7 @@
     <string name="gps_active_select_blocked">GPS sync is active — tap GPS Sync to stop before selecting a camera.</string>
     <string name="gps_stop_before_browse">Stop GPS sync (tap GPS Sync) before browsing media.</string>
     <string name="gps_sync">GPS Sync</string>
+    <string name="camera_deletion_disabled">Camera deletion is disabled until a separately authorized cleanup workflow is available.</string>
 
     <!-- GPS sync notification -->
     <string name="notif_channel_gps">GPS sync</string>
