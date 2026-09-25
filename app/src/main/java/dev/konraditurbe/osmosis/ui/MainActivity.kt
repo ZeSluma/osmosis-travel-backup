@@ -52,6 +52,7 @@ import dev.konraditurbe.osmosis.net.MediaDownloader
 import dev.konraditurbe.osmosis.net.MetaLoader
 import com.google.android.material.button.MaterialButton
 import dev.konraditurbe.osmosis.rsdk.GpsService
+import dev.konraditurbe.osmosis.rsdk.GpsModePolicy
 import dev.konraditurbe.osmosis.rsdk.GpsSyncState
 import dev.konraditurbe.osmosis.connection.CameraConnectionService
 import dev.konraditurbe.osmosis.connection.ConnectionEvent
@@ -369,9 +370,11 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
         // instead of the usual WiFi offload. Default off.
         btnGps = findViewById(R.id.btnGps)
         gpsBanner = findViewById(R.id.gpsBanner)
-        btnGps.isChecked = prefs.getBoolean("gps_mode", false)
+        // GPS is a current-session choice.  A previous toggle must not suppress normal automatic
+        // backup discovery after process recreation while no location service is running.
+        prefs.edit().remove("gps_mode").apply()
+        btnGps.isChecked = GpsModePolicy.initialModeAfterLaunch()
         btnGps.addOnCheckedChangeListener { _, checked ->
-            prefs.edit().putBoolean("gps_mode", checked).apply()
             // While a GPS link is bound, the satellite button is the STOP control: unchecking it ends
             // the service (the only action allowed during the lockout).
             if (!checked && dev.konraditurbe.osmosis.rsdk.GpsSyncState.locked) {
@@ -737,7 +740,7 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
         }
         val r = camRows.getOrNull(pos) ?: return
         // 🛰️ GPS-sync mode: connect over R-SDK (BLE only, no WiFi) via the foreground service.
-        if (btnGps.isChecked) {
+        if (GpsModePolicy.mayStartGps(btnGps.isChecked, userSelectedCamera = true)) {
             if (r.device != null || r.saved) startGpsMode(r.mac, r.name ?: r.mac)
             else Toast.makeText(this, getString(R.string.camera_not_in_range, r.name ?: r.mac), Toast.LENGTH_SHORT).show()
             return
@@ -2026,13 +2029,13 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
                 if (!model.verified) "  🧪" else "")
             main.post { rebuildCameraList() }
             // App Shortcut target just appeared — connect immediately, no tap, as onCamRowClick would.
-            if (!connectionResources.connecting && !btnGps.isChecked && addr.equals(autoPickMac, ignoreCase = true)) {
+            if (!connectionResources.connecting && GpsModePolicy.mayAutoStartBackup(GpsSyncState.locked) && addr.equals(autoPickMac, ignoreCase = true)) {
                 autoPickMac = null
                 main.post { onCameraChosen(device) }
             } else {
                 val selected=CameraConnectionService.automaticCameraSelection(
                     applicationContext, savedCameras.recent().map { it.mac }, discovered.keys)
-                if (!btnGps.isChecked && addr.equals(selected,ignoreCase=true)) {
+                if (GpsModePolicy.mayAutoStartBackup(GpsSyncState.locked) && addr.equals(selected,ignoreCase=true)) {
                     main.post { if (!connectionResources.connecting && !CameraConnectionService.runtime(applicationContext).snapshot().userStopped) onCameraChosen(device) }
                 }
             }
