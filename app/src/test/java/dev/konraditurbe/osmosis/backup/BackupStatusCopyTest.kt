@@ -36,4 +36,8 @@ class BackupStatusCopyTest {
         assertEquals("Zuordnung von 4 früheren Dateien prüfen", text)
         assertTrue(!text.contains("Kameraliste wird noch geprüft"))
     }
+
+    @Test fun unavailableDurableProjectionIsNotMisreportedAsAnIncompleteCameraList() {
+        assertEquals("Backupstatus wird geladen", BackupStatusCopy.automaticStatus(null, null, "NOT_EVALUATED"))
+    }
 }

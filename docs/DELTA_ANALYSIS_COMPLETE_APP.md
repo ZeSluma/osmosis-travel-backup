@@ -14,7 +14,7 @@ Produktionszugänge bleiben eigene, explizit freizugebende Grenzen.
 
 | ID | Lücke | Nächste Umsetzung | Nachweis für Abschluss |
 |---|---|---|---|
-| PC20 | Nach automatischer Verbindung und sieben sichtbaren Videos bleibt `Automatisch: Kameraliste wird noch geprüft`. | Terminales Datalink-Inventar bis `LedgerCoordinator`/Planprojektion verfolgen; fehlende oder verlorene Vollständigkeitsinformation korrigieren; deterministische Regression ergänzen. | JVM-/Integrations-Regression, Debug-Build, dann eine Wiederholung von HD01 ohne Rescan. |
+| PC20 | Nach automatischer Verbindung und sieben sichtbaren Videos blieb `Automatisch: Kameraliste wird noch geprüft`. Sieben sichtbare Elemente sind keine Vollständigkeitsgarantie: der Datalink kann weitere Seiten signalisieren. | **Diagnosefortschritt:** fehlende durable Projektion wird nun separat als `Backupstatus wird geladen` angezeigt und kann nicht mehr als unvollständige Kameraliste fehlinterpretiert werden. Terminales Datalink-Inventar weiterhin bis `LedgerCoordinator`/Planprojektion auf Zielgerät prüfen. | `BackupStatusCopyTest` und `CameraDatalinkCoordinatorTest` PASS; Debug-Build und eine Wiederholung von HD01 ohne Rescan. |
 
 ## Delta B — vollständige nicht-destruktive Produktfunktionen
 

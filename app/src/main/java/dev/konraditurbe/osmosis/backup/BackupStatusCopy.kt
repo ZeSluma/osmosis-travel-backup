@@ -46,7 +46,7 @@ object BackupStatusCopy {
     fun automaticStatus(diagnostic: LedgerCoordinator.AutomaticPlanDiagnostic?, serviceProgress: String?,
         serviceDecision: String): String = serviceProgress ?: diagnostic?.let {
         if (it.downloads > 0) serviceDecision(serviceDecision, it.downloads) else plan(it)
-    } ?: "Kameraliste wird geprüft"
+    } ?: "Backupstatus wird geladen"
 
     private fun plural(count: Int) = if (count == 1) "" else "en"
 }
