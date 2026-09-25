@@ -127,8 +127,8 @@ class GpsService : Service(), RsdkController.Listener {
 
     override fun onCreate() {
         super.onCreate()
-        // The Activity may never have run (or be long gone) — open the log ourselves if enabled.
-        FileLog.startIfEnabled(this)
+        // Verbose diagnostics must be started explicitly in this process; a GPS service restart
+        // may not resurrect them from a persisted preference.
         (getSystemService(NOTIFICATION_SERVICE) as NotificationManager).createNotificationChannel(
             NotificationChannel(CHANNEL, getString(R.string.notif_channel_gps), NotificationManager.IMPORTANCE_LOW)
         )

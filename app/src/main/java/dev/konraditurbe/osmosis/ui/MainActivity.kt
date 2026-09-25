@@ -347,14 +347,13 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
         findViewById<View>(R.id.fabDownload).setOnClickListener { onDownloadClicked() }
         findViewById<View>(R.id.fabDelete).setOnClickListener { onBulkDeleteClicked() }
         wireGalleryChips()
-        // "Save logs" button (checkable, same outlined pill as GPS Sync) → persist all log lines to a
-        // rotating .log file in external files dir.
+        // Verbose diagnostics are a current-process, explicit session. They never resume merely
+        // because a historical preference survived a process restart.
         val prefs = getSharedPreferences("osmosis", MODE_PRIVATE)
         val saveLogs = findViewById<MaterialButton>(R.id.btnSaveLogs)
-        saveLogs.isChecked = prefs.getBoolean("save_logs", false)
-        if (saveLogs.isChecked) startFileLogging() // set state before the listener so this isn't double-fired
+        prefs.edit().remove("save_logs").apply()
+        saveLogs.isChecked = false
         saveLogs.addOnCheckedChangeListener { _, checked ->
-            prefs.edit().putBoolean("save_logs", checked).apply()
             if (checked) {
                 startFileLogging()
             } else {

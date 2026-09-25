@@ -17,21 +17,20 @@ import java.util.Locale
  * R-SDK/GPS lines have to keep landing in the file after the UI is gone. Every write is flushed, so
  * whatever happened is on disk even if the process is later killed.
  *
- * Files: `<externalFilesDir>/logs/osmosis_<yyyyMMdd_HHmmss>.log`, newest 5 kept. Pull with
- * `adb pull /sdcard/Android/data/dev.konraditurbe.osmosis/files/logs/`.
+ * Files live in app-private storage. Verbose logging requires an explicit action in this process;
+ * it expires after 30 minutes or 10 MiB and is never resumed from a stored preference.
  *
  * Never write coordinates or credentials here — this file is meant to be shared around.
  */
 object FileLog {
-    private const val PREFS = "osmosis"
-    private const val KEY_ENABLED = "save_logs"
     private const val KEEP = 5
 
     private val lock = Any()
     private var writer: Writer? = null
     private var file: File? = null
+    private var startedAtMillis = 0L
 
-    fun logsDir(ctx: Context): File = File(ctx.getExternalFilesDir(null), "logs").apply { mkdirs() }
+    fun logsDir(ctx: Context): File = File(ctx.filesDir, "diagnostics/verbose").apply { mkdirs() }
 
     /** True while a log file is open. */
     fun isOn(): Boolean = synchronized(lock) { writer != null }
@@ -39,13 +38,7 @@ object FileLog {
     /** The file currently (or most recently) being written, or null if none this process. */
     fun currentFile(): File? = synchronized(lock) { file }
 
-    /** Open a session log if the user's "Save logs" toggle is on. Idempotent + safe from any thread. */
-    fun startIfEnabled(ctx: Context) {
-        val on = ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getBoolean(KEY_ENABLED, false)
-        if (on) start(ctx)
-    }
-
-    /** Open a new timestamped session log, pruning to the [KEEP] newest. No-op if already open. */
+    /** Opens a new explicit verbose session. No-op if one is already open. */
     fun start(ctx: Context) {
         synchronized(lock) {
             if (writer != null) return
@@ -57,8 +50,9 @@ object FileLog {
                 val f = File(dir, name)
                 file = f
                 writer = BufferedWriter(FileWriter(f, true))
-                writeLocked("=== saving logs to ${f.absolutePath} ===")
-            }.onFailure { android.util.Log.e("Osmosis", "FileLog.start failed", it) }
+                startedAtMillis = System.currentTimeMillis()
+                writeLocked("VERBOSE_DIAGNOSTICS_STARTED")
+            }.onFailure { android.util.Log.e("Osmosis", "verbose diagnostics unavailable") }
         }
     }
 
@@ -66,6 +60,7 @@ object FileLog {
         synchronized(lock) {
             val w = writer ?: return
             writer = null
+            startedAtMillis = 0L
             runCatching { w.flush(); w.close() }
         }
     }
@@ -75,7 +70,16 @@ object FileLog {
 
     private fun writeLocked(s: String) {
         val w = writer ?: return
+        val safe = PrivacySafeDiagnostics.sanitize(s)
+        val bytes = safe.toByteArray(Charsets.UTF_8).size.toLong() + 32L
+        if (!VerboseDiagnosticsPolicy.mayAppend(startedAtMillis, System.currentTimeMillis(), file?.length() ?: 0L, bytes)) {
+            writer = null
+            startedAtMillis = 0L
+            runCatching { w.flush(); w.close() }
+            android.util.Log.i("Osmosis", "verbose diagnostics limit reached")
+            return
+        }
         val ts = SimpleDateFormat("HH:mm:ss.SSS", Locale.US).format(Date())
-        runCatching { w.write("[$ts] $s\n"); w.flush() }
+        runCatching { w.write("[$ts] $safe\n"); w.flush() }
     }
 }
