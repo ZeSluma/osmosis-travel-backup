@@ -1,0 +1,36 @@
+# Requirements audit — 2026-09-26
+
+Status: ACTIVE. This is the requirement-to-evidence audit required before the single consolidated
+hardware session. It does not turn an unobserved device fact into a PASS.
+
+| Requirement set | Implementation/evidence | Audit result |
+|---|---|---|
+| R001–R008 | PC01–PC10, PC16–PC19: service-owned known-camera discovery, complete-inventory fence, durable ledger, idempotent strict transfer/readback, local-first behavior and independent SAF replica orchestration. | SOFTWARE_PROVEN; Pocket/S25/SSD behavior remains HARDWARE_DEFERRED. |
+| R009 OneDrive | Local-first routing deliberately has no production cloud dependency or credentials. No user-authorized OneDrive tenant/product decision exists. | PRODUCT_DECISION_DEFERRED; not silently substituted by camera/phone behavior. |
+| R010–R011 | PC11/PC20 plus `AutomaticTransferUiStatePolicy`: German summary, visible preparing/writer-handoff/transfer/review states and ledger-derived completion vocabulary. | SOFTWARE_PROVEN; visual target observation remains HARDWARE_DEFERRED. |
+| R012 and R039 | Cleanup policy remains fail-closed; no automatic deletion, destructive test or cleanup execution is authorized. | SAFETY_DEFERRED_BY_AUTHORIZATION. |
+| R013, R034, R041 | Typed app-private event store, bounded explicit verbose session/export, source/sink audit and sanitized fixed export failure UI/log text. | SOFTWARE_PROVEN; target share sheet/recovery trace remains HARDWARE_DEFERRED. |
+| R014, R022–R025, R033 | Strict streaming transfer, range/integrity/publication/reconciliation tests, one writer, bounded cancellation and provider fault simulations. | SOFTWARE_PROVEN; target throughput/thermal/provider behavior remains HARDWARE_DEFERRED. |
+| R015 | Custom lifecycle/ledger/replica code is isolated from upstream protocol adapters; upstream is unchanged. | SOFTWARE_PROVEN. |
+| R016–R019, R027–R030, R042 | Fenced service session runtime, stale callback guards, bounded recovery, route pinning, current user stop, replacement-writer handoff and observer-only UI. | SOFTWARE_PROVEN for deterministic matrix; liveness timings/causes remain HARDWARE_DEFERRED. |
+| R020–R021, R038 | Asset classification, complete snapshot predicates, unknown/required fail-closed planning and independent replica predicates. | SOFTWARE_PROVEN; target manifest/member facts remain HARDWARE_DEFERRED. |
+| R026, R031 | Phone/SSD independent proof and camera-sync/redundancy/safe-to-clear derivation; safe-to-clear remains informational. | SOFTWARE_PROVEN; physical SSD evidence remains HARDWARE_DEFERRED. |
+| R032 | Current Android target build and permission boundaries compile; no target-37 migration is claimed. | SOFTWARE_PROVEN_WITH_TARGET_VALIDATION_PENDING. |
+| R035 | Canonical fixture normalization and current JVM/debug build checkpoint exist; baseline lint debt remains separately documented. | SOFTWARE_PROVEN_WITH_BASELINE_DEBT_RETAINED. |
+| R036 | Recovery makes no unproven model-specific power or keepalive claim. | HARDWARE_DEFERRED by definition of the required physical measurement. |
+| R037 | Date resolver, uncertainty, deterministic paths and persistence have unit/fixture coverage. | SOFTWARE_PARTIAL: CD01–CD08 deterministic matrix and target source-time/MIME facts remain open. |
+| R040 | Current opt-in, fresh-process backup default, one BLE owner and late permission-result fence have deterministic tests. | SOFTWARE_PARTIAL: Android permission/foreground-service lifecycle matrix remains open. |
+| R043 | Label and adaptive icon are implemented without changing package/signing/data continuity. Application ID, final signing, distribution/OAuth and third-party identity review require a separate product/release decision. | PRODUCT_DECISION_DEFERRED. |
+
+## Audit findings closed in this cycle
+
+- Replacement writers now wait for the fenced predecessor and revalidate before automatic
+  continuation; no healthy handoff is converted to a user-action error.
+- Pocket transfer requests no longer make `MainActivity` a writer.
+- Progress communicates a safe writer handoff instead of appearing stalled.
+- Verbose-export failures no longer surface raw exception data in either logcat or UI.
+- GPS permission completion remains subject to current explicit opt-in.
+
+The remaining open rows are deliberate and specific. They keep the software phase open only for
+their deterministic matrices; physical observations stay bundled in
+`docs/hardware/FINAL_COMPLETE_APP_HARDWARE_TEST.md` when that phase is actually ready.

@@ -2,6 +2,10 @@
 
 Status: ACTIVE. Authoritative software-completion checklist for `codex/autonomous-backup-mvp`.
 
+The complete requirement-to-evidence mapping is maintained in
+[`REQUIREMENTS_AUDIT_2026-09-26.md`](REQUIREMENTS_AUDIT_2026-09-26.md). It classifies product
+decisions, safety-deferred destructive work, software gaps and physical evidence separately.
+
 This checklist is derived from `AGENTS.md`, `PROJECT_STATE.yaml`, the active MVP plan, the
 service/ledger/replica implementation, and the persistent hardware queue. `PASS` means
 reproducible software evidence exists; it never substitutes for a physical Pocket/S25/SSD claim.
