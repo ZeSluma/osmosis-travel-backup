@@ -67,5 +67,16 @@ Reparaturbuilds: `928F860934F37F9E1A1B1BE1F3695984829E7C94DD6319EC78740844517AE2
 Dieser neue Build ist vor weiteren Hardware-Schritten in-place zu installieren; keine Medien oder
 App-Daten werden zurückgesetzt.
 
+## Reparaturbuild — Zielgerät-Nachweis
+
+Nach der In-place-Installation zeigte der App-Start bei bereits eingeschalteter Kamera zunächst
+keine automatische Verbindung. Ein einmaliger Kamera-Power-Cycle stellte danach die Verbindung
+automatisch wieder her und das Raster zeigte „Kameraliste noch nicht vollständig“. Damit ist die
+Statusanzeige-Reparatur `PASS`; sie behauptet keine laufende Aktion mehr. Der Startpfad
+„App-Prozess neu, bekannte Kamera bereits an“ bleibt ein separater `INCONCLUSIVE`/
+Untersuchungsbefund: das Ergebnis ist nicht mit dem bereits beobachteten Power-Cycle-Recovery
+gleichzusetzen. Keine manuelle Auswahl, kein Rescan, keine Löschung und keine Medienübertragung
+wurden hierfür ausgelöst.
+
 Keine Löschung,
 kein Reset und keine wiederholte Übertragung geschützter Medien wurden durchgeführt.
