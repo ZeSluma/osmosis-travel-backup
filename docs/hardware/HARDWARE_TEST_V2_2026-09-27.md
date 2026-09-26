@@ -4,6 +4,18 @@ Status: **BEREIT ZUR AUSFÜHRUNG**. Dieser Ablauf ersetzt keine Sicherheitsgrenz
 einzige nächste physische Test. Er bündelt die noch offenen S25-/Pocket-/UI-/SSD-Nachweise, statt
 einzelne Symptome mehrfach zu testen.
 
+## Pause und Wiedereinstieg (2026-09-27)
+
+Der Test wurde heute **nicht gestartet**. Das S25 war bei zwei lesenden ADB-Abfragen sichtbar,
+verschwand jedoch jeweils unmittelbar vor dem in-place-Installationsversuch. Die Installation
+begann nicht; App-Daten, Kameraoriginale, lokale Dateien und SSD-Inhalte blieben unverändert.
+Der Nutzer hat alle Hardwarearbeit ausdrücklich auf morgen verschoben.
+
+Wiedereinstieg: Telefon entsperren, eine stabile USB-Datenverbindung und USB-Debugging
+bereitstellen; dann zunächst nur `adb devices -l` prüfen. Erst bei stabilem Gerät die oben
+genannte APK in place installieren und mit Schritt 1 beginnen. Kein Testschritt wird aus dem
+heutigen kurzen ADB-Sichtkontakt abgeleitet.
+
 ## Schutzgrenzen
 
 - Aktuelle Debug-APK ausschließlich *in place* installieren; keine App-Daten löschen oder
