@@ -46,6 +46,18 @@ automatic recovery with no eligible download, the progress panel must clear and 
 summary must remain visible and conservative. SSD testing remains paused until that regression is
 physically checked.
 
+## Target delta — stale Service STOP fence
+
+The first attempt to install the progress repair used a forced app restart and then reached
+`CAMERA_UNAVAILABLE` after one scan despite a saved camera being on. The sanitized durable state
+showed no user stop and only one attempt, so it was not the intended bounded launcher discovery
+exhaustion. A Service `STOP` had no initiating epoch and could be delivered after a later launcher
+epoch had already begun. STOP now carries that epoch and is ignored unless it still matches the
+durable current session; backup-host shutdown follows only a matching stop. The direct regression
+proves an old STOP cannot stop a replacement. Full JVM/debug evidence: 525 tests, zero failures,
+zero errors. The next physical step is one in-place install without force-stop, then automatic
+connection plus terminal no-work status clearance before any SSD branch.
+
 ## Execution order
 
 1. Finish and commit the typed diagnostics/liveness change only after targeted regression passes.

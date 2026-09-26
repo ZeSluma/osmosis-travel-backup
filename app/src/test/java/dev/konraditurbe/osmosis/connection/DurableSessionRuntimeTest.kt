@@ -50,6 +50,17 @@ class DurableSessionRuntimeTest {
         assertEquals(stopped, runtime.snapshot())
     }
 
+    @Test fun queuedStopFromSupersededEpochCannotStopReplacementSession() {
+        val runtime = DurableSessionRuntime(MemoryStore())
+        val old = runtime.start()
+        val replacement = runtime.start()
+
+        assertFalse(runtime.stopIfCurrent(old.epoch))
+        assertEquals(replacement, runtime.snapshot())
+        assertTrue(runtime.stopIfCurrent(replacement.epoch))
+        assertTrue(runtime.snapshot().userStopped)
+    }
+
     @Test fun replacementConnectionIsConnectingNotStoppedBeforeTransportIsReady() {
         val runtime = DurableSessionRuntime(MemoryStore())
         runtime.start()

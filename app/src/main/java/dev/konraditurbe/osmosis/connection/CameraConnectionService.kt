@@ -37,7 +37,16 @@ class CameraConnectionService : Service() {
                 ensureChannel(); startForeground(NOTIFICATION_ID, notification())
                 DiagnosticEventStore.open(this).record(DiagnosticEventStore.Type.SESSION_STARTED, newState = "HOST_ACTIVE")
             }
-            ACTION_STOP -> { runtime(this).stop(); backupRuntime(this).stop(); stopForeground(STOP_FOREGROUND_REMOVE); stopSelf() }
+            ACTION_STOP -> {
+                // Android can deliver an old Service STOP after a launcher restart has allocated
+                // a replacement epoch. Never let that stale command stop the replacement.
+                val epoch = intent.getLongExtra(EXTRA_STOP_EPOCH, -1L)
+                if (epoch >= 0L && runtime(this).stopIfCurrent(epoch)) {
+                    backupRuntime(this).stop()
+                    stopForeground(STOP_FOREGROUND_REMOVE)
+                    stopSelf()
+                }
+            }
         }
         return START_NOT_STICKY // process restart restores state but never silently resumes user work.
     }
@@ -52,6 +61,7 @@ class CameraConnectionService : Service() {
         private const val CHANNEL = "camera_connection"; private const val NOTIFICATION_ID = 7001
         const val ACTION_START = "dev.konraditurbe.osmosis.connection.START"
         const val ACTION_STOP = "dev.konraditurbe.osmosis.connection.STOP"
+        const val EXTRA_STOP_EPOCH = "stop_epoch"
         @Volatile private var instance: DurableSessionRuntime? = null
         @Volatile private var coordinatorInstance: CameraSessionEffectCoordinator? = null
         @Volatile private var datalinkCoordinatorInstance: CameraDatalinkCoordinator? = null
@@ -214,8 +224,9 @@ class CameraConnectionService : Service() {
         fun host(context: Context) {
             ContextCompat.startForegroundService(context, Intent(context, CameraConnectionService::class.java).setAction(ACTION_START))
         }
-        fun stopHost(context: Context) {
-            context.startService(Intent(context, CameraConnectionService::class.java).setAction(ACTION_STOP))
+        fun stopHost(context: Context, epoch: Long) {
+            context.startService(Intent(context, CameraConnectionService::class.java)
+                .setAction(ACTION_STOP).putExtra(EXTRA_STOP_EPOCH, epoch))
         }
     }
 }

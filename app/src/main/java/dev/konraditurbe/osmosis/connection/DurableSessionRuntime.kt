@@ -36,6 +36,12 @@ class DurableSessionRuntime(private val store: SessionStore, private val diagnos
     }
     @Synchronized fun start(): SessionLease = publish(CameraSessionCoordinator.begin(current))
     @Synchronized fun stop(): SessionLease = publish(CameraSessionCoordinator.stop(current))
+    /** A queued Service STOP may only affect the epoch that requested it. */
+    @Synchronized fun stopIfCurrent(epoch: Long): Boolean {
+        if (epoch != current.epoch) return false
+        publish(CameraSessionCoordinator.stop(current))
+        return true
+    }
     @Synchronized fun callback(epoch: Long, event: ConnectionEvent, reason: ConnectionReason? = null): SessionLease =
         publish(CameraSessionCoordinator.event(current, epoch, event, reason))
 

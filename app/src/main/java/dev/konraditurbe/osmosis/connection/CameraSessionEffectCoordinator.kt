@@ -8,6 +8,7 @@ package dev.konraditurbe.osmosis.connection
 class CameraSessionEffectCoordinator(private val runtime: DurableSessionRuntime) {
     fun begin(): SessionLease = runtime.start()
     fun stop(): SessionLease = runtime.stop()
+    fun stop(epoch: Long): Boolean = runtime.stopIfCurrent(epoch)
     fun transportReady(epoch: Long): SessionLease =
         runtime.callback(epoch, ConnectionEvent.TRANSPORT_READY)
     fun transportLost(epoch: Long, reason: ConnectionReason): SessionLease =

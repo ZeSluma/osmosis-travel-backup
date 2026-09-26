@@ -450,8 +450,8 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
             transferActivityClosed = true
             connectionResources.transferNetwork = null
             CameraConnectionService.coordinator(applicationContext).transportLost(cameraEpoch, ConnectionReason.SESSION_DESYNC)
-            CameraConnectionService.coordinator(applicationContext).stop()
-            CameraConnectionService.stopHost(this)
+            CameraConnectionService.coordinator(applicationContext).stop(cameraEpoch)
+            CameraConnectionService.stopHost(this, cameraEpoch)
         }
         credentialRequest.incrementAndGet()
         credentialCache.clear()
@@ -776,9 +776,9 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
         // the replacement epoch is allocated prevents a queued STOP command from terminating the
         // new GATT connect.  Real exit, selector return and GPS handoff remain terminal.
         if (terminal) {
-            CameraConnectionService.coordinator(applicationContext).stop()
+            CameraConnectionService.coordinator(applicationContext).stop(cameraEpoch)
             CameraConnectionService.backupRuntime(applicationContext).stop()
-            CameraConnectionService.stopHost(this)
+            CameraConnectionService.stopHost(this, cameraEpoch)
         }
         stopKeepalive()
         dev.konraditurbe.osmosis.net.Highlights.provider = null

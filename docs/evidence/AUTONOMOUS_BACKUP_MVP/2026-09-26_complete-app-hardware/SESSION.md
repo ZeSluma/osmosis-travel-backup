@@ -17,5 +17,19 @@ Der SSD-Zweig ist pausiert: Der sichtbare Vorbereitungsstatus muss nach dem Repa
 einem Plan ohne sichere neue Arbeit zuverlässig verschwinden oder in einen expliziten ehrlichen
 Review-Zustand übergehen. Die detaillierte Export-/Share-Sheet-Grenze und Capture-Day-Quellenfakten
 bleiben als `HARDWARE_DEFERRED` beziehungsweise `INCONCLUSIVE` erhalten.
+
+## Nachtest unterbrochen — neuer Lifecycle-Befund
+
+Nach dem In-Place-Update mit einem erzwungenen App-Neustart meldete die App bei eingeschalteter,
+gespeicherter Kamera `USER_ACTION_REQUIRED` mit `CAMERA_UNAVAILABLE` nach nur einem Scan. Das
+unterscheidet sich vom erwarteten begrenzten Launcher-Scanfenster und ist kein PASS. Die
+Sitzungsdaten enthielten nur Zustand/Grund/Versuchszahl, keine Medien- oder Zugangsdaten.
+
+Die plausible Softwareursache war ein verzögert zugestelltes, nicht epoch-gebundenes Service-STOP
+aus dem vorigen Activity-Lebenszyklus. Die Reparatur bindet STOP an den auslösenden Session-Epoch;
+ein STOP für einen abgelösten Epoch wird ignoriert und kann weder den neuen Host noch dessen
+Backup-Runtime beenden. `DurableSessionRuntimeTest` deckt den abgelösten STOP explizit ab. Der
+vollständige JVM-/APK-Checkpoint steht bei 525 Tests, null Fehlern und null Errors. Der nächste
+Nachtest installiert in-place ohne Force-Stop und prüft zuerst genau die automatische Verbindung.
 Keine Löschung,
 kein Reset und keine wiederholte Übertragung geschützter Medien wurden durchgeführt.
