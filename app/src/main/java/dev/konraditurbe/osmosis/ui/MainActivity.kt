@@ -1421,7 +1421,7 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
                     val dispatcher = CameraConnectionService.automaticTransferDispatcher(applicationContext)
                     automaticScheduleStatus = dev.konraditurbe.osmosis.backup.BackupStatusCopy.automaticStatus(
                         projection.automatic, dispatcher.progress, dispatcher.lastDecision)
-                    renderAutomaticTransferProgress(dispatcher.progress)
+                    renderAutomaticTransferProgress(dispatcher.progress, dispatcher.lastDecision)
                     renderBackupSummary(projection.status)
                 }
             }}
@@ -1436,17 +1436,32 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
      * only renders it: byte transfer, verification and final receipt still come from the durable
      * ledger on the next notifier tick.  Never synthesize a completion from this transient value.
      */
-    private fun renderAutomaticTransferProgress(progress: String?) {
-        val match = progress?.let { Regex("^transfer=(\\d{1,3})% \\(\\d+/(\\d+)\\)$").matchEntire(it) } ?: return
-        val percent = match.groupValues[1].toInt().coerceIn(0, 100)
-        val total = match.groupValues[2].toIntOrNull()?.coerceAtLeast(0) ?: 0
+    private fun renderAutomaticTransferProgress(progress: String?, decision: String) {
+        val state = dev.konraditurbe.osmosis.connection.AutomaticTransferUiStatePolicy.project(progress, decision) ?: return
         progressArea.visibility = View.VISIBLE
-        overallBar.progress = percent
-        fileBar.progress = percent
-        overallText.text = "Automatische Sicherung: $percent% abgeschlossen"
-        fileText.text = if (total > 0) {
-            "Übertragung läuft — danach wird jede Datei auf Integrität geprüft ($total Datei${if (total == 1) "" else "en"})"
-        } else "Übertragung läuft — danach wird jede Datei auf Integrität geprüft"
+        overallBar.isIndeterminate = state.phase == dev.konraditurbe.osmosis.connection.AutomaticTransferUiStatePolicy.Phase.PREPARING
+        fileBar.isIndeterminate = overallBar.isIndeterminate
+        state.percent?.let { overallBar.progress = it; fileBar.progress = it }
+        when (state.phase) {
+            dev.konraditurbe.osmosis.connection.AutomaticTransferUiStatePolicy.Phase.PREPARING -> {
+                overallText.text = "Automatische Sicherung wird vorbereitet"
+                fileText.text = "Kameraliste und sichere Übertragung werden geprüft"
+            }
+            dev.konraditurbe.osmosis.connection.AutomaticTransferUiStatePolicy.Phase.TRANSFERRING -> {
+                overallText.text = "Automatische Sicherung: ${state.percent}% abgeschlossen"
+                fileText.text = if ((state.fileCount ?: 0) > 0) {
+                    "Übertragung läuft — danach wird jede Datei auf Integrität geprüft (${state.fileCount} Datei${if (state.fileCount == 1) "" else "en"})"
+                } else "Übertragung läuft — danach wird jede Datei auf Integrität geprüft"
+            }
+            dev.konraditurbe.osmosis.connection.AutomaticTransferUiStatePolicy.Phase.FINISHED -> {
+                overallText.text = "Übertragung abgeschlossen"
+                fileText.text = "Integritätsbelege und Dateistatus wurden aktualisiert"
+            }
+            dev.konraditurbe.osmosis.connection.AutomaticTransferUiStatePolicy.Phase.REVIEW_REQUIRED -> {
+                overallText.text = "Automatische Sicherung braucht eine Prüfung"
+                fileText.text = "Keine Datei wurde als vollständig bestätigt"
+            }
+        }
     }
 
 
