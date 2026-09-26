@@ -11,6 +11,10 @@ class BackupProjectionNotifier {
 
     fun observe(observer: () -> Unit): () -> Unit {
         observers += observer
+        // A screen can return after a service transition while it had no observer.  The observer
+        // always re-reads durable state, so this immediate invalidation is safe and prevents a
+        // stale visible backup/progress projection from surviving a lifecycle transition.
+        observer.invoke()
         return { observers -= observer }
     }
 

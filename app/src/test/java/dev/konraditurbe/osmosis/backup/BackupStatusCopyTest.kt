@@ -70,4 +70,16 @@ class BackupStatusCopyTest {
             BackupStatusCopy.summary(BackupProductStatus(false, true, false, false, false, 0, 0), automatic))
         assertTrue(!automatic.contains("wird geprüft"))
     }
+
+    @Test fun durableSummaryRowsRemainConservativeAndHumanReadable() {
+        assertEquals("Kamera-Sicherung wird geprüft",
+            BackupStatusCopy.summary(BackupProductStatus(true, false, false, false, false, 0, 0), "keine neue Datei zum Übertragen"))
+        assertEquals("Lokal gesichert · SSD-Kopie steht noch aus",
+            BackupStatusCopy.summary(BackupProductStatus(true, false, true, false, false, 1, 0), "keine neue Datei zum Übertragen"))
+        assertEquals("Kamera und SSD sind geprüft",
+            BackupStatusCopy.summary(BackupProductStatus(true, false, true, true, true, 1, 1), "keine neue Datei zum Übertragen"))
+        assertEquals("Quelle hat sich geändert – Kameraliste wird erneut geprüft",
+            BackupStatusCopy.summary(BackupProductStatus(true, false, true, true, true, 1, 1),
+                "Quelle hat sich geändert – Kameraliste wird erneut geprüft"))
+    }
 }

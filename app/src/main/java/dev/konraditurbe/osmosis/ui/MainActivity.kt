@@ -1489,10 +1489,6 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
                     }
                 }, requireNotNull(state.dismissAfterMs))
             }
-            dev.konraditurbe.osmosis.connection.AutomaticTransferUiStatePolicy.Phase.REVIEW_REQUIRED -> {
-                overallText.text = "Automatische Sicherung braucht eine Prüfung"
-                fileText.text = "Keine Datei wurde als vollständig bestätigt"
-            }
         }
     }
 

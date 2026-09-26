@@ -30,4 +30,28 @@ class AutomaticTransferUiStatePolicyTest {
         assertNull(AutomaticTransferUiStatePolicy.project(null, "NO_LEDGER_SESSION"))
         assertNull(AutomaticTransferUiStatePolicy.project(null, "SOURCE_CHANGED"))
     }
+
+    @Test fun everyDispatcherDecisionHasAnExplicitActiveOrTerminalPresentation() {
+        val active = mapOf(
+            "PLAN_LOOKUP" to AutomaticTransferUiStatePolicy.Phase.PREPARING,
+            "WRITER_WAIT" to AutomaticTransferUiStatePolicy.Phase.WAITING_FOR_WRITER,
+            "WRITER_COMPLETE" to AutomaticTransferUiStatePolicy.Phase.FINISHED,
+        )
+        active.forEach { (decision, phase) ->
+            assertEquals(phase, AutomaticTransferUiStatePolicy.project(null, decision)?.phase)
+        }
+        listOf(
+            "NOT_EVALUATED", "NO_LEDGER_SESSION", "NO_CAMERA_NETWORK", "USER_STOPPED",
+            "STRICT_TRANSFER_UNSUPPORTED", "SESSION_NOT_READY", "STALE_OR_UNTRUSTED",
+            "PLAN_NOT_ELIGIBLE", "WRITER_ALREADY_ACTIVE", "SOURCE_CHANGED",
+            "TRANSFER_REVIEW_REQUIRED",
+        ).forEach { decision -> assertNull(AutomaticTransferUiStatePolicy.project(null, decision)) }
+    }
+
+    @Test fun transferProgressIsBoundedAndDoesNotDependOnAStaleDecision() {
+        assertEquals(0, AutomaticTransferUiStatePolicy.project("transfer=0% (0/1)", "WRITER_STARTED")?.percent)
+        assertNull(AutomaticTransferUiStatePolicy.project("transfer=100% (1/1)", "SOURCE_CHANGED"))
+        assertEquals(AutomaticTransferUiStatePolicy.Phase.FINISHED,
+            AutomaticTransferUiStatePolicy.project("transfer=100% (1/1)", "WRITER_COMPLETE")?.phase)
+    }
 }
