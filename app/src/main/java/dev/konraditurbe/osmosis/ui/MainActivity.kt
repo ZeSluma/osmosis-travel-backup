@@ -1421,6 +1421,7 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
                     val dispatcher = CameraConnectionService.automaticTransferDispatcher(applicationContext)
                     automaticScheduleStatus = dev.konraditurbe.osmosis.backup.BackupStatusCopy.automaticStatus(
                         projection.automatic, dispatcher.progress, dispatcher.lastDecision)
+                    renderAutomaticTransferProgress(dispatcher.progress)
                     renderBackupSummary(projection.status)
                 }
             }}
@@ -1428,6 +1429,24 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
 
     private fun renderBackupSummary(status: BackupProductStatus) {
         backupSummary.text = dev.konraditurbe.osmosis.backup.BackupStatusCopy.summary(status, automaticScheduleStatus)
+    }
+
+    /**
+     * The service publishes an intentionally small, privacy-safe progress projection.  The screen
+     * only renders it: byte transfer, verification and final receipt still come from the durable
+     * ledger on the next notifier tick.  Never synthesize a completion from this transient value.
+     */
+    private fun renderAutomaticTransferProgress(progress: String?) {
+        val match = progress?.let { Regex("^transfer=(\\d{1,3})% \\(\\d+/(\\d+)\\)$").matchEntire(it) } ?: return
+        val percent = match.groupValues[1].toInt().coerceIn(0, 100)
+        val total = match.groupValues[2].toIntOrNull()?.coerceAtLeast(0) ?: 0
+        progressArea.visibility = View.VISIBLE
+        overallBar.progress = percent
+        fileBar.progress = percent
+        overallText.text = "Automatische Sicherung: $percent% abgeschlossen"
+        fileText.text = if (total > 0) {
+            "Übertragung läuft — danach wird jede Datei auf Integrität geprüft ($total Datei${if (total == 1) "" else "en"})"
+        } else "Übertragung läuft — danach wird jede Datei auf Integrität geprüft"
     }
 
 
