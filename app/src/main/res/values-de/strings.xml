@@ -194,4 +194,9 @@
     <string name="shortcut_connect">Verbinden</string>
     <string name="shortcut_connect_confirm">Mit %1$s verbinden?</string>
     <string name="credential_storage_unavailable">Die Kamerazugangsdaten konnten nicht sicher gespeichert werden. Bitte versuche es erneut oder gib sie nach dem Entsperren des Telefons erneut ein.</string>
+    <string name="camera_deletion_disabled">Das Löschen auf der Kamera ist deaktiviert, bis ein separat autorisierter Bereinigungsablauf verfügbar ist.</string>
+    <string name="export_diagnostics">Diagnose exportieren</string>
+    <string name="diagnostics_email_subject">Osmosis-Diagnose — %1$s</string>
+    <string name="share_diagnostics_chooser">Bereinigte Diagnose teilen</string>
+    <string name="share_diagnostics_failed">Diagnose konnte nicht exportiert werden</string>
 </resources>

@@ -192,4 +192,15 @@
     <string name="shortcut_connect">Підключити</string>
     <string name="shortcut_connect_confirm">Підключитися до %1$s?</string>
     <string name="credential_storage_unavailable">Не вдалося безпечно зберегти облікові дані камери. Спробуйте ще раз або введіть їх після розблокування телефона.</string>
+    <string name="backup_status_title">Стан резервного копіювання</string>
+    <string name="backup_live_phone">Синхронізація з телефоном · %1$d%%</string>
+    <string name="backup_live_integrity_saved">Збережено на телефоні · цілісність перевірено</string>
+    <string name="backup_live_review">Передавання зупинено · потрібна перевірка</string>
+    <string name="backup_live_camera_retry">Камера відповідає · повторюємо передавання</string>
+    <string name="camera_deletion_disabled">Видалення з камери вимкнено, доки не буде доступний окремо авторизований процес очищення.</string>
+    <string name="share_logs_failed_generic">Не вдалося поділитися журналами.</string>
+    <string name="export_diagnostics">Експортувати діагностику</string>
+    <string name="diagnostics_email_subject">Діагностика Osmosis — %1$s</string>
+    <string name="share_diagnostics_chooser">Поділитися очищеною діагностикою</string>
+    <string name="share_diagnostics_failed">Не вдалося експортувати діагностику</string>
 </resources>

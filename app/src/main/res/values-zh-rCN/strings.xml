@@ -194,4 +194,15 @@
     <string name="shortcut_connect">连接</string>
     <string name="shortcut_connect_confirm">连接到 %1$s？</string>
     <string name="credential_storage_unavailable">无法安全保存相机凭据。请重试，或解锁手机后重新输入。</string>
+    <string name="backup_status_title">备份状态</string>
+    <string name="backup_live_phone">正在同步到手机 · %1$d%%</string>
+    <string name="backup_live_integrity_saved">已保存到手机 · 完整性已验证</string>
+    <string name="backup_live_review">传输已停止 · 需要检查</string>
+    <string name="backup_live_camera_retry">相机正在响应 · 正在重试传输</string>
+    <string name="camera_deletion_disabled">相机删除功能已禁用，直到单独授权的清理流程可用。</string>
+    <string name="share_logs_failed_generic">无法分享日志。</string>
+    <string name="export_diagnostics">导出诊断信息</string>
+    <string name="diagnostics_email_subject">Osmosis 诊断信息 — %1$s</string>
+    <string name="share_diagnostics_chooser">分享已清理的诊断信息</string>
+    <string name="share_diagnostics_failed">无法导出诊断信息</string>
 </resources>

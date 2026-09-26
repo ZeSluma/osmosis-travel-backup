@@ -94,3 +94,19 @@ Die deterministischen Kernpfade sind **SOFTWARE_PROVEN**, jedoch ist die Softwar
 
 Die kombinierte vollständige, nicht-destruktive Hardwareliste steht in
 `docs/hardware/COMPLETE_FUNCTION_HARDWARE_AUDIT_2026-09-26.md`.
+
+## Frischer Abschluss-Checkpoint
+
+Nach ausdrücklicher Annahme der Google-Android-SDK-Lizenzen für den isolierten lokalen Cache wurde
+der Checkpoint am 2026-09-26 erneut ausgeführt:
+
+- `:app:testDebugUnitTest`: **545 Tests, 0 Failures, 0 Errors, 0 Skips**.
+- `:app:assembleDebug`: PASS; Debug-APK SHA-256
+  `643CE5F516F40D8F02E952AB8D72D01311AA99951F2735F75261297FA792F703`.
+- Vollständig neu berechnetes `:app:lintDebug`: **0 Errors**, 116 Warnungen. Die zuvor 11
+  fehlenden Übersetzungen für sichtbaren Sicherungs-/Diagnosetext wurden in `de`, `es`, `uk` und
+  `zh-rCN` ergänzt. Die verbleibenden Warnungen betreffen bekannte Performance-, API- und
+  Abhängigkeits-Hinweise und sind keine Fehler dieses Deltas.
+
+Damit ist die softwareseitige Vorbereitung ausgeschöpft. Die noch offenen Anforderungen sind
+ausschließlich die im gebündelten Hardwareplan klar begrenzten physischen Beobachtungen.

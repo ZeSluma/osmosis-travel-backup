@@ -192,4 +192,15 @@
     <string name="shortcut_connect">Conectar</string>
     <string name="shortcut_connect_confirm">¿Conectar con %1$s?</string>
     <string name="credential_storage_unavailable">No se pudieron guardar las credenciales de la cámara de forma segura. Inténtalo de nuevo o introdúcelas después de desbloquear el teléfono.</string>
+    <string name="backup_status_title">Estado de la copia de seguridad</string>
+    <string name="backup_live_phone">Sincronizando con el teléfono · %1$d%%</string>
+    <string name="backup_live_integrity_saved">Guardado en el teléfono · integridad comprobada</string>
+    <string name="backup_live_review">Transferencia detenida · requiere revisión</string>
+    <string name="backup_live_camera_retry">La cámara está respondiendo · reintentando transferencia</string>
+    <string name="camera_deletion_disabled">La eliminación en la cámara está desactivada hasta que haya un flujo de limpieza autorizado por separado.</string>
+    <string name="share_logs_failed_generic">No se pudieron compartir los registros.</string>
+    <string name="export_diagnostics">Exportar diagnósticos</string>
+    <string name="diagnostics_email_subject">Diagnósticos de Osmosis — %1$s</string>
+    <string name="share_diagnostics_chooser">Compartir diagnósticos depurados</string>
+    <string name="share_diagnostics_failed">No se pudieron exportar los diagnósticos</string>
 </resources>

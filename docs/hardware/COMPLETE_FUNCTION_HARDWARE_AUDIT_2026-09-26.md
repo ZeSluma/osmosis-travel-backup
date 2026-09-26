@@ -1,6 +1,6 @@
 # Vollständige Hardware-Prüfung — Pocket Pickup
 
-Status: **READY NACH SOFTWARE-CHECKPOINT, nicht ausgeführt**. Dieser Plan ergänzt den bestehenden
+Status: **READY, nicht ausgeführt**. Dieser Plan ergänzt den bestehenden
 [`FINAL_COMPLETE_APP_HARDWARE_TEST.md`](FINAL_COMPLETE_APP_HARDWARE_TEST.md): Er enthält auch
 GPS, Diagnose, Capture-Day und die Sicherheits-Sperren. Ein Ergebnis ist ausschließlich
 `PASS`, `FAIL`, `INCONCLUSIVE` oder — bei fehlender Topologie — `HARDWARE_DEFERRED`.
@@ -18,10 +18,10 @@ GPS, Diagnose, Capture-Day und die Sicherheits-Sperren. Ein Ergebnis ist ausschl
 
 ## Vorbedingungen
 
-1. Der aktuelle Branch einschließlich der Diagnose-Privatsphäre-Korrektur hat vorher einen frischen
-   `:app:testDebugUnitTest :app:assembleDebug :app:lintDebug`-Checkpoint bestanden; der SHA-256 der
-   daraus entstandenen Debug-APK ist im Ergebnisprotokoll festgehalten. Ohne diesen Nachweis findet
-   kein Hardwaretest statt.
+1. Der aktuelle Branch einschließlich der Diagnose-Privatsphäre-Korrektur hat den frischen
+   `:app:testDebugUnitTest :app:assembleDebug :app:lintDebug`-Checkpoint bestanden: **545 Tests,
+   0 Fehler/Errors; Lint 0 Fehler**. Exakte Debug-APK SHA-256:
+   `643CE5F516F40D8F02E952AB8D72D01311AA99951F2735F75261297FA792F703`.
 2. S25, gespeicherter Pocket und die getestete APK sind verfügbar. Akku und freier Speicher sind
    ausreichend.
 3. Für SSD-Fälle: funktionsfähiger USB-Hub, SSD und ein leerer dedizierter Testordner. Fehlt
