@@ -15,7 +15,17 @@ class DiagnosticEventStore private constructor(
     private val maxBytes: Long,
     private val maxAgeMillis: Long,
 ) {
-    enum class Type { SESSION_STATE, TRANSFER_STATE, STORAGE_STATE, USER_ACTION_REQUIRED }
+    enum class Type {
+        SESSION_STARTED,
+        SESSION_STATE,
+        CAMERA_SESSION_READY,
+        RECONNECT_SCHEDULED,
+        RECONNECT_ATTEMPT,
+        RECONNECT_FAILED,
+        TRANSFER_STATE,
+        STORAGE_STATE,
+        USER_ACTION_REQUIRED,
+    }
 
     @Synchronized fun record(
         type: Type,

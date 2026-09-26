@@ -37,6 +37,15 @@ class DiagnosticEventStoreTest {
         assertTrue(export.readText().contains("USER_ACTION_REQUIRED"))
     }
 
+    @Test fun `canonical lifecycle types remain typed and cannot carry an unsafe reason`() = withStore { dir, store ->
+        store.record(DiagnosticEventStore.Type.RECONNECT_SCHEDULED, newState = "RECONNECT_WAIT", reason = "ssid=secret")
+        store.record(DiagnosticEventStore.Type.CAMERA_SESSION_READY, newState = "READY")
+        val text = dir.listFiles()!!.single().readText()
+        assertTrue(text.contains("RECONNECT_SCHEDULED"))
+        assertTrue(text.contains("CAMERA_SESSION_READY"))
+        assertFalse(text.contains("secret"))
+    }
+
     private fun withStore(block: (File, DiagnosticEventStore) -> Unit) {
         val dir = Files.createTempDirectory("osmosis-diagnostics").toFile()
         try { block(dir, DiagnosticEventStore.forTest(dir, { 1_000_000L }, 1_000_000, 1_000_000)) }

@@ -33,7 +33,10 @@ class CameraConnectionService : Service() {
         when (intent?.action) {
             // The explicit UI command has already allocated the epoch before requesting this host.
             // Starting it again here would invalidate callbacks that were queued in that same command.
-            ACTION_START -> { ensureChannel(); startForeground(NOTIFICATION_ID, notification()) }
+            ACTION_START -> {
+                ensureChannel(); startForeground(NOTIFICATION_ID, notification())
+                DiagnosticEventStore.open(this).record(DiagnosticEventStore.Type.SESSION_STARTED, newState = "HOST_ACTIVE")
+            }
             ACTION_STOP -> { runtime(this).stop(); backupRuntime(this).stop(); stopForeground(STOP_FOREGROUND_REMOVE); stopSelf() }
         }
         return START_NOT_STICKY // process restart restores state but never silently resumes user work.
@@ -60,8 +63,15 @@ class CameraConnectionService : Service() {
         fun runtime(context: Context): DurableSessionRuntime = instance ?: synchronized(this) {
             instance ?: DurableSessionRuntime(PreferenceSessionStore(context)) { lease ->
                 val diagnostics = DiagnosticEventStore.open(context)
+                val type = when (lease.recovery.state) {
+                    ConnectionState.READY -> DiagnosticEventStore.Type.CAMERA_SESSION_READY
+                    ConnectionState.RECONNECT_WAIT -> DiagnosticEventStore.Type.RECONNECT_SCHEDULED
+                    ConnectionState.RECONNECTING -> DiagnosticEventStore.Type.RECONNECT_ATTEMPT
+                    ConnectionState.USER_ACTION_REQUIRED -> DiagnosticEventStore.Type.RECONNECT_FAILED
+                    else -> DiagnosticEventStore.Type.SESSION_STATE
+                }
                 diagnostics.record(
-                    DiagnosticEventStore.Type.SESSION_STATE,
+                    type,
                     newState = lease.recovery.state.name,
                     reason = lease.recovery.reason?.name,
                     retryCount = lease.recovery.attempts,
