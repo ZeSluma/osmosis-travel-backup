@@ -19,12 +19,12 @@ HARDWARE_DEFERRED; it never upgrades an unobserved claim.
 
 | Area | Proven now | Remaining software measure | Physical evidence to bundle once |
 |---|---|---|---|
-| Camera → phone core (PC01–PC19) | Epoch fencing, untrusted-inventory refusal, durable automatic plan/dispatch, strict transfer, receipt/integrity, replica isolation, UI observation, callback and network ownership have focused tests. | Re-run the integrated state matrix after completion-scope work; preserve the user-stop, stale callback and partial-recovery cases. | Known camera automatic discovery, one safe new transfer with visible progress, background, controlled loss/rebuild. |
+| Camera → phone core (PC01–PC19) | Epoch fencing, untrusted-inventory refusal, durable automatic plan/dispatch, strict transfer, receipt/integrity, replica isolation, UI observation, callback and network ownership have focused tests. The 2026-09-26 audit repaired replacement-writer handoff: a fresh trusted epoch waits for the fenced predecessor release rather than becoming `USER_ACTION_REQUIRED`; completion is committed before that release. Pocket manual requests now delegate to the same service dispatcher, so the Activity is no Pocket writer. | Re-run the integrated state matrix after completion-scope work; preserve the user-stop, stale callback and partial-recovery cases. | Known camera automatic discovery, one safe new transfer with visible progress, background, controlled loss/rebuild. |
 | PC20 truthful copy | Current terminal-inventory eligibility no longer inherits historical unresolved identity ambiguity. `LedgerModelTest` and `BackupStatusCopyTest` cover the distinction. | Verify observer refresh through the full durable-plan path and keep an incomplete list untrusted. | German summary must explain camera list/identity blocker without claiming a completed sync. |
 | Progress and product surface | The service already owns progress; the UI now renders its privacy-safe percentage in the existing visible bar and labels it as automatic transfer followed by integrity verification. The launcher label is `Osmosis Travel Backup`; an independent generated camera-to-storage mark is used on Android 26+ without changing package/signature. | Add the full transition copy (download, verification, complete, review-required) from durable dispatcher/ledger events; do not make a visual percentage a completion source. | Confirm the bar updates during one safe new transfer and that final labels come from the receipt, not the transient bar. |
 | R037 capture day | Resolver, deterministic day paths, collision handling, uncertainty and destination-path persistence are model-tested. | Close deterministic CD01–CD08 fault cases that do not require Pocket metadata/SAF behavior. | Capture-time/zone/sidecar facts on Pocket and real provider layout. |
 | R040 optional GPS | Fresh launch is backup mode; GPS requires a new explicit choice and cannot suppress backup after recreation. | Exercise permission denial, mode ownership and backup-vs-GPS arbitration in deterministic tests. | Optional, separately opt-in GPS behavior only; it must not be required for backup. |
-| R041 diagnostics | App-private bounded event store, allowlisted fields, explicit export, verbose opt-in bounds and no restore are implemented. New typed lifecycle codes distinguish start, ready and recovery states. `DiagnosticEventStoreTest` 4/4 and `PrivacySafeDiagnosticsTest` 2/2 pass. | Verify every service sink uses typed/sanitized code and add export boundary coverage. | Export/share path and actual recovery reason output with no sensitive data. |
+| R041 diagnostics | App-private bounded event store, allowlisted fields, explicit export, verbose opt-in bounds and no restore are implemented. New typed lifecycle codes distinguish start, ready and recovery states. The audit removed the remaining raw throwable from the normal verbose-export failure sink. | Verify every service sink uses typed/sanitized code and add export boundary coverage. | Export/share path and actual recovery reason output with no sensitive data. |
 | R042 liveness | Recovery state machine, service ownership and stale callback fences are simulated. | Complete an explicit software liveness fault matrix: repeated loss, replacement, user stop, process recreation and recovery exhaustion. | KA01–KA08 timing/cause observations on S25/Pocket; no model-specific keepalive claim before that. |
 | SSD/SAF | Safe allocation, staged replica, readback verification, restart/reappearance and catch-up fakes exist. | Regress SSD independence after the overall matrix; do not write without a grant. | Host topology, persisted grant, catch-up, interruption and readback. If the hub is unavailable, record HARDWARE_DEFERRED. |
 
@@ -40,3 +40,19 @@ HARDWARE_DEFERRED; it never upgrades an unobserved claim.
 
 No camera original deletion, no data clear, no protected-media retransfer, no main merge, no release,
 and no production cloud access are authorized.
+
+## Audit checkpoint — 2026-09-26
+
+The requirement/code/source-sink audit closed two software-correctable gaps before any hardware
+request: a trusted replacement session now waits for a fenced predecessor writer to release and
+then repeats all source/plan/identity checks; and the Pocket-specific manual action delegates to
+the service-owned durable dispatcher. Raw export exceptions were removed from both the normal
+log sink and user-visible error text.
+
+Targeted ownership/recovery, progress and privacy suites passed. The full checkpoint
+`:app:testDebugUnitTest :app:assembleDebug --no-daemon` passed with **514 JVM tests, zero failures
+and zero errors**. Debug APK SHA-256:
+`6CC9F3C551E9ABAB1A87FA3395EEC2555A3CB1DB6200B3D86241DDD4C4749F6B`.
+
+R037, R040, R041 and R042 remain deliberately active: their explicit deterministic matrices and
+physical-only facts have not been upgraded by this checkpoint.

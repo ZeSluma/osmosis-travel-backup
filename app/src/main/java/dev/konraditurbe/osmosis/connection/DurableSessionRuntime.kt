@@ -19,12 +19,20 @@ class DurableSessionRuntime(private val store: SessionStore, private val diagnos
     private var activeTransfer: TransferLease? = null
     init { store.writeTransfer(null) }
     private val observers = linkedSetOf<(SessionLease) -> Unit>()
+    // Writer release is a service coordination event, not session truth.  It lets a fresh,
+    // already-trusted replacement epoch retry its durable plan after a fenced predecessor has
+    // relinquished the one in-memory writer allocation.
+    private val transferReleaseObservers = linkedSetOf<(TransferLease) -> Unit>()
 
     @Synchronized fun snapshot(): SessionLease = current
     @Synchronized fun observe(observer: (SessionLease) -> Unit): () -> Unit {
         observers += observer
         observer(current)
         return { synchronized(this) { observers -= observer } }
+    }
+    @Synchronized fun observeTransferRelease(observer: (TransferLease) -> Unit): () -> Unit {
+        transferReleaseObservers += observer
+        return { synchronized(this) { transferReleaseObservers -= observer } }
     }
     @Synchronized fun start(): SessionLease = publish(CameraSessionCoordinator.begin(current))
     @Synchronized fun stop(): SessionLease = publish(CameraSessionCoordinator.stop(current))
@@ -50,10 +58,15 @@ class DurableSessionRuntime(private val store: SessionStore, private val diagnos
         store.writeTransfer(next)
         return next
     }
-    @Synchronized fun releaseTransfer(token: TransferLease) {
-        if (activeTransfer != token) return
-        activeTransfer = null
-        store.writeTransfer(null)
+    fun releaseTransfer(token: TransferLease) {
+        val callbacks = synchronized(this) {
+            if (activeTransfer != token) return
+            activeTransfer = null
+            store.writeTransfer(null)
+            transferReleaseObservers.toList()
+        }
+        // A diagnostic/dispatcher observer cannot retain ownership or make a stale release fail.
+        callbacks.forEach { runCatching { it(token) } }
     }
     @Synchronized fun activeTransfer(): TransferLease? = activeTransfer
 

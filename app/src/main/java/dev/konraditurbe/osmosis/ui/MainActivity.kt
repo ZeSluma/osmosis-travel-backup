@@ -1952,9 +1952,16 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
         val ad = adapter ?: run { logLine("Nothing listed yet — tap Offload first."); return }
         val jobs = ad.selectedEntries().map { MediaDownloader.Job(it.first, it.second) }
         val strictPocket = currentModelId == 0x0022 || currentModel.name == "Osmo Pocket 4 Pro"
-        val transferSession = connectionResources.ledgerSession
+        if (strictPocket) {
+            // A Pocket download is never an Activity-owned writer. The button is only an explicit
+            // request to re-evaluate the durable trusted plan; the service applies its epoch,
+            // source, writer and integrity fences before any IO begins.
+            logLine("Pocket download request delegated to the automatic backup service.")
+            CameraConnectionService.automaticTransferDispatcher(applicationContext).dispatch()
+            refreshBackupLabels()
+            return
+        }
         val capturedNetwork = connectionResources.transferNetwork
-        val capturedCameraEpoch = cameraEpoch
         // Queue keys parallel to [jobs] — used to drop each cell from the queue once it lands. Bursts queue
         // under the lead's path (the map key), which is NOT job.file.path, so we map by index, not by file.
         val keys = ad.selectedKeys()
@@ -1962,11 +1969,6 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
             logLine("No files queued (tap a cell to preview + queue).")
             return
         }
-        val transferLease = if (strictPocket) CameraConnectionService.runtime(applicationContext)
-            .acquireTransfer(capturedCameraEpoch) ?: run {
-                logLine("Transfer already active or camera source is not revalidated — preserving partial state.")
-                return
-            } else null
         val trimmed = jobs.count { it.trim != null }
         logLine("Downloading ${jobs.size} item(s)${if (trimmed > 0) " ($trimmed trimmed)" else ""} to gallery...")
         val doneKeys = java.util.Collections.synchronizedList(mutableListOf<String>())
@@ -2017,11 +2019,10 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
                     adapter?.dequeuePaths(doneKeys.toList())
                     refreshBackupLabels()
                     updateDownloadFab()
-                    overallBar.progress = if (strictPocket) 0 else 100
-                    overallText.text = if (strictPocket) getString(R.string.strict_transfer_result, saved, skipped, failed)
-                        else getString(R.string.download_done, saved, skipped, failed)
+                    overallBar.progress = 100
+                    overallText.text = getString(R.string.download_done, saved, skipped, failed)
                     fileText.text = ""
-                    if (!strictPocket) main.postDelayed({ progressArea.visibility = View.INVISIBLE }, 3000)
+                    main.postDelayed({ progressArea.visibility = View.INVISIBLE }, 3000)
                 }
                 logLine("DONE: $saved saved, $skipped skipped, $failed failed")
             }
@@ -2030,27 +2031,14 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
         updateDownloadFab()
         Thread {
             try {
-                if (strictPocket) {
-                    dev.konraditurbe.osmosis.integrity.StrictTransferBatch.run(jobs,listener) { job,tick ->
-                        if (transferSession==null || capturedNetwork==null)
-                            dev.konraditurbe.osmosis.ledger.LedgerCoordinator.TransferResult.REVIEW_REQUIRED
-                        else dev.konraditurbe.osmosis.ledger.LedgerCoordinator.get(applicationContext)
-                            .transferOriginal(transferSession,job.file,capturedNetwork,
-                                { transferActivityClosed || connectionResources.transferNetwork!=capturedNetwork ||
-                                    CameraConnectionService.runtime(applicationContext).snapshot().epoch != capturedCameraEpoch ||
-                                    CameraConnectionService.runtime(applicationContext).activeTransfer() != transferLease ||
-                                    !dev.konraditurbe.osmosis.connection.CameraSessionCoordinator.mayUseCameraTraffic(
-                                        CameraConnectionService.runtime(applicationContext).snapshot()) },tick)
-                    }
-                } else MediaDownloader(this, HttpClient("192.168.2.1", ::logLine, capturedNetwork), ::logLine).run(jobs, listener)
+                MediaDownloader(this, HttpClient("192.168.2.1", ::logLine, capturedNetwork), ::logLine).run(jobs, listener)
             } finally {
-                transferLease?.let { CameraConnectionService.runtime(applicationContext).releaseTransfer(it) }
                 // In a finally, not in onComplete: a throw anywhere in the run would otherwise wedge
                 // the guard on and leave Download dead for the rest of the session.
                 main.post {
                     downloadRunning = false
                     updateDownloadFab()
-                    if (!strictPocket) maybeResumeAfterRejoin()
+                    maybeResumeAfterRejoin()
                 }
             }
         }.start()
@@ -2317,8 +2305,12 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
             }
             startActivity(android.content.Intent.createChooser(send, getString(R.string.share_logs_chooser)))
         }.onFailure {
-            android.util.Log.e("Osmosis", "shareLogGzipped failed", it)
-            android.widget.Toast.makeText(this, getString(R.string.share_logs_failed, it.message), android.widget.Toast.LENGTH_LONG).show()
+            // Exceptions can contain provider or filesystem values. Normal diagnostics retain
+            // only the failure category, never a raw throwable.
+            android.util.Log.i("Osmosis", "verbose diagnostic export unavailable")
+            // The user-visible error follows the same privacy boundary as logcat: a provider
+            // exception may include a URI or filesystem detail, so expose only the fixed category.
+            android.widget.Toast.makeText(this, R.string.share_logs_failed_generic, android.widget.Toast.LENGTH_LONG).show()
         }
     }
 

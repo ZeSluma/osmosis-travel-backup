@@ -147,6 +147,7 @@
     <string name="share_logs_title">Share logs with Konrad?</string>
     <string name="share_logs_chooser">Share logs with Konrad</string>
     <string name="share_logs_failed">Couldn\'t share logs: %1$s</string>
+    <string name="share_logs_failed_generic">Couldn\'t share logs.</string>
     <string name="logs_email_subject">Osmosis logs — %1$s</string>
     <string name="export_diagnostics">Export diagnostics</string>
     <string name="diagnostics_email_subject">Osmosis diagnostics — %1$s</string>

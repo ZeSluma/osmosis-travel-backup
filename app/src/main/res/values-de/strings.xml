@@ -144,6 +144,7 @@
     <string name="share_logs_title">Protokolle mit Konrad teilen?</string>
     <string name="share_logs_chooser">Protokolle mit Konrad teilen</string>
     <string name="share_logs_failed">Protokolle konnten nicht geteilt werden: %1$s</string>
+    <string name="share_logs_failed_generic">Protokolle konnten nicht geteilt werden.</string>
     <string name="logs_email_subject">Osmosis-Protokolle — %1$s</string>
 
     <!-- Media preview -->

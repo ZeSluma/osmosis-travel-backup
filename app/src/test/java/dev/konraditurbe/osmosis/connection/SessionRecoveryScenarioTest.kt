@@ -65,4 +65,25 @@ class SessionRecoveryScenarioTest {
         assertEquals(ConnectionState.STOPPED, runtime.snapshot().recovery.state)
         assertEquals(null, runtime.acquireTransfer(replacement.epoch))
     }
+
+    @Test fun trustedReplacementIsWokenOnlyAfterTheFencedPredecessorReleasesItsWriter() {
+        val runtime = DurableSessionRuntime(Store())
+        val first = runtime.start()
+        runtime.callback(first.epoch, ConnectionEvent.TRANSPORT_READY)
+        assertEquals(SourceTrust.TRUSTED, runtime.revalidated(first.epoch, SourceObservation(true, false)))
+        val predecessor = checkNotNull(runtime.acquireTransfer(first.epoch))
+
+        val replacement = runtime.start()
+        runtime.callback(replacement.epoch, ConnectionEvent.TRANSPORT_READY)
+        assertEquals(SourceTrust.TRUSTED, runtime.revalidated(replacement.epoch, SourceObservation(true, false)))
+        assertEquals(null, runtime.acquireTransfer(replacement.epoch))
+
+        val releases = mutableListOf<TransferLease>()
+        runtime.observeTransferRelease { releases += it }
+        runtime.releaseTransfer(predecessor)
+
+        assertEquals(listOf(predecessor), releases)
+        val replacementWriter = checkNotNull(runtime.acquireTransfer(replacement.epoch))
+        runtime.releaseTransfer(replacementWriter)
+    }
 }

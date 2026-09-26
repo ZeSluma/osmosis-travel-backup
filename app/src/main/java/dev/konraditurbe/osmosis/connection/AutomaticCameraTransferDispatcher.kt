@@ -21,9 +21,16 @@ class AutomaticCameraTransferDispatcher(
     @Volatile var progress: String? = null
         private set
     @Volatile private var progressPercent: Long = -1L
+    @Volatile private var waitingForWriterEpoch: Long? = null
+    init {
+        sessions.observeTransferRelease { onTransferReleased() }
+    }
     private fun decision(value: String) {
         lastDecision = value
         DiagnosticEventStore.open(context).record(DiagnosticEventStore.Type.TRANSFER_STATE, newState = value)
+        // Publish every state transition, including planning/writer-wait. The UI remains an
+        // observer and may show honest progress before bytes begin moving.
+        CameraConnectionService.backupProjectionNotifier(context).publish()
     }
     fun dispatch() {
         val session = resources.ledgerSession ?: run { decision("NO_LEDGER_SESSION"); return }
@@ -37,25 +44,43 @@ class AutomaticCameraTransferDispatcher(
         ledger.automaticDownloadPaths(session, resources.trustedFilesByPath.values.toList()) { files ->
             val current = sessions.snapshot()
             if (current.epoch != lease.epoch || !CameraSessionCoordinator.mayUseCameraTraffic(current)) { decision("STALE_OR_UNTRUSTED"); return@automaticDownloadPaths }
+            // Take the single camera writer before allocating a backup lease.  A replacement
+            // epoch may arrive while the old writer is cancelling; treating that as a plan failure
+            // would strand safe automatic continuation in USER_ACTION_REQUIRED.
+            val transferLease = sessions.acquireTransfer(lease.epoch) ?: run {
+                waitingForWriterEpoch = lease.epoch
+                decision("WRITER_WAIT")
+                return@automaticDownloadPaths
+            }
+            waitingForWriterEpoch = null
             val scheduled = runtime.plan(lease.epoch, SourceTrust.TRUSTED, ledger.latestPlan, current.userStopped)
-            val backupLease = scheduled.first.lease ?: run { decision("PLAN_NOT_ELIGIBLE"); return@automaticDownloadPaths }
+            val backupLease = scheduled.first.lease ?: run {
+                sessions.releaseTransfer(transferLease)
+                decision("PLAN_NOT_ELIGIBLE")
+                return@automaticDownloadPaths
+            }
             // A duplicate plan callback deliberately returns the already-current writer with no new
             // paths. Do nothing: completing it here would let the duplicate observer declare an
             // in-flight batch finished. Conversely, selected paths that no longer map to this
             // trusted observation are unsafe, not an empty successful batch.
-            if (scheduled.second.isEmpty()) { decision("WRITER_ALREADY_ACTIVE"); return@automaticDownloadPaths }
+            if (scheduled.second.isEmpty()) {
+                sessions.releaseTransfer(transferLease)
+                decision("WRITER_ALREADY_ACTIVE")
+                return@automaticDownloadPaths
+            }
             val selected = files.keys.intersect(scheduled.second)
             if (!AutomaticTransferDispatchPolicy.hasEveryPlannedSource(scheduled.second, selected)) {
                 runtime.fail(backupLease, "TRANSFER_SOURCE_CHANGED")
+                sessions.releaseTransfer(transferLease)
                 decision("SOURCE_CHANGED")
                 return@automaticDownloadPaths
             }
             val jobs = selected.mapNotNull { files[it] }.map { MediaDownloader.Job(it) }
             if (jobs.size != selected.size) {
                 runtime.fail(backupLease, "TRANSFER_SOURCE_CHANGED")
+                sessions.releaseTransfer(transferLease)
                 return@automaticDownloadPaths
             }
-            val transferLease = sessions.acquireTransfer(lease.epoch) ?: run { runtime.fail(backupLease, "TRANSFER_BUSY_OR_UNTRUSTED"); return@automaticDownloadPaths }
             decision("WRITER_STARTED")
             progress = AutomaticTransferProgressPolicy.project(jobs.size, jobs.sumOf { it.file.sizeBytes.coerceAtLeast(0L) }, 0, 0).text
             progressPercent = -1L
@@ -78,7 +103,6 @@ class AutomaticCameraTransferDispatcher(
                 } catch (_: Exception) {
                     failed = true
                 } finally {
-                    sessions.releaseTransfer(transferLease)
                     if (!failed) {
                         runtime.complete(backupLease)
                         decision("WRITER_COMPLETE")
@@ -86,6 +110,10 @@ class AutomaticCameraTransferDispatcher(
                         runtime.fail(backupLease, "TRANSFER_REVIEW_REQUIRED")
                         decision("TRANSFER_REVIEW_REQUIRED")
                     }
+                    // Completion/failure is recorded before a waiting replacement can acquire the
+                    // writer.  Therefore a late predecessor cannot overwrite the replacement's
+                    // scheduler state after it is woken.
+                    sessions.releaseTransfer(transferLease)
                     progress = null
                     progressPercent = -1L
                     // The Activity observes this service signal and re-reads durable receipt state;
@@ -127,4 +155,17 @@ class AutomaticCameraTransferDispatcher(
     }
 
     private fun publishProgress() = CameraConnectionService.backupProjectionNotifier(context).publish()
+
+    private fun onTransferReleased() {
+        val expected = waitingForWriterEpoch ?: return
+        val current = sessions.snapshot()
+        if (expected != current.epoch || !CameraSessionCoordinator.mayUseCameraTraffic(current)) {
+            waitingForWriterEpoch = null
+            return
+        }
+        // Only the release of the single runtime allocation wakes this deferred dispatch.  The
+        // next dispatch still rechecks epoch, trust, durable plan and every source identity.
+        waitingForWriterEpoch = null
+        dispatch()
+    }
 }
