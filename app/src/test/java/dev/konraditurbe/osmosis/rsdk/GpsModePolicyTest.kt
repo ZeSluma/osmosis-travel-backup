@@ -15,6 +15,13 @@ class GpsModePolicyTest {
         assertTrue(GpsModePolicy.mayStartGps(explicitMode = true, userSelectedCamera = true))
     }
 
+    @Test fun permissionResultCannotReviveGpsAfterTheUserTurnsTheModeOff() {
+        assertTrue(GpsModePolicy.mayStartAfterPermissionResult(hasPendingTarget = true, explicitMode = true, allGranted = true))
+        assertFalse(GpsModePolicy.mayStartAfterPermissionResult(hasPendingTarget = true, explicitMode = false, allGranted = true))
+        assertFalse(GpsModePolicy.mayStartAfterPermissionResult(hasPendingTarget = true, explicitMode = true, allGranted = false))
+        assertFalse(GpsModePolicy.mayStartAfterPermissionResult(hasPendingTarget = false, explicitMode = true, allGranted = true))
+    }
+
     @Test fun automaticDiscoveryIsBackupUnlessGpsActuallyOwnsTheCamera() {
         assertTrue(GpsModePolicy.mayAutoStartBackup(gpsServiceOwnsCamera = false))
         assertFalse(GpsModePolicy.mayAutoStartBackup(gpsServiceOwnsCamera = true))

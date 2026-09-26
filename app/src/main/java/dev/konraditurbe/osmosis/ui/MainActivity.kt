@@ -957,7 +957,12 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == REQ_GPS_PERMS) {
             val target = pendingGpsTarget; pendingGpsTarget = null
-            if (target != null && grantResults.isNotEmpty() && grantResults.all { it == PackageManager.PERMISSION_GRANTED }) {
+            if (GpsModePolicy.mayStartAfterPermissionResult(
+                    hasPendingTarget = target != null,
+                    explicitMode = btnGps.isChecked,
+                    allGranted = grantResults.isNotEmpty() && grantResults.all { it == PackageManager.PERMISSION_GRANTED },
+                )) {
+                checkNotNull(target)
                 startGpsMode(target.first, target.second)
             } else logLine("GPS sync: location permission denied.")
             return

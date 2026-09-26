@@ -9,6 +9,10 @@ object GpsModePolicy {
     fun mayStartGps(explicitMode: Boolean, userSelectedCamera: Boolean): Boolean =
         explicitMode && userSelectedCamera
 
+    /** A permission response is not standing consent: the toggle must still express current intent. */
+    fun mayStartAfterPermissionResult(hasPendingTarget: Boolean, explicitMode: Boolean, allGranted: Boolean): Boolean =
+        hasPendingTarget && explicitMode && allGranted
+
     /** Automatic known-camera discovery is always the backup path unless GPS owns the camera. */
     fun mayAutoStartBackup(gpsServiceOwnsCamera: Boolean): Boolean = !gpsServiceOwnsCamera
 }
