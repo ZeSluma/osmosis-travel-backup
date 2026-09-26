@@ -20,6 +20,11 @@ object BackupStatusCopy {
         automatic == "Backupstatus wird geladen" -> "Backupstatus wird geladen"
         automatic == incompleteInventory() -> automatic
         automatic.startsWith("Übertragung") || automatic.startsWith("Quelle hat sich") -> automatic
+        // Historical ambiguity remains a global completeness blocker, but it does not make a
+        // complete current camera list unsafe for a new file. The planner may therefore have just
+        // transferred a new clip while older records still need review. Prefer this precise state
+        // over a generic current-list warning, which would contradict the progress just shown.
+        automatic.startsWith("Frühere Dateien") -> automatic
         // A durable incomplete observation is a terminal conservative outcome, not evidence that
         // an operation is still running.  Active wording here made a fully rendered grid look
         // hung indefinitely after the service had already stopped enumerating.
@@ -36,7 +41,7 @@ object BackupStatusCopy {
     fun plan(diagnostic: LedgerCoordinator.AutomaticPlanDiagnostic): String = when {
         !diagnostic.inventoryComplete -> incompleteInventory()
         diagnostic.completenessReason == "IDENTITY_UNRESOLVED" || diagnostic.historicalUnresolved > 0 ->
-            "${diagnostic.historicalUnresolved} ältere Datei${plural(diagnostic.historicalUnresolved)} brauchen Aufmerksamkeit"
+            "Frühere Dateien brauchen Prüfung (${diagnostic.historicalUnresolved}) – neue Dateien werden weiterhin gesichert"
         diagnostic.currentUnresolved > 0 -> "${diagnostic.currentUnresolved} Datei${plural(diagnostic.currentUnresolved)} auf der Kamera prüfen"
         diagnostic.downloads > 0 -> "${diagnostic.downloads} neue Datei${plural(diagnostic.downloads)} werden vorbereitet"
         diagnostic.verifyExisting > 0 -> "${diagnostic.verifyExisting} lokale Datei${plural(diagnostic.verifyExisting)} werden geprüft"

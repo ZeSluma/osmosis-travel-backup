@@ -79,6 +79,15 @@ matches the camera-status card; active service progress is inside it, while the 
 clearly says no transfer starts. Full JVM/debug checkpoint: **531 JVM tests, 0 failures, 0
 errors**; debug APK SHA-256 `9007D833A1CA9283EE3281B4418F353280606406BC09314029D8CAF5F1E867BE`.
 
+2026-09-26 (current versus historical state): live S25 evidence showed a new clip was safely
+transferred while three historical identity records remained unresolved. The prior card then
+contradicted the completed transfer by calling the entire list incomplete and saying no transfer
+would start. The projection now keeps the global completion block but says: `Frühere Dateien
+brauchen Prüfung (3) – neue Dateien werden weiterhin gesichert`. A dedicated regression proves
+this historical state cannot overwrite a completed current transfer. Full JVM/debug checkpoint:
+**532 JVM tests, 0 failures, 0 errors**; debug APK SHA-256
+`B5D856F25976D76050935463CED59A8E312AFE22ED7CF4D94BECD18FA340E66B`.
+
 ## Hardware deferred
 
 | ID | Requirement | State |

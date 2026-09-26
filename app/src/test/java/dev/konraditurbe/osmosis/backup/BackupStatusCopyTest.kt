@@ -10,13 +10,13 @@ class BackupStatusCopyTest {
         val text = BackupStatusCopy.plan(LedgerCoordinator.AutomaticPlanDiagnostic(
             inventoryComplete = true, completenessReason = "IDENTITY_UNRESOLVED", currentUnresolved = 0,
             historicalUnresolved = 3, downloads = 0, verifyExisting = 3, revalidate = 0, review = 0))
-        assertEquals("3 ältere Dateien brauchen Aufmerksamkeit", text)
+        assertEquals("Frühere Dateien brauchen Prüfung (3) – neue Dateien werden weiterhin gesichert", text)
     }
 
     @Test fun summaryShowsOneActionableStateRatherThanTechnicalStatusDump() {
         val text = BackupStatusCopy.summary(BackupProductStatus(true, true, false, false, false, 3, 0),
-            "3 ältere Dateien brauchen Aufmerksamkeit")
-        assertEquals("3 ältere Dateien brauchen Aufmerksamkeit", text)
+            "Frühere Dateien brauchen Prüfung (3) – neue Dateien werden weiterhin gesichert")
+        assertEquals("Frühere Dateien brauchen Prüfung (3) – neue Dateien werden weiterhin gesichert", text)
     }
 
     @Test fun serviceWriterAndSourceChangeHaveActionableWording() {
@@ -41,7 +41,7 @@ class BackupStatusCopyTest {
 
         val text = BackupStatusCopy.automaticStatus(current, null, "NO_WORK")
 
-        assertEquals("4 ältere Dateien brauchen Aufmerksamkeit", text)
+        assertEquals("Frühere Dateien brauchen Prüfung (4) – neue Dateien werden weiterhin gesichert", text)
         assertTrue(!text.contains("Kameraliste wird noch geprüft"))
     }
 
@@ -69,6 +69,15 @@ class BackupStatusCopyTest {
         assertEquals("Kameraliste noch nicht vollständig – deshalb keine Übertragung",
             BackupStatusCopy.summary(BackupProductStatus(false, true, false, false, false, 0, 0), automatic))
         assertTrue(!automatic.contains("wird geprüft"))
+    }
+
+    @Test fun historicalAmbiguityDoesNotContradictACompletedNewTransfer() {
+        val historical = "Frühere Dateien brauchen Prüfung (3) – neue Dateien werden weiterhin gesichert"
+        // The aggregate status remains conservative: old source identity still blocks global
+        // completion. It must not overwrite the precise current-safe result.
+        val status = BackupProductStatus(false, true, true, false, false, 1, 0)
+        assertEquals(historical, BackupStatusCopy.summary(status, historical))
+        assertTrue(!BackupStatusCopy.summary(status, historical).contains("keine Übertragung"))
     }
 
     @Test fun durableSummaryRowsRemainConservativeAndHumanReadable() {
