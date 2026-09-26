@@ -60,6 +60,18 @@ prove that no stronger completion claim appears. `PROJECT_STATE.execution.closur
 `state_matrix_complete: true` and cite `state_matrix_evidence`; `tools/autonomy/control.py --check`
 rejects a hardware boundary otherwise. This is a hard control, not a documentation convention.
 
+### Mandatory visible-transition and terminal-state matrix — corrective rule (2026-09-26)
+
+For every user-visible status, banner or progress control changed during a software cycle, tests
+must cover: (1) the active entry state, (2) each meaningful progress/update state, (3) successful
+terminal dismissal, (4) fail-closed/review terminal dismissal, and (5) a replacement or stale
+callback arriving after a newer state. A visible grid with an incomplete durable source inventory
+is an explicit required row: it must explain that automatic backup is waiting for a complete list,
+not claim ongoing work. A progress bar may be shown only for an active service-owned operation;
+completed acknowledgement must have a deterministic bounded dismissal and review/no-work/source-
+changed states must clear it. Each row needs an assertion against both false completion and false
+activity. Hardware may validate timing and rendering, but cannot replace this deterministic matrix.
+
 ### Mandatory full-requirement and combined-hardware audit — corrective rule (2026-09-25)
 
 Before hardware is requested, audit every requirement in `docs/PRODUCT_COMPLETION_PLAN.md` against
