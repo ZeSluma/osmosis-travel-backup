@@ -28,6 +28,24 @@ HARDWARE_DEFERRED; it never upgrades an unobserved claim.
 | R042 liveness | Recovery state machine, service ownership and stale callback fences are simulated. `LivenessFaultMatrixTest` additionally covers transient-loss exhaustion, revalidation-before-traffic, permanent causes and explicit-stop refusal without inferring a Pocket power cause. | Keep replacement/process-recreation coverage linked to `SessionRecoveryScenarioTest` and do not add an unmeasured keepalive mechanism. | KA01–KA08 timing/cause observations on S25/Pocket; no model-specific keepalive claim before that. |
 | SSD/SAF | Safe allocation, staged replica, readback verification, restart/reappearance and catch-up fakes exist. | Regress SSD independence after the overall matrix; do not write without a grant. | Host topology, persisted grant, catch-up, interruption and readback. If the hub is unavailable, record HARDWARE_DEFERRED. |
 
+## Target delta — recovered no-work progress clearance
+
+The 2026-09-26 consolidated Pocket session proved automatic reconnect, automatic transfer, receipt
+refresh and background survival. It also exposed a software-correctable presentation defect: after
+a controlled recovery, the service could reach a terminal no-work plan while the Activity retained
+the prior advisory `PLAN_LOOKUP` panel. That text incorrectly suggested ongoing work even though
+the ledger-derived German summary remained conservative and correct.
+
+The repair hides the advisory panel whenever the current service projection is terminal/no-work;
+it does not synthesize completion and leaves all durable badges and summary derivation untouched.
+The dispatcher additionally emits `SOURCE_CHANGED` when a selected source cannot be materialized
+as a transfer job, preventing another path from retaining a planning projection indefinitely.
+`AutomaticTransferUiStatePolicyTest` and the full JVM/debug checkpoint passed with 524 tests,
+zero failures and zero errors. The next hardware observation is deliberately narrow: after
+automatic recovery with no eligible download, the progress panel must clear and the durable
+summary must remain visible and conservative. SSD testing remains paused until that regression is
+physically checked.
+
 ## Execution order
 
 1. Finish and commit the typed diagnostics/liveness change only after targeted regression passes.

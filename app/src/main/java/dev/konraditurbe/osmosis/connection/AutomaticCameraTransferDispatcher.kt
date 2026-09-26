@@ -79,6 +79,10 @@ class AutomaticCameraTransferDispatcher(
             if (jobs.size != selected.size) {
                 runtime.fail(backupLease, "TRANSFER_SOURCE_CHANGED")
                 sessions.releaseTransfer(transferLease)
+                // Do not leave PLAN_LOOKUP visible when the trusted observation changed while
+                // converting the plan into jobs.  This is a fail-closed review outcome, not an
+                // indefinitely running preparation state.
+                decision("SOURCE_CHANGED")
                 return@automaticDownloadPaths
             }
             decision("WRITER_STARTED")

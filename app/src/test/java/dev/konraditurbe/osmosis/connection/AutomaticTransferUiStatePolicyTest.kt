@@ -21,4 +21,12 @@ class AutomaticTransferUiStatePolicyTest {
             AutomaticTransferUiStatePolicy.project(null, "TRANSFER_REVIEW_REQUIRED")?.phase)
         assertNull(AutomaticTransferUiStatePolicy.project(null, "NOT_EVALUATED"))
     }
+
+    @Test fun noWorkTerminalDecisionsClearTransientPreparationPresentation() {
+        // The Activity hides its advisory progress area for a null projection.  These are
+        // terminal scheduler outcomes, so retaining PLAN_LOOKUP would be misleading.
+        assertNull(AutomaticTransferUiStatePolicy.project(null, "PLAN_NOT_ELIGIBLE"))
+        assertNull(AutomaticTransferUiStatePolicy.project(null, "WRITER_ALREADY_ACTIVE"))
+        assertNull(AutomaticTransferUiStatePolicy.project(null, "NO_LEDGER_SESSION"))
+    }
 }

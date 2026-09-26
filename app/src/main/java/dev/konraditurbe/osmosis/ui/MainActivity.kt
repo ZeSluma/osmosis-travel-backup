@@ -1442,7 +1442,17 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
      * ledger on the next notifier tick.  Never synthesize a completion from this transient value.
      */
     private fun renderAutomaticTransferProgress(progress: String?, decision: String) {
-        val state = dev.konraditurbe.osmosis.connection.AutomaticTransferUiStatePolicy.project(progress, decision) ?: return
+        val state = dev.konraditurbe.osmosis.connection.AutomaticTransferUiStatePolicy.project(progress, decision)
+        // A planning attempt can finish without a writer (for example, after revalidation finds
+        // only already-verified or review-required work).  The service deliberately publishes
+        // that terminal decision; keeping the previous PREPARING projection on screen would
+        // falsely imply that automatic work is still running.
+        if (state == null) {
+            progressArea.visibility = View.GONE
+            overallBar.isIndeterminate = false
+            fileBar.isIndeterminate = false
+            return
+        }
         progressArea.visibility = View.VISIBLE
         overallBar.isIndeterminate = state.phase in setOf(
             dev.konraditurbe.osmosis.connection.AutomaticTransferUiStatePolicy.Phase.PREPARING,
