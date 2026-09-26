@@ -41,5 +41,17 @@ remaining diagnostic multi-field backup summary was not useful; its replacement 
 tested, single next-action sentence and requires its normal target display check before the SSD
 branch resumes.
 
+## Gebündelter Nachtest vorbereitet
+
+Der Nachtest ist auf `e7a8ecb` mit APK-SHA-256
+`A2082D6CC11909230FCBEE863E4E95651B9FE813002F74D2A70343F6CF02A728` vorbereitet.
+Die interne Grundlage umfasst 526 JVM-Tests ohne Fehler. Er prüft in einer einzigen Sitzung:
+automatische Verbindung ohne Rescan, verständliche Ruheanzeige, service-eigenen Fortschritt eines
+neuen unkritischen Clips, Hintergrundverhalten, Power-Cycle-Recovery inklusive Epoch-STOP-Fence
+und bereinigte Zustandsgründe. Die SSD-Schritte bleiben gemeinsam `HARDWARE_DEFERRED`, falls die
+Topologie nicht zuverlässig bereitsteht. Der Ablauf steht in
+`docs/hardware/FINAL_COMPLETE_APP_HARDWARE_TEST.md`; dieses Protokoll enthält noch keine Ergebnisse
+dieses Nachtests.
+
 Keine Löschung,
 kein Reset und keine wiederholte Übertragung geschützter Medien wurden durchgeführt.
