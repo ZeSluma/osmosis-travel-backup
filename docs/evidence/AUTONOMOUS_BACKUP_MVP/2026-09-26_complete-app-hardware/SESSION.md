@@ -109,3 +109,17 @@ Am 2026-09-26 wurde diese signer-kompatible APK mit `install -r` auf S25 `R3CYA0
 installiert und die App gestartet (PID 15225); vorhandene App-Daten wurden nicht gelöscht. Die
 physische Retry-/Render-Zeit ist damit noch nicht als PASS behauptet und bleibt Schritt 3 des
 gebündelten Hardwareplans.
+
+## Render-Diff-Audit und In-place-Installation
+
+Das gemeldete hochfrequente Rasterflackern wurde auf einen Voll-Rebind bei jeder unveränderten
+Backup-Projektion zurückgeführt. Die aktuelle Version vergleicht Projektionen vor dem Rendern und
+bindet bei echtem Fortschritt ausschließlich die betroffene Kachel. Der feedback-basierte
+Qualitätsplan `docs/TEST_QUALITY_PLAN_2026-09-26.md` legt diese Idempotenzprüfung dauerhaft fest.
+
+Vollcheckpoint: **544 JVM-Tests, 0 failures, 0 errors**, APK SHA-256
+`188D877671CD8D4331E129DFE29A8469C95647D13CBBC78289A24E8A11E5E388`.
+Am 2026-09-26 wurde die signer-kompatible APK mit `install -r` auf dem S25 `R3CYA022GAE` in-place
+installiert und gestartet (PID 29367). Keine App-Daten, Kameraoriginale oder lokale Medien wurden
+gelöscht oder verändert. Die einzige verbleibende Aussage dazu ist die reale Sichtprüfung, dass
+unveränderte Statuspublikationen das Raster nicht mehr bewegen.
