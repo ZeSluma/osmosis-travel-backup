@@ -60,6 +60,20 @@ auch falsche Aktivität ausschließen. Die zuletzt ergänzten gezielten Tests si
 Die vollständige Software-Abschlussmatrix wurde deshalb bewusst wieder geöffnet: die erweiterte
 Übergangsmatrix muss vor einem erneuten Gesamt-Hardwaretest vollständig auditiert werden.
 
+## Abschluss des Übergangsaudits
+
+Der erweiterte Audit ist nun abgeschlossen. Er fand und reparierte zusätzlich den Lifecycle-Fall,
+dass eine zwischen Hintergrund und Rückkehr veröffentlichte Serviceprojektion nicht sofort erneut
+gelesen werden konnte, sowie die Vorrangregel für terminale Entscheide gegenüber verspätetem
+Fortschritt. `UI_TRANSITION_AUDIT.md` enthält die vollständige Matrix. Der integrierte
+JVM-/Debug-Checkpoint umfasst 531 Tests ohne Fehler; APK-SHA-256:
+`601631F5FE8A2DD2E668FD0A262BBA0BA2370D3C797B982A25BBF034F2316F0D`.
+
+Der Python-basierte Autonomy-Control-Hook konnte auf diesem Host nicht gestartet werden, weil
+weder `py` noch `python` installiert bzw. im Pfad verfügbar ist. Das ist als lokale Toolgrenze
+festgehalten; die dokumentierte Matrix, Tests und Branch-Prüfung werden dadurch nicht als
+Hardware-PASS fehlinterpretiert.
+
 ## Verbleibende physische Validierung
 
 Die gebündelte, nicht-destruktive S25/Pocket-Prüfung steht in
