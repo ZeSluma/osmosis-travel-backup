@@ -20,7 +20,7 @@ hardware session. It does not turn an unobserved device fact into a PASS.
 | R036 | Recovery makes no unproven model-specific power or keepalive claim. | HARDWARE_DEFERRED by definition of the required physical measurement. |
 | R037 | Date resolver, uncertainty, deterministic paths and persistence have unit/fixture coverage. `CaptureDayFaultMatrixTest` makes CD01–CD08 policy outcomes explicit; the synthetic emulator fixture proves reservation/group/restart persistence. | SOFTWARE_PROVEN for deterministic behavior; target source-time/MIME/sidecar facts remain HARDWARE_DEFERRED. |
 | R040 | Current opt-in, fresh-process backup default, one BLE owner and late permission-result fence have deterministic tests; the handoff tears down media offload before the GPS owner starts. | SOFTWARE_PROVEN for policy/ownership; Android permission/foreground-service lifecycle remains HARDWARE_DEFERRED. |
-| R043 | Label and adaptive icon are implemented without changing package/signing/data continuity. Application ID, final signing, distribution/OAuth and third-party identity review require a separate product/release decision. | PRODUCT_DECISION_DEFERRED. |
+| R043 | Pocket Pickup label, adaptive icon and restrained day/night palette are implemented without changing application ID, signing/data continuity, backup paths or safety behavior. | SOFTWARE_PROVEN: full JVM/debug build = 531 tests, 0 failures/errors; target launcher rendering remains HARDWARE_DEFERRED. Application ID, final signing, distribution/OAuth and third-party identity review require a separate product/release decision. |
 
 ## Audit findings closed in this cycle
 

@@ -1,5 +1,5 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- DayNight so the OS dark theme flips -night resources (Android 10+). On Android 12+ the OsmosisApp
+    <!-- DayNight so the OS dark theme flips -night resources (Android 10+). On Android 12+ the app
          Application applies Material You dynamic color on top of these, so accent, surfaces and background
          follow the system palette; the values here are the pre-12 (and non-dynamic) fallback. -->
     <style name="Theme.Osmosis" parent="Theme.Material3.DayNight.NoActionBar">

@@ -5,10 +5,11 @@ eine nicht beobachtbare Bedingung ist `INCONCLUSIVE`, niemals `PASS`.
 
 ## Build unter Test
 
-- Branch/Commit: `codex/autonomous-backup-mvp` / `fb4043e3a7933be9ec90e5b8feb98341ebc6545c`
+- Branch: `codex/autonomous-backup-mvp` (the commit carrying this plan and the Pocket Pickup
+  resource set is the exact source under test)
 - Lokale Debug-APK: `app/build/outputs/apk/debug/app-debug.apk`
-- SHA-256: `601631F5FE8A2DD2E668FD0A262BBA0BA2370D3C797B982A25BBF034F2316F0D`
-- Interne Grundlage: 531 JVM-Tests, 0 Fehler/Errors; vollständige sichtbare Übergangsmatrix in `UI_TRANSITION_AUDIT.md`. Die Installation erfolgt ausschließlich **in place**;
+- SHA-256: `D232711BCD8022BA1127B0C5221E7C06FD71AAF3135C4254061DE831352E78D4`
+- Interne Grundlage: 531 JVM-Tests, 0 Fehler/Errors; vollständige sichtbare Übergangsmatrix in `UI_TRANSITION_AUDIT.md` plus Pocket-Pickup-Ressourcenprüfung. Die Installation erfolgt ausschließlich **in place**;
   vorhandene App-Daten bleiben erhalten.
 
 ## Schutzgrenzen
@@ -32,6 +33,7 @@ eine nicht beobachtbare Bedingung ist `INCONCLUSIVE`, niemals `PASS`.
 
 | Schritt | Aktion | Validiert | PASS | FAIL / INCONCLUSIVE |
 |---|---|---|---|---|
+| 0 | Nach der In-place-Installation nur Launcher und Startoberfläche ansehen; anschließend die normale App-Sitzung fortsetzen. | R043 | Name **Pocket Pickup**, Petrol-Taschenzeichen, lesbarer heller bzw. dunkler Kontrast. Keine Datenmigration oder neue Berechtigungsanfrage. | Falscher Name/Icon oder unlesbarer Kontrast = FAIL. |
 | 1 | Mit der bereits installierten APK die App öffnen; Pocket einschalten und **nicht** "Neu suchen" oder manuell verbinden. | HD01, PC01/PC17 auf Zielgerät | Genau eine automatische Auswahl/Verbindung und Grid ohne Rescan. | Falsche/doppelte Sitzung = FAIL; fehlendes Gerät = INCONCLUSIVE. |
 | 2 | Inventar und Ruheansicht abwarten. | HD01, PC02–PC04, PC20 | Eine kurze, verständliche Statuszeile; bei unvollständiger Liste: „Kamera-Sicherung wartet auf vollständige Dateiliste“. Kein alter technischer Vierzeiler und kein dauerhaft sichtbarer Fortschrittsbalken ohne Arbeit. Historische Unsicherheit bleibt konservativ erklärt. | Leeres/unvollständiges Inventar wird fälschlich vertraut oder Anzeige bleibt nach Abschluss aktiv = FAIL. |
 | 3 | Einen neuen, sicheren Testclip aufnehmen; App öffnen, keine Download-Taste drücken. | HD01, PC05–PC08, PC18 | Service startet genau einen Download; Fortschritt zeigt Vorbereitung → Übertragung → Integritätsprüfung → Abschluss; danach lokaler Integritätsbeleg, aber keine falsche Quellen-/Redundanz-/Löschfreigabe. | Doppelwriter/falscher Abschluss/stehender Fortschritt = FAIL. |
