@@ -6,7 +6,7 @@ package dev.konraditurbe.osmosis.connection
  * be cleared before a terminal durable reread.
  */
 data class LiveTransferFileProjection(val phase: Phase, val percent: Int? = null) {
-    enum class Phase { DOWNLOADING, INTEGRITY_SAVED, REVIEW_REQUIRED }
+    enum class Phase { DOWNLOADING, WAITING_FOR_CAMERA, INTEGRITY_SAVED, REVIEW_REQUIRED }
 }
 
 object LiveTransferFileProjectionPolicy {
@@ -19,6 +19,10 @@ object LiveTransferFileProjectionPolicy {
     fun completed(saved: Boolean): LiveTransferFileProjection = LiveTransferFileProjection(
         if (saved) LiveTransferFileProjection.Phase.INTEGRITY_SAVED
         else LiveTransferFileProjection.Phase.REVIEW_REQUIRED,
+    )
+
+    fun waitingForCamera(): LiveTransferFileProjection = LiveTransferFileProjection(
+        LiveTransferFileProjection.Phase.WAITING_FOR_CAMERA,
     )
 
     fun update(

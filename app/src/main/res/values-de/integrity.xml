@@ -8,4 +8,5 @@
     <string name="backup_live_phone">Synchronisation aufs Telefon · %1$d%%</string>
     <string name="backup_live_integrity_saved">Telefon gesichert · Integrität geprüft</string>
     <string name="backup_live_review">Übertragung unterbrochen · Prüfung nötig</string>
+    <string name="backup_live_camera_retry">Kamera antwortet noch · Übertragung wird erneut versucht</string>
 </resources>

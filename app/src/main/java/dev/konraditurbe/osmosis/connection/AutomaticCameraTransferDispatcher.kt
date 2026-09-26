@@ -23,6 +23,8 @@ class AutomaticCameraTransferDispatcher(
     /** Live cell overlays, keyed by the same exact display identity the grid uses. */
     @Volatile var fileProgress: Map<String, LiveTransferFileProjection> = emptyMap()
         private set
+    @Volatile var activityMessage: String? = null
+        private set
     @Volatile private var progressPercent: Long = -1L
     @Volatile private var waitingForWriterEpoch: Long? = null
     init {
@@ -102,7 +104,9 @@ class AutomaticCameraTransferDispatcher(
                     val result = StrictTransferBatch.run(jobs, progressReporter(jobs)) { job, tick ->
                         if (invalid())
                             LedgerCoordinator.TransferResult.REVIEW_REQUIRED
-                        else ledger.transferOriginal(session, job.file, network, ::invalid, tick)
+                        else ledger.transferOriginal(session, job.file, network, ::invalid, tick) {
+                            markFileRetry(job.file)
+                        }
                     }
                     // A pre-existing but unverified copy remains review-required. It cannot turn a
                     // durable automatic plan into a completed scheduler state.
@@ -127,6 +131,7 @@ class AutomaticCameraTransferDispatcher(
                     // completed or failed file may never remain visually active after its writer
                     // has released.
                     fileProgress = LiveTransferFileProjectionPolicy.clearAtTerminal()
+                    activityMessage = null
                     // The Activity observes this service signal and re-reads durable receipt state;
                     // it never receives transfer truth directly from the worker.
                     CameraConnectionService.backupProjectionNotifier(context).publish()
@@ -173,8 +178,17 @@ class AutomaticCameraTransferDispatcher(
             activeIndex = index
             val key = dev.konraditurbe.osmosis.ledger.LedgerCoordinator.displayKey(jobs[index].file)
             fileProgress = LiveTransferFileProjectionPolicy.update(fileProgress, key, projection)
+            if (projection.phase == LiveTransferFileProjection.Phase.DOWNLOADING) activityMessage = null
             publishProgress()
         }
+    }
+
+    private fun markFileRetry(file: dev.konraditurbe.osmosis.core.CameraFile) {
+        val key = dev.konraditurbe.osmosis.ledger.LedgerCoordinator.displayKey(file)
+        fileProgress = LiveTransferFileProjectionPolicy.update(
+            fileProgress, key, LiveTransferFileProjectionPolicy.waitingForCamera())
+        activityMessage = "Kamera antwortet noch – Übertragung wird erneut versucht"
+        publishProgress()
     }
 
     private fun publishProgress() = CameraConnectionService.backupProjectionNotifier(context).publish()

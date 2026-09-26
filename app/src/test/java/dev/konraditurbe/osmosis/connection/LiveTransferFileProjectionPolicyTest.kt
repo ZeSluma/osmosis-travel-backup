@@ -13,6 +13,8 @@ class LiveTransferFileProjectionPolicyTest {
             LiveTransferFileProjectionPolicy.completed(true))
         assertEquals(LiveTransferFileProjection(LiveTransferFileProjection.Phase.REVIEW_REQUIRED),
             LiveTransferFileProjectionPolicy.completed(false))
+        assertEquals(LiveTransferFileProjection(LiveTransferFileProjection.Phase.WAITING_FOR_CAMERA),
+            LiveTransferFileProjectionPolicy.waitingForCamera())
     }
 
     @Test fun terminalDurableRereadRemovesEveryTransientCellOverlay() {

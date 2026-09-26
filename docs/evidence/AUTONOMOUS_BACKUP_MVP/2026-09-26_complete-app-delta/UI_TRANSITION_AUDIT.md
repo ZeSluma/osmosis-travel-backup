@@ -13,6 +13,7 @@ Hardwarevalidierung.
 |---|---|---|---|---|---|
 | Kameralisten-/Backupzusammenfassung | `Backupstatus wird geladen` nur ohne durable Projektion | Kein erfundener Fortschritt | Verständliche vollständige/SSD-Statuszeile | Unvollständige Inventur: `Kamera-Sicherung wartet auf vollständige Dateiliste` | `BackupStatusCopyTest` |
 | Automatische Sicherung | PLAN_LOOKUP, WRITER_WAIT | `WRITER_STARTED` plus gültiger Prozentfortschritt | `WRITER_COMPLETE`, 100 %, automatische Ausblendung nach 3 s | REVIEW, SOURCE_CHANGED, NO_WORK und unzulässige Entscheidungen: kein Balken | `AutomaticTransferUiStatePolicyTest` |
+| Kurzzeitig beschäftigte Kamera | Vor dem ersten Byte: exakt betroffene Kachel und Karte „Kamera antwortet noch“ | Indeterminierter Balken ohne erfundenen Prozentwert; nach Antwort gemessener Telefon-Prozentwert | Erfolg wechselt in normalen Transfer und danach langlebigen Beleg | Nach höchstens drei 404/500-Wiederholungen fail-closed Review und langlebiger Reread; 403 wird nicht wiederholt | `CameraTransferSourceTest`, `LiveTransferFileProjectionPolicyTest`, source-order audit |
 | Offener Integritäts-/Identitätsnachweis | `Synchronisation offen` mit der konkreten fehlenden Evidenz | Kein Balken, weil kein Worker läuft | Erst ein echter Dienst-Worker kann in einen aktiven Zustand wechseln | Kein „werden geprüft“/„werden erneut zugeordnet“ ohne gestarteten Worker; keine stille Promotion | `BackupStatusCopyTest` |
 | Hintergrund/Rückkehr | Beobachter wird erneut registriert | Durable Projektion wird sofort erneut gelesen | Aktuelle Projektion wird dargestellt | Kein verlorenes Service-Publish kann einen alten Balken/Status konservieren | `BackupProjectionNotifierTest` |
 | Externe SSD-Replikation | Hintergrundkopie schreibt nur nach gültiger SAF-Prüfung | Nicht anwendbar | Nach realem Kopierlauf wird der Observer einmal invalidiert und liest den neuen Ledger-Status | No-work-Verfügbarkeit veröffentlicht nicht und erzeugt keine UI-Refresh-Schleife | `ExternalReplicaRunPolicyTest`, `BackupProjectionNotifierTest`, source audit |
@@ -35,14 +36,17 @@ Hardwarevalidierung.
 6. Eine reale SSD-Kopie schrieb ihren finalen Ledger-Zustand ohne UI-Invalidierung. Der
    SSD-Koordinator publiziert nun einmal nach tatsächlichem Kopierlauf; ein no-work-Probe publiziert
    absichtlich nicht.
+7. Der strenge automatische Kamera-Pfad simulierte keine vorübergehende 404/500-Antwort vor dem
+   ersten Byte. Er behandelt sie jetzt als begrenzte, sichtbare Wiederholung vor jeder
+   Dateiallokation; andere Antworten und erschöpfte Wiederholungen bleiben Review.
 
 ## Reproduzierbarer Checkpoint
 
 `./gradlew.bat :app:testDebugUnitTest :app:assembleDebug --no-daemon`:
-**538 JVM-Tests, 0 failures, 0 errors, BUILD SUCCESSFUL**.
+**541 JVM-Tests, 0 failures, 0 errors, BUILD SUCCESSFUL**.
 
 Debug-APK-SHA-256:
-`ADB424D961F6566CE0F1C5790C24F3D76229D2EB7A8BC763020673A5B0E453F6`.
+`D788F45892CE67E3B7546E0EFA22D42852AC95F058D5DB3105507DD38310CDEE`.
 
 Keine dieser Tests behauptet einen realen Pocket-, S25- oder SSD-PASS. Der gebündelte
 Hardwareablauf validiert anschließend nur noch seine physischen Aspekte.

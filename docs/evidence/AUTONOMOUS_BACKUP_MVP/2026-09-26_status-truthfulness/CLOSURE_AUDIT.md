@@ -8,6 +8,7 @@ Date: 2026-09-26
 |---|---|---|
 | Service ownership | The camera dispatcher alone owns automatic `DOWNLOAD`; the Activity only reads durable state. | PASS |
 | Truthful active state | Only an active dispatcher/progress policy can render “Synchronisation läuft”. Open evidence actions render “Synchronisation offen”. The global card and each active video follow the same live source. | PASS |
+| Transient camera refusal | A 404/500 before the first byte is retried only three bounded times before allocation; retry is live/indeterminate in both global and per-video projection, then becomes measured bytes or durable review. | PASS (software simulation; target behavior pending) |
 | Inventory and plan | Incomplete source inventory remains a hard no-transfer boundary. Historical ambiguity remains distinct from the current inventory. | PASS |
 | Integrity and identity | Existing local copies and ambiguous identities are not promoted without an actual proof. | PASS |
 | Durable completion refresh | Dispatcher clears all transient per-video overlays then publishes terminal state; the external SSD coordinator publishes after real ledger-mutating copy work. | PASS |
@@ -17,9 +18,9 @@ Date: 2026-09-26
 
 ## Reproducible evidence
 
-`./gradlew.bat :app:testDebugUnitTest :app:assembleDebug --no-daemon` completed with 538 JVM tests,
-zero failures and zero errors. Debug APK SHA-256:
-`ADB424D961F6566CE0F1C5790C24F3D76229D2EB7A8BC763020673A5B0E453F6`.
+`./gradlew.bat :app:testDebugUnitTest :app:assembleDebug --no-daemon` completed with **541 JVM
+tests**, zero failures and zero errors. Debug APK SHA-256:
+`D788F45892CE67E3B7546E0EFA22D42852AC95F058D5DB3105507DD38310CDEE`.
 
 `tools/autonomy/control.py --check` could not run because this Windows host has neither `py` nor a
 `python` launcher. This is recorded as a local control-tool limitation; it does not convert any
@@ -27,6 +28,6 @@ hardware criterion into PASS.
 
 ## Remaining boundary
 
-No further safe software change is justified by this observation. The only remaining uncertainty
-for this correction is physical rendering/timing on S25 and real SSD topology. Both are explicitly
-batched in `docs/hardware/FINAL_COMPLETE_APP_HARDWARE_TEST.md`; no test result is fabricated here.
+The Pocket's actual response/retry timing remains a physical criterion, but it is batched with the
+existing non-destructive complete-app session after the final software checkpoint. No test result
+is fabricated here.

@@ -8,4 +8,5 @@
     <string name="backup_live_phone">Syncing to phone · %1$d%%</string>
     <string name="backup_live_integrity_saved">Phone saved · integrity checked</string>
     <string name="backup_live_review">Transfer stopped · review needed</string>
+    <string name="backup_live_camera_retry">Camera is responding · retrying transfer</string>
 </resources>

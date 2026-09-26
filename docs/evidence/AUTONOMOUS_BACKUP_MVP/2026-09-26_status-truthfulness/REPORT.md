@@ -69,6 +69,31 @@ Debug APK SHA-256:
 ADB424D961F6566CE0F1C5790C24F3D76229D2EB7A8BC763020673A5B0E453F6
 ```
 
-The next hardware session must validate readability and live transition behavior with this exact
-APK. It must not claim that unresolved historical/source identity evidence was automatically
+## Follow-up: transient Pocket source refusal
+
+The subsequent S25 observation exposed a missing transport scenario in the prior audit: the
+automatic strict writer started, but the Pocket returned HTTP 404 before the first byte for every
+selected item. The previous automatic path treated that immediately as permanent review, while
+the established manual camera client already treats the same observed 404/500 shape as a
+short-lived busy response. The display therefore had no meaningful opportunity to show a changing
+transfer state.
+
+The automatic source now retries only HTTP 404 or 500, at most three times with bounded 250 ms,
+750 ms and 1,500 ms waits. The retry happens before `SingleAssetTransfer` reserves an allocation
+or opens a phone destination. Other status codes, cancellation and exhausted retries stay
+fail-closed and never create a duplicate/partial media file. During the wait, both the global card
+and the exact video row state **Kamera antwortet noch · Übertragung wird erneut versucht**; the
+row keeps an indeterminate progress bar because work is genuinely active but no byte progress
+exists yet. A successful retry switches to the measured phone percentage; terminal state clears
+the live projection and rereads durable evidence.
+
+The prior test gap was real. The corrected focused matrix includes `CameraTransferSourceTest`:
+two transient 404 responses then 200, four 404 responses then bounded fail-closed refusal, and a
+403 response with no retry. `LiveTransferFileProjectionPolicyTest` covers the distinct
+waiting-for-camera state. The allocation ordering was reviewed against `SingleAssetTransfer`:
+`source()` completes before `reserveAllocation()`.
+
+Final verification for this correction completed with **541 JVM tests, zero failures/errors** and
+debug APK SHA-256 `D788F45892CE67E3B7546E0EFA22D42852AC95F058D5DB3105507DD38310CDEE`.
+No test result claims that unresolved historical/source identity evidence was automatically
 verified.

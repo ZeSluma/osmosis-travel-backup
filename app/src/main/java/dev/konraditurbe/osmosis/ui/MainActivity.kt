@@ -1450,8 +1450,14 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
                     }
                     val activeOperation = dev.konraditurbe.osmosis.connection.AutomaticTransferUiStatePolicy
                         .project(dispatcher.progress, dispatcher.lastDecision) != null
-                    renderAutomaticTransferProgress(dispatcher.progress, dispatcher.lastDecision)
-                    renderBackupSummary(projection.status, projection.automatic, activeOperation)
+                    renderAutomaticTransferProgress(dispatcher.progress, dispatcher.lastDecision, dispatcher.activityMessage)
+                    if (dispatcher.activityMessage != null) {
+                        renderBackupPresentation(dev.konraditurbe.osmosis.backup.BackupStatusCopy.Presentation(
+                            title = "Synchronisation wartet auf Kamera",
+                            message = dispatcher.activityMessage!!,
+                            detail = "Es wurden noch keine neuen Daten als gesichert markiert.",
+                        ))
+                    } else renderBackupSummary(projection.status, projection.automatic, activeOperation)
                 }
             }}
     }
@@ -1478,7 +1484,7 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
      * only renders it: byte transfer, verification and final receipt still come from the durable
      * ledger on the next notifier tick.  Never synthesize a completion from this transient value.
      */
-    private fun renderAutomaticTransferProgress(progress: String?, decision: String) {
+    private fun renderAutomaticTransferProgress(progress: String?, decision: String, activityMessage: String? = null) {
         val state = dev.konraditurbe.osmosis.connection.AutomaticTransferUiStatePolicy.project(progress, decision)
         // A planning attempt can finish without a writer (for example, after revalidation finds
         // only already-verified or review-required work).  The service deliberately publishes
@@ -1491,6 +1497,13 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
             return
         }
         progressArea.visibility = View.VISIBLE
+        if (activityMessage != null) {
+            overallBar.isIndeterminate = true
+            fileBar.isIndeterminate = true
+            overallText.text = "Synchronisation wartet auf Kamera"
+            fileText.text = activityMessage
+            return
+        }
         overallBar.isIndeterminate = state.phase in setOf(
             dev.konraditurbe.osmosis.connection.AutomaticTransferUiStatePolicy.Phase.PREPARING,
             dev.konraditurbe.osmosis.connection.AutomaticTransferUiStatePolicy.Phase.WAITING_FOR_WRITER,

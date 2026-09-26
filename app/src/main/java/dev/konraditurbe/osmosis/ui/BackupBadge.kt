@@ -30,6 +30,13 @@ object BackupBadge {
                 view.text=view.context.getString(R.string.backup_live_integrity_saved)
                 bar.visibility=View.GONE
             }
+            dev.konraditurbe.osmosis.connection.LiveTransferFileProjection.Phase.WAITING_FOR_CAMERA -> {
+                view.text=view.context.getString(R.string.backup_live_camera_retry)
+                // A retry is live camera work, but it has no byte percentage yet.  Keep an
+                // indeterminate bar visible rather than leaving the row apparently idle.
+                bar.visibility=View.VISIBLE
+                bar.isIndeterminate=true
+            }
             dev.konraditurbe.osmosis.connection.LiveTransferFileProjection.Phase.REVIEW_REQUIRED -> {
                 view.text=view.context.getString(R.string.backup_live_review)
                 bar.visibility=View.GONE

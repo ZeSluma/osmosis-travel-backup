@@ -318,7 +318,7 @@ class LedgerCoordinator private constructor(context: Context) {
 
     /** Worker-thread caller only. Observation and transfer mutations share one serialized writer. */
     fun transferOriginal(session:String, file:CameraFile, network:android.net.Network,
-        cancelled:()->Boolean, progress:(Long)->Unit):TransferResult = writer.submit<TransferResult> {
+        cancelled:()->Boolean, progress:(Long)->Unit, onTransportRetry:()->Unit={}):TransferResult = writer.submit<TransferResult> {
         if(session!=activeSession || session!=leaseSession || cancelled()) return@submit TransferResult.REVIEW_REQUIRED
         val lease=latestLease ?: return@submit TransferResult.REVIEW_REQUIRED
         val assetId=CameraLedgerAdapter.asset(file).identity(lease.sourceId)
@@ -343,7 +343,7 @@ class LedgerCoordinator private constructor(context: Context) {
         val destination=dev.konraditurbe.osmosis.integrity.PhonePendingVideo(appContext)
         var lastEvidenceCheckpoint=0L
         val result=dev.konraditurbe.osmosis.integrity.SingleAssetTransfer(database).start(lease,assetId,
-            {source.open(file.urlPath())},
+            {source.openForStrictTransfer(file.urlPath(), cancelled, onTransportRetry)},
             destination::create,{session!=activeSession || cancelled()},{bytes->
                 if(bytes-lastEvidenceCheckpoint>=8L*1024*1024){evidence("DURABLE checkpoint_bytes=$bytes");lastEvidenceCheckpoint=bytes}
                 progress(bytes)
