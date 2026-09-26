@@ -1470,14 +1470,24 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
                 fileText.text = "Ein vorheriger Vorgang wird geordnet beendet; es wird keine zweite Übertragung gestartet"
             }
             dev.konraditurbe.osmosis.connection.AutomaticTransferUiStatePolicy.Phase.TRANSFERRING -> {
-                overallText.text = "Automatische Sicherung: ${state.percent}% abgeschlossen"
+                overallText.text = "Datei wird übertragen: ${state.percent}%"
                 fileText.text = if ((state.fileCount ?: 0) > 0) {
-                    "Übertragung läuft — danach wird jede Datei auf Integrität geprüft (${state.fileCount} Datei${if (state.fileCount == 1) "" else "en"})"
-                } else "Übertragung läuft — danach wird jede Datei auf Integrität geprüft"
+                    "${state.fileCount} Datei${if (state.fileCount == 1) " wird" else "en werden"} übertragen · danach Integritätsprüfung"
+                } else "Übertragung läuft · danach Integritätsprüfung"
             }
             dev.konraditurbe.osmosis.connection.AutomaticTransferUiStatePolicy.Phase.FINISHED -> {
-                overallText.text = "Übertragung abgeschlossen"
-                fileText.text = "Integritätsbelege und Dateistatus wurden aktualisiert"
+                overallText.text = "Übertragung abgeschlossen · Integrität geprüft"
+                fileText.text = "Der aktuelle Dateistatus wurde gespeichert"
+                // Completion is useful feedback, but it is not an active operation.  Keep it
+                // briefly, then allow the next durable refresh to show only the current summary.
+                main.postDelayed({
+                    val dispatcher = CameraConnectionService.automaticTransferDispatcher(applicationContext)
+                    if (dev.konraditurbe.osmosis.connection.AutomaticTransferUiStatePolicy.project(
+                            dispatcher.progress, dispatcher.lastDecision
+                        )?.phase == dev.konraditurbe.osmosis.connection.AutomaticTransferUiStatePolicy.Phase.FINISHED) {
+                        progressArea.visibility = View.GONE
+                    }
+                }, 3_000)
             }
             dev.konraditurbe.osmosis.connection.AutomaticTransferUiStatePolicy.Phase.REVIEW_REQUIRED -> {
                 overallText.text = "Automatische Sicherung braucht eine Prüfung"

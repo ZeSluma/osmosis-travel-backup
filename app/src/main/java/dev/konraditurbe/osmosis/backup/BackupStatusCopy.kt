@@ -18,12 +18,12 @@ object BackupStatusCopy {
      */
     fun summary(status: BackupProductStatus, automatic: String): String = when {
         automatic == "Backupstatus wird geladen" -> "Backupstatus wird geladen"
-        automatic == "Kameraliste noch nicht vollständig" -> automatic
+        automatic == incompleteInventory() -> automatic
         automatic.startsWith("Übertragung") || automatic.startsWith("Quelle hat sich") -> automatic
         // A durable incomplete observation is a terminal conservative outcome, not evidence that
         // an operation is still running.  Active wording here made a fully rendered grid look
         // hung indefinitely after the service had already stopped enumerating.
-        !status.inventoryTrusted -> "Kameraliste noch nicht vollständig"
+        !status.inventoryTrusted -> incompleteInventory()
         status.unknownRequired -> automatic
         !status.cameraSyncComplete -> "Kamera-Sicherung wird geprüft"
         !status.redundancyComplete -> "Lokal gesichert · SSD-Kopie steht noch aus"
@@ -34,7 +34,7 @@ object BackupStatusCopy {
     fun awaitingTrustedInventory(): String = "warte auf eine vollständige Kameraliste"
 
     fun plan(diagnostic: LedgerCoordinator.AutomaticPlanDiagnostic): String = when {
-        !diagnostic.inventoryComplete -> "Kameraliste noch nicht vollständig"
+        !diagnostic.inventoryComplete -> incompleteInventory()
         diagnostic.completenessReason == "IDENTITY_UNRESOLVED" || diagnostic.historicalUnresolved > 0 ->
             "${diagnostic.historicalUnresolved} ältere Datei${plural(diagnostic.historicalUnresolved)} brauchen Aufmerksamkeit"
         diagnostic.currentUnresolved > 0 -> "${diagnostic.currentUnresolved} Datei${plural(diagnostic.currentUnresolved)} auf der Kamera prüfen"
@@ -63,4 +63,7 @@ object BackupStatusCopy {
     } ?: "Backupstatus wird geladen"
 
     private fun plural(count: Int) = if (count == 1) "" else "en"
+
+    /** A safe terminal state: no background work is claimed, and no camera original is at risk. */
+    fun incompleteInventory(): String = "Kamera-Sicherung wartet auf vollständige Dateiliste"
 }

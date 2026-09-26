@@ -17,8 +17,7 @@ class AutomaticTransferUiStatePolicyTest {
             AutomaticTransferUiStatePolicy.project(null, "WRITER_WAIT")?.phase)
         assertEquals(AutomaticTransferUiStatePolicy.Phase.FINISHED,
             AutomaticTransferUiStatePolicy.project(null, "WRITER_COMPLETE")?.phase)
-        assertEquals(AutomaticTransferUiStatePolicy.Phase.REVIEW_REQUIRED,
-            AutomaticTransferUiStatePolicy.project(null, "TRANSFER_REVIEW_REQUIRED")?.phase)
+        assertNull(AutomaticTransferUiStatePolicy.project(null, "TRANSFER_REVIEW_REQUIRED"))
         assertNull(AutomaticTransferUiStatePolicy.project(null, "NOT_EVALUATED"))
     }
 

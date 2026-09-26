@@ -19,8 +19,9 @@ object AutomaticTransferUiStatePolicy {
             serviceDecision == "PLAN_LOOKUP" -> State(Phase.PREPARING)
             serviceDecision == "WRITER_WAIT" -> State(Phase.WAITING_FOR_WRITER)
             serviceDecision == "WRITER_COMPLETE" -> State(Phase.FINISHED, 100)
-            serviceDecision == "TRANSFER_REVIEW_REQUIRED" || serviceDecision == "SOURCE_CHANGED" ->
-                State(Phase.REVIEW_REQUIRED)
+            // Review/source-change are terminal fail-closed decisions.  The durable summary
+            // explains them; keeping a progress bar there would pretend work continues.
+            serviceDecision == "TRANSFER_REVIEW_REQUIRED" || serviceDecision == "SOURCE_CHANGED" -> null
             else -> null
         }
     }
