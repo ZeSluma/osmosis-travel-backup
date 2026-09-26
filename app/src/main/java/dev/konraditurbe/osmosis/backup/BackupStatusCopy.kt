@@ -40,14 +40,14 @@ object BackupStatusCopy {
                 detail = historicalDetail(diagnostic.historicalUnresolved),
             )
             diagnostic.verifyExisting > 0 -> return Presentation(
-                title = "Synchronisation offen",
-                message = "${diagnostic.verifyExisting} lokale Datei${plural(diagnostic.verifyExisting)} brauchen eine Integritätsprüfung",
-                detail = "Sie werden nicht als sicher bestätigt, bevor ein echter Prüfnachweis vorliegt.",
+                title = "Keine Übertragung läuft",
+                message = "${diagnostic.verifyExisting} ${if (diagnostic.verifyExisting == 1) "Telefonkopie" else "Telefonkopien"} vorhanden, aber noch nicht geprüft",
+                detail = "Gesamtsicherung und SSD-Sicherung sind noch nicht bestätigt.",
             )
             diagnostic.revalidate > 0 -> return Presentation(
-                title = "Synchronisation offen",
-                message = "${diagnostic.revalidate} Datei${plural(diagnostic.revalidate)} brauchen eine sichere Zuordnung",
-                detail = "Sie werden nicht stillschweigend als gesichert übernommen.",
+                title = "Keine Übertragung läuft",
+                message = "${diagnostic.revalidate} Datei${plural(diagnostic.revalidate)} brauchen noch eine sichere Zuordnung",
+                detail = "Gesamtsicherung und SSD-Sicherung sind noch nicht bestätigt.",
             )
             diagnostic.review > 0 || diagnostic.currentUnresolved > 0 -> return Presentation(
                 title = "Synchronisation offen",

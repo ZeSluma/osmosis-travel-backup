@@ -102,15 +102,17 @@ class BackupStatusCopyTest {
         val pendingVerification = BackupStatusCopy.presentation(
             BackupProductStatus(true, false, false, false, false, 0, 0),
             diagnostic.copy(historicalUnresolved = 0, verifyExisting = 5), false)
-        assertEquals("Synchronisation offen", pendingVerification.title)
-        assertEquals("5 lokale Dateien brauchen eine Integritätsprüfung", pendingVerification.message)
-        assertTrue(!pendingVerification.message.contains("werden geprüft"))
+        assertEquals("Keine Übertragung läuft", pendingVerification.title)
+        assertEquals("5 Telefonkopien vorhanden, aber noch nicht geprüft", pendingVerification.message)
+        assertEquals("Gesamtsicherung und SSD-Sicherung sind noch nicht bestätigt.", pendingVerification.detail)
+        assertTrue(!pendingVerification.message.contains("wird geprüft"))
 
         val pendingIdentity = BackupStatusCopy.presentation(
             BackupProductStatus(true, false, false, false, false, 0, 0),
             diagnostic.copy(historicalUnresolved = 0, verifyExisting = 0, revalidate = 3), false)
-        assertEquals("Synchronisation offen", pendingIdentity.title)
-        assertEquals("3 Dateien brauchen eine sichere Zuordnung", pendingIdentity.message)
+        assertEquals("Keine Übertragung läuft", pendingIdentity.title)
+        assertEquals("3 Dateien brauchen noch eine sichere Zuordnung", pendingIdentity.message)
+        assertEquals("Gesamtsicherung und SSD-Sicherung sind noch nicht bestätigt.", pendingIdentity.detail)
         assertTrue(!pendingIdentity.message.contains("werden erneut"))
     }
 

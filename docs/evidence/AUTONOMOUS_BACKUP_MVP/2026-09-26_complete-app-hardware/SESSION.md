@@ -143,3 +143,21 @@ Kein weiterer Hardware-Schritt ist für diesen Befund erforderlich. Der nächste
 muss den Zustand als klare dreiteilige Aussage rendern: „Keine Übertragung läuft“, „Telefonkopien
 vorhanden, aber noch nicht geprüft“ und „Gesamtsicherung/SSD noch nicht bestätigt“, jeweils ohne
 eine nicht existierende automatische Prüfung zu behaupten.
+
+## Abschlusskorrektur der offenen Ruheanzeige
+
+Die aus dem letzten Hardwarebefund abgeleitete Softwarekorrektur ist implementiert und durch
+`BackupStatusCopyTest` abgesichert. Für lokale Kopien ohne Integritätsbeleg lautet die Karte jetzt:
+
+1. **Keine Übertragung läuft**
+2. **N Telefonkopien vorhanden, aber noch nicht geprüft**
+3. **Gesamtsicherung und SSD-Sicherung sind noch nicht bestätigt.**
+
+Bei offener Quellzuordnung bleibt dieselbe Aktivitäts-/Gesamtstruktur erhalten, mit dem präzisen
+Hinweis auf die fehlende sichere Zuordnung. Damit behauptet die Oberfläche weder einen stillen
+Hintergrundworker noch eine vollständige Synchronisation.
+
+Vollcheckpoint nach der Korrektur: **544 JVM-Tests, 0 failures, 0 errors**, Debug-APK SHA-256
+`2AC036D1F3E205FA82005E13E669CB418052BD4FA6DF35A92CD3E3C8C31787D9`.
+Auf Wunsch des Nutzers („letzter Hardware-Test“) wurde diese neue APK heute nicht mehr auf dem S25
+installiert und kein weiterer physischer Test ausgelöst.

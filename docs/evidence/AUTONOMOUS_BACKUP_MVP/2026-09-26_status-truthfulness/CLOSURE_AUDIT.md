@@ -21,7 +21,7 @@ Date: 2026-09-26
 
 `./gradlew.bat :app:testDebugUnitTest :app:assembleDebug --no-daemon` completed with **544 JVM
 tests**, zero failures and zero errors. Debug APK SHA-256:
-`188D877671CD8D4331E129DFE29A8469C95647D13CBBC78289A24E8A11E5E388`.
+`2AC036D1F3E205FA82005E13E669CB418052BD4FA6DF35A92CD3E3C8C31787D9`.
 
 `tools/autonomy/control.py --check` could not run because this Windows host has neither `py` nor a
 `python` launcher. This is recorded as a local control-tool limitation; it does not convert any
@@ -32,4 +32,6 @@ hardware criterion into PASS.
 The final target observation revoked the former presentation-closure claim: an open local-proof
 state was fail-closed but not sufficiently actionable to answer whether work was active, whether
 the phone was protected, and whether the overall/SSD backup was complete. This is software work,
-not a hardware boundary. The physical retry/render criteria remain batched only after that repair.
+not a hardware boundary. It is now repaired with a three-part inactive/phone/overall presentation
+contract and direct copy regression. The physical retry/render criteria remain batched for the next
+consolidated session at the user's request; no repeated hardware test was performed today.

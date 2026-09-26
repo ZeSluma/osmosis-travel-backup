@@ -80,3 +80,9 @@ eine direkte Entscheidungs- oder Zustandsprüfung. Nicht durch Software beweisba
 eindeutig benannten physischen Kriterien: reales Pocket-Verhalten bei Verbindung, Busy-Response
 und Render-Timing sowie USB-SSD-Topologie. Sie bleiben in einem gebündelten, nicht-destruktiven
 Hardwareablauf; keine davon wird als softwareseitig PASS ausgegeben.
+
+Der letzte offene Ruhe-/Prüfzustand ist zusätzlich umgesetzt: `BackupStatusCopyTest` prüft jetzt
+die vollständige dreiteilige Nutzerentscheidung „keine Aktivität / Telefonkopien ungeprüft /
+Gesamt- und SSD-Sicherung unbestätigt“. Der Build dieses Abschlusses hat die oben dokumentierte
+Prüfsumme. Seine Zielgerät-Darstellung ist bewusst für den nächsten gebündelten Hardwaretest
+reserviert.
