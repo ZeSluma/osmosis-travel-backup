@@ -62,6 +62,6 @@ class DjiMessage(var target: Int, var id: Int, var type: Int, var payload: ByteA
     val flags: Int get() = type and 0xFF
 
     fun format(): String =
-        "target=0x%04X id=0x%04X flags=0x%02X set=0x%02X cmd=0x%02X payload=%s"
-            .format(target, id, flags, cmdSet, cmdId, payload.joinToString("") { "%02x".format(it) })
+        "target=0x%04X id=0x%04X flags=0x%02X set=0x%02X cmd=0x%02X payload=%dB"
+            .format(target, id, flags, cmdSet, cmdId, payload.size)
 }

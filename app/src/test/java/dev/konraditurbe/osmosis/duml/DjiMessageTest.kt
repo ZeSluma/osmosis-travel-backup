@@ -2,11 +2,21 @@ package dev.konraditurbe.osmosis.duml
 
 import org.junit.Test
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertThrows
+import org.junit.Assert.assertTrue
 
 // Vendored from https://github.com/dimadesu/dji-remote
 // MIT License.
 class DjiMessageTest {
+
+    @Test fun `diagnostic format reports payload size without exposing payload bytes`() {
+        val secret = "camera-serial-or-credential".toByteArray()
+        val formatted = DjiMessage(0x0702, 0x0001, 0x450740, secret).format()
+        assertTrue(formatted.contains("payload=${secret.size}B"))
+        assertFalse(formatted.contains("camera-serial-or-credential"))
+        assertFalse(formatted.contains(secret.joinToString("") { "%02x".format(it) }))
+    }
     @Test
     fun encodeDecodeRoundtrip() {
         val payload = byteArrayOf(0x01, 0x02, 0x03)

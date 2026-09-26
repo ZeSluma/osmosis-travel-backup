@@ -62,6 +62,20 @@ Workspace-Python-Laufzeit und ergab `CONTINUE` / `USEFUL_SOFTWARE_WORK_REMAINS`;
 Hardware-Batch ist folgerichtig nicht bereit. Dieser Fix benötigt noch den frischen
 JVM-/Build-/Lint-Checkpoint, sobald die SDK-Lizenz und API-36-Pakete autorisiert sind.
 
+Eine anschließende vollständige Format-/Exception-Sink-Prüfung fand einen zweiten präventiven
+INV-005-Befund: `DjiMessage.format()` gab jeden Payload als Hex aus und sein einziges
+Produktionsverwendungsziel schrieb das Ergebnis in den DUML-Selbsttest-Log. Das aktuelle
+Selbsttest-Payload war konstant, die Format-API hätte jedoch bei späterer Wiederverwendung
+Protokollinhalt offenlegen können. Sie meldet jetzt ausschließlich die Payloadgröße. Eine neue
+JVM-Regression prüft sowohl die Größe als auch die Abwesenheit von Klartext- und Hex-Payload;
+sie wartet mit den übrigen Änderungen auf den frischen Testlauf.
+
+Die nachfolgende Kontrolle der exportierbaren Kamera-Seiten- und Kollisionsdiagnosen beseitigte
+auch dort Kamera-Cursor, Handles und Namen. Die Logs behalten nur Vollständigkeitszähler,
+Protokollstatus und die sichere Sperrentscheidung. Damit ist der statische Datenschutzumfang für
+die während der Prüfung gefundenen exportierbaren Rohdaten-Sinks geschlossen; der gemeinsame
+JVM-/Build-/Lint-Checkpoint bleibt weiterhin die notwendige reproduzierbare Bestätigung.
+
 ## Ergebnis der Anforderungsprüfung
 
 Die deterministischen Kernpfade sind **SOFTWARE_PROVEN**, jedoch ist die Software nicht zu

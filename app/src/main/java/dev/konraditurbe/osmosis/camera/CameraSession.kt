@@ -554,10 +554,8 @@ class CameraSession(
     }
 
     /**
-     * DEBUG evidence line per store for one page: what the camera declared, what we decoded, whether the
-     * end-of-list TLV was there, how the cursor moved, and every record as `seq:handle` in manifest
-     * order — enough to reconstruct the walk from a log and to compare the two end-of-list rules
-     * (record count vs `0c 01` marker) against what the camera actually had.
+     * Privacy-safe evidence line per store: protocol-level completeness facts only. Camera cursors,
+     * handles and record order are source identity material, so they must not enter shareable logs.
      */
     private fun logPageEvidence(page: List<CameraFile>, fresh: List<CameraFile>, sdBefore: Long, intBefore: Long) {
         for ((store, name, before, after) in listOf(
@@ -565,19 +563,12 @@ class CameraSession(
             val slice = storeSlice(page, store)
             val info = lastSlices[store]
             val freshN = fresh.count { storeOf(it) == store }
-            val handles = slice.map { it.handle }.filter { it != 0L }
             val moved = after != before          // a newest-page selector is replaced, not walked below
             val countRule = hasOlderPage(slice.size, if (moved) after else 0L)
             val verdict = storeHasOlderPage(slice.size, moved, info)
             log("datalink: page[$name] hdr=${info?.declared ?: "-"} records=${info?.records ?: "-"} decoded=${slice.size}" +
                 " end0c01=${info?.endMarker ?: "-"} ended=${info?.ended ?: "-"} incomplete=${info?.incomplete ?: "-"}" +
-                " fresh=$freshN cursor 0x%08x→0x%08x".format(before, after) +
-                " min=0x%08x last=0x%08x".format(handles.minOrNull() ?: 0L, slice.lastOrNull()?.handle ?: 0L) +
-                " | more=$verdict (count-rule alone=$countRule)")
-            // The record list is a kilobyte a page — only under a debug page flag, where a walk is
-            // being reconstructed; the summary line above is what an ordinary log needs.
-            if (slice.isNotEmpty() && (debugPageForce || debugPageSize > 0)) log("datalink: page[$name] " +
-                slice.joinToString(" ") { "%04d:%08x".format(it.seq, it.handle) })
+                " cursor-moved=$moved | more=$verdict (count-rule alone=$countRule)")
         }
     }
     private data class Quad(val store: Int, val name: String, val before: Long, val after: Long)
@@ -1594,15 +1585,12 @@ class CameraSession(
      * success. That is precisely what a photo inheriting the next video's handle used to do, so this is
      * the one invariant worth asserting at runtime rather than only in a test.
      *
-     * Silent when healthy. Small lists are dumped in full: on a controlled 4-file card the handles are
-     * the whole point, and the volume is trivial.
+     * Silent when healthy. A collision is enough to preserve the safety decision; neither file names
+     * nor camera handles may enter user-shareable diagnostics.
      */
     private fun flagHandleCollisions(files: List<CameraFile>): List<CameraFile> {
         val dupes = files.filter { it.handle != 0L }.groupBy { it.handle }.filter { it.value.size > 1 }
-        for ((h, group) in dupes) {
-            log("datalink: ⚠ HANDLE COLLISION 0x%08x shared by %s — delete disabled for these"
-                .format(h, group.joinToString { it.name }))
-        }
+        for ((_, group) in dupes) log("datalink: ⚠ HANDLE COLLISION across ${group.size} assets — delete disabled")
         if (files.size <= 12) {
             log("datalink: handle collision across ${files.size} assets — deletion disabled")
         }
