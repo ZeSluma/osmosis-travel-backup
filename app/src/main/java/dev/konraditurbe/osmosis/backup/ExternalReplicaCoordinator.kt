@@ -2,6 +2,7 @@ package dev.konraditurbe.osmosis.backup
 
 import android.content.Context
 import java.util.concurrent.atomic.AtomicBoolean
+import dev.konraditurbe.osmosis.connection.CameraConnectionService
 import dev.konraditurbe.osmosis.ledger.LedgerCoordinator
 import dev.konraditurbe.osmosis.core.DiagnosticEventStore
 
@@ -39,7 +40,15 @@ class ExternalReplicaCoordinator private constructor(context: Context) {
                             ledger.replicateToExternal(candidate,id,tree) { false }
                         }
                         DiagnosticEventStore.open(app).record(DiagnosticEventStore.Type.STORAGE_STATE, newState = "REPLICA_RUN_COMPLETE")
-                        } finally { running.set(false) }
+                        } finally {
+                            running.set(false)
+                            // The replica ledger rows changed off the Activity thread. Notify the
+                            // observer only after a real copy run, so the durable phone/SSD
+                            // projection is reread without requiring an app restart. A no-work
+                            // availability probe deliberately does not publish: it would create a
+                            // self-refresh loop from MainActivity's observer.
+                            CameraConnectionService.backupProjectionNotifier(app).publish()
+                        }
                     }.apply { name="osmosis-external-replica-copy" }.start()
                 }
             }

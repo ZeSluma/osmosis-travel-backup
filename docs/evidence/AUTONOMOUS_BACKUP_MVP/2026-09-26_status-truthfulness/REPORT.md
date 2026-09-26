@@ -31,6 +31,15 @@ counts; it did not prove that a continuous background check had run.
 The correction changes only human-facing state copy. It does not weaken the source, integrity,
 redundancy, cleanup or automatic-deletion invariants.
 
+## Follow-up: SSD result projection
+
+The same audit found a separate live-update gap: `ExternalReplicaCoordinator` wrote its completed
+phone-to-SSD receipt on a background thread but did not notify `BackupProjectionNotifier`.
+Consequently the next status transition could require an Activity refresh or restart even though
+the durable result was already correct. The coordinator now publishes exactly once after a real
+copy run. It deliberately does not publish after a no-work availability probe, which would turn
+the UI observer's refresh into a loop.
+
 ## Reproducible verification
 
 On 2026-09-26:
@@ -43,7 +52,7 @@ On 2026-09-26:
 Debug APK SHA-256:
 
 ```text
-773977BFD0DBA7D48D4858BB1850E674095CB0F052A62052713F90045400CB48
+1B7ADA14B30C827195A0D36D34A403EB7CDCE901C7F4B50FDC1E2B9B7A191B2D
 ```
 
 The next hardware session must validate readability and live transition behavior with this exact
