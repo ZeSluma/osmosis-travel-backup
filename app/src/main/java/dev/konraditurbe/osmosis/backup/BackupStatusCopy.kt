@@ -10,6 +10,79 @@ import dev.konraditurbe.osmosis.ledger.LedgerCoordinator
  * cleanup eligibility that the projection has not established.
  */
 object BackupStatusCopy {
+    /** Current traveller-facing state plus an optional, lower-priority explanation. */
+    data class Presentation(val title: String, val message: String, val detail: String? = null)
+
+    /**
+     * Keep the main card about the current operation/current inventory. Historical ambiguity is
+     * material for global completeness, but must never masquerade as current work or contradict a
+     * just-completed automatic transfer.
+     */
+    fun presentation(
+        status: BackupProductStatus,
+        diagnostic: LedgerCoordinator.AutomaticPlanDiagnostic?,
+        activeOperation: Boolean,
+    ): Presentation {
+        if (activeOperation) return Presentation(
+            title = "Synchronisation läuft",
+            message = "Übertragung und Integritätsprüfung werden sicher durchgeführt",
+            detail = historicalDetail(diagnostic?.historicalUnresolved ?: 0),
+        )
+        if (diagnostic == null) return Presentation(
+            title = "Sicherungsstatus wird geladen",
+            message = "Der gespeicherte Sicherungsstand wird gelesen",
+        )
+        if (!diagnostic.inventoryComplete) return incompleteInventoryPresentation()
+        when {
+            diagnostic.downloads > 0 -> return Presentation(
+                title = "Synchronisation wird vorbereitet",
+                message = "${diagnostic.downloads} neue Datei${plural(diagnostic.downloads)} werden sicher übernommen",
+                detail = historicalDetail(diagnostic.historicalUnresolved),
+            )
+            diagnostic.verifyExisting > 0 -> return Presentation(
+                title = "Lokale Kopien werden geprüft",
+                message = "${diagnostic.verifyExisting} Datei${plural(diagnostic.verifyExisting)} werden auf Integrität geprüft",
+                detail = historicalDetail(diagnostic.historicalUnresolved),
+            )
+            diagnostic.revalidate > 0 -> return Presentation(
+                title = "Kameraliste wird abgeglichen",
+                message = "${diagnostic.revalidate} Datei${plural(diagnostic.revalidate)} werden erneut sicher zugeordnet",
+                detail = historicalDetail(diagnostic.historicalUnresolved),
+            )
+            diagnostic.review > 0 || diagnostic.currentUnresolved > 0 -> return Presentation(
+                title = "Dateien brauchen Prüfung",
+                message = "Die aktuelle Liste enthält noch nicht sicher zuordenbare Dateien",
+                detail = historicalDetail(diagnostic.historicalUnresolved),
+            )
+            diagnostic.historicalUnresolved > 0 -> return Presentation(
+                title = "Aktuelle Synchronisation fertig",
+                message = "Neue Dateien sind auf dem Telefon gesichert",
+                detail = historicalDetail(diagnostic.historicalUnresolved),
+            )
+            status.cameraSyncComplete && status.redundancyComplete -> return Presentation(
+                title = "Synchronisation fertig",
+                message = "Kamera und SSD sind unabhängig geprüft",
+                detail = "Zum Löschen wird niemals automatisch aufgefordert.",
+            )
+            status.cameraSyncComplete -> return Presentation(
+                title = "Telefon-Synchronisation fertig",
+                message = "SSD-Sicherung ausstehend",
+            )
+            else -> return Presentation(
+                title = "Synchronisation wird geprüft",
+                message = "Der aktuelle Sicherungsstand wird sicher abgeglichen",
+            )
+        }
+    }
+
+    fun incompleteInventoryPresentation() = Presentation(
+        title = "Synchronisation wartet",
+        message = "Kameraliste noch nicht vollständig – deshalb keine Übertragung",
+    )
+
+    private fun historicalDetail(count: Int): String? = count.takeIf { it > 0 }?.let {
+        "$it frühere Datei${plural(it)} brauchen noch Prüfung; deshalb ist die Gesamtsicherung noch nicht bestätigt"
+    }
     /**
      * One short traveller-facing state, not a diagnostic dump.  A live service operation wins so
      * its adjacent progress bar has matching copy.  Otherwise surface only the next useful action.

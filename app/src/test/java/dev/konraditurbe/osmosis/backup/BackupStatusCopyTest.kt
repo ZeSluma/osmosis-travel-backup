@@ -80,6 +80,26 @@ class BackupStatusCopyTest {
         assertTrue(!BackupStatusCopy.summary(status, historical).contains("keine Übertragung"))
     }
 
+    @Test fun presentationKeepsTheCurrentBackupOutcomeAboveHistoricReview() {
+        val diagnostic = LedgerCoordinator.AutomaticPlanDiagnostic(
+            inventoryComplete = true, completenessReason = "NONE", currentUnresolved = 0,
+            historicalUnresolved = 3, downloads = 0, verifyExisting = 0, revalidate = 0, review = 0)
+        val current = BackupStatusCopy.presentation(
+            BackupProductStatus(false, true, true, false, false, 1, 0), diagnostic, activeOperation = false)
+        assertEquals("Aktuelle Synchronisation fertig", current.title)
+        assertEquals("Neue Dateien sind auf dem Telefon gesichert", current.message)
+        assertTrue(current.detail!!.contains("3 frühere"))
+
+        val phoneOnly = BackupStatusCopy.presentation(
+            BackupProductStatus(true, false, true, false, false, 1, 0), diagnostic.copy(historicalUnresolved = 0), false)
+        assertEquals("Telefon-Synchronisation fertig", phoneOnly.title)
+        assertEquals("SSD-Sicherung ausstehend", phoneOnly.message)
+
+        val complete = BackupStatusCopy.presentation(
+            BackupProductStatus(true, false, true, true, true, 1, 1), diagnostic.copy(historicalUnresolved = 0), false)
+        assertEquals("Synchronisation fertig", complete.title)
+    }
+
     @Test fun durableSummaryRowsRemainConservativeAndHumanReadable() {
         assertEquals("Kamera-Sicherung wird geprüft",
             BackupStatusCopy.summary(BackupProductStatus(true, false, false, false, false, 0, 0), "keine neue Datei zum Übertragen"))

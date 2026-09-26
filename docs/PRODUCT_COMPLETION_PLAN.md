@@ -88,6 +88,16 @@ this historical state cannot overwrite a completed current transfer. Full JVM/de
 **532 JVM tests, 0 failures, 0 errors**; debug APK SHA-256
 `B5D856F25976D76050935463CED59A8E312AFE22ED7CF4D94BECD18FA340E66B`.
 
+2026-09-26 (whole-status card): target feedback required the primary line to report the actual
+current backup outcome, not implementation detail. The card now has a deterministic hierarchy:
+**Synchronisation läuft**, **Synchronisation wird vorbereitet**, **Aktuelle Synchronisation fertig**
+with a historical-review note, **Telefon-Synchronisation fertig · SSD-Sicherung ausstehend**, or
+**Synchronisation fertig** only after independent phone and SSD evidence. An incomplete current
+list remains a fail-closed blocker. `BackupStatusCopyTest` proves historical ambiguity cannot
+replace current success, phone-only and complete outcomes. Full JVM/debug checkpoint: **532 JVM
+tests, 0 failures, 0 errors**; debug APK SHA-256
+`9068FD46B4F1E440F00E537793632A7FAD5673A707494D6E6E6E7E69AD9EA9C6`.
+
 ## Hardware deferred
 
 | ID | Requirement | State |

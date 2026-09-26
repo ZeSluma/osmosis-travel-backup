@@ -208,6 +208,16 @@
                         android:textSize="14sp"
                         tools:text="Kameraliste ist noch nicht vollständig. Deshalb wird nichts übertragen." />
 
+                    <TextView
+                        android:id="@+id/backupSummaryDetail"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:textColor="@color/osmo_muted"
+                        android:textSize="12sp"
+                        android:visibility="gone"
+                        tools:text="3 frühere Dateien brauchen noch Prüfung; deshalb ist die Gesamtsicherung noch nicht bestätigt." />
+
                     <!-- Progress only appears for service-owned active work.  Its place within the
                          status card makes the difference between active work and a safe terminal
                          state visually explicit. -->

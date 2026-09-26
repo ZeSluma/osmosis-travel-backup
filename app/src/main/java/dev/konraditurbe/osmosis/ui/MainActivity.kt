@@ -95,7 +95,9 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
     private lateinit var connectBar: LinearProgressIndicator
     private lateinit var savedCameras: SavedCameras
     private lateinit var statusPill: StatusPillView
+    private lateinit var backupSummaryTitle: TextView
     private lateinit var backupSummary: TextView
+    private lateinit var backupSummaryDetail: TextView
     /** Sanitized scheduler diagnosis: state/count only, never camera names, paths, credentials or media data. */
     private var automaticScheduleStatus = "not evaluated"
     private var backupProductStatus: BackupProductStatus? = null
@@ -341,7 +343,9 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
         selectorHint = findViewById(R.id.selectorHint)
         connectBar = findViewById(R.id.connectBar)
         statusPill = findViewById(R.id.statusPill)
+        backupSummaryTitle = findViewById(R.id.backupSummaryTitle)
         backupSummary = findViewById(R.id.backupSummary)
+        backupSummaryDetail = findViewById(R.id.backupSummaryDetail)
         savedCameras = SavedCameras(getSharedPreferences("osmosis", MODE_PRIVATE))
         findViewById<View>(R.id.btnRescan).setOnClickListener { startCameraScan(select = true) }
         findViewById<View>(R.id.btnExternalStorage).setOnClickListener { externalStorageLauncher.launch(null) }
@@ -1277,7 +1281,7 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
         imageLoader?.shutdown(); imageLoader = null
         metaLoader?.shutdown(); metaLoader = null
         updateDownloadFab()
-        backupSummary.text = "Camera inventory: revalidation incomplete — source retained as untrusted; no backup or cleanup action will run."
+        renderBackupPresentation(dev.konraditurbe.osmosis.backup.BackupStatusCopy.incompleteInventoryPresentation())
         logLine("Inventory revalidation incomplete — retaining prior source evidence; no empty-source conclusion.")
         toast("Camera inventory needs revalidation; retained source state was not changed.")
     }
@@ -1405,9 +1409,11 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
         val session=connectionResources.ledgerSession ?: run {
             // A connected grid may precede the asynchronous durable projection. Never leave a
             // user with a blank safety/status surface during that interval.
-            backupSummary.text = dev.konraditurbe.osmosis.backup.BackupStatusCopy.summary(
+            renderBackupSummary(
                 dev.konraditurbe.osmosis.backup.BackupProductStatus(false, true, false, false, false, 0, 0),
-                dev.konraditurbe.osmosis.backup.BackupStatusCopy.awaitingTrustedInventory())
+                null,
+                activeOperation = false,
+            )
             return
         }
         dev.konraditurbe.osmosis.ledger.LedgerCoordinator.get(applicationContext)
@@ -1426,14 +1432,29 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
                     val dispatcher = CameraConnectionService.automaticTransferDispatcher(applicationContext)
                     automaticScheduleStatus = dev.konraditurbe.osmosis.backup.BackupStatusCopy.automaticStatus(
                         projection.automatic, dispatcher.progress, dispatcher.lastDecision)
+                    val activeOperation = dev.konraditurbe.osmosis.connection.AutomaticTransferUiStatePolicy
+                        .project(dispatcher.progress, dispatcher.lastDecision) != null
                     renderAutomaticTransferProgress(dispatcher.progress, dispatcher.lastDecision)
-                    renderBackupSummary(projection.status)
+                    renderBackupSummary(projection.status, projection.automatic, activeOperation)
                 }
             }}
     }
 
-    private fun renderBackupSummary(status: BackupProductStatus) {
-        backupSummary.text = dev.konraditurbe.osmosis.backup.BackupStatusCopy.summary(status, automaticScheduleStatus)
+    private fun renderBackupSummary(
+        status: BackupProductStatus,
+        diagnostic: dev.konraditurbe.osmosis.ledger.LedgerCoordinator.AutomaticPlanDiagnostic?,
+        activeOperation: Boolean,
+    ) {
+        renderBackupPresentation(dev.konraditurbe.osmosis.backup.BackupStatusCopy.presentation(
+            status, diagnostic, activeOperation,
+        ))
+    }
+
+    private fun renderBackupPresentation(presentation: dev.konraditurbe.osmosis.backup.BackupStatusCopy.Presentation) {
+        backupSummaryTitle.text = presentation.title
+        backupSummary.text = presentation.message
+        backupSummaryDetail.text = presentation.detail
+        backupSummaryDetail.visibility = if (presentation.detail == null) View.GONE else View.VISIBLE
     }
 
     /**
