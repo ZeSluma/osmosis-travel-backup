@@ -4,14 +4,11 @@
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <!-- A single pocket plus an inward arrow: a quiet visual for safely picking media up. -->
+    <!-- A compact pickup tray and downward arrow: simple at launcher size, with no cloud/deletion claim. -->
     <path
-        android:fillColor="#00000000"
-        android:pathData="M30,35 L78,35 L78,74 Q78,80 72,80 L36,80 Q30,80 30,74 Z"
-        android:strokeColor="#FFFFFF"
-        android:strokeWidth="5"
-        android:strokeLineJoin="round" />
+        android:fillColor="#F5F7FA"
+        android:pathData="M29,61 L36,61 L36,72 Q36,76 40,76 L68,76 Q72,76 72,72 L72,61 L79,61 L79,73 Q79,83 69,83 L39,83 Q29,83 29,73 Z" />
     <path
-        android:fillColor="#FFFFFF"
-        android:pathData="M51,26 L57,26 L57,51 L66,42 L70,46 L54,62 L38,46 L42,42 L51,51 Z" />
+        android:fillColor="#F5F7FA"
+        android:pathData="M50,25 L58,25 L58,51 L68,41 L73,46 L54,65 L35,46 L40,41 L50,51 Z" />
 </vector>

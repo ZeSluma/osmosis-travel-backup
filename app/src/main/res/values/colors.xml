@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Pocket Pickup: calm neutral surfaces with one restrained petrol action colour. -->
-    <color name="osmo_bg">#F6F8F7</color>
+    <!-- Pocket Pickup: charcoal-blue action colour on calm neutral surfaces. -->
+    <color name="osmo_bg">#F6F7F9</color>
     <color name="osmo_surface">#FFFFFF</color>
-    <color name="osmo_surface_dim">#E8EEEC</color>
-    <color name="osmo_ink">#17211F</color>
-    <color name="osmo_muted">#65736F</color>
-    <color name="osmo_accent">#176B68</color>
+    <color name="osmo_surface_dim">#E8EBF0</color>
+    <color name="osmo_ink">#1C2834</color>
+    <color name="osmo_muted">#66727F</color>
+    <color name="osmo_accent">#263A4B</color>
     <color name="osmo_on_accent">#FFFFFF</color>
-    <color name="osmo_green">#3C806A</color>
-    <color name="osmo_track">#D5E0DC</color>
+    <color name="osmo_green">#3E7565</color>
+    <color name="osmo_track">#D7DEE6</color>
     <color name="osmo_danger">#B94242</color>
     <color name="osmo_amber">#9A681B</color>
     <color name="white">#FFFFFF</color>
 
     <!-- Status-pill semantic indicators (battery / storage). Fixed hues (not brand accent), with a
          -night variant for contrast on dark surfaces. -->
-    <color name="osmo_warn">#B98531</color>
+    <color name="osmo_warn">#9B702C</color>
     <color name="osmo_low">#C25A51</color>
 </resources>

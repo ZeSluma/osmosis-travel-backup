@@ -8,7 +8,7 @@ eine nicht beobachtbare Bedingung ist `INCONCLUSIVE`, niemals `PASS`.
 - Branch: `codex/autonomous-backup-mvp` (the commit carrying this plan and the Pocket Pickup
   resource set is the exact source under test)
 - Lokale Debug-APK: `app/build/outputs/apk/debug/app-debug.apk`
-- SHA-256: `D232711BCD8022BA1127B0C5221E7C06FD71AAF3135C4254061DE831352E78D4`
+- SHA-256: `7B94C1EC072CFD5149E9F5AC001EDB3B92EDA97C634960A36B145042B549679F`
 - Interne Grundlage: 531 JVM-Tests, 0 Fehler/Errors; vollständige sichtbare Übergangsmatrix in `UI_TRANSITION_AUDIT.md` plus Pocket-Pickup-Ressourcenprüfung. Die Installation erfolgt ausschließlich **in place**;
   vorhandene App-Daten bleiben erhalten.
 

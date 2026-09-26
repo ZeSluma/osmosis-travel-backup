@@ -67,6 +67,12 @@ were implemented without modifying backup code, app ID, signing, data, paths or 
 Full JVM/debug checkpoint: **531 JVM tests, 0 failures, 0 errors**; debug APK SHA-256:
 `D232711BCD8022BA1127B0C5221E7C06FD71AAF3135C4254061DE831352E78D4`.
 
+2026-09-26 (Pocket Pickup refinement): target feedback rejected the initial Petrol treatment. The
+app now uses a fixed Graphit-/Nachtblau palette rather than wallpaper-derived Material You colours,
+and a bolder pickup-tray launcher mark. This changes no backup behavior, app identity or data.
+Full JVM/debug checkpoint: **531 JVM tests, 0 failures, 0 errors**; debug APK SHA-256:
+`7B94C1EC072CFD5149E9F5AC001EDB3B92EDA97C634960A36B145042B549679F`.
+
 ## Hardware deferred
 
 | ID | Requirement | State |

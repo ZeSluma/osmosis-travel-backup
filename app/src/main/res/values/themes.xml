@@ -1,7 +1,6 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- DayNight so the OS dark theme flips -night resources (Android 10+). On Android 12+ the app
-         Application applies Material You dynamic color on top of these, so accent, surfaces and background
-         follow the system palette; the values here are the pre-12 (and non-dynamic) fallback. -->
+    <!-- DayNight flips the dedicated Pocket Pickup palette. Wallpaper-derived dynamic colours are
+         intentionally not applied: the safety/status surface must retain a stable, restrained contrast. -->
     <style name="Theme.Osmosis" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="colorPrimary">@color/osmo_accent</item>
         <item name="colorOnPrimary">@color/osmo_on_accent</item>

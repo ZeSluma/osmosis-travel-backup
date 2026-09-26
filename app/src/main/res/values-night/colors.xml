@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Pocket Pickup dark palette: neutral charcoal, quiet petrol, no competing brand colours. -->
-    <color name="osmo_bg">#111817</color>
-    <color name="osmo_surface">#1A2422</color>
-    <color name="osmo_surface_dim">#263330</color>
-    <color name="osmo_ink">#E6EFEC</color>
-    <color name="osmo_muted">#AAB8B3</color>
-    <color name="osmo_accent">#74C4BB</color>
-    <color name="osmo_on_accent">#073532</color>
-    <color name="osmo_green">#7CC7A7</color>
-    <color name="osmo_track">#344440</color>
+    <!-- Pocket Pickup dark palette: graphite surfaces and deep, low-saturation blue. -->
+    <color name="osmo_bg">#121922</color>
+    <color name="osmo_surface">#1B2530</color>
+    <color name="osmo_surface_dim">#283542</color>
+    <color name="osmo_ink">#E8EDF3</color>
+    <color name="osmo_muted">#ABB7C3</color>
+    <color name="osmo_accent">#91A8BD</color>
+    <color name="osmo_on_accent">#152634</color>
+    <color name="osmo_green">#82B39D</color>
+    <color name="osmo_track">#354454</color>
     <color name="osmo_danger">#EF8980</color>
     <color name="osmo_amber">#DAB160</color>
 
     <!-- Pill semantic indicators, brightened for dark. -->
-    <color name="osmo_warn">#DAB160</color>
+    <color name="osmo_warn">#D3AB68</color>
     <color name="osmo_low">#EF8980</color>
 </resources>

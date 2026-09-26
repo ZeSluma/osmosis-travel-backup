@@ -9,9 +9,9 @@ unverändert.
 - **Name:** Pocket Pickup
 - **Ton:** ruhig, sachlich, reisetauglich. Die Oberfläche informiert über einen sicheren lokalen
   Sicherungsvorgang, statt technische Aktivität dekorativ zu überbetonen.
-- **Farbe:** helle, leicht kühle Neutralflächen; genau ein gedämpfter Petrolton für Aktionen und
+- **Farbe:** helle, leicht kühle Neutralflächen; genau ein dunkler Graphit-/Nachtblauton für Aktionen und
   Fortschritt. Grün, Amber und Rot bleiben ausschließlich semantische Zustandsfarben.
-- **Icon:** ein weißer, einfacher Taschenausschnitt mit eingehendem Pfeil auf Petrol. Das Zeichen
+- **Icon:** eine weiße, einfache Aufnahmeschale mit eingehendem Pfeil auf Graphitblau. Das Zeichen
   bedeutet "Medien sicher übernehmen" ohne Kamera-/Cloud- oder Löschversprechen.
 - **Layout:** Das vorhandene klare Raster und die Status-/Fortschrittszone bleiben. Sie waren
   bereits auf Sicherheits- und Zustandsverständlichkeit ausgerichtet; keine neue dekorative
@@ -22,9 +22,9 @@ unverändert.
 - `app_name` und die sichtbare Benachrichtigungsbezeichnung verwenden Pocket Pickup.
 - Das adaptive Launcher-Icon wird auf Android 10+ (minSdk 29) aus Vektoren erzeugt und skaliert
   ohne gerätespezifische Rastervarianten.
-- Die UI-Palette wurde in Tag- und Nachtmodus synchron angepasst. Material You darf auf Android 12+
-  weiterhin die Systemfarben einfließen lassen; Lesbarkeit und semantische Farben bleiben davon
-  getrennt.
+- Die UI-Palette wurde in Tag- und Nachtmodus synchron angepasst. Material You wird absichtlich nicht
+  angewendet, damit die definierte ruhige Kontrast- und Markenwirkung nicht von der Wallpaper-Farbe
+  abhängt.
 - Keine Datenmigration, App-Neuinstallation, Medienverschiebung, Cloud-Anbindung oder
   Kameraoperation ist Teil dieser Änderung.
 
