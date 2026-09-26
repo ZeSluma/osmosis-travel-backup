@@ -7,6 +7,15 @@ import org.junit.Assert.assertEquals
 import org.junit.Test
 
 class BackupProjectionDiffPolicyTest {
+    @Test fun liveChangesUseOnlyTheBackupPayloadPathAfterInitialProjection() {
+        assertEquals(BackupProjectionDiffPolicy.RenderUpdate.INITIAL_FULL_BIND,
+            BackupProjectionDiffPolicy.renderUpdate(true, setOf("one")))
+        assertEquals(BackupProjectionDiffPolicy.RenderUpdate.BACKUP_STATE_PAYLOAD,
+            BackupProjectionDiffPolicy.renderUpdate(false, setOf("one")))
+        assertEquals(BackupProjectionDiffPolicy.RenderUpdate.NONE,
+            BackupProjectionDiffPolicy.renderUpdate(false, emptySet()))
+    }
+
     @Test fun unchangedServicePublishDoesNotRepaintAnyVideo() {
         val durable = mapOf("one" to BackupDisplay(BackupDisplayState.NEW))
         val live = mapOf("one" to LiveTransferFileProjection(LiveTransferFileProjection.Phase.DOWNLOADING, 12))

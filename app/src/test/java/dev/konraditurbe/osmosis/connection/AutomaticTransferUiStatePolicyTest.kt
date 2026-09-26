@@ -50,6 +50,7 @@ class AutomaticTransferUiStatePolicyTest {
 
     @Test fun transferProgressIsBoundedAndDoesNotDependOnAStaleDecision() {
         assertEquals(0, AutomaticTransferUiStatePolicy.project("transfer=0% (0/1)", "WRITER_STARTED")?.percent)
+        assertEquals(42, AutomaticTransferUiStatePolicy.project("transfer=42% (0/1)", "WRITER_STARTED")?.percent)
         assertNull(AutomaticTransferUiStatePolicy.project("transfer=100% (1/1)", "SOURCE_CHANGED"))
         assertEquals(AutomaticTransferUiStatePolicy.Phase.FINISHED,
             AutomaticTransferUiStatePolicy.project("transfer=100% (1/1)", "WRITER_COMPLETE")?.phase)

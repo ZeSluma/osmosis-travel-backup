@@ -39,11 +39,7 @@ object BackupStatusCopy {
                 message = "${diagnostic.downloads} neue Datei${plural(diagnostic.downloads)} werden sicher übernommen",
                 detail = historicalDetail(diagnostic.historicalUnresolved),
             )
-            diagnostic.verifyExisting > 0 -> return Presentation(
-                title = "Keine Übertragung läuft",
-                message = "${diagnostic.verifyExisting} ${if (diagnostic.verifyExisting == 1) "Telefonkopie" else "Telefonkopien"} vorhanden, aber noch nicht geprüft",
-                detail = "Gesamtsicherung und SSD-Sicherung sind noch nicht bestätigt.",
-            )
+            diagnostic.verifyExisting > 0 -> return existingPhoneProofPresentation(diagnostic)
             diagnostic.revalidate > 0 -> return Presentation(
                 title = "Keine Übertragung läuft",
                 message = "${diagnostic.revalidate} Datei${plural(diagnostic.revalidate)} brauchen noch eine sichere Zuordnung",
@@ -82,6 +78,42 @@ object BackupStatusCopy {
 
     private fun historicalDetail(count: Int): String? = count.takeIf { it > 0 }?.let {
         "$it frühere Datei${plural(it)} brauchen noch Prüfung; deshalb ist die Gesamtsicherung noch nicht bestätigt"
+    }
+
+    /** A plan action is not itself a traveller-facing fact. Its durable cell evidence decides
+     * whether the local file is complete, merely present, or needs review. */
+    private fun existingPhoneProofPresentation(diagnostic: LedgerCoordinator.AutomaticPlanDiagnostic): Presentation {
+        val confirmed = diagnostic.localIntegrityConfirmed
+        val pending = diagnostic.phoneCopyNeedsIntegrity
+        val review = diagnostic.phoneCopyNeedsReview
+        val detail = "Gesamtsicherung und SSD-Sicherung sind noch nicht bestätigt."
+        return when {
+            confirmed > 0 && pending == 0 && review == 0 -> Presentation(
+                title = "Synchronisation offen",
+                message = "$confirmed ${if (confirmed == 1) "Telefonkopie ist" else "Telefonkopien sind"} lokal vollständig – Quellenzuordnung noch offen",
+                detail = detail,
+            )
+            confirmed > 0 && pending > 0 -> Presentation(
+                title = "Synchronisation offen",
+                message = "$confirmed lokal geprüft; $pending ${if (pending == 1) "Telefonkopie braucht" else "Telefonkopien brauchen"} noch Integritätsprüfung",
+                detail = detail,
+            )
+            pending > 0 -> Presentation(
+                title = "Keine Übertragung läuft",
+                message = "$pending ${if (pending == 1) "Telefonkopie braucht" else "Telefonkopien brauchen"} noch Integritätsprüfung",
+                detail = detail,
+            )
+            review > 0 -> Presentation(
+                title = "Synchronisation offen",
+                message = "$review ${if (review == 1) "Telefonkopie braucht" else "Telefonkopien brauchen"} eine Zuordnungsprüfung",
+                detail = detail,
+            )
+            else -> Presentation(
+                title = "Synchronisation offen",
+                message = "Lokale Kopien brauchen noch einen prüfbaren Nachweis",
+                detail = detail,
+            )
+        }
     }
     /**
      * One short traveller-facing state, not a diagnostic dump.  A live service operation wins so

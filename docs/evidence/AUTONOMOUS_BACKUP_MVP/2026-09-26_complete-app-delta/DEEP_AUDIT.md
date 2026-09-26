@@ -128,3 +128,45 @@ Android dokumentiert partielle `notifyItemChanged(..., payload)`-Binds; ein leer
 3. Status in „lokal geprüft, Quelle offen“, „lokale Kopie ohne Integritätsbeleg“ und „Zuordnung offen“ trennen; Karte und Kacheln müssen exakt übereinstimmen.
 4. Übergangsregression für 0 % → Zwischenfortschritt → Terminal ohne aktiven Resttext.
 5. Erst dann Unit-/Integrations-/Build-/Lint-Checkpoint und ein fokussierter S25-Nachtest nur dieser drei Befunde.
+
+## Softwarekorrektur und Deep Dive (2026-09-27)
+
+Die geplante Korrektur wurde ohne Änderung an Kamera- oder SSD-Daten umgesetzt und gegen die
+dauerhafte Ledger-Projektion geprüft.
+
+- `MediaGridAdapter` verwendet nach der ersten Projektion einen dedizierten
+  `BackupStatePayload`. Dieser aktualisiert ausschließlich Badge und Fortschrittsbalken der
+  betroffenen Datei. Thumbnail, Metadaten, Auswahl, Filter und Zeilenstruktur werden dabei nicht
+  erneut gebunden.
+- `MainActivity` deaktiviert nur die RecyclerView-**Change**-Animation für diese Live-Updates;
+  strukturelle Listen- und Filteränderungen bleiben davon unberührt. Dadurch ist die zuvor
+  plausible Quelle des hochfrequenten Verschiebens nicht mehr Teil des Live-Pfads.
+- `LedgerCoordinator` berechnet die globale Diagnose aus derselben
+  `BackupDisplayPolicy` wie die einzelnen Kacheln. Die Karte unterscheidet jetzt explizit
+  „lokal vollständig – Quelle offen“, fehlenden lokalen Integritätsbeleg und offene
+  Quellenzuordnung, statt alle `VERIFY_EXISTING`-Fälle als ungeprüfte Telefonkopie zu behaupten.
+- Die Transfer-Zustandsregression enthält nun ausdrücklich Vorbereitung (0 %), echten
+  Zwischenfortschritt und Terminalzustand. Für einen physisch extrem kurzen Transfer wird kein
+  erfundener Zwischenwert erzeugt; die Anzeige bleibt dennoch entweder aktiv wahr oder dauerhaft
+  terminal.
+
+### Reproduzierbarer Checkpoint
+
+- `:app:testDebugUnitTest`: **547 Tests, 0 Failures, 0 Errors, 0 Skips**.
+- Zielregressionen: `BackupProjectionDiffPolicyTest` (4), `BackupStatusCopyTest` (13) und
+  `AutomaticTransferUiStatePolicyTest` (5) jeweils fehlerfrei.
+- `:app:assembleDebug`: PASS; Debug-APK SHA-256
+  `C39082CE3674DEB70548BB7C8D22F23E1080C6454187EFBF7EAC57B50BE43B08`.
+- `:app:lintDebug`: **0 Errors**, 116 Warnungen. Die Warnungen sind bestehende Hinweise
+  (unter anderem KTX-, Übersetzungs-, Ressourcen- und API-Hinweise), kein Lint-Fehler dieses
+  Deltas.
+
+### Ehrliche Abschlussgrenze
+
+Der Softwarepfad für die beobachteten Fehlklassen ist damit **SOFTWARE_PROVEN**. Nicht behauptet
+ist ein Hardware-PASS: tatsächliche S25-Frame-Zeitpunkte, RecyclerView-Rendering auf dem Gerät,
+Pocket-Transferdauer und die vollständige automatische Wiederherstellung müssen im einen bereits
+gebündelten, nicht-destruktiven Durchlauf bestätigt werden. SSD-/Hub-Fälle und
+Quellenkontinuität bleiben ebenfalls eigenständige physische Grenzen. Die fokussierte UI-Prüfung
+ist deshalb in HF03/HF04 des vollständigen Hardwareplans aufgeführt, nicht als isolierter
+Mikrotest.

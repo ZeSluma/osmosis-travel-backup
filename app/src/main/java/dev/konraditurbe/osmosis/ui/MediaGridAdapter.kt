@@ -40,6 +40,8 @@ class MediaGridAdapter(
     private val onLongPress: (CameraFile) -> Unit = {},
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
+    private object BackupStatePayload
+
     enum class TypeFilter { ALL, PHOTOS, VIDEOS }
 
     // Month abbreviations for the "30 JUL 2026" date headers, from resources so they localize.
@@ -56,18 +58,18 @@ class MediaGridAdapter(
     ) {
         val firstProjection = backupStates == null
         val changed = BackupProjectionDiffPolicy.changedKeys(backupStates, states, liveBackupStates, liveStates)
-        if (!firstProjection && changed.isEmpty()) return
+        if (BackupProjectionDiffPolicy.renderUpdate(firstProjection, changed) == BackupProjectionDiffPolicy.RenderUpdate.NONE) return
         backupStates=states
         liveBackupStates=liveStates
         // The first durable projection supplies a badge for every item.  Subsequent service
         // publishes redraw only the exact video whose durable or live overlay changed; headers,
         // filter controls and unrelated thumbnails must never jump on a progress tick.
-        if (firstProjection) {
+        if (BackupProjectionDiffPolicy.renderUpdate(firstProjection, changed) == BackupProjectionDiffPolicy.RenderUpdate.INITIAL_FULL_BIND) {
             notifyItemRangeChanged(0,itemCount)
         } else {
             rows.forEachIndexed { index, row ->
                 if (row is Row.Item && dev.konraditurbe.osmosis.ledger.LedgerCoordinator.displayKey(row.file) in changed)
-                    notifyItemChanged(index)
+                    notifyItemChanged(index, BackupStatePayload)
             }
         }
     }
@@ -257,6 +259,26 @@ class MediaGridAdapter(
             }
             meta.load(f, name, "%04d".format(f.seq))
         }
+
+        /** Live backup payload path. It intentionally leaves thumbnail, metadata, selection,
+         * media icon and layout untouched so progress publications cannot move the grid. */
+        fun bindBackupStateOnly(f: CameraFile) {
+            backupState.visibility = if (backupStates == null) View.GONE else View.VISIBLE
+            if (backupStates == null) {
+                backupProgress.visibility = View.GONE
+                return
+            }
+            val key = dev.konraditurbe.osmosis.ledger.LedgerCoordinator.displayKey(f)
+            val live = liveBackupStates[key]
+            if (live != null) {
+                BackupBadge.renderLive(backupState, backupProgress, live)
+            } else {
+                backupProgress.visibility = View.GONE
+                BackupBadge.render(backupState, backupStates!![key]
+                    ?: dev.konraditurbe.osmosis.ledger.BackupDisplay(
+                        dev.konraditurbe.osmosis.ledger.BackupDisplayState.REVIEW_REQUIRED))
+            }
+        }
     }
 
     private fun inCheckboxZone(x: Float, y: Float, w: Int, h: Int) = x >= w * 0.5f && y <= h * 0.5f
@@ -288,6 +310,15 @@ class MediaGridAdapter(
         val i = rowIndexOfPath(path)
         if (i >= 0) notifyItemChanged(i) else notifyDataSetChanged()
         onQueueChanged?.invoke()
+    }
+
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int, payloads: MutableList<Any>) {
+        val row = rows[position]
+        if (payloads.any { it === BackupStatePayload } && row is Row.Item && holder is ItemVH) {
+            holder.bindBackupStateOnly(row.file)
+        } else {
+            super.onBindViewHolder(holder, position, payloads)
+        }
     }
 
     /** Add only planner-approved whole originals; preserve an explicit user trim or queue decision. */

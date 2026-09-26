@@ -61,6 +61,10 @@ class LedgerCoordinator private constructor(context: Context) {
         val verifyExisting: Int,
         val revalidate: Int,
         val review: Int,
+        /** Existing plan work split by what the durable cell evidence actually says. */
+        val localIntegrityConfirmed: Int = 0,
+        val phoneCopyNeedsIntegrity: Int = 0,
+        val phoneCopyNeedsReview: Int = 0,
     )
 
     /**
@@ -228,11 +232,17 @@ class LedgerCoordinator private constructor(context: Context) {
                 )
                 val unknown = plan.items.any { it.action == PlanAction.REVIEW_UNKNOWN }
                 val required = database.ledger().assets(lease.snapshotId).filter { it.classification == AssetClass.KNOWN_REQUIRED.name }
+                val verifyDisplays = plan.items.filter { it.action == PlanAction.VERIFY_EXISTING }
+                    .mapNotNull { item -> required.firstOrNull { it.id == item.assetId }?.let(::displayForAsset) }
                 val phone = required.map(::phoneStatus)
                 val external = required.map { asset -> externalStatus(asset, destinationId) }
                 BackupSummaryProjection(
                     BackupStatusProjection.derive(plan.enumerationComplete, unknown, phone, external, freshSourceRevalidation),
-                    automatic,
+                    automatic.copy(
+                        localIntegrityConfirmed = verifyDisplays.count { it.state == BackupDisplayState.LOCAL_INTEGRITY_CONFIRMED },
+                        phoneCopyNeedsIntegrity = verifyDisplays.count { it.state == BackupDisplayState.EXISTING_UNVERIFIED },
+                        phoneCopyNeedsReview = verifyDisplays.count { it.state == BackupDisplayState.REVIEW_REQUIRED },
+                    ),
                 )
             }.getOrElse {
                 BackupSummaryProjection(BackupStatusProjection.derive(false, true, emptyList(), emptyList(), false), null)
@@ -246,6 +256,19 @@ class LedgerCoordinator private constructor(context: Context) {
             it.locator==replica.localLocator && it.expectedBytes==asset.size && it.result==EvidenceResult.CONFIRMED.name
         } && database.attempts().forAsset(asset.id).any { it.state=="PUBLISHED" && it.locator==replica.localLocator && it.checkpoint==asset.size }
         return if(verified) ReplicaStatus(ReplicaState.VERIFIED) else ReplicaStatus(ReplicaState.NOT_PRESENT)
+    }
+
+    /** One reusable read-only projection so the card and cells classify the same durable evidence. */
+    private fun displayForAsset(asset: AssetRow): BackupDisplay {
+        val replica = database.ledger().replica(asset.id)
+            ?: return BackupDisplay(BackupDisplayState.REVIEW_REQUIRED)
+        val published = database.attempts().forAsset(asset.id).any {
+            it.state == "PUBLISHED" && it.locator == replica.localLocator && it.checkpoint == asset.size
+        }
+        return BackupDisplayPolicy.resolve(
+            replica.state, replica.localPresence, replica.localLocator != null,
+            replica.committedLength, asset.size, published,
+        )
     }
     private fun externalStatus(asset:AssetRow,destinationId:String?):ReplicaStatus {
         if(destinationId==null)return ReplicaStatus(ReplicaState.NOT_PRESENT)
@@ -265,12 +288,8 @@ class LedgerCoordinator private constructor(context: Context) {
                 files.associate { file ->
                     val remote=CameraLedgerAdapter.asset(file)
                     val asset=members[remote.identity(lease.sourceId)]
-                    val replica=asset?.let{database.ledger().replica(it.id)}
-                    val published=asset!=null && replica!=null && database.attempts().forAsset(asset.id).any {
-                        it.state=="PUBLISHED" && it.locator==replica.localLocator && it.checkpoint==asset.size
-                    }
-                    displayKey(file) to if(replica==null) BackupDisplay(BackupDisplayState.REVIEW_REQUIRED)
-                    else BackupDisplayPolicy.resolve(replica.state,replica.localPresence,replica.localLocator!=null,replica.committedLength,asset?.size,published)
+                    displayKey(file) to if(asset == null) BackupDisplay(BackupDisplayState.REVIEW_REQUIRED)
+                    else displayForAsset(asset)
                 }
             }.getOrDefault(emptyMap())
             result(values)
@@ -300,6 +319,10 @@ class LedgerCoordinator private constructor(context: Context) {
                 val snapshot=checkNotNull(database.ledger().snapshot(plan.snapshotId))
                 val unresolved=database.ledger().observations(lease.sourceId).filter { it.status=="UNRESOLVED" }
                 val currentUnresolved=unresolved.count { it.snapshotId==plan.snapshotId }
+                val required=database.ledger().assets(lease.snapshotId)
+                    .filter { it.classification == AssetClass.KNOWN_REQUIRED.name }
+                val verifyDisplays=plan.items.filter { it.action == PlanAction.VERIFY_EXISTING }
+                    .mapNotNull { item -> required.firstOrNull { it.id == item.assetId }?.let(::displayForAsset) }
                 AutomaticPlanDiagnostic(
                     inventoryComplete = SnapshotCompletenessPolicy.currentInventoryEligible(
                         snapshot.scope, snapshot.failure, currentUnresolved),
@@ -310,6 +333,9 @@ class LedgerCoordinator private constructor(context: Context) {
                     verifyExisting = plan.items.count { it.action == PlanAction.VERIFY_EXISTING },
                     revalidate = plan.items.count { it.action in setOf(PlanAction.RESUME_REVALIDATE, PlanAction.REVALIDATE_IDENTITY) },
                     review = plan.items.count { it.action == PlanAction.REVIEW_UNKNOWN },
+                    localIntegrityConfirmed = verifyDisplays.count { it.state == BackupDisplayState.LOCAL_INTEGRITY_CONFIRMED },
+                    phoneCopyNeedsIntegrity = verifyDisplays.count { it.state == BackupDisplayState.EXISTING_UNVERIFIED },
+                    phoneCopyNeedsReview = verifyDisplays.count { it.state == BackupDisplayState.REVIEW_REQUIRED },
                 )
             }.getOrNull()
             result(diagnostic)

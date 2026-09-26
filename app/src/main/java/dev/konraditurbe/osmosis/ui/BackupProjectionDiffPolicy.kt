@@ -9,6 +9,16 @@ import dev.konraditurbe.osmosis.ledger.BackupDisplay
  * visually disruptive and can restart thumbnail work, so it is deliberately a no-op.
  */
 object BackupProjectionDiffPolicy {
+    /** The initial durable projection needs a normal bind. Every later backup-only update must
+     * use the dedicated payload path so it cannot restart thumbnail/meta work. */
+    enum class RenderUpdate { NONE, INITIAL_FULL_BIND, BACKUP_STATE_PAYLOAD }
+
+    fun renderUpdate(firstProjection: Boolean, changed: Set<String>): RenderUpdate = when {
+        firstProjection -> RenderUpdate.INITIAL_FULL_BIND
+        changed.isEmpty() -> RenderUpdate.NONE
+        else -> RenderUpdate.BACKUP_STATE_PAYLOAD
+    }
+
     fun changedKeys(
         previousDurable: Map<String, BackupDisplay>?,
         nextDurable: Map<String, BackupDisplay>,

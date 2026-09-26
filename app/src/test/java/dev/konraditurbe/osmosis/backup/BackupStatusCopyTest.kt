@@ -101,9 +101,9 @@ class BackupStatusCopyTest {
 
         val pendingVerification = BackupStatusCopy.presentation(
             BackupProductStatus(true, false, false, false, false, 0, 0),
-            diagnostic.copy(historicalUnresolved = 0, verifyExisting = 5), false)
+            diagnostic.copy(historicalUnresolved = 0, verifyExisting = 5, phoneCopyNeedsIntegrity = 5), false)
         assertEquals("Keine Übertragung läuft", pendingVerification.title)
-        assertEquals("5 Telefonkopien vorhanden, aber noch nicht geprüft", pendingVerification.message)
+        assertEquals("5 Telefonkopien brauchen noch Integritätsprüfung", pendingVerification.message)
         assertEquals("Gesamtsicherung und SSD-Sicherung sind noch nicht bestätigt.", pendingVerification.detail)
         assertTrue(!pendingVerification.message.contains("wird geprüft"))
 
@@ -114,6 +114,20 @@ class BackupStatusCopyTest {
         assertEquals("3 Dateien brauchen noch eine sichere Zuordnung", pendingIdentity.message)
         assertEquals("Gesamtsicherung und SSD-Sicherung sind noch nicht bestätigt.", pendingIdentity.detail)
         assertTrue(!pendingIdentity.message.contains("werden erneut"))
+    }
+
+    @Test fun cardUsesTheSameLocalProofMeaningAsConfirmedVideoCells() {
+        val diagnostic = LedgerCoordinator.AutomaticPlanDiagnostic(
+            inventoryComplete = true, completenessReason = "NONE", currentUnresolved = 0,
+            historicalUnresolved = 0, downloads = 0, verifyExisting = 6, revalidate = 0, review = 0,
+            localIntegrityConfirmed = 6)
+
+        val presentation = BackupStatusCopy.presentation(
+            BackupProductStatus(true, false, false, false, false, 0, 0), diagnostic, false)
+
+        assertEquals("Synchronisation offen", presentation.title)
+        assertEquals("6 Telefonkopien sind lokal vollständig – Quellenzuordnung noch offen", presentation.message)
+        assertTrue(!presentation.message.contains("nicht geprüft"))
     }
 
     @Test fun activeWriterOverridesAnOlderOpenProofSummary() {

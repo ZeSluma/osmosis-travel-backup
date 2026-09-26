@@ -13,6 +13,7 @@ import android.view.View
 import android.widget.EditText
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.SimpleItemAnimator
 import android.widget.ListView
 import android.widget.ProgressBar
 import android.widget.TextView
@@ -332,6 +333,9 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
         // sleeps, which aborts the join.
         window.addFlags(android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         grid = findViewById(R.id.grid)
+        // Live backup payloads change one row's text/bar. Keep structural filter animations, but
+        // disable RecyclerView's translation/fade animation for these rapid change notifications.
+        (grid.itemAnimator as? SimpleItemAnimator)?.supportsChangeAnimations = false
         overallBar = findViewById(R.id.overallBar)
         fileBar = findViewById(R.id.fileBar)
         overallText = findViewById(R.id.overallText)
