@@ -16,6 +16,7 @@ Sie wurden zuvor zu stark als einzelne Text-, Build- oder Hardwarebefunde behand
 | Gesamt- und Videoanzeige zeigten nicht immer denselben aktuellen Zustand. | Dauerhafte Badge-Logik und temporäre Writer-Projektion waren getrennt, ohne vollständige Übergangstabelle. | Global-/Pro-Datei-Matrix mit Vorbereitung, Retry, Prozentfortschritt, Integritätsabschluss, Review, Terminal-Reread und stale Callback. |
 | Statuspublishes ließen Grid und Filterleiste hochfrequent flackern. | Es gab keinen Idempotenz-/Renderbudget-Test; jedes Publish löste ein vollständiges RecyclerView-Rebind aus. | Zustands-Diff ist Pflicht: unverändertes Publish = null Rebind; Fortschritt = nur aktive Kachel; Terminal = nur frühere aktive Kachel. |
 | Text war technisch korrekt, aber für die Nutzung nicht verständlich. | Copy-Prüfung bewertete zu wenig den aktuellen Nutzerentscheid und die visuelle Hierarchie. | Jede Karte hat eine Hauptaussage zum aktuellen Sicherungsstand, einen optionalen Grund und nie mehr als eine aktive Aktion; Screenshot-/Zielgerät-Review ergänzt die Logiktests. |
+| Der offene Ruhe-/Prüfstatus beantwortete nicht „läuft etwas / ist das Telefon gesichert / was fehlt?“. | Die Prüfung bewertete Fail-Closed-Copy, aber nicht die vollständige Nutzerentscheidung in einem terminalen Nicht-Aktiv-Zustand. | Für jeden Ruhe-/Offenstatus drei explizite Assertions: Aktivität ja/nein, Telefonkopie ja/nein, Gesamtsicherung/SSD ja/nein; kein Wort darf eine nicht gestartete Prüfung suggerieren. |
 
 ## Übernommene Prüfgrundsätze
 
@@ -40,6 +41,7 @@ Sie wurden zuvor zu stark als einzelne Text-, Build- oder Hardwarebefunde behand
 | Integration: Sicherheit | Vollständiges Inventar, eindeutige Quelle, ein Writer, keine doppelte Allokation, Review bleibt Review, SSD bleibt unabhängig. | Ledger-/Runtime-/Replica-Szenariotests. |
 | Integration: Lifecycle | Hintergrund/Vordergrund, Prozess-/Epochwechsel, stale Callback, neu registrierter Beobachter. | Liveness-/Session-/Notifier-Szenariotests. |
 | UI: Rendervertrag | Unveränderte Projektion bindet keine Zelle; Bytefortschritt bindet nur die aktive Kachel; Retry ist indeterminiert; terminale Daueranzeige kommt aus dem Ledger. | Policy-Test plus Android-UI-/Screenshot-Test, sobald die Fake-Projektion in die UI injizierbar ist. |
+| UI: Ruhe-/Offenvertrag | Karte beantwortet Aktivität, Telefonkopie und Gesamtsicherung/SSD getrennt; fehlender Beleg ist ein Grund, keine erfundene Arbeit. | Neue Copy-/Präsentationsmatrix für lokale Kopie ohne Integritätsbeleg. |
 | Vollcheckpoint | Vollständige JVM-Suite, Debug-APK, Prüfsumme, Diff-/Invariantenreview. | Protokollierte Testsumme/Hash; keine Hardwarebehauptung. |
 
 ## Vor Hardware zwingend

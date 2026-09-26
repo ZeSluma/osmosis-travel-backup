@@ -29,6 +29,7 @@ hardware criterion into PASS.
 
 ## Remaining boundary
 
-The Pocket's actual response/retry timing remains a physical criterion, but it is batched with the
-existing non-destructive complete-app session after the final software checkpoint. No test result
-is fabricated here.
+The final target observation revoked the former presentation-closure claim: an open local-proof
+state was fail-closed but not sufficiently actionable to answer whether work was active, whether
+the phone was protected, and whether the overall/SSD backup was complete. This is software work,
+not a hardware boundary. The physical retry/render criteria remain batched only after that repair.

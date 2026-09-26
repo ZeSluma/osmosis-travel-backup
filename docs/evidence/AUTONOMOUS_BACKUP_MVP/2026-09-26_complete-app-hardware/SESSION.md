@@ -123,3 +123,23 @@ Am 2026-09-26 wurde die signer-kompatible APK mit `install -r` auf dem S25 `R3CY
 installiert und gestartet (PID 29367). Keine App-Daten, Kameraoriginale oder lokale Medien wurden
 gelöscht oder verändert. Die einzige verbleibende Aussage dazu ist die reale Sichtprüfung, dass
 unveränderte Statuspublikationen das Raster nicht mehr bewegen.
+
+## Abschließende Hardwarebeobachtung — Status verständlich, aber nicht handlungsfähig
+
+Nach erneuter automatischer Verbindung zeigte die Karte über mindestens eine Minute unverändert:
+„Synchronisation offen“, „sechs lokale Dateien brauchen eine Integritätsprüfung“ und „Sie werden
+nicht als sicher bestätigt, bevor ein echter Prüfnachweis vorliegt.“ Kein Fortschrittsbalken und
+keine laufende Einzeldatei-Aktivität waren sichtbar.
+
+**Korrekte technische Einordnung:** Es läuft in diesem Zustand keine automatische Übertragung oder
+Hintergrundprüfung. Die sechs Telefonkopien sind als lokal vorhanden bekannt, aber die strengen
+Integritätsbelege fehlen; daher ist weder die Gesamtsicherung noch eine SSD-Redundanz bestätigt.
+Das ist fail-closed und keine Datenverlust-/Löschfreigabe. **Produktbefund:** Die Anzeige beantwortet
+die für Reisende zentrale Frage „Läuft etwas? Ist das Telefon gesichert? Was fehlt noch?“ nicht
+eindeutig genug. Deshalb `FAIL` für die verständliche Ruhe-/Offenanzeige, nicht für die
+Sicherheitsentscheidung.
+
+Kein weiterer Hardware-Schritt ist für diesen Befund erforderlich. Der nächste Softwaredurchlauf
+muss den Zustand als klare dreiteilige Aussage rendern: „Keine Übertragung läuft“, „Telefonkopien
+vorhanden, aber noch nicht geprüft“ und „Gesamtsicherung/SSD noch nicht bestätigt“, jeweils ohne
+eine nicht existierende automatische Prüfung zu behaupten.
