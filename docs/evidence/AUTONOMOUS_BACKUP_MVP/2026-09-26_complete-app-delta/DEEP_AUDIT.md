@@ -152,7 +152,7 @@ dauerhafte Ledger-Projektion geprüft.
 
 ### Reproduzierbarer Checkpoint
 
-- `:app:testDebugUnitTest`: **547 Tests, 0 Failures, 0 Errors, 0 Skips**.
+- `:app:testDebugUnitTest`: **548 Tests, 0 Failures, 0 Errors, 0 Skips**.
 - Zielregressionen: `BackupProjectionDiffPolicyTest` (4), `BackupStatusCopyTest` (13) und
   `AutomaticTransferUiStatePolicyTest` (5) jeweils fehlerfrei.
 - `:app:assembleDebug`: PASS; Debug-APK SHA-256
@@ -160,6 +160,11 @@ dauerhafte Ledger-Projektion geprüft.
 - `:app:lintDebug`: **0 Errors**, 116 Warnungen. Die Warnungen sind bestehende Hinweise
   (unter anderem KTX-, Übersetzungs-, Ressourcen- und API-Hinweise), kein Lint-Fehler dieses
   Deltas.
+
+Nach dem Lessons-Learned-Audit wurde die vollständige JVM-Suite mit `--rerun-tasks` erneut
+ausgeführt: **548 Tests, 0 Failures, 0 Errors, 0 Skips**. Die neue Schnellfolge-Regresssion
+prüft `0 % → Zwischenwert → Integritätsabschluss → langlebiges Terminal` auf den reinen
+Kachel-Payloadpfad.
 
 ### Ehrliche Abschlussgrenze
 

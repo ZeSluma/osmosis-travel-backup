@@ -1,6 +1,6 @@
 # Vollständige Hardware-Prüfung — Pocket Pickup
 
-Status: **FOKUSSIERTER UI-NACHTEST QUEUED — keine Hardwarebehauptung vor Beobachtung**. Am 2026-09-26 wurden HF02 und Teile von HF03/HF04 nicht-destruktiv beobachtet: automatische Verbindung/Grid war Teil-PASS; Statuswahrheit, sichtbarer Fortschritt/Terminalübergang und stabile Rasterdarstellung sind FAIL. Die Softwarekorrektur vom 2026-09-27 hat Payload-only Live-Binds, unterdrückte Change-Animationen und eine einheitliche globale/individuelle Proof-Projektion implementiert und mit 547 JVM-Tests sowie fehlerfreiem Lint geprüft. Die übrigen Fälle wurden bewusst nicht isoliert wiederholt. Kein Kamera-Original und keine SSD-Datei wurden verändert. Dieser Plan ergänzt den bestehenden
+Status: **FOKUSSIERTER UI-NACHTEST QUEUED — keine Hardwarebehauptung vor Beobachtung**. Am 2026-09-26 wurden HF02 und Teile von HF03/HF04 nicht-destruktiv beobachtet: automatische Verbindung/Grid war Teil-PASS; Statuswahrheit, sichtbarer Fortschritt/Terminalübergang und stabile Rasterdarstellung sind FAIL. Die Softwarekorrektur vom 2026-09-27 hat Payload-only Live-Binds, unterdrückte Change-Animationen und eine einheitliche globale/individuelle Proof-Projektion implementiert und mit 548 JVM-Tests sowie fehlerfreiem Lint geprüft. Die übrigen Fälle wurden bewusst nicht isoliert wiederholt. Kein Kamera-Original und keine SSD-Datei wurden verändert. Dieser Plan ergänzt den bestehenden
 [`FINAL_COMPLETE_APP_HARDWARE_TEST.md`](FINAL_COMPLETE_APP_HARDWARE_TEST.md): Er enthält auch
 GPS, Diagnose, Capture-Day und die Sicherheits-Sperren. Ein Ergebnis ist ausschließlich
 `PASS`, `FAIL`, `INCONCLUSIVE` oder — bei fehlender Topologie — `HARDWARE_DEFERRED`.
@@ -19,7 +19,7 @@ GPS, Diagnose, Capture-Day und die Sicherheits-Sperren. Ein Ergebnis ist ausschl
 ## Vorbedingungen
 
 1. Der aktuelle Branch einschließlich der Live-UI-Korrektur hat den frischen
-   `:app:testDebugUnitTest :app:assembleDebug :app:lintDebug`-Checkpoint bestanden: **547 Tests,
+   `:app:testDebugUnitTest :app:assembleDebug :app:lintDebug`-Checkpoint bestanden: **548 Tests,
    0 Fehler/Errors/Skips; Lint 0 Fehler**. Exakte Debug-APK SHA-256:
    `C39082CE3674DEB70548BB7C8D22F23E1080C6454187EFBF7EAC57B50BE43B08`.
 2. S25, gespeicherter Pocket und die getestete APK sind verfügbar. Akku und freier Speicher sind

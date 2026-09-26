@@ -38,4 +38,25 @@ class BackupProjectionDiffPolicyTest {
             mapOf("one" to BackupDisplay(BackupDisplayState.LOCAL_INTEGRITY_CONFIRMED)),
             mapOf("one" to LiveTransferFileProjection(LiveTransferFileProjection.Phase.DOWNLOADING, 100)), emptyMap()))
     }
+
+    @Test fun rapidLiveSequenceNeverFallsBackToAFullGridBind() {
+        val durable = mapOf("one" to BackupDisplay(BackupDisplayState.NEW))
+        var previous = emptyMap<String, LiveTransferFileProjection>()
+        listOf(
+            LiveTransferFileProjection(LiveTransferFileProjection.Phase.DOWNLOADING, 0),
+            LiveTransferFileProjection(LiveTransferFileProjection.Phase.DOWNLOADING, 42),
+            LiveTransferFileProjection(LiveTransferFileProjection.Phase.INTEGRITY_SAVED),
+        ).forEach { nextState ->
+            val next = mapOf("one" to nextState)
+            val changed = BackupProjectionDiffPolicy.changedKeys(durable, durable, previous, next)
+            assertEquals(BackupProjectionDiffPolicy.RenderUpdate.BACKUP_STATE_PAYLOAD,
+                BackupProjectionDiffPolicy.renderUpdate(false, changed))
+            previous = next
+        }
+        val terminal = BackupProjectionDiffPolicy.changedKeys(
+            durable, mapOf("one" to BackupDisplay(BackupDisplayState.LOCAL_INTEGRITY_CONFIRMED)),
+            previous, emptyMap())
+        assertEquals(BackupProjectionDiffPolicy.RenderUpdate.BACKUP_STATE_PAYLOAD,
+            BackupProjectionDiffPolicy.renderUpdate(false, terminal))
+    }
 }

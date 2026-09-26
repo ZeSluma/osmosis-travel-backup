@@ -53,6 +53,39 @@ Sie wurden zuvor zu stark als einzelne Text-, Build- oder Hardwarebefunde behand
 3. Ein Publish-/Observer-Pfad muss idempotent und auf sein Renderbudget geprüft sein.
 4. Erst danach werden alle physisch offenen Punkte in **einem** nicht-destruktiven Ablauf getestet.
 
+## Lessons Learned und verschärfter Prüfstandard (2026-09-27)
+
+**Ergebnis:** Die bisherigen Prüfmethoden waren für fachliche Sicherheitsregeln wirksam, aber
+nicht vollständig wirksam für sichtbare, zeitkritische Android-UI-Übergänge. Der Fehler war nicht
+eine fehlende Unit-Testmenge, sondern eine Lücke zwischen einer korrekten Zustandsfunktion und
+einem echten gerenderten Frame auf dem S25. Die Rückmeldungen zum Flackern und zur veralteten
+Gesamtzeile hätten durch einen strengeren Render-/Freshness-Vertrag früher auffallen müssen.
+
+Ab jetzt gilt zusätzlich:
+
+1. **Einheitliche Quelle:** Jede globale Aussage über eine Datei muss aus derselben langlebigen
+   `BackupDisplayPolicy` stammen wie die zugehörige Kachel. Ein Planaktionszähler ist niemals
+   allein eine nutzerseitige Zustandsbehauptung.
+2. **Schnellfolge-Simulation:** Für jedes live aktualisierte Element werden mindestens
+   `0 % → Zwischenwert → Integritätsabschluss → langlebiger Terminalzustand` und die Entfernung
+   des Overlays simuliert. Jeder Schritt nach dem ersten muss den dedizierten Payloadpfad nutzen;
+   kein Schritt darf zu einem vollständigen Grid-Bind zurückfallen.
+3. **Frische statt Textvergleich:** Jeder sichtbare Zustand wird mit aktivem Worker,
+   letzter langlebiger Evidenz und erwarteter nächster Aktualisierung geprüft. Ein Text ist nur
+   PASS, wenn diese drei Fakten zugleich zutreffen.
+4. **Geräte-Rendervertrag:** Vor einem Hardwaretest enthält der Plan eine explizite Sichtprüfung
+   für Rasterstabilität, Fortschrittsbewegung, terminales Ausblenden und Karten-/Kachel-Konsistenz.
+   Diese Prüfung ist nicht durch JVM- oder Screenshot-Behauptungen ersetzbar; ihr Ergebnis bleibt
+   `HARDWARE_PENDING`, bis sie auf dem Zielgerät beobachtet wurde.
+5. **Fehler-Rückkopplung:** Jeder von der Hardware oder dem Nutzer gefundene sichtbare Fehler
+   eröffnet zuerst eine Reproduktion an genau derselben Entscheidungsgrenze, dann eine Regression
+   und erst danach wieder eine gebündelte physische Prüfung.
+
+Die neue Regression `rapidLiveSequenceNeverFallsBackToAFullGridBind` implementiert Punkt 2. Die
+vollständige Matrix bleibt dabei konservativ: ein extrem kurzer echter Transfer darf direkt zum
+Terminalzustand gehen, aber nie einen falschen Fortschritt erfinden oder eine alte aktive Anzeige
+zurücklassen.
+
 ## Aktuelle Abarbeitung
 
 Die neue Diff-Policy beseitigt den dokumentierten Vollgrid-Rebind. Danach folgt ein Volltest,
@@ -66,13 +99,13 @@ Am 2026-09-26 wurde die gesamte JVM-Suite nach Umsetzung der Diff-Policy ausgef�
 
 ```text
 :app:testDebugUnitTest :app:assembleDebug --no-daemon
-544 tests, 0 failures, 0 errors, BUILD SUCCESSFUL
+547 tests, 0 failures, 0 errors, BUILD SUCCESSFUL
 ```
 
 Debug-APK SHA-256:
 
 ```text
-188D877671CD8D4331E129DFE29A8469C95647D13CBBC78289A24E8A11E5E388
+C39082CE3674DEB70548BB7C8D22F23E1080C6454187EFBF7EAC57B50BE43B08
 ```
 
 Die sechs in der Lessons-Learned-Tabelle genannten Fehlerklassen haben jetzt jeweils mindestens
