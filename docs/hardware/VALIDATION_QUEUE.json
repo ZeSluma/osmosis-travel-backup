@@ -6,7 +6,7 @@
   "items": [
     {
       "id": "G7-LIFECYCLE-RECOVERY",
-      "state": "WAITING_HARDWARE",
+      "state": "SOFTWARE_CORRECTION_REQUIRED_BEFORE_RETEST",
       "question": "On the S25/Pocket4P, does the connectedDevice host preserve truthful session/transfer state through background/screen-off and recover a controlled AP/session loss only after source revalidation?",
       "why_hardware": "Android foreground-service policy, Pocket AP/BLE/datalink behavior and firmware-specific liveness cannot be established by synthetic emulation.",
       "software_evidence": ["GATE-7 focused unit suite 13 PASS", "API36 synthetic process restoration PASS", "post-connect empty-inventory bounded-retry JVM regression PASS", "GATE-7 bootstrap report"],
@@ -19,7 +19,7 @@
       "batch_with": ["G7-REASON-DIAGNOSTICS"],
       "new_hypothesis": "The service-owned fenced runtime survives UI lifecycle changes and fails closed on real transport loss.",
       "competing_explanations": ["Android stops the service", "Pocket firmware/AP behavior prevents recovery", "protocol session requires user action"],
-      "latest_attempt": "2026-09-26 consolidated session: automatic saved-camera connection, new safe automatic transfer with receipt, background survival and controlled recovery were observed without destructive action. It exposed a stale advisory preparation panel and a delayed old service STOP race; both were repaired, with terminal-panel clearance later observed after an in-place update. The current bundled retest validates auto-connect, concise current status, visible automatic progress, lifecycle survival and power-cycle recovery on e7a8ecb (526 JVM tests). SSD validation remains deferred until the target topology is usable. Evidence: docs/evidence/AUTONOMOUS_BACKUP_MVP/2026-09-26_complete-app-hardware/SESSION.md."
+      "latest_attempt": "2026-09-26 final non-destructive session: automatic saved-camera connection/Grid was partial PASS. The same session refuted status truth and live projection completion: global card text contradicted local item evidence, a new clip appeared as 0-to-terminal, and high-frequency RecyclerView/filter flicker followed terminal activity. No camera or SSD originals changed. Before retest: payload-only item binding, suppress live change animation, split local/source proof semantics, and regress active-to-terminal UI ordering. Evidence: docs/evidence/AUTONOMOUS_BACKUP_MVP/2026-09-26_complete-app-delta/DEEP_AUDIT.md."
     },
     {
       "id": "G7-REASON-DIAGNOSTICS",

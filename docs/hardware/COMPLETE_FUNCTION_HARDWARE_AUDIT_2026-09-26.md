@@ -1,6 +1,6 @@
 # Vollständige Hardware-Prüfung — Pocket Pickup
 
-Status: **READY, nicht ausgeführt**. Dieser Plan ergänzt den bestehenden
+Status: **TEILWEISE AUSGEFÜHRT — Softwarekorrektur vor Wiederholung erforderlich**. Am 2026-09-26 wurden HF02 und Teile von HF03/HF04 nicht-destruktiv beobachtet: automatische Verbindung/Grid war Teil-PASS; Statuswahrheit, sichtbarer Fortschritt/Terminalübergang und stabile Rasterdarstellung sind FAIL. Die übrigen Fälle wurden bewusst nicht isoliert wiederholt. Kein Kamera-Original und keine SSD-Datei wurden verändert. Dieser Plan ergänzt den bestehenden
 [`FINAL_COMPLETE_APP_HARDWARE_TEST.md`](FINAL_COMPLETE_APP_HARDWARE_TEST.md): Er enthält auch
 GPS, Diagnose, Capture-Day und die Sicherheits-Sperren. Ein Ergebnis ist ausschließlich
 `PASS`, `FAIL`, `INCONCLUSIVE` oder — bei fehlender Topologie — `HARDWARE_DEFERRED`.

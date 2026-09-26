@@ -110,3 +110,21 @@ der Checkpoint am 2026-09-26 erneut ausgeführt:
 
 Damit ist die softwareseitige Vorbereitung ausgeschöpft. Die noch offenen Anforderungen sind
 ausschließlich die im gebündelten Hardwareplan klar begrenzten physischen Beobachtungen.
+
+## Abschließende Hardware-Beobachtung (2026-09-26)
+
+- Automatische Verbindung/Grid nach App-Neustart und Pocket-Einschalten: Teil-PASS.
+- Statuswahrheit: FAIL. Die Karte sagte „sechs Telefonkopien vorhanden, aber noch nicht geprüft“, während sechs Kacheln „lokal vollständig · Integrität geprüft; Quelle offen“ und vier Kacheln „Zuordnung prüfen“ anzeigten. `VERIFY_EXISTING` vermischt damit lokalen Integritätsbeleg und fehlenden Quellenbeleg sprachlich.
+- Live-Transfer/Raster: FAIL. Ein neuer Clip zeigte 0 %, dann Terminal; anschließend flackerten Raster und Filterchips hochfrequent und die Gesamtkarte blieb aktiv formuliert. Keine Kamera- oder SSD-Originale wurden verändert.
+
+### Recherchegestützte Ursache
+
+Android dokumentiert partielle `notifyItemChanged(..., payload)`-Binds; ein leerer Payload erzwingt einen vollständigen Rebind. Der aktuelle Adapter verwendet bei jedem Live-Fortschrittswechsel `notifyItemChanged(index)` ohne Payload und startet dadurch Thumbnail-/Metadatenbindung erneut. Zusammen mit standardmäßigen RecyclerView-Change-Animationen ist das die primäre plausible Ursache für das beobachtete Flackern. Kleine Clips können zudem zwischen zwei UI-Frames von 0 auf Terminal wechseln. Quellen: [RecyclerView.Adapter](https://developer.android.com/reference/androidx/recyclerview/widget/RecyclerView.Adapter), [DiffUtil.Callback](https://developer.android.com/reference/kotlin/androidx/recyclerview/widget/DiffUtil.Callback), [SimpleItemAnimator](https://developer.android.com/reference/androidx/recyclerview/widget/SimpleItemAnimator).
+
+### Verbindlicher Morgen-Plan
+
+1. Payload-only Bind für Backup-Text/ProgressBar, nie Thumbnail, Metadaten, Filter oder Zeilenstruktur.
+2. Change-Animationen nur für Live-Statusupdates deaktivieren; echte Filter-/Listen-Diffs behalten.
+3. Status in „lokal geprüft, Quelle offen“, „lokale Kopie ohne Integritätsbeleg“ und „Zuordnung offen“ trennen; Karte und Kacheln müssen exakt übereinstimmen.
+4. Übergangsregression für 0 % → Zwischenfortschritt → Terminal ohne aktiven Resttext.
+5. Erst dann Unit-/Integrations-/Build-/Lint-Checkpoint und ein fokussierter S25-Nachtest nur dieser drei Befunde.
