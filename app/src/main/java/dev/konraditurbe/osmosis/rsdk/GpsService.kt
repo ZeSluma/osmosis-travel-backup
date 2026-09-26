@@ -22,10 +22,7 @@ import android.util.Log
 import androidx.core.app.NotificationCompat
 import dev.konraditurbe.osmosis.R
 import dev.konraditurbe.osmosis.core.FileLog
-import java.text.SimpleDateFormat
 import java.util.Calendar
-import java.util.Date
-import java.util.Locale
 import kotlin.math.cos
 import kotlin.math.roundToInt
 import kotlin.math.sin
@@ -87,8 +84,10 @@ class GpsService : Service(), RsdkController.Listener {
                     // `stamped` is the wall-clock written into the video — now, per [buildGpsFrame],
                     // so it keeps advancing while a stale fix repeats. `fixAge` beside it is what says
                     // how old the *position* under that timestamp is.
-                    val stamped = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US).format(Date())
-                    log("GPS: pushes=$pushes fixAge=${age}ms sats=$satellites stamped=$stamped write=${if (ok) "ok" else "FAILED"}")
+                    // Diagnostics must not retain location-adjacent timing/fix details.  The
+                    // service result is sufficient to diagnose a failed write without exposing
+                    // recording cadence, satellite state, or a wall-clock capture timestamp.
+                    log(GpsDiagnosticsPolicy.locationWrite(ok))
                 }
                 lastWriteOk = ok
             }
@@ -145,7 +144,7 @@ class GpsService : Service(), RsdkController.Listener {
         // even the ones we're about to short-circuit as duplicates.
         startForegroundCompat(buildNotification())
         if (started) {
-            if (mac == currentMac) { log("GPS: already syncing $cameraName — ignoring duplicate start"); return START_NOT_STICKY }
+            if (mac == currentMac) { log(GpsDiagnosticsPolicy.duplicateStart()); return START_NOT_STICKY }
             // A different camera: tear the current session down before bringing up the new one.
             rsdk.disconnect(); main.removeCallbacks(pushTick)
         }
@@ -166,7 +165,7 @@ class GpsService : Service(), RsdkController.Listener {
                 runCatching { lm.requestLocationUpdates(p, 1000L, 0f, locListener, mainLooper); true }
                     .getOrElse { log("GPS: provider unavailable"); false }
             }
-            log("GPS: subscribed to providers=$live")
+            log(GpsDiagnosticsPolicy.providerSubscription(live.isNotEmpty()))
             runCatching { lm.registerGnssStatusCallback(gnssCallback, main) }
             // Seed only for the notification — freshFix() decides whether it's recent enough to send.
             latest = wanted.firstNotNullOfOrNull { p -> runCatching { lm.getLastKnownLocation(p) }.getOrNull() }
@@ -187,29 +186,21 @@ class GpsService : Service(), RsdkController.Listener {
         GpsSyncState.set(GpsSyncState.Phase.ACTIVE, cameraName) // bound to the camera → UI locks media
         updateNotification()
     }
-    override fun onStatus(s: RsdkProtocol.CameraStatus) { status = s; updateNotification() }
+    override fun onStatus(status: RsdkProtocol.CameraStatus) { this.status = status; updateNotification() }
     override fun onModeInfo(info: RsdkProtocol.ModeInfo) {
         if (info != modeInfo) log("R-SDK: camera mode is ${info.label}")
         modeInfo = info
         updateNotification()
     }
     override fun onDisconnected() { if (connected) { connected = false; stop() } }
-    override fun onFailed(reason: String) { log("GPS: $reason"); stop() }
+    override fun onFailed(reason: String) { log(GpsDiagnosticsPolicy.cameraConnectionFailed()); stop() }
 
     // ---- GPS frame from a phone fix ------------------------------------------
-    /**
-     * The camera stores `hour_minute_second` as a **bare local wall-clock** — the protocol carries no
-     * timezone field at all (DJI's own reference demo hardcodes `hour + 8` for UTC+8). So we stamp the
-     * phone's local time and the recorded time is only as right as the phone's timezone; log the
-     * offset once, so a mismatch is diagnosable.
-     */
+    /** The protocol uses a local wall-clock. This is never copied into diagnostics. */
     private fun logTimeZoneOnce() {
         if (tzLogged) return
         tzLogged = true
-        val tz = java.util.TimeZone.getDefault()
-        val offMin = tz.getOffset(System.currentTimeMillis()) / 60000
-        log("GPS: stamping local wall-clock at UTC%+03d:%02d; protocol has no timezone field"
-            .format(offMin / 60, kotlin.math.abs(offMin % 60)))
+        log(GpsDiagnosticsPolicy.localWallClockMode())
     }
     private var tzLogged = false
 
