@@ -54,9 +54,22 @@ class MediaGridAdapter(
         states:Map<String,dev.konraditurbe.osmosis.ledger.BackupDisplay>,
         liveStates:Map<String,dev.konraditurbe.osmosis.connection.LiveTransferFileProjection> = emptyMap(),
     ) {
+        val firstProjection = backupStates == null
+        val changed = BackupProjectionDiffPolicy.changedKeys(backupStates, states, liveBackupStates, liveStates)
+        if (!firstProjection && changed.isEmpty()) return
         backupStates=states
         liveBackupStates=liveStates
-        notifyItemRangeChanged(0,itemCount)
+        // The first durable projection supplies a badge for every item.  Subsequent service
+        // publishes redraw only the exact video whose durable or live overlay changed; headers,
+        // filter controls and unrelated thumbnails must never jump on a progress tick.
+        if (firstProjection) {
+            notifyItemRangeChanged(0,itemCount)
+        } else {
+            rows.forEachIndexed { index, row ->
+                if (row is Row.Item && dev.konraditurbe.osmosis.ledger.LedgerCoordinator.displayKey(row.file) in changed)
+                    notifyItemChanged(index)
+            }
+        }
     }
 
     var typeFilter: TypeFilter = TypeFilter.ALL; private set

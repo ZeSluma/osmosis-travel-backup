@@ -48,5 +48,15 @@ Hardwarevalidierung.
 Debug-APK-SHA-256:
 `D788F45892CE67E3B7546E0EFA22D42852AC95F058D5DB3105507DD38310CDEE`.
 
+## Nachtrag: idempotentes Raster-Rendering
+
+Die nächste Zielgeräterückmeldung zeigte hochfrequentes Springen des gesamten Rasters einschließlich
+Filterleiste. Ursache war kein neuer Produktzustand, sondern `notifyItemRangeChanged(0, itemCount)`
+bei jeder Service-Publikation. `BackupProjectionDiffPolicy` vergleicht nun langlebige und flüchtige
+Projektion nach exakter Dateischlüsselbindung: identisches Publish ist ein No-op; Fortschritt und
+terminales Overlay aktualisieren nur die betroffene Kachel. `BackupProjectionDiffPolicyTest` deckt
+genau diese drei Fälle ab. Der neue Vollcheckpoint hat **544 JVM-Tests ohne Fehler** und APK SHA-256
+`188D877671CD8D4331E129DFE29A8469C95647D13CBBC78289A24E8A11E5E388`.
+
 Keine dieser Tests behauptet einen realen Pocket-, S25- oder SSD-PASS. Der gebündelte
 Hardwareablauf validiert anschließend nur noch seine physischen Aspekte.

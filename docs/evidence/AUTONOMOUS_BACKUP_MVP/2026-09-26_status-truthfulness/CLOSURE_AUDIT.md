@@ -15,12 +15,13 @@ Date: 2026-09-26
 | Lifecycle/stale ownership | Observer registration invalidates immediately; session/adapter guards reject stale grid painting; terminal decisions dominate stale progress. | PASS |
 | Replica independence | SSD reappearance/catch-up remains camera-independent; no-work availability probe cannot recursively trigger observer refresh. | PASS |
 | User-facing state matrix | Active, terminal, fail-closed, open-proof, stale replacement, per-video live overlay and external-replica completion rows are documented in `UI_TRANSITION_AUDIT.md`. | PASS |
+| Idempotent grid rendering | Identical notifier events redraw no video; a live/durable delta redraws only the exact video owner, preserving headers, filters and unrelated thumbnails. | PASS (software simulation; target visual confirmation pending) |
 
 ## Reproducible evidence
 
-`./gradlew.bat :app:testDebugUnitTest :app:assembleDebug --no-daemon` completed with **541 JVM
+`./gradlew.bat :app:testDebugUnitTest :app:assembleDebug --no-daemon` completed with **544 JVM
 tests**, zero failures and zero errors. Debug APK SHA-256:
-`D788F45892CE67E3B7546E0EFA22D42852AC95F058D5DB3105507DD38310CDEE`.
+`188D877671CD8D4331E129DFE29A8469C95647D13CBBC78289A24E8A11E5E388`.
 
 `tools/autonomy/control.py --check` could not run because this Windows host has neither `py` nor a
 `python` launcher. This is recorded as a local control-tool limitation; it does not convert any
