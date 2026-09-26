@@ -1,14 +1,14 @@
 # Finaler Gesamt-Hardwaretest — Osmosis Travel Backup
 
-Status: READY — gebündelter Nachtest nach den Software-Reparaturen vom 2026-09-26. Dieser Ablauf validiert reale S25/Pocket/SSD-Eigenschaften;
+Status: READY — gebündelter Nachtest nach den Software-Reparaturen vom 2026-09-26. Der erste Durchlauf fand eine irreführende terminale Inventurmeldung; der Reparaturbuild ist nachstehend aktualisiert. Dieser Ablauf validiert reale S25/Pocket/SSD-Eigenschaften;
 eine nicht beobachtbare Bedingung ist `INCONCLUSIVE`, niemals `PASS`.
 
 ## Build unter Test
 
-- Branch/Commit: `codex/autonomous-backup-mvp` / `e7a8ecb9823b8d90dd7083c3bea5708d8c352d04`
+- Branch/Commit: `codex/autonomous-backup-mvp` / `56b1fc3ec9d1a699e57130a94c9001f6531435e3`
 - Lokale Debug-APK: `app/build/outputs/apk/debug/app-debug.apk`
-- SHA-256: `A2082D6CC11909230FCBEE863E4E95651B9FE813002F74D2A70343F6CF02A728`
-- Interne Grundlage: 526 JVM-Tests, 0 Fehler. Die Installation erfolgt ausschließlich **in place**;
+- SHA-256: `928F860934F37F9E1A1B1BE1F3695984829E7C94DD6319EC78740844517AE2B9`
+- Interne Grundlage: 526 bestehende JVM-Tests plus gezielte Regression für die terminale unvollständige Inventur, 0 Fehler. Die Installation erfolgt ausschließlich **in place**;
   vorhandene App-Daten bleiben erhalten.
 
 ## Schutzgrenzen

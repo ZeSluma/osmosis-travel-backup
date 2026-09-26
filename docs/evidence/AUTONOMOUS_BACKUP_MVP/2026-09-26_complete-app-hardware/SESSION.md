@@ -53,5 +53,19 @@ Topologie nicht zuverlässig bereitsteht. Der Ablauf steht in
 `docs/hardware/FINAL_COMPLETE_APP_HARDWARE_TEST.md`; dieses Protokoll enthält noch keine Ergebnisse
 dieses Nachtests.
 
+## Nachtest Schritt 1/2 — neuer Befund
+
+Die bekannte Kamera verband automatisch und das Raster erschien ohne Rescan (`PASS` für die
+Verbindung). Nach etwa einer Minute zeigte die App jedoch weiterhin „Kameraliste wird geprüft“.
+Das ist für eine bereits sichtbare, aber konservativ als unvollständig bewertete Inventur eine
+irreführende Aktivitätsbehauptung und daher `FAIL` für die Ruheanzeige, nicht für die
+Datensicherheitsentscheidung. Die Ursache war softwaretestbar: die Textprojektion verwendete
+dieselbe aktive Formulierung sowohl für laufende als auch für terminal unvollständige Inventuren.
+Die Reparatur zeigt im terminalen Fall „Kameraliste noch nicht vollständig“, ergänzt eine gezielte
+Regression für genau diese Projektion und bestand den gezielten JVM-Test. APK-SHA-256 des
+Reparaturbuilds: `928F860934F37F9E1A1B1BE1F3695984829E7C94DD6319EC78740844517AE2B9`.
+Dieser neue Build ist vor weiteren Hardware-Schritten in-place zu installieren; keine Medien oder
+App-Daten werden zurückgesetzt.
+
 Keine Löschung,
 kein Reset und keine wiederholte Übertragung geschützter Medien wurden durchgeführt.
