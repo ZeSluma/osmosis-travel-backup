@@ -78,5 +78,17 @@ Untersuchungsbefund: das Ergebnis ist nicht mit dem bereits beobachteten Power-C
 gleichzusetzen. Keine manuelle Auswahl, kein Rescan, keine Löschung und keine Medienübertragung
 wurden hierfür ausgelöst.
 
+## Klarer Zustands- und Fortschrittsvertrag
+
+Der Begriff „Kameraliste noch nicht vollständig“ wurde nach Nutzerfeedback präzisiert: Der
+terminal-konservative Zustand lautet jetzt „Kamera-Sicherung wartet auf vollständige Dateiliste“.
+Damit ist klar, dass keine neue automatische Übertragung oder Löschfreigabe erfolgt, ohne eine
+nicht vorhandene Aktivität vorzutäuschen. Der Fortschrittsbereich erscheint nur für aktive
+Planung/Übertragung: Er benennt Vorbereitung, Übertragung und anschließende Integritätsprüfung.
+Eine Erfolgsmeldung bleibt kurz sichtbar und verschwindet dann; terminale Review-/Quellenwechsel
+lassen keinen scheinbar laufenden Balken zurück. `BackupStatusCopyTest` (8) und
+`AutomaticTransferUiStatePolicyTest` (3) sind grün. Reparaturcommit `ea091d2`, APK-SHA-256
+`75AB42207F026D296707A8611A28744831FD931EC0B229424A3F9254F5B17ED4`.
+
 Keine Löschung,
 kein Reset und keine wiederholte Übertragung geschützter Medien wurden durchgeführt.

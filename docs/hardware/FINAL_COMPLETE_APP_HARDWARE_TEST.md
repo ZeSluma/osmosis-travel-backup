@@ -5,10 +5,10 @@ eine nicht beobachtbare Bedingung ist `INCONCLUSIVE`, niemals `PASS`.
 
 ## Build unter Test
 
-- Branch/Commit: `codex/autonomous-backup-mvp` / `56b1fc3ec9d1a699e57130a94c9001f6531435e3`
+- Branch/Commit: `codex/autonomous-backup-mvp` / `ea091d2715e08b5ab13e5db4a18dc81cc8f18a00`
 - Lokale Debug-APK: `app/build/outputs/apk/debug/app-debug.apk`
-- SHA-256: `928F860934F37F9E1A1B1BE1F3695984829E7C94DD6319EC78740844517AE2B9`
-- Interne Grundlage: 526 bestehende JVM-Tests plus gezielte Regression für die terminale unvollständige Inventur, 0 Fehler. Die Installation erfolgt ausschließlich **in place**;
+- SHA-256: `75AB42207F026D296707A8611A28744831FD931EC0B229424A3F9254F5B17ED4`
+- Interne Grundlage: 526 bestehende JVM-Tests plus 11 gezielte Status-/Fortschritts-Regressionen, 0 Fehler. Die Installation erfolgt ausschließlich **in place**;
   vorhandene App-Daten bleiben erhalten.
 
 ## Schutzgrenzen
@@ -33,7 +33,7 @@ eine nicht beobachtbare Bedingung ist `INCONCLUSIVE`, niemals `PASS`.
 | Schritt | Aktion | Validiert | PASS | FAIL / INCONCLUSIVE |
 |---|---|---|---|---|
 | 1 | Mit der bereits installierten APK die App öffnen; Pocket einschalten und **nicht** "Neu suchen" oder manuell verbinden. | HD01, PC01/PC17 auf Zielgerät | Genau eine automatische Auswahl/Verbindung und Grid ohne Rescan. | Falsche/doppelte Sitzung = FAIL; fehlendes Gerät = INCONCLUSIVE. |
-| 2 | Inventar und Ruheansicht abwarten. | HD01, PC02–PC04, PC20 | Eine kurze, verständliche Statuszeile; kein alter technischer Vierzeiler und kein dauerhaft sichtbarer Fortschrittsbalken ohne Arbeit. Historische Unsicherheit bleibt konservativ erklärt. | Leeres/unvollständiges Inventar wird fälschlich vertraut oder Anzeige bleibt nach Abschluss aktiv = FAIL. |
+| 2 | Inventar und Ruheansicht abwarten. | HD01, PC02–PC04, PC20 | Eine kurze, verständliche Statuszeile; bei unvollständiger Liste: „Kamera-Sicherung wartet auf vollständige Dateiliste“. Kein alter technischer Vierzeiler und kein dauerhaft sichtbarer Fortschrittsbalken ohne Arbeit. Historische Unsicherheit bleibt konservativ erklärt. | Leeres/unvollständiges Inventar wird fälschlich vertraut oder Anzeige bleibt nach Abschluss aktiv = FAIL. |
 | 3 | Einen neuen, sicheren Testclip aufnehmen; App öffnen, keine Download-Taste drücken. | HD01, PC05–PC08, PC18 | Service startet genau einen Download; Fortschritt zeigt Vorbereitung → Übertragung → Integritätsprüfung → Abschluss; danach lokaler Integritätsbeleg, aber keine falsche Quellen-/Redundanz-/Löschfreigabe. | Doppelwriter/falscher Abschluss/stehender Fortschritt = FAIL. |
 | 4 | App während Leerlauf oder Transfer in Hintergrund/Sperrbildschirm geben, nach 15 Sekunden zurückholen. | HD01, HD02, PC12/PC18 | Wahrer Sitzungs-/Transferstatus bleibt erhalten; UI zeigt den aktuellen Zustand. | Verlust/Duplikat/falscher Status = FAIL. |
 | 5 | Pocket 15 Sekunden ausschalten und wieder einschalten; **nicht** rescanen oder manuell verbinden; bis 60 Sekunden warten. | HD01, HD02, R-042 Teilnachweis | Begrenzte automatische Wiederherstellung plus neue Quellenvalidierung; kein verspäteter STOP beendet die Ersatzsitzung; nach terminalem Ergebnis verschwindet der Fortschrittsbereich. | Umgehung der Revalidierung, keine Wiederherstellung oder hängende Anzeige = FAIL. |
