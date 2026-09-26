@@ -6,7 +6,13 @@ package dev.konraditurbe.osmosis.connection
  */
 object AutomaticTransferUiStatePolicy {
     enum class Phase { PREPARING, WAITING_FOR_WRITER, TRANSFERRING, FINISHED, REVIEW_REQUIRED }
-    data class State(val phase: Phase, val percent: Int? = null, val fileCount: Int? = null)
+    data class State(
+        val phase: Phase,
+        val percent: Int? = null,
+        val fileCount: Int? = null,
+        /** Terminal acknowledgement only; null means keep observing the current operation. */
+        val dismissAfterMs: Long? = null,
+    )
 
     private val progress = Regex("^transfer=(\\d{1,3})% \\((\\d+)/(\\d+)\\)$")
 
@@ -18,7 +24,7 @@ object AutomaticTransferUiStatePolicy {
         return when {
             serviceDecision == "PLAN_LOOKUP" -> State(Phase.PREPARING)
             serviceDecision == "WRITER_WAIT" -> State(Phase.WAITING_FOR_WRITER)
-            serviceDecision == "WRITER_COMPLETE" -> State(Phase.FINISHED, 100)
+            serviceDecision == "WRITER_COMPLETE" -> State(Phase.FINISHED, 100, dismissAfterMs = 3_000L)
             // Review/source-change are terminal fail-closed decisions.  The durable summary
             // explains them; keeping a progress bar there would pretend work continues.
             serviceDecision == "TRANSFER_REVIEW_REQUIRED" || serviceDecision == "SOURCE_CHANGED" -> null

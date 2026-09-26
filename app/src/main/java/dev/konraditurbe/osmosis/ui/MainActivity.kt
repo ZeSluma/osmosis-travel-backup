@@ -1487,7 +1487,7 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
                         )?.phase == dev.konraditurbe.osmosis.connection.AutomaticTransferUiStatePolicy.Phase.FINISHED) {
                         progressArea.visibility = View.GONE
                     }
-                }, 3_000)
+                }, requireNotNull(state.dismissAfterMs))
             }
             dev.konraditurbe.osmosis.connection.AutomaticTransferUiStatePolicy.Phase.REVIEW_REQUIRED -> {
                 overallText.text = "Automatische Sicherung braucht eine Prüfung"
