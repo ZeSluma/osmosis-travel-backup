@@ -10,19 +10,30 @@ import dev.konraditurbe.osmosis.ledger.LedgerCoordinator
  * cleanup eligibility that the projection has not established.
  */
 object BackupStatusCopy {
-    fun summary(status: BackupProductStatus, automatic: String): String = listOf(
-        "Kamera-Abgleich: ${if (status.cameraSyncComplete) "abgeschlossen" else "noch offen"}",
-        "SSD-Sicherung: ${if (status.redundancyComplete) "abgeschlossen" else "noch offen"}",
-        "Sicher zum Löschen: ${if (status.safeToClearCamera) "ja (nur Hinweis)" else "nein"}",
-        "Automatisch: $automatic"
-    ).joinToString(" · ")
+    /**
+     * One short traveller-facing state, not a diagnostic dump.  A live service operation wins so
+     * its adjacent progress bar has matching copy.  Otherwise surface only the next useful action.
+     * This is deliberately not a cleanup permission or a claim that every historic source mapping
+     * is complete.
+     */
+    fun summary(status: BackupProductStatus, automatic: String): String = when {
+        automatic in setOf("Backupstatus wird geladen", "Kameraliste wird noch geprüft") ->
+            "Kameraliste wird geprüft"
+        automatic.startsWith("Übertragung") || automatic.startsWith("Quelle hat sich") -> automatic
+        !status.inventoryTrusted -> "Kameraliste wird geprüft"
+        status.unknownRequired -> automatic
+        !status.cameraSyncComplete -> "Kamera-Sicherung wird geprüft"
+        !status.redundancyComplete -> "Lokal gesichert · SSD-Kopie steht noch aus"
+        status.safeToClearCamera -> "Kamera und SSD sind geprüft"
+        else -> "Sicherung wird geprüft"
+    }
 
     fun awaitingTrustedInventory(): String = "warte auf eine vollständige Kameraliste"
 
     fun plan(diagnostic: LedgerCoordinator.AutomaticPlanDiagnostic): String = when {
         !diagnostic.inventoryComplete -> "Kameraliste wird noch geprüft"
         diagnostic.completenessReason == "IDENTITY_UNRESOLVED" || diagnostic.historicalUnresolved > 0 ->
-            "Zuordnung von ${diagnostic.historicalUnresolved} früheren Datei${plural(diagnostic.historicalUnresolved)} prüfen"
+            "${diagnostic.historicalUnresolved} ältere Datei${plural(diagnostic.historicalUnresolved)} brauchen Aufmerksamkeit"
         diagnostic.currentUnresolved > 0 -> "${diagnostic.currentUnresolved} Datei${plural(diagnostic.currentUnresolved)} auf der Kamera prüfen"
         diagnostic.downloads > 0 -> "${diagnostic.downloads} neue Datei${plural(diagnostic.downloads)} werden vorbereitet"
         diagnostic.verifyExisting > 0 -> "${diagnostic.verifyExisting} lokale Datei${plural(diagnostic.verifyExisting)} werden geprüft"

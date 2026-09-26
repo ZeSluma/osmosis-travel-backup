@@ -10,20 +10,28 @@ class BackupStatusCopyTest {
         val text = BackupStatusCopy.plan(LedgerCoordinator.AutomaticPlanDiagnostic(
             inventoryComplete = true, completenessReason = "IDENTITY_UNRESOLVED", currentUnresolved = 0,
             historicalUnresolved = 3, downloads = 0, verifyExisting = 3, revalidate = 0, review = 0))
-        assertEquals("Zuordnung von 3 früheren Dateien prüfen", text)
+        assertEquals("3 ältere Dateien brauchen Aufmerksamkeit", text)
     }
 
-    @Test fun summaryUsesPlainGermanButKeepsTheFailClosedMeaning() {
+    @Test fun summaryShowsOneActionableStateRatherThanTechnicalStatusDump() {
         val text = BackupStatusCopy.summary(BackupProductStatus(true, true, false, false, false, 3, 0),
-            "Zuordnung von 3 früheren Dateien prüfen")
-        assertTrue(text.contains("Kamera-Abgleich: noch offen"))
-        assertTrue(text.contains("SSD-Sicherung: noch offen"))
-        assertTrue(text.contains("Sicher zum Löschen: nein"))
+            "3 ältere Dateien brauchen Aufmerksamkeit")
+        assertEquals("3 ältere Dateien brauchen Aufmerksamkeit", text)
     }
 
     @Test fun serviceWriterAndSourceChangeHaveActionableWording() {
         assertEquals("Übertragung gestartet (2 Dateien)", BackupStatusCopy.serviceDecision("WRITER_STARTED", 2))
         assertTrue(BackupStatusCopy.serviceDecision("SOURCE_CHANGED", 1).contains("erneut geprüft"))
+    }
+
+    @Test fun summaryKeepsLiveTransferAndThenExplainsMissingSsdCopy() {
+        val active = BackupProductStatus(true, false, false, false, false, 0, 0)
+        assertEquals("Übertragung gestartet (1 Datei)",
+            BackupStatusCopy.summary(active, "Übertragung gestartet (1 Datei)"))
+
+        val locallyComplete = BackupProductStatus(true, false, true, false, false, 1, 0)
+        assertEquals("Lokal gesichert · SSD-Kopie steht noch aus",
+            BackupStatusCopy.summary(locallyComplete, "keine neue Datei zum Übertragen"))
     }
 
     @Test fun completeProjectionNeverRetainsAnEarlierInventoryPendingMessage() {
@@ -33,7 +41,7 @@ class BackupStatusCopyTest {
 
         val text = BackupStatusCopy.automaticStatus(current, null, "NO_WORK")
 
-        assertEquals("Zuordnung von 4 früheren Dateien prüfen", text)
+        assertEquals("4 ältere Dateien brauchen Aufmerksamkeit", text)
         assertTrue(!text.contains("Kameraliste wird noch geprüft"))
     }
 

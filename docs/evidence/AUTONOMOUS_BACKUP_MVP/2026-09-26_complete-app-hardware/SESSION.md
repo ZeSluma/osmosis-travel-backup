@@ -31,5 +31,15 @@ ein STOP für einen abgelösten Epoch wird ignoriert und kann weder den neuen Ho
 Backup-Runtime beenden. `DurableSessionRuntimeTest` deckt den abgelösten STOP explizit ab. Der
 vollständige JVM-/APK-Checkpoint steht bei 525 Tests, null Fehlern und null Errors. Der nächste
 Nachtest installiert in-place ohne Force-Stop und prüft zuerst genau die automatische Verbindung.
+
+## Target confirmation after epoch-fence repair
+
+With the Pocket briefly woken from standby, automatic connection and grid reconstruction succeeded.
+The obsolete automatic-preparation progress bars were absent after the terminal no-work outcome.
+This confirms the status-clearance repair in the observed path. The traveller reported that the
+remaining diagnostic multi-field backup summary was not useful; its replacement is a separately
+tested, single next-action sentence and requires its normal target display check before the SSD
+branch resumes.
+
 Keine Löschung,
 kein Reset und keine wiederholte Übertragung geschützter Medien wurden durchgeführt.
