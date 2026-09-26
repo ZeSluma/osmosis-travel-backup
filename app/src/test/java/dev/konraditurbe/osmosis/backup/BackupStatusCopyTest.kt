@@ -114,6 +114,16 @@ class BackupStatusCopyTest {
         assertTrue(!pendingIdentity.message.contains("werden erneut"))
     }
 
+    @Test fun activeWriterOverridesAnOlderOpenProofSummary() {
+        val openProof = LedgerCoordinator.AutomaticPlanDiagnostic(
+            inventoryComplete = true, completenessReason = "NONE", currentUnresolved = 0,
+            historicalUnresolved = 0, downloads = 0, verifyExisting = 2, revalidate = 0, review = 0)
+        val presentation = BackupStatusCopy.presentation(
+            BackupProductStatus(true, false, false, false, false, 0, 0), openProof, activeOperation = true)
+        assertEquals("Synchronisation läuft", presentation.title)
+        assertTrue(presentation.message.contains("Übertragung"))
+    }
+
     @Test fun durableSummaryRowsRemainConservativeAndHumanReadable() {
         assertEquals("Kamera-Sicherung wird geprüft",
             BackupStatusCopy.summary(BackupProductStatus(true, false, false, false, false, 0, 0), "keine neue Datei zum Übertragen"))

@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.CheckBox
 import android.widget.ImageView
+import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
@@ -47,9 +48,14 @@ class MediaGridAdapter(
     // Backing list grows as older pages load on scroll (append only).
     private val all: MutableList<CameraFile> = initial.toMutableList()
     private var backupStates:Map<String,dev.konraditurbe.osmosis.ledger.BackupDisplay>?=null
+    private var liveBackupStates:Map<String,dev.konraditurbe.osmosis.connection.LiveTransferFileProjection> = emptyMap()
     fun filesForBackupDisplay():List<CameraFile> = all.toList()
-    fun setBackupStates(states:Map<String,dev.konraditurbe.osmosis.ledger.BackupDisplay>) {
+    fun setBackupStates(
+        states:Map<String,dev.konraditurbe.osmosis.ledger.BackupDisplay>,
+        liveStates:Map<String,dev.konraditurbe.osmosis.connection.LiveTransferFileProjection> = emptyMap(),
+    ) {
         backupStates=states
+        liveBackupStates=liveStates
         notifyItemRangeChanged(0,itemCount)
     }
 
@@ -176,6 +182,7 @@ class MediaGridAdapter(
         private val name: TextView = v.findViewById(R.id.name)
         private val star: ImageView = v.findViewById(R.id.star)
         private val backupState:TextView=v.findViewById(R.id.backupState)
+        private val backupProgress:ProgressBar=v.findViewById(R.id.backupProgress)
         private var file: CameraFile? = null
         private var downX = 0f
         private var downY = 0f
@@ -199,9 +206,16 @@ class MediaGridAdapter(
         fun bind(f: CameraFile) {
             file = f
             backupState.visibility=if(backupStates==null) View.GONE else View.VISIBLE
+            if (backupStates == null) backupProgress.visibility = View.GONE
             backupStates?.let { states ->
-                BackupBadge.render(backupState,states[dev.konraditurbe.osmosis.ledger.LedgerCoordinator.displayKey(f)]
-                    ?: dev.konraditurbe.osmosis.ledger.BackupDisplay(dev.konraditurbe.osmosis.ledger.BackupDisplayState.REVIEW_REQUIRED))
+                val key=dev.konraditurbe.osmosis.ledger.LedgerCoordinator.displayKey(f)
+                val live=liveBackupStates[key]
+                if(live!=null) BackupBadge.renderLive(backupState,backupProgress,live)
+                else {
+                    backupProgress.visibility=View.GONE
+                    BackupBadge.render(backupState,states[key]
+                        ?: dev.konraditurbe.osmosis.ledger.BackupDisplay(dev.konraditurbe.osmosis.ledger.BackupDisplayState.REVIEW_REQUIRED))
+                }
             }
             val queued = selected.containsKey(f.path)
             check.visibility = if (selectMode || queued) View.VISIBLE else View.GONE

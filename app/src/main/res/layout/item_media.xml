@@ -51,6 +51,16 @@
         android:maxLines="3"
         android:visibility="gone" />
 
+    <ProgressBar
+        android:id="@+id/backupProgress"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="3dp"
+        android:layout_gravity="bottom"
+        android:layout_marginBottom="20dp"
+        android:max="100"
+        android:visibility="gone" />
+
     <CheckBox
         android:id="@+id/check"
         android:layout_width="wrap_content"

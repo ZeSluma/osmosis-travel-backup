@@ -1416,9 +1416,15 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
             )
             return
         }
+        val dispatcher = CameraConnectionService.automaticTransferDispatcher(applicationContext)
         dev.konraditurbe.osmosis.ledger.LedgerCoordinator.get(applicationContext)
             .displayStates(session,target.filesForBackupDisplay()){states->main.post {
-                if(!transferActivityClosed && session==connectionResources.ledgerSession && adapter===target)target.setBackupStates(states)
+                if(!transferActivityClosed && session==connectionResources.ledgerSession && adapter===target) {
+                    // A service progress publish and this durable read share the same observer
+                    // cycle. The transient cell overlay is therefore shown only while its writer
+                    // still owns work; the next terminal publish replaces it with ledger truth.
+                    target.setBackupStates(states, dispatcher.fileProgress)
+                }
             }}
         // The service-owned scheduler receives only a complete, revalidated ledger plan. The UI
         // mirrors the queue/progress but does not decide whether automatic camera IO is permitted.
@@ -1429,9 +1435,19 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
             .backupSummaryProjection(session,externalDestination.destinationId(),sourceReady) { projection -> main.post {
                 if(!transferActivityClosed && session==connectionResources.ledgerSession && adapter===target) {
                     backupProductStatus = projection.status
-                    val dispatcher = CameraConnectionService.automaticTransferDispatcher(applicationContext)
+                    val externalProgress = dev.konraditurbe.osmosis.backup.ExternalReplicaCoordinator
+                        .get(applicationContext).progress
                     automaticScheduleStatus = dev.konraditurbe.osmosis.backup.BackupStatusCopy.automaticStatus(
                         projection.automatic, dispatcher.progress, dispatcher.lastDecision)
+                    if (externalProgress != null) {
+                        renderExternalReplicaProgress(externalProgress)
+                        renderBackupPresentation(dev.konraditurbe.osmosis.backup.BackupStatusCopy.Presentation(
+                            title = "SSD-Synchronisation läuft",
+                            message = "${externalProgress.completedFiles} von ${externalProgress.totalFiles} Dateien werden auf die SSD kopiert",
+                            detail = "Die SSD-Kopie wird nach dem Schreiben unabhängig geprüft.",
+                        ))
+                        return@post
+                    }
                     val activeOperation = dev.konraditurbe.osmosis.connection.AutomaticTransferUiStatePolicy
                         .project(dispatcher.progress, dispatcher.lastDecision) != null
                     renderAutomaticTransferProgress(dispatcher.progress, dispatcher.lastDecision)
@@ -1511,6 +1527,16 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
                 }, requireNotNull(state.dismissAfterMs))
             }
         }
+    }
+
+    private fun renderExternalReplicaProgress(progress: dev.konraditurbe.osmosis.backup.ExternalReplicaCoordinator.Progress) {
+        progressArea.visibility = View.VISIBLE
+        overallBar.isIndeterminate = false
+        fileBar.isIndeterminate = false
+        overallBar.progress = progress.percent
+        fileBar.progress = progress.percent
+        overallText.text = "SSD-Synchronisation: ${progress.percent}%"
+        fileText.text = "${progress.completedFiles} von ${progress.totalFiles} Dateien werden unabhängig kopiert und geprüft"
     }
 
 

@@ -40,19 +40,33 @@ the durable result was already correct. The coordinator now publishes exactly on
 copy run. It deliberately does not publish after a no-work availability probe, which would turn
 the UI observer's refresh into a loop.
 
+## Follow-up: live card and per-video projection
+
+The audit also found that camera transfer liveness was exposed only as a global percentage. The
+dispatcher now maintains an in-memory, exact-display-identity overlay for the file it currently
+owns: **Synchronisation aufs Telefon · N %**, followed by **Telefon gesichert · Integrität
+geprüft** or a clearly fail-closed review state. A small horizontal bar is visible only for the
+currently downloading video. Every terminal dispatcher path clears every transient cell overlay
+before publishing the durable reread, so a stale live label cannot survive completion, failure or
+replacement.
+
+The independent SSD runner now projects its actual count/percentage in the same status area while
+it runs and returns to the durable phone/SSD result when it ends. The UI never calls an open
+integrity/identity plan item an active transfer.
+
 ## Reproducible verification
 
 On 2026-09-26:
 
 ```text
 :app:testDebugUnitTest :app:assembleDebug --no-daemon
-533 tests, 0 failures, 0 errors, BUILD SUCCESSFUL
+538 tests, 0 failures, 0 errors, BUILD SUCCESSFUL
 ```
 
 Debug APK SHA-256:
 
 ```text
-1B7ADA14B30C827195A0D36D34A403EB7CDCE901C7F4B50FDC1E2B9B7A191B2D
+ADB424D961F6566CE0F1C5790C24F3D76229D2EB7A8BC763020673A5B0E453F6
 ```
 
 The next hardware session must validate readability and live transition behavior with this exact

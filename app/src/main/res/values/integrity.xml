@@ -5,4 +5,7 @@
     <string name="backup_transferred">Local complete · integrity checked; source open</string>
     <string name="backup_existing">Local copy · unverified</string>
     <string name="backup_review">Identity needs review</string>
+    <string name="backup_live_phone">Syncing to phone · %1$d%%</string>
+    <string name="backup_live_integrity_saved">Phone saved · integrity checked</string>
+    <string name="backup_live_review">Transfer stopped · review needed</string>
 </resources>

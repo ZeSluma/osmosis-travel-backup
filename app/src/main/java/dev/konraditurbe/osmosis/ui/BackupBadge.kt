@@ -1,6 +1,8 @@
 package dev.konraditurbe.osmosis.ui
 
 import android.widget.TextView
+import android.view.View
+import android.widget.ProgressBar
 import dev.konraditurbe.osmosis.R
 import dev.konraditurbe.osmosis.ledger.*
 
@@ -15,5 +17,23 @@ object BackupBadge {
         }
         view.text=if(display.state==BackupDisplayState.PARTIAL_REVIEW) view.context.getString(resource,display.percent)
             else view.context.getString(resource)
+    }
+    fun renderLive(view:TextView,bar:ProgressBar,live:dev.konraditurbe.osmosis.connection.LiveTransferFileProjection) {
+        when(live.phase) {
+            dev.konraditurbe.osmosis.connection.LiveTransferFileProjection.Phase.DOWNLOADING -> {
+                view.text=view.context.getString(R.string.backup_live_phone,live.percent ?: 0)
+                bar.visibility=View.VISIBLE
+                bar.isIndeterminate=false
+                bar.progress=live.percent ?: 0
+            }
+            dev.konraditurbe.osmosis.connection.LiveTransferFileProjection.Phase.INTEGRITY_SAVED -> {
+                view.text=view.context.getString(R.string.backup_live_integrity_saved)
+                bar.visibility=View.GONE
+            }
+            dev.konraditurbe.osmosis.connection.LiveTransferFileProjection.Phase.REVIEW_REQUIRED -> {
+                view.text=view.context.getString(R.string.backup_live_review)
+                bar.visibility=View.GONE
+            }
+        }
     }
 }

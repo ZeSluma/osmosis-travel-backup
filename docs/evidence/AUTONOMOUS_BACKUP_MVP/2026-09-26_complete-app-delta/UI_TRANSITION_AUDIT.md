@@ -39,10 +39,10 @@ Hardwarevalidierung.
 ## Reproduzierbarer Checkpoint
 
 `./gradlew.bat :app:testDebugUnitTest :app:assembleDebug --no-daemon`:
-**533 JVM-Tests, 0 failures, 0 errors, BUILD SUCCESSFUL**.
+**538 JVM-Tests, 0 failures, 0 errors, BUILD SUCCESSFUL**.
 
 Debug-APK-SHA-256:
-`1B7ADA14B30C827195A0D36D34A403EB7CDCE901C7F4B50FDC1E2B9B7A191B2D`.
+`ADB424D961F6566CE0F1C5790C24F3D76229D2EB7A8BC763020673A5B0E453F6`.
 
 Keine dieser Tests behauptet einen realen Pocket-, S25- oder SSD-PASS. Der gebündelte
 Hardwareablauf validiert anschließend nur noch seine physischen Aspekte.

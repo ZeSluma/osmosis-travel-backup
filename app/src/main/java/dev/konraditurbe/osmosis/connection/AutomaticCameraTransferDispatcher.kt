@@ -20,6 +20,9 @@ class AutomaticCameraTransferDispatcher(
         private set
     @Volatile var progress: String? = null
         private set
+    /** Live cell overlays, keyed by the same exact display identity the grid uses. */
+    @Volatile var fileProgress: Map<String, LiveTransferFileProjection> = emptyMap()
+        private set
     @Volatile private var progressPercent: Long = -1L
     @Volatile private var waitingForWriterEpoch: Long? = null
     init {
@@ -120,6 +123,10 @@ class AutomaticCameraTransferDispatcher(
                     sessions.releaseTransfer(transferLease)
                     progress = null
                     progressPercent = -1L
+                    // The final durable reread must replace every transient cell overlay. A
+                    // completed or failed file may never remain visually active after its writer
+                    // has released.
+                    fileProgress = LiveTransferFileProjectionPolicy.clearAtTerminal()
                     // The Activity observes this service signal and re-reads durable receipt state;
                     // it never receives transfer truth directly from the worker.
                     CameraConnectionService.backupProjectionNotifier(context).publish()
@@ -138,13 +145,18 @@ class AutomaticCameraTransferDispatcher(
             update(0L)
         }
         // Names are intentionally ignored: the observer diagnostic must not expose media metadata.
-        override fun onFileStart(index: Int, name: String, fileBytes: Long) = Unit
+        override fun onFileStart(index: Int, name: String, fileBytes: Long) {
+            updateFile(index, LiveTransferFileProjectionPolicy.downloading(0L, fileBytes))
+        }
         override fun onTick(fileDone: Long, overallDone: Long) {
             lastOverallDone = overallDone.coerceAtLeast(lastOverallDone)
+            val index = activeIndex.coerceIn(0, jobs.lastIndex)
+            updateFile(index, LiveTransferFileProjectionPolicy.downloading(fileDone, jobs[index].file.sizeBytes))
             update(lastOverallDone)
         }
         override fun onFileDone(index: Int, done: Boolean) {
             if (done) completedFiles++
+            updateFile(index, LiveTransferFileProjectionPolicy.completed(done))
             update(lastOverallDone)
         }
         override fun onComplete(saved: Int, skipped: Int, failed: Int) = Unit
@@ -155,6 +167,13 @@ class AutomaticCameraTransferDispatcher(
                 progressPercent = next.percent
                 publishProgress()
             }
+        }
+        private var activeIndex = 0
+        private fun updateFile(index: Int, projection: LiveTransferFileProjection) {
+            activeIndex = index
+            val key = dev.konraditurbe.osmosis.ledger.LedgerCoordinator.displayKey(jobs[index].file)
+            fileProgress = LiveTransferFileProjectionPolicy.update(fileProgress, key, projection)
+            publishProgress()
         }
     }
 

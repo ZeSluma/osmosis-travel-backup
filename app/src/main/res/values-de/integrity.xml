@@ -5,4 +5,7 @@
     <string name="backup_transferred">Lokal vollständig · Integrität geprüft; Quelle offen</string>
     <string name="backup_existing">Lokale Kopie · unbestätigt</string>
     <string name="backup_review">Zuordnung prüfen</string>
+    <string name="backup_live_phone">Synchronisation aufs Telefon · %1$d%%</string>
+    <string name="backup_live_integrity_saved">Telefon gesichert · Integrität geprüft</string>
+    <string name="backup_live_review">Übertragung unterbrochen · Prüfung nötig</string>
 </resources>
