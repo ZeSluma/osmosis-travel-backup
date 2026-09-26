@@ -1,15 +1,20 @@
 # Finaler Gesamt-Hardwaretest — Osmosis Travel Backup
 
-Status: READY — die verpflichtende sichtbare Übergangsmatrix ist softwareseitig auditiert. Dieser Ablauf validiert reale S25/Pocket/SSD-Eigenschaften;
+Status: READY NACH SOFTWARE-CHECKPOINT — die verpflichtende sichtbare Übergangsmatrix ist softwareseitig auditiert. Dieser Ablauf validiert reale S25/Pocket/SSD-Eigenschaften;
 eine nicht beobachtbare Bedingung ist `INCONCLUSIVE`, niemals `PASS`.
 
 ## Build unter Test
 
-- Branch: `codex/autonomous-backup-mvp` (the commit carrying this plan and the Pocket Pickup
-  resource set is the exact source under test)
-- Lokale Debug-APK: `app/build/outputs/apk/debug/app-debug.apk`
-- SHA-256: `188D877671CD8D4331E129DFE29A8469C95647D13CBBC78289A24E8A11E5E388`
-- Interne Grundlage: 544 JVM-Tests, 0 Fehler/Errors; vollständige sichtbare Übergangsmatrix in `UI_TRANSITION_AUDIT.md` plus Pocket-Pickup-Ressourcenprüfung. Die Installation erfolgt ausschließlich **in place**;
+- Branch: `codex/autonomous-backup-mvp`.
+- Vor dem Hardwarestart muss der aktuelle Branch einschließlich der Diagnose-Privatsphäre-Korrektur
+  mit `:app:testDebugUnitTest :app:assembleDebug :app:lintDebug` geprüft sein. Erst danach wird
+  der dabei erzeugte SHA-256-Wert hier als exakte Test-APK eingetragen. Der frühere Hash
+  `188D877671CD8D4331E129DFE29A8469C95647D13CBBC78289A24E8A11E5E388` ist ausdrücklich **nicht**
+  mehr die Testgrundlage.
+- Die vollständige Funktionsmatrix einschließlich Capture-Day, GPS, Diagnose und Löschsperre steht
+  in [`COMPLETE_FUNCTION_HARDWARE_AUDIT_2026-09-26.md`](COMPLETE_FUNCTION_HARDWARE_AUDIT_2026-09-26.md).
+  Dieses Dokument bleibt die Kurzfassung für den Pocket-/SSD-Ablauf.
+- Die Installation erfolgt ausschließlich **in place**; vorhandene App-Daten bleiben erhalten.
   vorhandene App-Daten bleiben erhalten.
 
 ## Schutzgrenzen

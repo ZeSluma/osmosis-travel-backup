@@ -81,8 +81,8 @@ class DumlTransport(
     private lateinit var sock: DatagramSocket
     private lateinit var peer: InetAddress
 
-    /** The last packet handed to the socket — kept so a query can be logged verbatim and diffed. */
-    var lastSentPacket: ByteArray? = null
+    /** Size of the last packet handed to the socket, for privacy-safe transport diagnostics. */
+    var lastSentPacketSize: Int? = null
         private set
 
     val peerAddress: InetAddress? get() = if (::peer.isInitialized) peer else null
@@ -150,7 +150,7 @@ class DumlTransport(
      *  mid-session `sock.send` throws ENETUNREACH — expected on a dying link, and it must NEVER crash
      *  the keep-alive thread (it once did). */
     private fun sendPacket(pkt: ByteArray): Boolean {
-        lastSentPacket = pkt
+        lastSentPacketSize = pkt.size
         return runCatching { sock.send(DatagramPacket(pkt, pkt.size, peer, port)) }.isSuccess
     }
 

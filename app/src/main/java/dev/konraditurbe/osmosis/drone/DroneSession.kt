@@ -51,12 +51,9 @@ class DroneSession(
     private var sessionStartMs = 0L
 
     override fun onHandshakeReply(reply: ByteArray) {
-        // Log what the drone actually said, not just that *something* typed 0x00 came back: if it answers
-        // with a session id other than the one we chose, we would keep stamping ours on every packet and
-        // it would drop them all — which looks exactly like the observed failure (handshake fine, beacons
-        // flowing, no command accepted).
-        log("datalink: handshake reply ${reply.copyOfRange(0, minOf(16, reply.size))
-            .joinToString("") { "%02x".format(it) }} (we sent session=0x%04x)".format(tx.sessionId))
+        // A reply establishes only transport health for diagnostics.  Its raw bytes can contain
+        // device identity material, so never export them through the shareable log channel.
+        log("datalink: handshake reply ${reply.size}B (session sent=0x%04x)".format(tx.sessionId))
     }
 
     /**
@@ -66,10 +63,10 @@ class DroneSession(
     private fun openSession(ip: String): Boolean {
         log("datalink: local port ${tx.localPort} (drone expects $port)")
         if (!openDatalink(ip) { first ->
-                // Show what the drone's own packets look like in OUR session, to compare against the
-                // capture (f388: `2280ea9d000001d4 40ef40ef00000000 …` — session echoed, channel in r0-1).
+                // Packet bytes may include device identity or media metadata.  Sizes still distinguish
+                // a silent link from traffic without placing raw protocol content in diagnostics.
                 first.take(3).forEach {
-                    log("datalink: rx ${it.copyOfRange(0, minOf(24, it.size)).joinToString("") { b -> "%02x".format(b) }}")
+                    log("datalink: rx packet ${it.size}B")
                 }
             }
         ) return false
@@ -151,9 +148,8 @@ class DroneSession(
                 (System.currentTimeMillis() - sessionStartMs) / 1000.0)
         sendDuml(0x00, 0x26, DroneManifest.listQuery(seq, cursor), receiverType = 0x01, receiverId = 0)
         log("datalink: drone list QUERY $tState")
-        // Verbatim, so it can be diffed against DJI Fly's working query (capture f2229):
-        //   4280ea9d701505d5 4815701500000000c601604d 552e04a7020177c94000264a0021…
-        log("datalink: drone query pkt ${tx.lastSentPacket?.joinToString("") { "%02x".format(it) }}")
+        // The packet can contain identity material.  Keep only its existence and size in logs.
+        log("datalink: drone query sent (${tx.lastSentPacketSize ?: 0}B)")
         for (batch in 0 until 14) {
             dronePump(600, blob, manifestStream = true)  // uplink alive + reassembled data stream
             sendAck()
@@ -421,7 +417,7 @@ class DroneSession(
     /** Every `0x51` sub-command seen, so a drone that never beacons is distinguishable from one whose
      *  beacon we failed to parse. Those need completely different fixes. */
     private val seen51 = LinkedHashMap<Int, Int>()
-    /** First `0x51/0x13` payload seen, kept verbatim for the log when the serial can't be read out. */
+    /** First `0x51/0x13` payload seen, retained only while the live session needs identity parsing. */
     @Volatile private var beacon13: ByteArray? = null
 
     /** The serial-shaped run in a beacon payload — see [DroneSerial] for why it's found by shape. */
@@ -463,8 +459,7 @@ class DroneSession(
         val inner = seen51.entries.joinToString(", ") { "0x%02x×%d".format(it.key, it.value) }
         log("datalink: 0x51 inner cmds seen: ${if (inner.isEmpty()) "NONE" else inner}")
         beacon13?.let {
-            log("datalink: a 0x51/0x13 beacon DID arrive but carried no readable serial — payload " +
-                it.copyOfRange(0, minOf(64, it.size)).joinToString("") { b -> "%02x".format(b) })
+            log("datalink: a 0x51/0x13 beacon arrived without a readable serial; payload suppressed (${it.size}B)")
         }
     }
 
