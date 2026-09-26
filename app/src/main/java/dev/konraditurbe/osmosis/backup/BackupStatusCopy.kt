@@ -17,10 +17,13 @@ object BackupStatusCopy {
      * is complete.
      */
     fun summary(status: BackupProductStatus, automatic: String): String = when {
-        automatic in setOf("Backupstatus wird geladen", "Kameraliste wird noch geprüft") ->
-            "Kameraliste wird geprüft"
+        automatic == "Backupstatus wird geladen" -> "Backupstatus wird geladen"
+        automatic == "Kameraliste noch nicht vollständig" -> automatic
         automatic.startsWith("Übertragung") || automatic.startsWith("Quelle hat sich") -> automatic
-        !status.inventoryTrusted -> "Kameraliste wird geprüft"
+        // A durable incomplete observation is a terminal conservative outcome, not evidence that
+        // an operation is still running.  Active wording here made a fully rendered grid look
+        // hung indefinitely after the service had already stopped enumerating.
+        !status.inventoryTrusted -> "Kameraliste noch nicht vollständig"
         status.unknownRequired -> automatic
         !status.cameraSyncComplete -> "Kamera-Sicherung wird geprüft"
         !status.redundancyComplete -> "Lokal gesichert · SSD-Kopie steht noch aus"
@@ -31,7 +34,7 @@ object BackupStatusCopy {
     fun awaitingTrustedInventory(): String = "warte auf eine vollständige Kameraliste"
 
     fun plan(diagnostic: LedgerCoordinator.AutomaticPlanDiagnostic): String = when {
-        !diagnostic.inventoryComplete -> "Kameraliste wird noch geprüft"
+        !diagnostic.inventoryComplete -> "Kameraliste noch nicht vollständig"
         diagnostic.completenessReason == "IDENTITY_UNRESOLVED" || diagnostic.historicalUnresolved > 0 ->
             "${diagnostic.historicalUnresolved} ältere Datei${plural(diagnostic.historicalUnresolved)} brauchen Aufmerksamkeit"
         diagnostic.currentUnresolved > 0 -> "${diagnostic.currentUnresolved} Datei${plural(diagnostic.currentUnresolved)} auf der Kamera prüfen"
