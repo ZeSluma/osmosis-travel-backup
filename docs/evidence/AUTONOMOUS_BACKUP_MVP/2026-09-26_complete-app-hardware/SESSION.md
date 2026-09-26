@@ -92,3 +92,20 @@ lassen keinen scheinbar laufenden Balken zurück. `BackupStatusCopyTest` (8) und
 
 Keine Löschung,
 kein Reset und keine wiederholte Übertragung geschützter Medien wurden durchgeführt.
+
+## Transport-/Statuskorrektur vorbereitet und installiert
+
+Die S25-Beobachtung „acht neue Dateien“, danach unmittelbar HTTP 404 vor dem ersten Byte und keine
+sichtbare Einzelaktivität, wurde als softwaretestbare Lücke klassifiziert. Die Korrektur auf
+`eaf824c` wiederholt ausschließlich beobachtete, vorallokationsseitige 404/500-Antworten maximal
+dreimal und zeigt währenddessen global sowie in exakt der betroffenen Videokachel den aktuellen
+indeterminierten Wiederholungszustand. Erfolg geht in gemessenen Telefonfortschritt über;
+erschöpfte/andere Antworten bleiben Review. Es gibt keine neue Dateiallokation während der
+Wiederholung.
+
+Vollständiger interner Checkpoint: **541 JVM-Tests, 0 failures, 0 errors**, Debug-APK SHA-256
+`D788F45892CE67E3B7546E0EFA22D42852AC95F058D5DB3105507DD38310CDEE`.
+Am 2026-09-26 wurde diese signer-kompatible APK mit `install -r` auf S25 `R3CYA022GAE` in-place
+installiert und die App gestartet (PID 15225); vorhandene App-Daten wurden nicht gelöscht. Die
+physische Retry-/Render-Zeit ist damit noch nicht als PASS behauptet und bleibt Schritt 3 des
+gebündelten Hardwareplans.
