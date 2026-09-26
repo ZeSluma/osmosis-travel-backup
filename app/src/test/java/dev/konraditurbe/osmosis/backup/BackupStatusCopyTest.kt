@@ -98,6 +98,20 @@ class BackupStatusCopyTest {
         val complete = BackupStatusCopy.presentation(
             BackupProductStatus(true, false, true, true, true, 1, 1), diagnostic.copy(historicalUnresolved = 0), false)
         assertEquals("Synchronisation fertig", complete.title)
+
+        val pendingVerification = BackupStatusCopy.presentation(
+            BackupProductStatus(true, false, false, false, false, 0, 0),
+            diagnostic.copy(historicalUnresolved = 0, verifyExisting = 5), false)
+        assertEquals("Synchronisation offen", pendingVerification.title)
+        assertEquals("5 lokale Dateien brauchen eine Integritätsprüfung", pendingVerification.message)
+        assertTrue(!pendingVerification.message.contains("werden geprüft"))
+
+        val pendingIdentity = BackupStatusCopy.presentation(
+            BackupProductStatus(true, false, false, false, false, 0, 0),
+            diagnostic.copy(historicalUnresolved = 0, verifyExisting = 0, revalidate = 3), false)
+        assertEquals("Synchronisation offen", pendingIdentity.title)
+        assertEquals("3 Dateien brauchen eine sichere Zuordnung", pendingIdentity.message)
+        assertTrue(!pendingIdentity.message.contains("werden erneut"))
     }
 
     @Test fun durableSummaryRowsRemainConservativeAndHumanReadable() {

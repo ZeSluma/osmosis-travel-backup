@@ -40,17 +40,17 @@ object BackupStatusCopy {
                 detail = historicalDetail(diagnostic.historicalUnresolved),
             )
             diagnostic.verifyExisting > 0 -> return Presentation(
-                title = "Lokale Kopien werden geprüft",
-                message = "${diagnostic.verifyExisting} Datei${plural(diagnostic.verifyExisting)} werden auf Integrität geprüft",
-                detail = historicalDetail(diagnostic.historicalUnresolved),
+                title = "Synchronisation offen",
+                message = "${diagnostic.verifyExisting} lokale Datei${plural(diagnostic.verifyExisting)} brauchen eine Integritätsprüfung",
+                detail = "Sie werden nicht als sicher bestätigt, bevor ein echter Prüfnachweis vorliegt.",
             )
             diagnostic.revalidate > 0 -> return Presentation(
-                title = "Kameraliste wird abgeglichen",
-                message = "${diagnostic.revalidate} Datei${plural(diagnostic.revalidate)} werden erneut sicher zugeordnet",
-                detail = historicalDetail(diagnostic.historicalUnresolved),
+                title = "Synchronisation offen",
+                message = "${diagnostic.revalidate} Datei${plural(diagnostic.revalidate)} brauchen eine sichere Zuordnung",
+                detail = "Sie werden nicht stillschweigend als gesichert übernommen.",
             )
             diagnostic.review > 0 || diagnostic.currentUnresolved > 0 -> return Presentation(
-                title = "Dateien brauchen Prüfung",
+                title = "Synchronisation offen",
                 message = "Die aktuelle Liste enthält noch nicht sicher zuordenbare Dateien",
                 detail = historicalDetail(diagnostic.historicalUnresolved),
             )
@@ -117,8 +117,8 @@ object BackupStatusCopy {
             "Frühere Dateien brauchen Prüfung (${diagnostic.historicalUnresolved}) – neue Dateien werden weiterhin gesichert"
         diagnostic.currentUnresolved > 0 -> "${diagnostic.currentUnresolved} Datei${plural(diagnostic.currentUnresolved)} auf der Kamera prüfen"
         diagnostic.downloads > 0 -> "${diagnostic.downloads} neue Datei${plural(diagnostic.downloads)} werden vorbereitet"
-        diagnostic.verifyExisting > 0 -> "${diagnostic.verifyExisting} lokale Datei${plural(diagnostic.verifyExisting)} werden geprüft"
-        diagnostic.revalidate > 0 -> "${diagnostic.revalidate} Datei${plural(diagnostic.revalidate)} werden erneut abgeglichen"
+        diagnostic.verifyExisting > 0 -> "${diagnostic.verifyExisting} lokale Datei${plural(diagnostic.verifyExisting)} brauchen eine Integritätsprüfung"
+        diagnostic.revalidate > 0 -> "${diagnostic.revalidate} Datei${plural(diagnostic.revalidate)} brauchen eine sichere Zuordnung"
         diagnostic.review > 0 -> "${diagnostic.review} Datei${plural(diagnostic.review)} brauchen eine Zuordnungsprüfung"
         else -> "keine neue Datei zum Übertragen"
     }
