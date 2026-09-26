@@ -1444,13 +1444,20 @@ class MainActivity : AppCompatActivity(), OsmoScanner.Listener, GattClient.Liste
     private fun renderAutomaticTransferProgress(progress: String?, decision: String) {
         val state = dev.konraditurbe.osmosis.connection.AutomaticTransferUiStatePolicy.project(progress, decision) ?: return
         progressArea.visibility = View.VISIBLE
-        overallBar.isIndeterminate = state.phase == dev.konraditurbe.osmosis.connection.AutomaticTransferUiStatePolicy.Phase.PREPARING
+        overallBar.isIndeterminate = state.phase in setOf(
+            dev.konraditurbe.osmosis.connection.AutomaticTransferUiStatePolicy.Phase.PREPARING,
+            dev.konraditurbe.osmosis.connection.AutomaticTransferUiStatePolicy.Phase.WAITING_FOR_WRITER,
+        )
         fileBar.isIndeterminate = overallBar.isIndeterminate
         state.percent?.let { overallBar.progress = it; fileBar.progress = it }
         when (state.phase) {
             dev.konraditurbe.osmosis.connection.AutomaticTransferUiStatePolicy.Phase.PREPARING -> {
                 overallText.text = "Automatische Sicherung wird vorbereitet"
                 fileText.text = "Kameraliste und sichere Übertragung werden geprüft"
+            }
+            dev.konraditurbe.osmosis.connection.AutomaticTransferUiStatePolicy.Phase.WAITING_FOR_WRITER -> {
+                overallText.text = "Automatische Sicherung wartet auf den sicheren Übergang"
+                fileText.text = "Ein vorheriger Vorgang wird geordnet beendet; es wird keine zweite Übertragung gestartet"
             }
             dev.konraditurbe.osmosis.connection.AutomaticTransferUiStatePolicy.Phase.TRANSFERRING -> {
                 overallText.text = "Automatische Sicherung: ${state.percent}% abgeschlossen"

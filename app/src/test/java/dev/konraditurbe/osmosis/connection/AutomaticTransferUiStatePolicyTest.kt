@@ -13,6 +13,8 @@ class AutomaticTransferUiStatePolicyTest {
     @Test fun terminalAndUnsafeServiceDecisionsStayDistinct() {
         assertEquals(AutomaticTransferUiStatePolicy.Phase.PREPARING,
             AutomaticTransferUiStatePolicy.project(null, "PLAN_LOOKUP")?.phase)
+        assertEquals(AutomaticTransferUiStatePolicy.Phase.WAITING_FOR_WRITER,
+            AutomaticTransferUiStatePolicy.project(null, "WRITER_WAIT")?.phase)
         assertEquals(AutomaticTransferUiStatePolicy.Phase.FINISHED,
             AutomaticTransferUiStatePolicy.project(null, "WRITER_COMPLETE")?.phase)
         assertEquals(AutomaticTransferUiStatePolicy.Phase.REVIEW_REQUIRED,
