@@ -170,15 +170,93 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="12dp" />
 
-            <TextView
-                android:id="@+id/backupSummary"
+            <!-- A durable backup state is as important as the camera state above.  Keep it in the
+                 same card language, so a terminal safety block cannot look like incidental helper text. -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/backupStatusCard"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginHorizontal="14dp"
-                android:layout_marginBottom="6dp"
-                android:textColor="@color/osmo_muted"
-                android:textSize="12sp"
-                tools:text="Camera sync: pending · Redundancy: pending · Safe to clear: no" />
+                android:layout_marginHorizontal="12dp"
+                android:layout_marginBottom="8dp"
+                app:cardBackgroundColor="@color/osmo_surface"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="4dp"
+                app:strokeColor="@color/osmo_track"
+                app:strokeWidth="1dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:id="@+id/backupSummaryTitle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/backup_status_title"
+                        android:textColor="@color/osmo_ink"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/backupSummary"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:textColor="@color/osmo_muted"
+                        android:textSize="14sp"
+                        tools:text="Kameraliste ist noch nicht vollständig. Deshalb wird nichts übertragen." />
+
+                    <!-- Progress only appears for service-owned active work.  Its place within the
+                         status card makes the difference between active work and a safe terminal
+                         state visually explicit. -->
+                    <LinearLayout
+                        android:id="@+id/progressArea"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:orientation="vertical"
+                        android:visibility="gone">
+
+                        <TextView
+                            android:id="@+id/overallText"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/osmo_ink"
+                            android:textSize="13sp"
+                            android:textStyle="bold" />
+
+                        <com.google.android.material.progressindicator.LinearProgressIndicator
+                            android:id="@+id/overallBar"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp"
+                            app:indicatorColor="@color/osmo_accent"
+                            app:trackColor="@color/osmo_track"
+                            app:trackCornerRadius="3dp"
+                            app:trackThickness="6dp" />
+
+                        <TextView
+                            android:id="@+id/fileText"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:textColor="@color/osmo_muted"
+                            android:textSize="12sp" />
+
+                        <com.google.android.material.progressindicator.LinearProgressIndicator
+                            android:id="@+id/fileBar"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            app:indicatorColor="@color/osmo_green"
+                            app:trackColor="@color/osmo_track"
+                            app:trackCornerRadius="3dp"
+                            app:trackThickness="6dp" />
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
             <!-- Gallery toolbar: type/faved filter chips + a Select-mode toggle (long-press = all/none). -->
             <HorizontalScrollView
@@ -225,52 +303,6 @@
                         android:text="@string/select" />
                 </LinearLayout>
             </HorizontalScrollView>
-
-            <!-- Progress: invisible by default, space reserved so the grid doesn't jump. -->
-            <LinearLayout
-                android:id="@+id/progressArea"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:paddingHorizontal="14dp"
-                android:paddingVertical="4dp"
-                android:visibility="invisible">
-
-                <TextView
-                    android:id="@+id/overallText"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/osmo_muted"
-                    android:textSize="11sp" />
-
-                <com.google.android.material.progressindicator.LinearProgressIndicator
-                    android:id="@+id/overallBar"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp"
-                    app:indicatorColor="@color/osmo_accent"
-                    app:trackColor="@color/osmo_track"
-                    app:trackCornerRadius="3dp"
-                    app:trackThickness="6dp" />
-
-                <TextView
-                    android:id="@+id/fileText"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="6dp"
-                    android:textColor="@color/osmo_muted"
-                    android:textSize="11sp" />
-
-                <com.google.android.material.progressindicator.LinearProgressIndicator
-                    android:id="@+id/fileBar"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp"
-                    app:indicatorColor="@color/osmo_green"
-                    app:trackColor="@color/osmo_track"
-                    app:trackCornerRadius="3dp"
-                    app:trackThickness="6dp" />
-            </LinearLayout>
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/grid"

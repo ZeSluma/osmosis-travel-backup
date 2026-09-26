@@ -13,6 +13,7 @@
     <string name="stop">Stopp</string>
 
     <!-- Camera selector -->
+    <string name="backup_status_title">Sicherungsstatus</string>
     <string name="cameras">Kameras</string>
     <string name="save_logs">Protokolle speichern</string>
     <string name="rescan">Neu suchen</string>

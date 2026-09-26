@@ -65,5 +65,5 @@ object BackupStatusCopy {
     private fun plural(count: Int) = if (count == 1) "" else "en"
 
     /** A safe terminal state: no background work is claimed, and no camera original is at risk. */
-    fun incompleteInventory(): String = "Kamera-Sicherung wartet auf vollständige Dateiliste"
+    fun incompleteInventory(): String = "Kameraliste noch nicht vollständig – deshalb keine Übertragung"
 }

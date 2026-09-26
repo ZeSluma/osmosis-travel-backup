@@ -65,8 +65,8 @@ class BackupStatusCopyTest {
             historicalUnresolved = 0, downloads = 0, verifyExisting = 0, revalidate = 0, review = 0)
 
         val automatic = BackupStatusCopy.automaticStatus(incomplete, null, "NO_WORK")
-        assertEquals("Kamera-Sicherung wartet auf vollständige Dateiliste", automatic)
-        assertEquals("Kamera-Sicherung wartet auf vollständige Dateiliste",
+        assertEquals("Kameraliste noch nicht vollständig – deshalb keine Übertragung", automatic)
+        assertEquals("Kameraliste noch nicht vollständig – deshalb keine Übertragung",
             BackupStatusCopy.summary(BackupProductStatus(false, true, false, false, false, 0, 0), automatic))
         assertTrue(!automatic.contains("wird geprüft"))
     }
