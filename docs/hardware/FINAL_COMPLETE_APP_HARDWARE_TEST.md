@@ -1,7 +1,15 @@
 # Finaler Gesamt-Hardwaretest — Osmosis Travel Backup
 
-Status: DEFINED, noch nicht durchgeführt. Dieser Ablauf validiert reale S25/Pocket/SSD-Eigenschaften;
+Status: READY, noch nicht durchgeführt. Dieser Ablauf validiert reale S25/Pocket/SSD-Eigenschaften;
 eine nicht beobachtbare Bedingung ist `INCONCLUSIVE`, niemals `PASS`.
+
+## Build unter Test
+
+- Branch/Commit: `codex/autonomous-backup-mvp` / `251ab516f22e63e3a600e0b5cf2450333f2a7bee`
+- Lokale Debug-APK: `app/build/outputs/apk/debug/app-debug.apk`
+- SHA-256: `E09FD05B34E18F6393F0AE04D26823B781016B291D2932F8A49EA32ADC7878FA`
+- Interne Grundlage: 523 JVM-Tests, 0 Fehler. Die Installation erfolgt ausschließlich **in place**;
+  vorhandene App-Daten bleiben erhalten.
 
 ## Schutzgrenzen
 
@@ -15,7 +23,7 @@ eine nicht beobachtbare Bedingung ist `INCONCLUSIVE`, niemals `PASS`.
 
 ## Voraussetzungen
 
-1. S25, gespeicherter Pocket und aktuelle APK sind verfügbar; Akku und Speicher reichen aus.
+1. S25, gespeicherter Pocket und die oben genannte APK sind verfügbar; Akku und Speicher reichen aus.
 2. Für den optionalen SSD-Zweig: nutzbarer Hub, SSD und leerer Testordner. Fehlt dies, HD03–HD05
    werden gemeinsam `HARDWARE_DEFERRED`, ohne den Pocket-Teil zu wiederholen.
 3. Bestehende lokale Integritätsbelege und Teilübertragungen werden vor dem Start nur lesend notiert.
@@ -44,3 +52,10 @@ destruktive Bereinigung bleiben eigene, später explizit autorisierte Testprogra
 Zuordnung zur Queue: HD01/HD02 entsprechen `G7-LIFECYCLE-RECOVERY` und
 `G7-REASON-DIAGNOSTICS`; HD03–HD05 entsprechen den drei `MVP-SSD-*`-Einträgen in
 `VALIDATION_QUEUE.json`.
+
+## Ergebnisprotokoll
+
+Nach dem Durchlauf wird für jeden Schritt ausschließlich `PASS`, `FAIL`, `INCONCLUSIVE` oder
+`HARDWARE_DEFERRED` samt beobachtetem Zustand und Zeitpunkt festgehalten. Keine Rohlogs,
+Dateinamen, Zugangsdaten, GPS-Werte oder Medieninhalte dokumentieren. Ein einzelnes FAIL beendet
+nicht die übrigen sicheren Schritte; erst danach folgt gesammelt die Fehleranalyse.
